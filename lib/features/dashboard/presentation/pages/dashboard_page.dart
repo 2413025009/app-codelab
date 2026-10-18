@@ -51,7 +51,10 @@ class _DashboardView extends StatelessWidget {
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
       builder: (ctx) {
-        return Padding(
+        // Dibungkus scroll: bottom sheet punya batas tinggi taat, konten yang
+        // melebihi batas (jendela pendek / font besar) tak lagi "bottom
+        // overflowed" tapi bisa digulir.
+        return SingleChildScrollView(
           padding: const EdgeInsets.all(AppSpacing.xl),
           child: Column(
             mainAxisSize: MainAxisSize.min,

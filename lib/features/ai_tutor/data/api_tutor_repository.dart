@@ -23,6 +23,12 @@ class ApiTutorRepository implements TutorRepository {
 
   static const _labels = ['Konsep', 'Logika', 'Sintaks'];
 
+  /// Cache sesi (in-memory, hilang saat app ditutup): hint per
+  /// `challengeId/level` yang SUDAH dibayar kuotanya. Dengan ini buka ulang
+  /// sheet tantangan yang sama tidak memakai slot kuota untuk konten yang
+  /// sama — jawaban per-soal tetap konsisten antar bukaan.
+  final Map<String, TutorHintResult> _hintCache = {};
+
   @override
   Future<TutorQuotaSnapshot> getQuota() async {
     try {
@@ -53,6 +59,21 @@ class ApiTutorRepository implements TutorRepository {
     required int hintLevel,
     String? errorMessage,
   }) async {
+    // Cache-hint: sudah pernah dibayar di sesi ini → ulangi tanpa konsumsi
+    // kuota; angka kuota disalin apa adanya (UI tak menimpa pill dari cache).
+    final key = '$challengeId#$hintLevel';
+    final cached = _hintCache[key];
+    if (cached != null) {
+      return TutorHintResult(
+        hint: cached.hint,
+        quotaUsed: cached.quotaUsed,
+        quotaLimit: cached.quotaLimit,
+        quotaLeft: cached.quotaLeft,
+        concept: cached.concept,
+        fromCache: true,
+      );
+    }
+
     try {
       final res = await _client.dio.post<Map<String, dynamic>>(
         '/tutor/hint',
@@ -66,13 +87,14 @@ class ApiTutorRepository implements TutorRepository {
       final data = res.data ?? const {};
       final question = data['guided_question'] as String? ?? '';
       final nextStep = data['recommended_next_step'] as String? ?? '';
+      final concept = data['detected_concept'] as String?;
       final quotaUsed = data['quota_used'] as int? ?? 0;
       final quotaLimit = data['quota_limit'] as int? ?? 5;
       final quotaLeft = data['quota_left'] as int? ?? (quotaLimit - quotaUsed);
 
       final label = _labels[hintLevel.clamp(1, 3) - 1];
 
-      return TutorHintResult(
+      final result = TutorHintResult(
         hint: TutorHint(
           tabLabel: 'Hint $hintLevel: $label',
           question: question.isNotEmpty ? question : 'Ayo pikirkan langkahmu berikutnya.',
@@ -81,7 +103,10 @@ class ApiTutorRepository implements TutorRepository {
         quotaUsed: quotaUsed,
         quotaLimit: quotaLimit,
         quotaLeft: quotaLeft.clamp(0, quotaLimit),
+        concept: (concept != null && concept.isNotEmpty) ? concept : null,
       );
+      _hintCache[key] = result;
+      return result;
     } on DioException catch (e) {
       if (e.type == DioExceptionType.badResponse) {
         // Kontrak error dari server (QUOTA_EXCEEDED, TUTOR_UNAVAILABLE, dst)

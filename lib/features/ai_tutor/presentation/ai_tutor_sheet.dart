@@ -76,6 +76,20 @@ class _AiTutorBodyState extends State<AiTutorBody> {
   final List<TutorHint> _hints = [];
   bool _fetching = false;
 
+  /// Konsep track: memakai konsep statis script di awal (mode demo/offline),
+  /// lalu diganti `detected_concept` dari server agar sesuai soal yang aktif —
+  /// sebelumnya pill selalu memakai konsep statis untuk semua soal.
+  late String _concept = widget.script.concept;
+
+  /// true selama slot "Hint 1" belum kembali dari server pada mode backend —
+  /// area konten menampilkan loader, bukan teks statis script.
+  bool _waitingFirstHint = false;
+
+  /// true saat fetch pertama gagal dengan 429 QUOTA_EXCEEDED: area konten
+  /// memperlihatkan pesan kuota yang jujur, bukan teks statis script yang
+  /// bisa salah disangka hint soal yang sedang dikerjakan.
+  bool _quotaBlocked = false;
+
   @override
   void initState() {
     super.initState();
@@ -83,7 +97,16 @@ class _AiTutorBodyState extends State<AiTutorBody> {
     widget.quota.addListener(_refresh);
     // Buka kuota asli server DULU (tanpa konsumsi) sebelum hint pertama —
     // pill "Sisa kuota" jangan menebak.
-    if (widget.tutorRepo != null) _syncQuotaOnce();
+    if (widget.tutorRepo != null) {
+      _syncQuotaOnce();
+      // AKAR MASALAH: slot "Hint 1" dulu tetap berupa teks statis script
+      // (backend baru dipanggil saat membuka hint BERIKUTNYA yang levelnya
+      // 2+), sehingga semua soal tampil seperti soal "kelulusan siswa".
+      // Sekarang slot 1 langsung di-fetch untuk tantangan aktif sejak
+      // sheet terbuka.
+      _waitingFirstHint = true;
+      _loadHintSlot(0);
+    }
   }
 
   @override
@@ -120,39 +143,49 @@ class _AiTutorBodyState extends State<AiTutorBody> {
     return true;
   }
 
-  Future<void> _unlockNext() async {
-    final nextIndex = _unlocked;
-    if (nextIndex >= _hints.length) return;
+  /// Buka hint berikutnya: konten level berikutnya di-fetch dari server.
+  Future<void> _unlockNext() => _loadHintSlot(_unlocked);
 
-    // Mode demo (tanpa context challenge): kuota in-memory + script statis.
-    if (!_backendMode) {
-      _unlockOfflineSlot();
-      return;
-    }
+  /// Fetch hint level [slotIndex + 1] untuk tantangan aktif dari gateway lalu
+  /// ganti isi slot di tempat. Slot 0 di-fetch otomatis saat sheet terbuka
+  /// (sebelum: selamanya teks statis script, alias masalah yang dilaporkan).
+  Future<void> _loadHintSlot(int slotIndex) async {
+    if (!_backendMode || slotIndex >= _hints.length || _fetching) return;
 
     setState(() => _fetching = true);
     try {
       final result = await widget.tutorRepo!.fetchHint(
         challengeId: widget.challengeId!,
         studentCode: widget.getCode?.call() ?? '',
-        hintLevel: nextIndex + 1,
+        hintLevel: slotIndex + 1,
         errorMessage: widget.errorMessage,
       );
       if (!mounted) return;
-      // Sinkronisasi kuota dari angka resmi server (P0-6).
-      widget.quota.syncFromServer(used: result.quotaUsed, limit: result.quotaLimit);
+      // Sinkronisasi kuota dari angka resmi server (P0-6). Slot dari cache
+      // (buka ulang tantangan yang sama di sesi ini) tidak membawa angka
+      // kuota baru, jadi pill tidak boleh diganti angka lama pada.
+      if (!result.fromCache) {
+        widget.quota.syncFromServer(used: result.quotaUsed, limit: result.quotaLimit);
+      }
       setState(() {
-        _hints[nextIndex] = result.hint;
-        _unlocked++;
-        _selected = _unlocked - 1;
+        _hints[slotIndex] = result.hint;
+        final concept = result.concept;
+        if (concept != null && concept.trim().isNotEmpty) _concept = concept;
+        if (slotIndex >= _unlocked) {
+          _unlocked = slotIndex + 1;
+          _selected = slotIndex;
+        }
       });
     } on ApiChallengeException catch (e) {
       if (!mounted) return;
       if (e.statusCode == 429 || e.isCooldown) {
         widget.quota.exhaust();
+        setState(() => _quotaBlocked = true);
         showAppSnack(context, 'Kuota petunjuk hari ini sudah habis. Coba lagi besok untuk berlatih mandiri.');
-      } else {
+      } else if (slotIndex > 0) {
         showAppSnack(context, e.message);
+      } else {
+        showAppSnack(context, 'Petunjuk gagal disiapkan. Coba lagi sebentar.');
       }
     } on DioException catch (e) {
       if (!mounted) return;
@@ -162,8 +195,14 @@ class _AiTutorBodyState extends State<AiTutorBody> {
         showAppSnack(context, 'Petunjuk gagal disiapkan. Coba lagi sebentar.');
         return;
       }
-      // Server sungguh tak terjangkau → demo statis dengan slot lokal.
-      if (_unlockOfflineSlot()) {
+      // Server sungguh tak terjangkau → demo statis dengan slot lokal. Untuk
+      // hint berikutnya (slot > 0) slot offline mengonsumsi kuota lokal; slot
+      // pertama sudah terbuka gratis, cukup tampilkan konten bawaan.
+      if (slotIndex > 0) {
+        if (_unlockOfflineSlot()) {
+          showAppSnack(context, 'Server petunjuk sedang tidak dapat dihubungi — menampilkan petunjuk bawaan.');
+        }
+      } else {
         showAppSnack(context, 'Server petunjuk sedang tidak dapat dihubungi — menampilkan petunjuk bawaan.');
       }
     } catch (_) {
@@ -172,7 +211,12 @@ class _AiTutorBodyState extends State<AiTutorBody> {
       // menyusup melakukan konsumsi kuota palsu.
       showAppSnack(context, 'Petunjuk gagal disiapkan. Coba lagi sebentar.');
     } finally {
-      if (mounted) setState(() => _fetching = false);
+      if (mounted) {
+        setState(() {
+          _fetching = false;
+          _waitingFirstHint = false;
+        });
+      }
     }
   }
 
@@ -201,7 +245,7 @@ class _AiTutorBodyState extends State<AiTutorBody> {
                       Icon(Icons.psychology_alt_outlined, size: 18, color: p.primary),
                       const SizedBox(width: 8),
                       Expanded(
-                        child: Text('Konsep: ${widget.script.concept}',
+                        child: Text('Konsep: $_concept',
                             style: AppTypography.label.copyWith(color: p.primary, fontSize: 13)),
                       ),
                     ],
@@ -273,44 +317,71 @@ class _AiTutorBodyState extends State<AiTutorBody> {
                       ],
                     ),
                     const SizedBox(height: AppSpacing.sm),
-                    Text('“${hint.question}”',
-                        style: AppTypography.bodyL.copyWith(color: p.text, fontStyle: FontStyle.italic)),
-                  ],
-                ),
-              ),
-              const SizedBox(height: AppSpacing.lg),
-              Container(
-                padding: const EdgeInsets.all(AppSpacing.lg),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: p.outline),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text('REKOMENDASI ALUR BERPIKIR',
-                        style: AppTypography.caption.copyWith(color: p.textMuted, fontWeight: FontWeight.w700, letterSpacing: 0.5)),
-                    const SizedBox(height: AppSpacing.md),
-                    for (var i = 0; i < hint.steps.length; i++) ...[
-                      if (i > 0) const SizedBox(height: AppSpacing.md),
+                    if (_waitingFirstHint)
                       Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Container(
-                            width: 26,
-                            height: 26,
-                            alignment: Alignment.center,
-                            decoration: BoxDecoration(color: p.primaryContainer, shape: BoxShape.circle),
-                            child: Text('${i + 1}', style: AppTypography.caption.copyWith(color: p.primary, fontWeight: FontWeight.w700)),
+                          const SizedBox(
+                            width: 18,
+                            height: 18,
+                            child: CircularProgressIndicator(strokeWidth: 2),
                           ),
                           const SizedBox(width: 12),
-                          Expanded(child: Text(hint.steps[i], style: AppTypography.bodyL.copyWith(color: p.text, fontSize: 15))),
+                          Expanded(
+                            child: Text(
+                              'Menyiapkan petunjuk untuk tantangan ini…',
+                              style: AppTypography.bodyM.copyWith(color: p.textMuted),
+                            ),
+                          ),
                         ],
-                      ),
-                    ],
+                      )
+                    else if (_quotaBlocked)
+                      Text(
+                        'Kuota hint hari ini sudah habis (5x per hari). Petunjuk '
+                        'spesifik untuk tantangan ini terbuka lagi besok — '
+                        'sementara ini, tuntaskan di kodemu dulu.',
+                        style: AppTypography.bodyM.copyWith(color: p.text),
+                      )
+                    else
+                      Text('“${hint.question}”',
+                          style: AppTypography.bodyL.copyWith(color: p.text, fontStyle: FontStyle.italic)),
                   ],
                 ),
               ),
+              if (!_waitingFirstHint && !_quotaBlocked) ...[
+                const SizedBox(height: AppSpacing.lg),
+                Container(
+                  padding: const EdgeInsets.all(AppSpacing.lg),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(color: p.outline),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text('REKOMENDASI ALUR BERPIKIR',
+                          style: AppTypography.caption.copyWith(color: p.textMuted, fontWeight: FontWeight.w700, letterSpacing: 0.5)),
+                      const SizedBox(height: AppSpacing.md),
+                      for (var i = 0; i < hint.steps.length; i++) ...[
+                        if (i > 0) const SizedBox(height: AppSpacing.md),
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Container(
+                              width: 26,
+                              height: 26,
+                              alignment: Alignment.center,
+                              decoration: BoxDecoration(color: p.primaryContainer, shape: BoxShape.circle),
+                              child: Text('${i + 1}', style: AppTypography.caption.copyWith(color: p.primary, fontWeight: FontWeight.w700)),
+                            ),
+                            const SizedBox(width: 12),
+                            Expanded(child: Text(hint.steps[i], style: AppTypography.bodyL.copyWith(color: p.text, fontSize: 15))),
+                          ],
+                        ),
+                      ],
+                    ],
+                  ),
+                ),
+              ],
             ],
           ),
         ),

@@ -25,6 +25,16 @@ class MockDashboardRepository implements DashboardRepository {
     ];
 
     final activeIndex = isDemo ? 2 : 0;
+    const pythonTopic = 'Python Dasar';
+    const htmlTopic = 'HTML & Web Dasar';
+    final topics = [
+      pythonTopic,
+      pythonTopic,
+      pythonTopic,
+      htmlTopic,
+      htmlTopic,
+      htmlTopic,
+    ];
     final modules = [
       for (var i = 0; i < titles.length; i++)
         LearningModule(
@@ -32,6 +42,7 @@ class MockDashboardRepository implements DashboardRepository {
           order: i + 1,
           title: titles[i].$2,
           description: titles[i].$3,
+          topic: topics[i],
           status: i < activeIndex
               ? ModuleStatus.completed
               : i == activeIndex

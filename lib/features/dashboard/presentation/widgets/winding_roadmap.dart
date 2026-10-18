@@ -45,7 +45,7 @@ class _WindingRoadmapState extends State<WindingRoadmap> with SingleTickerProvid
     final p = context.palette;
     final modules = widget.modules;
 
-    // Find active module count/order
+    // Anchor = bab yang sedang aktif (atau bab pertama bila semua sudah tuntas).
     final activeModule = modules.firstWhere(
       (m) => m.status == ModuleStatus.active,
       orElse: () => modules.isNotEmpty
@@ -55,11 +55,24 @@ class _WindingRoadmapState extends State<WindingRoadmap> with SingleTickerProvid
               order: 1,
               title: '',
               description: '',
+              topic: '',
               status: ModuleStatus.locked,
             ),
     );
 
-    final totalPositions = modules.length + 1; // Modules + Certificate
+    // Peta petualangan hanya menampilkan bab dari TRACK yang sedang aktif:
+    // bab dari track lain (mis. HTML saat siswa masih di Python) tidak di-loop.
+    final activeTopic = activeModule.topic;
+    final trackModules = activeTopic.isEmpty
+        ? modules
+        : modules.where((m) => m.topic == activeTopic).toList();
+    final visibleModules = trackModules.isNotEmpty ? trackModules : modules;
+
+    // Posisi bab aktif di dalam track (mulai dari 1 untuk label & jalur rute).
+    final activePos = visibleModules.indexOf(activeModule);
+    final activeStep = (activePos >= 0 ? activePos : 0) + 1;
+
+    final totalPositions = visibleModules.length + 1; // Modules + Certificate
 
     return Container(
       decoration: BoxDecoration(
@@ -136,7 +149,7 @@ class _WindingRoadmapState extends State<WindingRoadmap> with SingleTickerProvid
                       ),
                       const SizedBox(width: 5),
                       Text(
-                        'Bab ${activeModule.order} Aktif',
+                        'Bab $activeStep Aktif',
                         style: const TextStyle(
                           fontSize: 11,
                           fontWeight: FontWeight.w700,
@@ -169,7 +182,7 @@ class _WindingRoadmapState extends State<WindingRoadmap> with SingleTickerProvid
                       nodeCount: totalPositions,
                       lineColor: p.primaryContainer,
                       activeColor: p.primary,
-                      activeStep: activeModule.order,
+                      activeStep: activeStep,
                     ),
                   ),
                 ),
@@ -179,8 +192,8 @@ class _WindingRoadmapState extends State<WindingRoadmap> with SingleTickerProvid
                   padding: const EdgeInsets.symmetric(vertical: AppSpacing.md, horizontal: 4),
                   child: Column(
                     children: [
-                      for (var i = 0; i < modules.length; i++) ...[
-                        _buildNode(context, modules[i], i.isEven),
+                      for (var i = 0; i < visibleModules.length; i++) ...[
+                        _buildNode(context, visibleModules[i], i.isEven),
                         const SizedBox(height: 26),
                       ],
 

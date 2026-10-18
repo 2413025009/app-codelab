@@ -54,12 +54,23 @@ class TutorHintResult {
     required this.quotaUsed,
     required this.quotaLimit,
     required this.quotaLeft,
+    this.concept,
+    this.fromCache = false,
   });
 
   final TutorHint hint;
   final int quotaUsed;
   final int quotaLimit;
   final int quotaLeft;
+
+  /// Konsep yang dideteksi server utk soal aktif (detected_concept).
+  /// Dipakai menggantikan konsep statis script agar pill sesuai tantangan.
+  final String? concept;
+
+  /// true bila repo mengembalikan hint yang SUDAH dibayar (sesi yang sama,
+  /// buka ulang sheet tantangan yang sama). Angka kuota dari salinan cache
+  /// tidak boleh menimpa angka resmi server, jadi UI melewati syncFromServer.
+  final bool fromCache;
 }
 
 class TutorHint {

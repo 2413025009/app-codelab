@@ -96,7 +96,7 @@ class _AppLoadingScreenState extends State<AppLoadingScreen>
 
     if (widget.compact) {
       return Center(
-        child: Padding(
+        child: SingleChildScrollView(
           padding: const EdgeInsets.all(32),
           child: _ProgressBody(
             pulse: _pulse,

@@ -150,8 +150,23 @@ class _ProfilePageState extends State<ProfilePage> {
           for (final l in lessons) {
             topics.putIfAbsent(l.topic, () => []).add(l);
           }
+
+          // Hanya track yang PERNYATA dimulai siswa (ada bab aktif/tuntas)
+          // yang tampil di progres & sertifikat — track yang belum pernah
+          // disentuh tidak ikut di-loop di sini.
+          final startedTopics = topics.entries
+              .where((e) => e.value.any((l) => l.status != 'locked'))
+              .toList();
+
           final completedLessons = lessons.where((l) => l.status == 'completed').length;
           final tracksDone = topics.entries.where((e) => e.value.every((l) => l.status == 'completed')).length;
+
+          // Radar hanya memuat skor kompetensi yang benar-benar dihasilkan
+          // (skor 0 — materi yang belum pernah dikerjakan — tidak digambar).
+          final earnedSkills = <String, double>{
+            for (final e in data.skills.entries)
+              if (e.value > 0) e.key: e.value,
+          };
 
           return SingleChildScrollView(
             padding: const EdgeInsets.fromLTRB(
@@ -297,13 +312,13 @@ class _ProfilePageState extends State<ProfilePage> {
                         ],
                       ),
                       const SizedBox(height: AppSpacing.lg),
-                      if (topics.isEmpty)
+                      if (startedTopics.isEmpty)
                         Text(
-                          'Belum ada materi yang dimuat.',
+                          'Belum ada track yang dimulai. Mulai bab pertamamu di tab Belajar.',
                           style: AppTypography.bodyM.copyWith(color: p.textMuted),
                         )
                       else
-                        for (final entry in topics.entries)
+                        for (final entry in startedTopics)
                           Padding(
                             padding: const EdgeInsets.only(bottom: AppSpacing.md),
                             child: _TrackRow(
@@ -336,17 +351,18 @@ class _ProfilePageState extends State<ProfilePage> {
                       ),
                     ),
                     const SizedBox(width: AppSpacing.sm),
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                      decoration: BoxDecoration(
-                        color: p.primaryContainer,
-                        borderRadius: BorderRadius.circular(12),
+                    if (startedTopics.isNotEmpty)
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                        decoration: BoxDecoration(
+                          color: p.primaryContainer,
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Text(
+                          '$tracksDone/${startedTopics.length} Tuntas',
+                          style: AppTypography.caption.copyWith(color: p.primary, fontWeight: FontWeight.bold),
+                        ),
                       ),
-                      child: Text(
-                        '$tracksDone/${topics.length} Tuntas',
-                        style: AppTypography.caption.copyWith(color: p.primary, fontWeight: FontWeight.bold),
-                      ),
-                    ),
                   ],
                 ),
                 const SizedBox(height: AppSpacing.sm),
@@ -354,14 +370,23 @@ class _ProfilePageState extends State<ProfilePage> {
                   padding: EdgeInsets.zero,
                   child: Column(
                     children: [
-                      for (final entry in topics.entries) ...[
-                        if (entry.key != topics.keys.first)
-                          Divider(height: 1, color: p.outline.withValues(alpha: 0.5)),
-                        _CertificateItem(
-                          topic: entry.key,
-                          lessons: entry.value,
-                        ),
-                      ],
+                      if (startedTopics.isEmpty)
+                        Padding(
+                          padding: const EdgeInsets.all(AppSpacing.md),
+                          child: Text(
+                            'Belum ada sertifikat. Sertifikat track muncul di sini begitu kamu mulai bab pertama.',
+                            style: AppTypography.bodyM.copyWith(color: p.textMuted),
+                          ),
+                        )
+                      else
+                        for (final entry in startedTopics) ...[
+                          if (entry.key != startedTopics.first.key)
+                            Divider(height: 1, color: p.outline.withValues(alpha: 0.5)),
+                          _CertificateItem(
+                            topic: entry.key,
+                            lessons: entry.value,
+                          ),
+                        ],
                     ],
                   ),
                 ),
@@ -380,10 +405,10 @@ class _ProfilePageState extends State<ProfilePage> {
                 const SizedBox(height: AppSpacing.sm),
                 AppCard(
                   padding: const EdgeInsets.symmetric(vertical: AppSpacing.md, horizontal: AppSpacing.sm),
-                  child: data.skills.values.any((v) => v > 0)
+                  child: earnedSkills.isNotEmpty
                       ? Center(
                           child: CompetencyRadar(
-                            scores: data.skills,
+                            scores: earnedSkills,
                             showValueInLabel: true,
                           ),
                         )

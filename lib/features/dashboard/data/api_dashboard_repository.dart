@@ -115,6 +115,7 @@ class ApiDashboardRepository implements DashboardRepository {
             order: item['orderIndex'] as int? ?? (i + 1),
             title: item['title'] as String? ?? 'Modul ${i + 1}',
             description: item['topic'] as String? ?? 'Kurikulum Dasar',
+            topic: item['topic'] as String? ?? '',
             status: status,
             requirement: item['requiredLessonTitle'] != null
                 ? 'Selesaikan ${item['requiredLessonTitle']} dulu'

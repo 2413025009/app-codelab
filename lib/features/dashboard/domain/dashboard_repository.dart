@@ -10,6 +10,7 @@ class LearningModule extends Equatable {
     required this.description,
     required this.status,
     this.requirement,
+    this.topic = '',
   });
 
   final String id;
@@ -17,6 +18,10 @@ class LearningModule extends Equatable {
   final String title;
   final String description;
   final ModuleStatus status;
+
+  /// Track/topik bab ini (mis. "Python Dasar"). Dipakai peta petualangan
+  /// supaya hanya bab dari track yang sedang aktif yang ditampilkan.
+  final String topic;
 
   /// For locked modules: what must be finished first, e.g. "Selesaikan Modul 3 dulu".
   final String? requirement;

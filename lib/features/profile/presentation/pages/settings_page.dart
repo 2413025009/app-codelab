@@ -23,7 +23,14 @@ class _SettingsPageState extends State<SettingsPage> {
   late final TextEditingController _nameController;
   late final TextEditingController _phoneController;
   late final TextEditingController _bioController;
+  late final TextEditingController _nisnController;
+  late final TextEditingController _schoolController;
+  late final TextEditingController _classController;
 
+  /// Kondisi awal halaman: data profil HANYA-BACA. Tap "Edit Data" membuka
+  /// semua kolom (kecuali email — identitas login) lalu tombolnya berubah
+  /// menjadi "Simpan Perubahan"; mode baca kembali setelah tersimpan.
+  bool _isEditing = false;
   bool _isSaving = false;
   bool _soundEnabled = true;
 
@@ -34,6 +41,9 @@ class _SettingsPageState extends State<SettingsPage> {
     _nameController = TextEditingController(text: user?.name ?? '');
     _phoneController = TextEditingController(text: user?.phone ?? '');
     _bioController = TextEditingController(text: user?.bio ?? '');
+    _nisnController = TextEditingController(text: user?.nisn ?? '');
+    _schoolController = TextEditingController(text: user?.schoolName ?? '');
+    _classController = TextEditingController(text: user?.className ?? '');
   }
 
   @override
@@ -41,7 +51,29 @@ class _SettingsPageState extends State<SettingsPage> {
     _nameController.dispose();
     _phoneController.dispose();
     _bioController.dispose();
+    _nisnController.dispose();
+    _schoolController.dispose();
+    _classController.dispose();
     super.dispose();
+  }
+
+  /// Sinkronkan isi kolom dengan data user terbaru (dipakai saat masuk mode
+  /// edit dan setelah tersimpan supaya tampilan selalu mulai dari data DB).
+  void _syncFieldsToUser() {
+    final user = context.read<AuthCubit>().state.user;
+    _nameController.text = user?.name ?? '';
+    _phoneController.text = user?.phone ?? '';
+    _bioController.text = user?.bio ?? '';
+    _nisnController.text = user?.nisn ?? '';
+    _schoolController.text = user?.schoolName ?? '';
+    _classController.text = user?.className ?? '';
+  }
+
+  /// Masuk mode edit: semua kolom jadi bisa ditap, tombol berubah jadi
+  /// "Simpan Perubahan".
+  void _startEditing() {
+    _syncFieldsToUser();
+    setState(() => _isEditing = true);
   }
 
   Future<void> _saveProfile() async {
@@ -52,9 +84,16 @@ class _SettingsPageState extends State<SettingsPage> {
             name: _nameController.text.trim(),
             phone: _phoneController.text.trim(),
             bio: _bioController.text.trim(),
+            nisn: _nisnController.text.trim(),
+            schoolName: _schoolController.text.trim(),
+            className: _classController.text.trim(),
           );
       if (mounted) {
         showAppSnack(context, 'Perubahan profil berhasil disimpan!');
+        setState(() {
+          _isEditing = false;
+          _syncFieldsToUser();
+        });
       }
     } catch (e) {
       if (mounted) {
@@ -104,7 +143,6 @@ class _SettingsPageState extends State<SettingsPage> {
     final user = context.watch<AuthCubit>().state.user;
 
     final initial = (user?.name.isNotEmpty ?? false) ? user!.name.substring(0, 1).toUpperCase() : 'S';
-    final nisn = user?.nisn ?? '—';
     final school = user?.schoolName ?? '—';
     final className = user?.className ?? '—';
     final email = user?.email ?? '—';
@@ -214,11 +252,12 @@ class _SettingsPageState extends State<SettingsPage> {
                     TextFormField(
                       controller: _nameController,
                       maxLength: 40,
+                      readOnly: !_isEditing,
                       decoration: InputDecoration(
                         prefixIcon: const Icon(Icons.badge_outlined),
                         counterText: '',
                         filled: true,
-                        fillColor: p.surfaceAlt,
+                        fillColor: _isEditing ? p.surfaceAlt : p.surfaceAlt.withValues(alpha: 0.6),
                       ),
                       validator: (val) {
                         if (val == null || val.trim().isEmpty) return 'Nama tidak boleh kosong';
@@ -230,13 +269,14 @@ class _SettingsPageState extends State<SettingsPage> {
                     _buildFieldHeaderWithBadge('NISN / ID Siswa', 'Terverifikasi Dapodik'),
                     const SizedBox(height: AppSpacing.xs),
                     TextFormField(
-                      initialValue: nisn,
-                      readOnly: true,
-                      enabled: false,
+                      controller: _nisnController,
+                      maxLength: 20,
+                      readOnly: !_isEditing,
                       decoration: InputDecoration(
                         prefixIcon: const Icon(Icons.school_outlined),
+                        counterText: '',
                         filled: true,
-                        fillColor: p.surfaceAlt.withValues(alpha: 0.6),
+                        fillColor: _isEditing ? p.surfaceAlt : p.surfaceAlt.withValues(alpha: 0.6),
                       ),
                     ),
                     const SizedBox(height: AppSpacing.md),
@@ -244,13 +284,14 @@ class _SettingsPageState extends State<SettingsPage> {
                     _buildFieldHeader('Nama Sekolah / Institusi', null),
                     const SizedBox(height: AppSpacing.xs),
                     TextFormField(
-                      initialValue: school,
-                      readOnly: true,
-                      enabled: false,
+                      controller: _schoolController,
+                      maxLength: 150,
+                      readOnly: !_isEditing,
                       decoration: InputDecoration(
                         prefixIcon: const Icon(Icons.domain_outlined),
+                        counterText: '',
                         filled: true,
-                        fillColor: p.surfaceAlt.withValues(alpha: 0.6),
+                        fillColor: _isEditing ? p.surfaceAlt : p.surfaceAlt.withValues(alpha: 0.6),
                       ),
                     ),
                     const SizedBox(height: AppSpacing.md),
@@ -258,13 +299,14 @@ class _SettingsPageState extends State<SettingsPage> {
                     _buildFieldHeader('Kelas & Jurusan', null),
                     const SizedBox(height: AppSpacing.xs),
                     TextFormField(
-                      initialValue: className,
-                      readOnly: true,
-                      enabled: false,
+                      controller: _classController,
+                      maxLength: 50,
+                      readOnly: !_isEditing,
                       decoration: InputDecoration(
                         prefixIcon: const Icon(Icons.category_outlined),
+                        counterText: '',
                         filled: true,
-                        fillColor: p.surfaceAlt.withValues(alpha: 0.6),
+                        fillColor: _isEditing ? p.surfaceAlt : p.surfaceAlt.withValues(alpha: 0.6),
                       ),
                     ),
                     const SizedBox(height: AppSpacing.md),
@@ -274,10 +316,11 @@ class _SettingsPageState extends State<SettingsPage> {
                     TextFormField(
                       controller: _phoneController,
                       keyboardType: TextInputType.phone,
+                      readOnly: !_isEditing,
                       decoration: InputDecoration(
                         prefixIcon: const Icon(Icons.call_outlined),
                         filled: true,
-                        fillColor: p.surfaceAlt,
+                        fillColor: _isEditing ? p.surfaceAlt : p.surfaceAlt.withValues(alpha: 0.6),
                       ),
                     ),
                     const SizedBox(height: AppSpacing.md),
@@ -302,19 +345,28 @@ class _SettingsPageState extends State<SettingsPage> {
                       controller: _bioController,
                       maxLines: 3,
                       maxLength: 120,
+                      readOnly: !_isEditing,
                       decoration: InputDecoration(
                         filled: true,
-                        fillColor: p.surfaceAlt,
+                        fillColor: _isEditing ? p.surfaceAlt : p.surfaceAlt.withValues(alpha: 0.6),
                         counterText: '',
                       ),
                     ),
                     const SizedBox(height: AppSpacing.lg),
 
-                    AppButton(
-                      label: 'Simpan Perubahan',
-                      loading: _isSaving,
-                      onPressed: _saveProfile,
-                    ),
+                    if (_isEditing)
+                      AppButton(
+                        label: 'Simpan Perubahan',
+                        loading: _isSaving,
+                        onPressed: _saveProfile,
+                      )
+                    else
+                      AppButton(
+                        label: 'Edit Data',
+                        kind: AppButtonKind.secondary,
+                        leadingIcon: Icons.edit_outlined,
+                        onPressed: _startEditing,
+                      ),
                   ],
                 ),
               ),
