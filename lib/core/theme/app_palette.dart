@@ -44,7 +44,7 @@ class AppPalette extends ThemeExtension<AppPalette> {
   static const Color onAccent = Color(0xFF1F2430);
 
   static const light = AppPalette(
-    bg: Color(0xFFFBFAF7),
+    bg: Color(0xFFFAF9FF),
     surface: Color(0xFFFFFFFF),
     surfaceAlt: Color(0xFFF1EFE9),
     outline: Color(0xFFE4E1D9),
@@ -56,7 +56,7 @@ class AppPalette extends ThemeExtension<AppPalette> {
     success: Color(0xFF2FA36B),
     successContainer: Color(0xFFE3F5EC),
     error: Color(0xFFD93F45),
-    errorContainer: Color(0xFFFFE6E6),
+    errorContainer: Color(0xFFFFDAD6),
     warningContainer: Color(0xFFFFF4DC),
     warningText: Color(0xFF9D4200),
     codeBg: Color(0xFFF1EFE9),
