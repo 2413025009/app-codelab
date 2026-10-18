@@ -55,6 +55,8 @@ class MockDashboardRepository implements DashboardRepository {
     return DashboardData(
       // Selaras MockChallengeRepository: 8 tantangan seed, 1 selesai (kabisat).
       completedChallenges: isDemo ? 1 : 0,
+      totalChallenges: 8,
+      userXp: isDemo ? 480 : 0,
       firstLessonId: titles.first.$1,
       resume: isDemo
           ? const ResumeInfo(

@@ -54,6 +54,8 @@ class ResumeInfo extends Equatable {
 class DashboardData extends Equatable {
   const DashboardData({
     required this.completedChallenges,
+    this.totalChallenges = 0,
+    this.userXp,
     required this.resume,
     required this.firstLessonId,
     required this.skills,
@@ -63,6 +65,15 @@ class DashboardData extends Equatable {
   });
 
   final int completedChallenges;
+
+  /// Jumlah SELURUH tantangan pada DB (katalog penuh); 0 artinya total
+  /// tidak tersedia dari backend sehingga UI tidak boleh menampilkan "x/y".
+  final int totalChallenges;
+
+  /// XP terverifikasi backend (dari GET /me yang sudah dikunjungi load());
+  /// null ketika dashboard gagal memuat sehingga UI boleh memakai XP
+  /// lokal AuthCubit (tidak ada angka palsu).
+  final int? userXp;
 
   /// null for a brand-new student (empty state).
   final ResumeInfo? resume;
@@ -77,7 +88,7 @@ class DashboardData extends Equatable {
   bool get hasSkills => skills.values.any((v) => v > 0);
 
   @override
-  List<Object?> get props => [completedChallenges, resume, skills, modules];
+  List<Object?> get props => [completedChallenges, totalChallenges, userXp, resume, skills, modules];
 }
 
 /// Contract for dashboard data (GET /me, /me/progress, /me/skills, /lessons).

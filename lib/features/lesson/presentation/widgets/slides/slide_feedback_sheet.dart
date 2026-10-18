@@ -74,7 +74,7 @@ class SlideFeedbackSheet extends StatelessWidget {
         AppSpacing.lg,
         MediaQuery.paddingOf(context).bottom + AppSpacing.lg,
       ),
-      child: Column(
+      child: SingleChildScrollView(child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
@@ -89,7 +89,7 @@ class SlideFeedbackSheet extends StatelessWidget {
           ),
           if (isCorrect) ..._successBody(context, p) else ..._errorBody(context, p),
         ],
-      ),
+      )),
     );
   }
 

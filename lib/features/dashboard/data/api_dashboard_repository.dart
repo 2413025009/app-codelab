@@ -50,6 +50,7 @@ class ApiDashboardRepository implements DashboardRepository {
       final responses = await Future.wait([meF, progressF, skillsF, lessonsF, challengesF]);
       step(5, 'Menyusun dashboard…');
 
+      final meData = responses[0].data ?? {};
       final progressData = responses[1].data ?? {};
       final skillsData = responses[2].data ?? {};
       final lessonsData = responses[3].data ?? {};
@@ -58,6 +59,12 @@ class ApiDashboardRepository implements DashboardRepository {
       // Dua KPI berbeda: completedCount /me = BAB selesai;
       // completed /challenges = TANTANGAN selesai (P1-8).
       final completedChallenges = challengesData['completed'] as int? ?? 0;
+      // XP resmi siswa dari DB (UserResponse.xpPoints pada GET /me) dipakai
+      // halaman profil agar tidak menampilkan XP usang dari sesi lama.
+      final userXp = (meData['xpPoints'] as num?)?.toInt();
+      // Total seluruh tantangan pada DB (ChallengeCatalogResponse.total) —
+      // dipakai kartu statistik "x/y Tantangan".
+      final totalChallenges = (challengesData['total'] as num?)?.toInt() ?? 0;
 
       // Current resume info
       ResumeInfo? resume;
@@ -130,6 +137,8 @@ class ApiDashboardRepository implements DashboardRepository {
 
       return DashboardData(
         completedChallenges: completedChallenges,
+        totalChallenges: totalChallenges,
+        userXp: userXp,
         resume: resume,
         firstLessonId: firstId,
         skills: skillsMap,

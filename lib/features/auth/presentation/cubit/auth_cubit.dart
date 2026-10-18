@@ -82,7 +82,7 @@ class AuthCubit extends Cubit<AuthState> {
 
   void setXp(int xp) {
     final current = state.user;
-    if (current == null) return;
+    if (current == null || current.xpPoints == xp) return;
     emit(AuthState(
       status: state.status,
       user: current.copyWith(xpPoints: xp),

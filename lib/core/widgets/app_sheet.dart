@@ -80,7 +80,13 @@ class _SheetFrame extends StatelessWidget {
           ),
         ),
         Divider(color: p.outline),
-        Flexible(child: child),
+        // Sistemis anti-overflow: konten sheet TIDAK WAJIB scrollable sendiri
+        // (beberapa caller memakai Column min). Dibungkus bilden scroll di
+        // sini supaya konten melebihi sisa tinggi -> bisa digulir, bukan
+        // "bottom overflowed" persis di baris tombol.
+        Flexible(
+          child: SingleChildScrollView(child: child),
+        ),
       ],
     );
   }
