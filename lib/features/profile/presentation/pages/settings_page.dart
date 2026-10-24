@@ -393,10 +393,7 @@ class _SettingsPageState extends State<SettingsPage> {
                         label: 'Edit Data',
                         kind: AppButtonKind.secondary,
                         leadingIcon: Icons.edit_outlined,
-                        // FAKE ERROR (demonstrasi): tombol sengaja dibuat macet/tidak merespons saat ditekan
-                        onPressed: () {
-                          debugPrint('Tombol Edit Data ditekan (terblokir bug demonstrasi): $_startEditing');
-                        },
+                        onPressed: _startEditing,
                       ),
                   ],
                 ),

@@ -183,6 +183,21 @@ class _LessonReaderPageState extends State<LessonReaderPage> {
     }
   }
 
+  void _prevSlide() {
+    if (_currentIndex > 0) {
+      final prevIdx = _currentIndex - 1;
+      _pageController.animateToPage(
+        prevIdx,
+        duration: const Duration(milliseconds: 350),
+        curve: Curves.easeInOut,
+      );
+      setState(() {
+        _currentIndex = prevIdx;
+        _canCheckAnswer = false;
+      });
+    }
+  }
+
   Future<void> _finishLesson(LessonDetailData data) async {
     // Save completion
     await context.read<LessonRepository>().saveProgress(
@@ -388,21 +403,41 @@ class _LessonReaderPageState extends State<LessonReaderPage> {
                     color: p.surface,
                     border: Border(top: BorderSide(color: p.outline)),
                   ),
-                  child: switch (currentSlide.type) {
-                    SlideType.theory => AppButton(
-                        label: 'Paham, Lanjutkan',
-                        onPressed: () => _nextSlide(data),
+                  child: Row(
+                    children: [
+                      if (_currentIndex > 0) ...[
+                        OutlinedButton(
+                          onPressed: _prevSlide,
+                          style: OutlinedButton.styleFrom(
+                            foregroundColor: p.text,
+                            side: BorderSide(color: p.outline),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+                            minimumSize: const Size(48, 48),
+                          ),
+                          child: const Icon(Icons.arrow_back_rounded, size: 20),
+                        ),
+                        const SizedBox(width: AppSpacing.sm),
+                      ],
+                      Expanded(
+                        child: switch (currentSlide.type) {
+                          SlideType.theory => AppButton(
+                              label: 'Paham, Lanjutkan',
+                              onPressed: () => _nextSlide(data),
+                            ),
+                          SlideType.outro => AppButton(
+                              label: 'Selesai & Simpan Progres',
+                              leadingIcon: Icons.check_circle_rounded,
+                              onPressed: () => _finishLesson(data),
+                            ),
+                          _ => AppButton(
+                              label: 'Periksa Jawaban',
+                              onPressed: _canCheckAnswer ? () => _checkCurrentAnswer(data) : null,
+                            ),
+                        },
                       ),
-                    SlideType.outro => AppButton(
-                        label: 'Selesai & Simpan Progres',
-                        leadingIcon: Icons.check_circle_rounded,
-                        onPressed: () => _finishLesson(data),
-                      ),
-                    _ => AppButton(
-                        label: 'Periksa Jawaban',
-                        onPressed: _canCheckAnswer ? () => _checkCurrentAnswer(data) : null,
-                      ),
-                  },
+                    ],
+                  ),
                 ),
               ],
             );
