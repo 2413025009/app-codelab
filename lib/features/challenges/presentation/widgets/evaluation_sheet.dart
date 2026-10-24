@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 
+import '../../../../core/services/sound_service.dart';
 import '../../../../core/theme/app_palette.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_typography.dart';
@@ -16,6 +17,11 @@ Future<void> showEvaluationSheet(
   required VoidCallback onHistory,
   required VoidCallback onBackToCatalog,
 }) {
+  if (report.allPassed) {
+    SoundService.playChallengeSuccess();
+  } else {
+    SoundService.playChallengeFail();
+  }
   return showAppSheet<void>(
     context,
     title: 'Evaluasi Proyek',

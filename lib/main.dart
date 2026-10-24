@@ -29,6 +29,7 @@ import 'package:provider/provider.dart' show ChangeNotifierProvider;
 
 import 'app/router/app_router.dart';
 import 'core/network/token_store.dart';
+import 'core/services/sound_service.dart';
 import 'core/theme/app_theme.dart';
 import 'core/widgets/app_loading_screen.dart';
 import 'features/ai_tutor/data/api_tutor_repository.dart';
@@ -54,6 +55,7 @@ Future<void> main() async {
     DeviceOrientation.portraitUp,
   ]);
   await TokenStore.restore(); // Session token terselamatkan antar restart.
+  await SoundService.init(); // Muat pengaturan efek suara lokal dari HP.
   runApp(const CodelabApp());
 }
 

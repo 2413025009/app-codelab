@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../core/network/api_client.dart';
+import '../../../../core/services/sound_service.dart';
 import '../../../../core/theme/app_palette.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_typography.dart';
@@ -136,6 +137,7 @@ class _AiTutorBodyState extends State<AiTutorBody> {
       showAppSnack(context, 'Kuota hint hari ini habis. Coba lagi besok.');
       return false;
     }
+    SoundService.playAiHintUnlock();
     setState(() {
       _unlocked++;
       _selected = _unlocked - 1;
@@ -174,6 +176,7 @@ class _AiTutorBodyState extends State<AiTutorBody> {
         if (slotIndex >= _unlocked) {
           _unlocked = slotIndex + 1;
           _selected = slotIndex;
+          SoundService.playAiHintUnlock();
         }
       });
     } on ApiChallengeException catch (e) {

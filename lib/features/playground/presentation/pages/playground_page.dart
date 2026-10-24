@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
 
+import '../../../../core/services/sound_service.dart';
 import '../../../../core/theme/app_palette.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../core/widgets/code_editor.dart';
-import '../../../ai_tutor/domain/tutor_models.dart';
-import '../../../ai_tutor/presentation/ai_tutor_sheet.dart';
 import '../../data/mini_python_runner.dart';
 
 class PlaygroundPage extends StatefulWidget {
@@ -114,6 +113,11 @@ print("Jumlah 1-3 =", total)''';
     stopwatch.stop();
 
     if (!mounted) return;
+    if (result.ok) {
+      SoundService.playLabTerminalPrint();
+    } else {
+      SoundService.playLabSyntaxError();
+    }
     setState(() {
       _outputLines = result.lines;
       _isSuccess = result.ok;
@@ -337,7 +341,6 @@ print("Jumlah 1-3 =", total)''';
           _buildTerminalPanel(palette),
         ],
       ),
-      floatingActionButton: _buildFab(palette),
     );
   }
 
@@ -554,42 +557,6 @@ print("Jumlah 1-3 =", total)''';
             ),
           ),
         ],
-      ),
-    );
-  }
-
-  Widget _buildFab(AppPalette palette) {
-    final isKeyboardOpen = MediaQuery.of(context).viewInsets.bottom > 0;
-
-    return Padding(
-      padding: EdgeInsets.only(
-        bottom: isKeyboardOpen ? 0 : (_isTerminalExpanded ? 204 : 48),
-      ),
-      child: FloatingActionButton.extended(
-        // Mode PLAYGROUND: tutor "latihan bebas" - bukan konteks soal lama.
-        // challengeId 'playground' membuat sheet meminta hint generik ke server
-        // (backend menyaring topik di luar pemrograman & tetap memakai kuota
-        // harian), dan bila offline script fallbacknya statis generik.
-        onPressed: () => showAiTutorSheet(
-          context,
-          script: TutorScript.playground,
-          challengeId: 'playground',
-          getCode: () => _codeController.text,
-        ),
-        backgroundColor: palette.primary,
-        foregroundColor: Colors.white,
-        icon: const Icon(Icons.smart_toy_outlined),
-        label: Text(
-          'Bantuan AI Tutor',
-          style: AppTypography.label.copyWith(
-            color: Colors.white,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-        shape: RoundedRectangleBorder(
-          borderRadius: AppRadius.pillBorder,
-        ),
-        elevation: 3,
       ),
     );
   }

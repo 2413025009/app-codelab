@@ -4,9 +4,10 @@
 // Dio milik kelas ini (SRD §2.1 arsitektur & §2.3 daftar endpoint).
 //
 // FUNGSI YANG DIKELOLA:
-//   - ApiClient()        : (1) pilih baseUrl — localhost saat web/komputer,
-//     10.0.2.2 saat Android Emulator (WAJIB DIUBAH BILA: dipasang di HP
-//     asli / server produksi → tulis URL saat ApiClient dibuat di main.dart);
+//   - ApiClient()        : (1) pilih baseUrl dari AppConfig (lib/core/
+//     config/app_config.dart) — default localhost/10.0.2.2 untuk lokal,
+//     atau server cloud bila dijalankan dengan
+//     --dart-define=API_BASE_URL=https://api.codelab-ai.web.id/api/v1;
 //     (2) timeout 8 detik koneksi / 20 detik jawaban;
 //     (3) interceptor pembubuh kepala surat Authorization: Bearer {token}
 //     pada tiap permintaan.
@@ -22,28 +23,23 @@
 //     fungsi ini true — 401/403/4xx/5xx adalah jawaban server sungguhan
 //     dan WAJIB diperlihatkan jujur ke UI.
 //
-// WAJIB DIUBAH BILA: alamat server berubah, skema refresh token berubah,
-// atau batas waktu (timeout) perlu digeser.
+// WAJIB DIUBAH BILA: skema refresh token berubah atau batas waktu
+// (timeout) perlu digeser — alamat server TIDAK lagi diubah di file ini,
+// cukup lewat dart-define, lihat core/config/app_config.dart.
 import 'dart:async';
 
 import 'dart:io';
 
 import 'package:dio/dio.dart';
-import 'package:flutter/foundation.dart';
 
+import '../config/app_config.dart';
 import 'token_store.dart';
 
 class ApiClient {
   ApiClient({String? baseUrl}) {
-    final defaultUrl = kIsWeb
-        ? 'http://localhost:8080/api/v1'
-        : Platform.isAndroid
-            ? 'http://10.0.2.2:8080/api/v1'
-            : 'http://localhost:8080/api/v1';
-
     dio = Dio(
       BaseOptions(
-        baseUrl: baseUrl ?? defaultUrl,
+        baseUrl: baseUrl ?? AppConfig.apiBaseUrl,
         connectTimeout: const Duration(seconds: 8),
         receiveTimeout: const Duration(seconds: 20),
         headers: {
@@ -130,11 +126,7 @@ class ApiClient {
 
       final dio = Dio(
         BaseOptions(
-          baseUrl: kIsWeb
-              ? 'http://localhost:8080/api/v1'
-              : Platform.isAndroid
-                  ? 'http://10.0.2.2:8080/api/v1'
-                  : 'http://localhost:8080/api/v1',
+          baseUrl: AppConfig.apiBaseUrl,
           connectTimeout: const Duration(seconds: 8),
           receiveTimeout: const Duration(seconds: 20),
           headers: {

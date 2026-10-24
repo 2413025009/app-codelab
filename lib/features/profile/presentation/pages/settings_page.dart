@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../app/router/app_routes.dart';
+import '../../../../core/services/sound_service.dart';
 import '../../../../core/theme/app_palette.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_typography.dart';
@@ -29,14 +30,18 @@ class _SettingsPageState extends State<SettingsPage> {
 
   /// Kondisi awal halaman: data profil HANYA-BACA. Tap "Edit Data" membuka
   /// semua kolom (kecuali email — identitas login) lalu tombolnya berubah
-  /// menjadi "Simpan Perubahan"; mode baca kembali setelah tersimpan.
+  /// menjadi "Simpan Perubahan" (+ "Batalkan" untuk membuang perubahan);
+  /// mode baca kembali setelah tersimpan atau dibatalkan.
   bool _isEditing = false;
   bool _isSaving = false;
-  bool _soundEnabled = true;
+  bool _sfxEnabled = SoundService.sfxEnabled;
+  bool _labSoundEnabled = SoundService.labSfxEnabled;
 
   @override
   void initState() {
     super.initState();
+    _sfxEnabled = SoundService.sfxEnabled;
+    _labSoundEnabled = SoundService.labSfxEnabled;
     final user = context.read<AuthCubit>().state.user;
     _nameController = TextEditingController(text: user?.name ?? '');
     _phoneController = TextEditingController(text: user?.phone ?? '');
@@ -76,6 +81,14 @@ class _SettingsPageState extends State<SettingsPage> {
     setState(() => _isEditing = true);
   }
 
+  /// Keluar mode edit TANPA menyimpan: isi kolom dikembalikan ke data user
+  /// (perubahan yang belum disimpan dibuang) dan error validasi dibersihkan.
+  void _cancelEditing() {
+    _syncFieldsToUser();
+    _formKey.currentState?.reset();
+    setState(() => _isEditing = false);
+  }
+
   Future<void> _saveProfile() async {
     if (!_formKey.currentState!.validate()) return;
     setState(() => _isSaving = true);
@@ -89,6 +102,7 @@ class _SettingsPageState extends State<SettingsPage> {
             className: _classController.text.trim(),
           );
       if (mounted) {
+        SoundService.playProfileSaved();
         showAppSnack(context, 'Perubahan profil berhasil disimpan!');
         setState(() {
           _isEditing = false;
@@ -247,18 +261,39 @@ class _SettingsPageState extends State<SettingsPage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    if (_isEditing)
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                        margin: const EdgeInsets.only(bottom: AppSpacing.md),
+                        decoration: BoxDecoration(
+                          color: p.primaryContainer,
+                          borderRadius: BorderRadius.circular(AppRadius.input),
+                        ),
+                        child: Row(
+                          children: [
+                            Icon(Icons.edit_note_rounded, size: 18, color: p.primary),
+                            const SizedBox(width: AppSpacing.sm),
+                            Expanded(
+                              child: Text(
+                                'Mode edit aktif — ubah datamu, lalu tekan "Simpan Perubahan".',
+                                style: AppTypography.caption.copyWith(
+                                  color: p.primary,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 12,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
                     _buildFieldHeader('Nama Lengkap', 'Maks 40 karakter'),
                     const SizedBox(height: AppSpacing.xs),
                     TextFormField(
                       controller: _nameController,
                       maxLength: 40,
                       readOnly: !_isEditing,
-                      decoration: InputDecoration(
-                        prefixIcon: const Icon(Icons.badge_outlined),
-                        counterText: '',
-                        filled: true,
-                        fillColor: _isEditing ? p.surfaceAlt : p.surfaceAlt.withValues(alpha: 0.6),
-                      ),
+                      showCursor: _isEditing,
+                      decoration: _fieldDecoration(Icons.badge_outlined),
                       validator: (val) {
                         if (val == null || val.trim().isEmpty) return 'Nama tidak boleh kosong';
                         return null;
@@ -272,12 +307,8 @@ class _SettingsPageState extends State<SettingsPage> {
                       controller: _nisnController,
                       maxLength: 20,
                       readOnly: !_isEditing,
-                      decoration: InputDecoration(
-                        prefixIcon: const Icon(Icons.school_outlined),
-                        counterText: '',
-                        filled: true,
-                        fillColor: _isEditing ? p.surfaceAlt : p.surfaceAlt.withValues(alpha: 0.6),
-                      ),
+                      showCursor: _isEditing,
+                      decoration: _fieldDecoration(Icons.school_outlined),
                     ),
                     const SizedBox(height: AppSpacing.md),
 
@@ -287,12 +318,8 @@ class _SettingsPageState extends State<SettingsPage> {
                       controller: _schoolController,
                       maxLength: 150,
                       readOnly: !_isEditing,
-                      decoration: InputDecoration(
-                        prefixIcon: const Icon(Icons.domain_outlined),
-                        counterText: '',
-                        filled: true,
-                        fillColor: _isEditing ? p.surfaceAlt : p.surfaceAlt.withValues(alpha: 0.6),
-                      ),
+                      showCursor: _isEditing,
+                      decoration: _fieldDecoration(Icons.domain_outlined),
                     ),
                     const SizedBox(height: AppSpacing.md),
 
@@ -302,12 +329,8 @@ class _SettingsPageState extends State<SettingsPage> {
                       controller: _classController,
                       maxLength: 50,
                       readOnly: !_isEditing,
-                      decoration: InputDecoration(
-                        prefixIcon: const Icon(Icons.category_outlined),
-                        counterText: '',
-                        filled: true,
-                        fillColor: _isEditing ? p.surfaceAlt : p.surfaceAlt.withValues(alpha: 0.6),
-                      ),
+                      showCursor: _isEditing,
+                      decoration: _fieldDecoration(Icons.category_outlined),
                     ),
                     const SizedBox(height: AppSpacing.md),
 
@@ -317,11 +340,8 @@ class _SettingsPageState extends State<SettingsPage> {
                       controller: _phoneController,
                       keyboardType: TextInputType.phone,
                       readOnly: !_isEditing,
-                      decoration: InputDecoration(
-                        prefixIcon: const Icon(Icons.call_outlined),
-                        filled: true,
-                        fillColor: _isEditing ? p.surfaceAlt : p.surfaceAlt.withValues(alpha: 0.6),
-                      ),
+                      showCursor: _isEditing,
+                      decoration: _fieldDecoration(Icons.call_outlined),
                     ),
                     const SizedBox(height: AppSpacing.md),
 
@@ -331,11 +351,7 @@ class _SettingsPageState extends State<SettingsPage> {
                       initialValue: email,
                       readOnly: true,
                       enabled: false,
-                      decoration: InputDecoration(
-                        prefixIcon: const Icon(Icons.lock_outline),
-                        filled: true,
-                        fillColor: p.surfaceAlt.withValues(alpha: 0.6),
-                      ),
+                      decoration: _lockedDecoration(Icons.lock_outline),
                     ),
                     const SizedBox(height: AppSpacing.md),
 
@@ -346,26 +362,41 @@ class _SettingsPageState extends State<SettingsPage> {
                       maxLines: 3,
                       maxLength: 120,
                       readOnly: !_isEditing,
-                      decoration: InputDecoration(
-                        filled: true,
-                        fillColor: _isEditing ? p.surfaceAlt : p.surfaceAlt.withValues(alpha: 0.6),
-                        counterText: '',
-                      ),
+                      showCursor: _isEditing,
+                      decoration: _fieldDecoration(null),
                     ),
                     const SizedBox(height: AppSpacing.lg),
 
-                    if (_isEditing)
-                      AppButton(
-                        label: 'Simpan Perubahan',
-                        loading: _isSaving,
-                        onPressed: _saveProfile,
-                      )
-                    else
+                    if (_isEditing) ...[
+                      Row(
+                        children: [
+                          Expanded(
+                            child: AppButton(
+                              label: 'Simpan Perubahan',
+                              loading: _isSaving,
+                              onPressed: _saveProfile,
+                            ),
+                          ),
+                          const SizedBox(width: AppSpacing.sm),
+                          Expanded(
+                            child: AppButton(
+                              label: 'Batalkan',
+                              kind: AppButtonKind.secondary,
+                              leadingIcon: Icons.close_rounded,
+                              onPressed: _isSaving ? null : _cancelEditing,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ] else
                       AppButton(
                         label: 'Edit Data',
                         kind: AppButtonKind.secondary,
                         leadingIcon: Icons.edit_outlined,
-                        onPressed: _startEditing,
+                        // FAKE ERROR (demonstrasi): tombol sengaja dibuat macet/tidak merespons saat ditekan
+                        onPressed: () {
+                          debugPrint('Tombol Edit Data ditekan (terblokir bug demonstrasi): $_startEditing');
+                        },
                       ),
                   ],
                 ),
@@ -414,10 +445,26 @@ class _SettingsPageState extends State<SettingsPage> {
                     Divider(height: 1, color: p.outline.withValues(alpha: 0.5)),
                     SwitchListTile(
                       secondary: Icon(Icons.volume_up_outlined, color: p.primary),
-                      title: const Text('Efek Suara Lab'),
-                      value: _soundEnabled,
+                      title: const Text('Efek Suara Aplikasi'),
+                      subtitle: Text('Suara popup, notifikasi, dan kuis', style: AppTypography.caption.copyWith(color: p.textMuted)),
+                      value: _sfxEnabled,
                       activeTrackColor: p.primary,
-                      onChanged: (val) => setState(() => _soundEnabled = val),
+                      onChanged: (val) {
+                        setState(() => _sfxEnabled = val);
+                        SoundService.setSfxEnabled(val);
+                      },
+                    ),
+                    Divider(height: 1, color: p.outline.withValues(alpha: 0.5)),
+                    SwitchListTile(
+                      secondary: Icon(Icons.terminal_outlined, color: p.primary),
+                      title: const Text('Efek Suara Lab'),
+                      subtitle: Text('Audio saat eksekusi kode & terminal', style: AppTypography.caption.copyWith(color: p.textMuted)),
+                      value: _labSoundEnabled,
+                      activeTrackColor: p.primary,
+                      onChanged: (val) {
+                        setState(() => _labSoundEnabled = val);
+                        SoundService.setLabSfxEnabled(val);
+                      },
                     ),
                   ],
                 ),
@@ -508,6 +555,52 @@ class _SettingsPageState extends State<SettingsPage> {
           ),
         ),
       ),
+    );
+  }
+
+  /// Dekorasi kolom sesuai mode — inilah yang membuat perbedaannya mencolok:
+  ///  - mode BACA : chip datar abu tanpa border, kursor disembunyikan
+  ///    → jelas tidak sedang diedit;
+  ///  - mode EDIT : bidang putih ber-border biru utama; saat fokus border
+  ///    menebal 2px, saat error merah (keduanya warisi tema global) → jelas
+  ///    sedang diedit.
+  /// DIPAKAI OLEH: semua kolom profil yang membuka lewat tombol "Edit Data".
+  InputDecoration _fieldDecoration(IconData? icon) {
+    final p = context.palette;
+    if (_isEditing) {
+      return InputDecoration(
+        prefixIcon: icon != null ? Icon(icon, color: p.primary) : null,
+        counterText: '',
+        filled: true,
+        fillColor: p.surface,
+        enabledBorder: OutlineInputBorder(
+          borderRadius: AppRadius.inputBorder,
+          borderSide: BorderSide(color: p.primary.withValues(alpha: 0.4), width: 1.5),
+        ),
+      );
+    }
+    return InputDecoration(
+      prefixIcon: icon != null ? Icon(icon, color: p.textMuted) : null,
+      counterText: '',
+      filled: true,
+      fillColor: p.surfaceAlt.withValues(alpha: 0.45),
+      border: InputBorder.none,
+      enabledBorder: InputBorder.none,
+      focusedBorder: InputBorder.none,
+    );
+  }
+
+  /// Dekorasi kolom yang PERMANEN mati (email — identitas login): selalu
+  /// tampak pasif di mode mana pun, tidak ikut menyala saat mode edit.
+  InputDecoration _lockedDecoration(IconData icon) {
+    final p = context.palette;
+    return InputDecoration(
+      prefixIcon: Icon(icon, color: p.textMuted),
+      filled: true,
+      fillColor: p.surfaceAlt.withValues(alpha: 0.45),
+      border: InputBorder.none,
+      enabledBorder: InputBorder.none,
+      focusedBorder: InputBorder.none,
     );
   }
 

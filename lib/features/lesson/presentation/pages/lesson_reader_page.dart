@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../app/router/app_routes.dart';
+import '../../../../core/services/sound_service.dart';
 import '../../../../core/theme/app_palette.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_typography.dart';
@@ -142,6 +143,11 @@ class _LessonReaderPageState extends State<LessonReaderPage> {
     required LessonDetailData data,
     VoidCallback? onRetry,
   }) {
+    if (isCorrect) {
+      SoundService.playQuizCorrect();
+    } else {
+      SoundService.playQuizWrong();
+    }
     SlideFeedbackSheet.show(
       context,
       isCorrect: isCorrect,
@@ -187,12 +193,14 @@ class _LessonReaderPageState extends State<LessonReaderPage> {
         );
 
     if (mounted) {
+      SoundService.playChapterClear();
       showAppSnack(context, 'Selamat! Kamu memperoleh +${data.xpReward} XP! 🎉');
       context.go(AppRoutes.dashboard);
     }
   }
 
   Future<bool> _confirmExit() async {
+    SoundService.playAlertWarning();
     final result = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(

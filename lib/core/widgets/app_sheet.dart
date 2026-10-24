@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../services/sound_service.dart';
 import '../theme/app_palette.dart';
 import '../theme/app_spacing.dart';
 import '../theme/app_typography.dart';
@@ -13,6 +14,7 @@ Future<T?> showAppSheet<T>(
   required WidgetBuilder builder,
   bool fullHeight = false,
 }) {
+  SoundService.playModalOpen();
   return showModalBottomSheet<T>(
     context: context,
     isScrollControlled: true,
