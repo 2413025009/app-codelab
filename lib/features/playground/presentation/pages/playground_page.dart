@@ -261,7 +261,7 @@ print("Jumlah 1-3 =", total)''';
                   borderRadius: BorderRadius.circular(6),
                 ),
                 child: Text(
-                  'Python 3.11',
+                  'Python Sandbox',
                   style: AppTypography.caption.copyWith(
                     color: palette.primary,
                     fontSize: 10,

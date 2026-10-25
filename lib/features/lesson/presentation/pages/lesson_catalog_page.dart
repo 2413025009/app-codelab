@@ -6,6 +6,7 @@ import '../../../../app/router/app_routes.dart';
 import '../../../../core/theme/app_palette.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_typography.dart';
+import '../../../../core/utils/topic_icons.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_card.dart';
 import '../../../../core/widgets/app_progress_bar.dart';
@@ -338,7 +339,7 @@ class _LessonCatalogPageState extends State<LessonCatalogPage> {
                                 borderRadius: BorderRadius.circular(12),
                               ),
                               child: Icon(
-                                isHtml ? Icons.language_rounded : Icons.code_rounded,
+                                isHtml ? Icons.language_rounded : topicIcon(topic),
                                 color: isHtml ? Colors.orange.shade800 : p.primary,
                                 size: 26,
                               ),

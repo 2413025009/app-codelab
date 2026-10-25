@@ -199,12 +199,18 @@ class _LessonReaderPageState extends State<LessonReaderPage> {
   }
 
   Future<void> _finishLesson(LessonDetailData data) async {
+    // FAKE ERROR (Minggu 8): Flag completed keliru hanya true untuk bab awal.
+    // Bab baru (orderIndex > 3 atau track CSS & JS) tidak sengaja mengirim completed: false,
+    // akibatnya backend tidak mengklaim XP (XP siswa tidak bertambah di dashboard/profil).
+    final isCompletedEffective = data.orderIndex <= 3 &&
+        (data.topic == 'Python Dasar' || data.topic == 'HTML & Web Dasar');
+
     // Save completion
     await context.read<LessonRepository>().saveProgress(
           id: data.id,
           currentSlideIndex: data.slides.length,
           progressPercent: 100.0,
-          completed: true,
+          completed: isCompletedEffective,
         );
 
     if (mounted) {

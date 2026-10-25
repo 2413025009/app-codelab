@@ -7,6 +7,7 @@ import '../../../../app/shell/app_shell.dart';
 import '../../../../core/theme/app_palette.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_typography.dart';
+import '../../../../core/utils/topic_icons.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_card.dart';
 import '../../../../core/widgets/app_progress_bar.dart';
@@ -742,7 +743,7 @@ class _TrackRow extends StatelessWidget {
                 borderRadius: BorderRadius.circular(10),
               ),
               child: Icon(
-                isHtml ? Icons.language_rounded : Icons.terminal_rounded,
+                isHtml ? Icons.language_rounded : topicIcon(topic),
                 color: isHtml ? p.error : p.primary,
                 size: 18,
               ),
@@ -791,7 +792,6 @@ class _CertificateItem extends StatelessWidget {
     final done = lessons.where((l) => l.status == 'completed').length;
     final pct = total == 0 ? 0 : (done * 100 ~/ total);
     final isComplete = total > 0 && done == total;
-    final isHtml = topic.toLowerCase().contains('html') || topic.toLowerCase().contains('web');
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md, vertical: AppSpacing.sm + 2),
@@ -805,7 +805,7 @@ class _CertificateItem extends StatelessWidget {
               borderRadius: BorderRadius.circular(10),
             ),
             child: Icon(
-              isHtml ? Icons.language_rounded : Icons.terminal_rounded,
+              topicIcon(topic),
               color: isComplete ? p.primary : p.textMuted,
               size: 20,
             ),
