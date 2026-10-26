@@ -39,7 +39,14 @@ class TheorySlide extends LessonSlide {
   final String? codeFileName;
 
   @override
-  List<Object?> get props => [id, type, title, content, codeSnippet, codeFileName];
+  List<Object?> get props => [
+    id,
+    type,
+    title,
+    content,
+    codeSnippet,
+    codeFileName,
+  ];
 }
 
 class TapToFillSlide extends LessonSlide {
@@ -122,7 +129,13 @@ class OutputPredictSlide extends LessonSlide {
   final String errorMsg;
 
   @override
-  List<Object?> get props => [id, codeSnippet, question, options, correctAnswer];
+  List<Object?> get props => [
+    id,
+    codeSnippet,
+    question,
+    options,
+    correctAnswer,
+  ];
 }
 
 class BugHunterLine extends Equatable {
@@ -211,7 +224,13 @@ class OutroSlide extends LessonSlide {
   final String? nextLessonSlug;
 
   @override
-  List<Object?> get props => [id, summary, accuracy, xpEarned, masteredConcepts];
+  List<Object?> get props => [
+    id,
+    summary,
+    accuracy,
+    xpEarned,
+    masteredConcepts,
+  ];
 }
 
 class LessonDetailData extends Equatable {
@@ -226,6 +245,7 @@ class LessonDetailData extends Equatable {
     required this.status,
     required this.progressPercent,
     required this.currentSlideIndex,
+    this.description = '',
     this.requiredLessonTitle,
     required this.slides,
     required this.contentMarkdown,
@@ -241,6 +261,9 @@ class LessonDetailData extends Equatable {
   final String status;
   final double progressPercent;
   final int currentSlideIndex;
+  // Minggu 9 (owner): deskripsi singkat materi muncul di katalog & kartu
+  // progres profil siswa (di bawah nama lesson/topik).
+  final String description;
   final String? requiredLessonTitle;
   final List<LessonSlide> slides;
   final String contentMarkdown;

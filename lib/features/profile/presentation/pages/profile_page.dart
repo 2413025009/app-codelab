@@ -10,10 +10,13 @@ import '../../../../core/theme/app_typography.dart';
 import '../../../../core/utils/topic_icons.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_card.dart';
-import '../../../../core/widgets/app_progress_bar.dart';
+import '../../../../core/widgets/app_progress_ring.dart';
+import '../../../../core/widgets/app_refresh.dart';
+import '../../../../core/widgets/app_snack.dart';
 import '../../../../core/widgets/competency_radar.dart';
 import '../../../auth/domain/auth_repository.dart';
 import '../../../auth/presentation/cubit/auth_cubit.dart';
+import '../../../challenges/domain/challenge_repository.dart';
 import '../../../dashboard/domain/dashboard_repository.dart';
 import '../../../lesson/domain/lesson_repository.dart';
 import '../../../lesson/domain/slide_models.dart';
@@ -109,7 +112,13 @@ class _ProfilePageState extends State<ProfilePage> {
       final user = context.read<AuthCubit>().state.user;
       final lessonRepo = context.read<LessonRepository>();
       final dashRepo = context.read<DashboardRepository>();
-      final data = await _loadData(lessonRepo, dashRepo, user?.email ?? '');
+      final challengeRepo = context.read<ChallengeRepository>();
+      final data = await _loadData(
+        lessonRepo,
+        dashRepo,
+        challengeRepo,
+        user?.email ?? '',
+      );
       if (!mounted) return;
       setState(() {
         _lastGood = data;
@@ -186,9 +195,10 @@ class _ProfilePageState extends State<ProfilePage> {
         _ProfilePhase.loading => const _ProfileLoading(),
         _ProfilePhase.error => _ProfileError(onRetry: _loadSilently),
         _ProfilePhase.ready => _ProfileContent(
-            data: _lastGood ?? const _ProfileData.empty(),
-            user: user,
-          ),
+          data: _lastGood ?? const _ProfileData.empty(),
+          user: user,
+          onRefresh: _loadSilently,
+        ),
       },
     );
   }
@@ -201,6 +211,7 @@ class _ProfilePageState extends State<ProfilePage> {
   Future<_ProfileData> _loadData(
     LessonRepository lessonRepo,
     DashboardRepository dashRepo,
+    ChallengeRepository challengeRepo,
     String email,
   ) async {
     List<LessonDetailData> lessons;
@@ -208,6 +219,16 @@ class _ProfilePageState extends State<ProfilePage> {
       lessons = await lessonRepo.listAllLessons();
     } catch (_) {
       lessons = const <LessonDetailData>[];
+    }
+
+    // Minggu 9 (owner): sertifikat tantangan tampil PER TANTANGAN (semua
+    // baris) — status tiap siswa diambil dari katalog GET /challenges.
+    List<ChallengeSummary> challenges;
+    try {
+      final catalog = await challengeRepo.getCatalog();
+      challenges = [for (final g in catalog.groups) ...g.challenges];
+    } catch (_) {
+      challenges = const <ChallengeSummary>[];
     }
 
     int challengesDone = 0;
@@ -234,6 +255,7 @@ class _ProfilePageState extends State<ProfilePage> {
       totalChallenges: challengesTotal,
       userXp: userXp,
       skills: skills,
+      challenges: challenges,
     );
   }
 }
@@ -302,10 +324,18 @@ class _ProfileError extends StatelessWidget {
 
 /// Konten utama halaman profil (identitas + statistik + track + sertifikat).
 class _ProfileContent extends StatelessWidget {
-  const _ProfileContent({required this.data, required this.user});
+  const _ProfileContent({
+    required this.data,
+    required this.user,
+    required this.onRefresh,
+  });
 
   final _ProfileData data;
   final AuthUser? user;
+
+  /// Minggu 9 (owner): tarik-ke-bawah memuat ulang data dari server —
+  /// callback dari _ProfilePageState.
+  final Future<void> Function() onRefresh;
 
   @override
   Widget build(BuildContext context) {
@@ -313,8 +343,9 @@ class _ProfileContent extends StatelessWidget {
     final userName = user?.name ?? 'Siswa Baru';
     final xp = user?.xpPoints ?? 0;
     final initial = _initialsOf(userName);
-    final school = user?.schoolName;
-    final className = user?.className;
+    // Minggu 9: bio pribadi tampil pada kartu identitas (siswa maupun guru).
+    final bio = (user?.bio ?? '').trim();
+    final email = (user?.email ?? '').trim();
     final lessons = data.lessons;
 
     // Agregasi per track (topic) — seluruhnya dari GET /lessons (DB),
@@ -324,300 +355,339 @@ class _ProfileContent extends StatelessWidget {
       topics.putIfAbsent(l.topic, () => []).add(l);
     }
     final allTracks = topics.entries.toList()
-      ..sort(
-        (a, b) => _minOrder(a.value).compareTo(_minOrder(b.value)),
-      );
+      ..sort((a, b) => _minOrder(a.value).compareTo(_minOrder(b.value)));
 
-    final completedLessons = lessons.where((l) => l.status == 'completed').length;
+    final completedLessons = lessons
+        .where((l) => l.status == 'completed')
+        .length;
     final tracksDone = allTracks
         .where((e) => e.value.every((l) => l.status == 'completed'))
         .length;
 
-    // Radar hanya memuat skor kompetensi yang benar-benar dihasilkan
-    // (skor 0 — materi yang belum pernah dikerjakan — tidak digambar).
-    final earnedSkills = <String, double>{
-      for (final e in data.skills.entries)
-        if (e.value > 0) e.key: e.value,
+    // Minggu 9 (owner): radar bukan lagi skor skill (rawan kosong bagi
+    // siswa baru) — pai-nya jadi PENGUASAAN per track dari GET /lessons
+    // yang sudah diambil halaman ini: % bab selesai tiap topik, skala
+    // 0..100 (widget radar mempin skala maksimum ke 100).
+    final trackMastery = <String, double>{
+      for (final e in allTracks)
+        e.key: e.value.isEmpty
+            ? 0.0
+            : e.value.where((l) => l.status == 'completed').length *
+                  100 /
+                  e.value.length,
     };
 
-    return SingleChildScrollView(
-      padding: const EdgeInsets.fromLTRB(
-        AppSpacing.screen,
-        AppSpacing.md,
-        AppSpacing.screen,
-        AppSpacing.xxl,
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          // 1. Student Profile Hero Card (Stitch v2)
-          AppCard(
-            padding: const EdgeInsets.all(AppSpacing.lg),
-            child: Column(
-              children: [
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    Stack(
-                      children: [
-                        CircleAvatar(
-                          radius: 32,
-                          backgroundColor: p.primary,
-                          child: Text(
-                            initial,
-                            style: AppTypography.titleL.copyWith(color: Colors.white),
+    return AppRefresh(
+      onRefresh: onRefresh,
+      child: SingleChildScrollView(
+        physics: const AlwaysScrollableScrollPhysics(),
+        padding: const EdgeInsets.fromLTRB(
+          AppSpacing.screen,
+          AppSpacing.md,
+          AppSpacing.screen,
+          AppSpacing.xxl,
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            // 1. Student Profile Hero Card (Stitch v2)
+            AppCard(
+              padding: const EdgeInsets.all(AppSpacing.lg),
+              child: Column(
+                children: [
+                  // Minggu 9: susunan rata tengah atas→bawah — avatar, nama,
+                  // lalu bio pribadi; chip 'Siswa RPL • Tingkat Pemula'
+                  // dan kalimat "Lengkapi identitas di Pengaturan." dihapus.
+                  Stack(
+                    children: [
+                      CircleAvatar(
+                        radius: 32,
+                        backgroundColor: p.primary,
+                        child: Text(
+                          initial,
+                          style: AppTypography.titleL.copyWith(
+                            color: Colors.white,
                           ),
                         ),
-                        Positioned(
-                          bottom: 0,
-                          right: 0,
-                          child: Container(
-                            width: 14,
-                            height: 14,
-                            decoration: BoxDecoration(
-                              color: p.success,
-                              shape: BoxShape.circle,
-                              border: Border.all(color: p.surface, width: 2),
-                            ),
+                      ),
+                      Positioned(
+                        bottom: 0,
+                        right: 0,
+                        child: Container(
+                          width: 14,
+                          height: 14,
+                          decoration: BoxDecoration(
+                            color: p.success,
+                            shape: BoxShape.circle,
+                            border: Border.all(color: p.surface, width: 2),
                           ),
                         ),
-                      ],
-                    ),
-                    const SizedBox(width: AppSpacing.md),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                            decoration: BoxDecoration(
-                              color: p.surfaceAlt,
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Icon(Icons.military_tech_outlined, size: 14, color: p.primary),
-                                const SizedBox(width: 4),
-                                Text(
-                                  'Siswa RPL • Tingkat Pemula',
-                                  style: AppTypography.caption.copyWith(
-                                    color: p.textMuted,
-                                    fontWeight: FontWeight.w600,
-                                    fontSize: 11,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          const SizedBox(height: 4),
-                          Text(
-                            userName,
-                            style: AppTypography.titleM.copyWith(color: p.text, fontWeight: FontWeight.bold),
-                          ),
-                          const SizedBox(height: 2),
-                          Text(
-                            (school == null || school.isEmpty) && (className == null || className.isEmpty)
-                                ? 'Lengkapi identitas di Pengaturan.'
-                                : '${school ?? ''}${school != null && school.isNotEmpty && className != null && className.isNotEmpty ? ' • ' : ''}${className ?? ''}',
-                            style: AppTypography.caption.copyWith(color: p.textMuted),
-                          ),
-                        ],
                       ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: AppSpacing.lg),
-                // Statistik langsung dari DB (GET /me, /challenges, XP user).
-                Row(
-                  children: [
-                    Expanded(
-                      child: _StatCard(
-                        icon: Icons.task_alt,
-                        value: data.totalChallenges != null && data.totalChallenges! > 0
-                            ? '${data.completedChallenges} / ${data.totalChallenges}'
-                            : '${data.completedChallenges}',
-                        label: 'Tantangan',
-                        iconColor: p.primary,
-                      ),
-                    ),
-                    const SizedBox(width: AppSpacing.xs),
-                    Expanded(
-                      child: _StatCard(
-                        icon: Icons.bolt,
-                        value: '$xp',
-                        label: 'Poin XP',
-                        iconColor: p.accent,
-                      ),
-                    ),
-                    const SizedBox(width: AppSpacing.xs),
-                    Expanded(
-                      child: _StatCard(
-                        icon: Icons.school,
-                        value: '$tracksDone / ${allTracks.length}',
-                        label: 'Track Selesai',
-                        iconColor: p.success,
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: AppSpacing.lg),
-
-          // 2. Progres per track — semua track dari DB ditampilkan (walau
-          // belum dikerjakan) supaya siswa mengetahui ada materi apa saja.
-          AppCard(
-            padding: const EdgeInsets.all(AppSpacing.lg),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      'Progres Track Belajar',
-                      style: AppTypography.label.copyWith(color: p.text, fontWeight: FontWeight.bold),
-                    ),
-                    Text(
-                      '$completedLessons/${lessons.length} bab',
-                      style: AppTypography.caption.copyWith(color: p.textMuted),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: AppSpacing.xs),
-                Text(
-                  'Seluruh track kurikulum aplikasi ditampilkan; track yang belum kamu ikuti tampil 0%.',
-                  style: AppTypography.caption.copyWith(color: p.textMuted),
-                ),
-                const SizedBox(height: AppSpacing.lg),
-                if (allTracks.isEmpty)
+                    ],
+                  ),
+                  const SizedBox(height: AppSpacing.md),
                   Text(
-                    'Kurikulum belum tersedia dari server. Coba lagi.',
-                    style: AppTypography.bodyM.copyWith(color: p.textMuted),
-                  )
-                else
-                  for (final entry in allTracks)
-                    Padding(
-                      padding: const EdgeInsets.only(bottom: AppSpacing.md),
-                      child: _TrackRow(
-                        topic: entry.key,
-                        lessons: entry.value,
-                      ),
+                    userName,
+                    textAlign: TextAlign.center,
+                    style: AppTypography.titleM.copyWith(
+                      color: p.text,
+                      fontWeight: FontWeight.bold,
                     ),
-              ],
-            ),
-          ),
-          const SizedBox(height: AppSpacing.lg),
-
-          // 3. Statistik & Sertifikat Track (Stitch v2) — seluruh track dari
-          // DB ditampilkan agar siswa tahu sertifikat apa saja yang tersedia.
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
+                  ),
+                  const SizedBox(height: AppSpacing.xs),
+                  // Minggu 9 (owner): email tampil di bawah nama (identitas
+                  // akun nyata dari GET /me), di atas bio.
+                  if (email.isNotEmpty)
                     Text(
-                      'Statistik & Sertifikat Track',
-                      style: AppTypography.titleM.copyWith(color: p.text),
-                    ),
-                    Text(
-                      'Sertifikat track otomatis terbuka saat seluruh babnya tuntas',
+                      email,
+                      textAlign: TextAlign.center,
                       style: AppTypography.caption.copyWith(color: p.textMuted),
                     ),
+                  const SizedBox(height: AppSpacing.xs),
+                  if (bio.isNotEmpty)
+                    Text(
+                      bio,
+                      textAlign: TextAlign.center,
+                      style: AppTypography.bodyM.copyWith(color: p.textMuted),
+                    )
+                  else
+                    // Minggu 9 (owner): bio kosong → teks "+ Tambah Bio" yang
+                    // bisa diklik → langsung membuka layar Pengaturan Profil.
+                    TextButton.icon(
+                      onPressed: () => context.push(AppRoutes.settings),
+                      icon: const Icon(
+                        Icons.add_circle_outline_rounded,
+                        size: 18,
+                      ),
+                      label: const Text('+ Tambah Bio'),
+                      style: TextButton.styleFrom(
+                        foregroundColor: p.primary,
+                        textStyle: AppTypography.label.copyWith(
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  const SizedBox(height: AppSpacing.lg),
+                  // Statistik langsung dari DB (GET /me, /challenges, XP user).
+                  Row(
+                    children: [
+                      Expanded(
+                        child: _StatCard(
+                          icon: Icons.task_alt,
+                          value:
+                              data.totalChallenges != null &&
+                                  data.totalChallenges! > 0
+                              ? '${data.completedChallenges} / ${data.totalChallenges}'
+                              : '${data.completedChallenges}',
+                          label: 'Tantangan',
+                          iconColor: p.primary,
+                        ),
+                      ),
+                      const SizedBox(width: AppSpacing.xs),
+                      Expanded(
+                        child: _StatCard(
+                          icon: Icons.bolt,
+                          value: '$xp',
+                          label: 'Poin XP',
+                          iconColor: p.accent,
+                        ),
+                      ),
+                      const SizedBox(width: AppSpacing.xs),
+                      Expanded(
+                        child: _StatCard(
+                          icon: Icons.school,
+                          value: '$tracksDone / ${allTracks.length}',
+                          label: 'Materi Selesai',
+                          iconColor: p.success,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: AppSpacing.lg),
+
+            // 2. Peta Penguasaan Materi (Minggu 9, dinaikkan ke ATAS kartu
+            // progres per permintaan owner) — radar % bab selesai per
+            // materi; sumber data sama (GET /lessons), jadi radar terisi
+            // dan tumbuh mengikuti belajar.
+            Text(
+              'Peta Penguasaan Materi',
+              style: AppTypography.titleM.copyWith(color: p.text),
+            ),
+            const SizedBox(height: AppSpacing.sm),
+            AppCard(
+              padding: const EdgeInsets.symmetric(
+                vertical: AppSpacing.md,
+                horizontal: AppSpacing.sm,
+              ),
+              child: allTracks.isEmpty
+                  ? Padding(
+                      padding: const EdgeInsets.symmetric(
+                        vertical: AppSpacing.lg,
+                      ),
+                      child: Text(
+                        'Daftar materi belum tersedia dari server. Coba lagi.',
+                        textAlign: TextAlign.center,
+                        style: AppTypography.bodyM.copyWith(color: p.textMuted),
+                      ),
+                    )
+                  : Center(
+                      child: CompetencyRadar(
+                        scores: trackMastery,
+                        showValueInLabel: true,
+                      ),
+                    ),
+            ),
+            const SizedBox(height: AppSpacing.lg),
+
+            // 3. Progres per materi — semua materi dari DB ditampilkan (walau
+            // belum dikerjakan) supaya siswa mengetahui ada materi apa saja.
+            AppCard(
+              padding: const EdgeInsets.all(AppSpacing.lg),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        'Progres Materi',
+                        style: AppTypography.label.copyWith(
+                          color: p.text,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      Text(
+                        '$completedLessons/${lessons.length} bab',
+                        style: AppTypography.caption.copyWith(
+                          color: p.textMuted,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: AppSpacing.lg),
+                  if (allTracks.isEmpty)
+                    Text(
+                      'Kurikulum belum tersedia dari server. Coba lagi.',
+                      style: AppTypography.bodyM.copyWith(color: p.textMuted),
+                    )
+                  else
+                    for (final entry in allTracks)
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: AppSpacing.md),
+                        child: _TrackRow(
+                          topic: entry.key,
+                          lessons: entry.value,
+                        ),
+                      ),
+                ],
+              ),
+            ),
+            const SizedBox(height: AppSpacing.lg),
+
+            // 4. Sertifikat — DUA bagian terpisah per permintaan owner:
+            // bagian (a) dari LESSON, bagian (b) dari TANTANGAN.
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Sertifikat',
+                        style: AppTypography.titleM.copyWith(color: p.text),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(width: AppSpacing.sm),
+                if (allTracks.isNotEmpty)
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 4,
+                    ),
+                    decoration: BoxDecoration(
+                      color: p.primaryContainer,
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Text(
+                      '$tracksDone/${allTracks.length} Tuntas',
+                      style: AppTypography.caption.copyWith(
+                        color: p.primary,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+              ],
+            ),
+            const SizedBox(height: AppSpacing.sm),
+            // (a) Sertifikat dari LESSON: seluruh materi ditampilkan agar
+            // siswa tahu sertifikat mana yang sudah/tunggu.
+            AppCard(
+              padding: EdgeInsets.zero,
+              child: Column(
+                children: [
+                  if (allTracks.isEmpty)
+                    Padding(
+                      padding: const EdgeInsets.all(AppSpacing.md),
+                      child: Text(
+                        'Daftar materi belum tersedia dari server. Coba lagi.',
+                        style: AppTypography.bodyM.copyWith(color: p.textMuted),
+                      ),
+                    )
+                  else
+                    for (final entry in allTracks) ...[
+                      if (entry.key != allTracks.first.key)
+                        Divider(
+                          height: 1,
+                          color: p.outline.withValues(alpha: 0.5),
+                        ),
+                      _CertificateItem(topic: entry.key, lessons: entry.value),
+                    ],
+                ],
+              ),
+            ),
+            const SizedBox(height: AppSpacing.md),
+
+            // (b) Sertifikat Tantangan — SATU tantangan per baris, tampil
+            // SEMUANYA (selesai maupun belum), status per siswa dari GET
+            // /challenges.
+            Text(
+              'Sertifikat Tantangan',
+              style: AppTypography.titleM.copyWith(color: p.text),
+            ),
+            const SizedBox(height: AppSpacing.sm),
+            if (data.challenges.isEmpty)
+              Padding(
+                padding: const EdgeInsets.only(bottom: AppSpacing.sm),
+                child: Text(
+                  'Belum ada tantangan di katalog — coba lagi.',
+                  style: AppTypography.bodyM.copyWith(color: p.textMuted),
+                ),
+              )
+            else
+              AppCard(
+                padding: EdgeInsets.zero,
+                child: Column(
+                  children: [
+                    for (var i = 0; i < data.challenges.length; i++) ...[
+                      if (i > 0)
+                        Divider(
+                          height: 1,
+                          color: p.outline.withValues(alpha: 0.5),
+                        ),
+                      _ChallengeCertItem(challenge: data.challenges[i]),
+                    ],
                   ],
                 ),
               ),
-              const SizedBox(width: AppSpacing.sm),
-              if (allTracks.isNotEmpty)
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                  decoration: BoxDecoration(
-                    color: p.primaryContainer,
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Text(
-                    '$tracksDone/${allTracks.length} Tuntas',
-                    style: AppTypography.caption.copyWith(color: p.primary, fontWeight: FontWeight.bold),
-                  ),
-                ),
-            ],
-          ),
-          const SizedBox(height: AppSpacing.sm),
-          AppCard(
-            padding: EdgeInsets.zero,
-            child: Column(
-              children: [
-                if (allTracks.isEmpty)
-                  Padding(
-                    padding: const EdgeInsets.all(AppSpacing.md),
-                    child: Text(
-                      'Daftar track belum tersedia dari server. Coba lagi.',
-                      style: AppTypography.bodyM.copyWith(color: p.textMuted),
-                    ),
-                  )
-                else
-                  for (final entry in allTracks) ...[
-                    if (entry.key != allTracks.first.key)
-                      Divider(height: 1, color: p.outline.withValues(alpha: 0.5)),
-                    _CertificateItem(
-                      topic: entry.key,
-                      lessons: entry.value,
-                    ),
-                  ],
-              ],
-            ),
-          ),
-          const SizedBox(height: AppSpacing.xl),
-
-          // 4. Competency Radar (PRD Section 4) — skor dari GET /me/skills.
-          Text(
-            'Peta Radar Kompetensi',
-            style: AppTypography.titleM.copyWith(color: p.text),
-          ),
-          const SizedBox(height: AppSpacing.xs),
-          Text(
-            'Skor dihitung dari bukti tantangan dan materi yang kamu tuntaskan',
-            style: AppTypography.bodyM.copyWith(color: p.textMuted),
-          ),
-          const SizedBox(height: AppSpacing.sm),
-          AppCard(
-            padding: const EdgeInsets.symmetric(vertical: AppSpacing.md, horizontal: AppSpacing.sm),
-            child: earnedSkills.isNotEmpty
-                ? Center(
-                    child: CompetencyRadar(
-                      scores: earnedSkills,
-                      showValueInLabel: true,
-                    ),
-                  )
-                : Padding(
-                    padding: const EdgeInsets.symmetric(vertical: AppSpacing.lg),
-                    child: Column(
-                      children: [
-                        Icon(Icons.radar_rounded, size: 40, color: p.textMuted.withValues(alpha: 0.5)),
-                        const SizedBox(height: AppSpacing.sm),
-                        Text(
-                          'Radar masih kosong. Selesaikan materi dan tantangan pertamamu untuk mengisi skor kompetensi.',
-                          textAlign: TextAlign.center,
-                          style: AppTypography.bodyM.copyWith(color: p.textMuted),
-                        ),
-                      ],
-                    ),
-                  ),
-          ),
-          const SizedBox(height: AppSpacing.xl),
-
-          // Button to Settings
-          AppButton(
-            label: 'Buka Pengaturan Akun & Lab',
-            kind: AppButtonKind.secondary,
-            leadingIcon: Icons.settings,
-            onPressed: () => context.push(AppRoutes.settings),
-          ),
-        ],
+            const SizedBox(height: AppSpacing.xl),
+          ],
+        ),
       ),
     );
   }
@@ -631,10 +701,15 @@ class _ProfileContent extends StatelessWidget {
   }
 
   static String _initialsOf(String name) {
-    final parts = name.trim().split(RegExp(r'\s+')).where((w) => w.isNotEmpty).toList();
+    final parts = name
+        .trim()
+        .split(RegExp(r'\s+'))
+        .where((w) => w.isNotEmpty)
+        .toList();
     if (parts.isEmpty) return 'S';
     if (parts.length == 1) return parts.first.substring(0, 1).toUpperCase();
-    return '${parts.first.substring(0, 1)}${parts.last.substring(0, 1)}'.toUpperCase();
+    return '${parts.first.substring(0, 1)}${parts.last.substring(0, 1)}'
+        .toUpperCase();
   }
 }
 
@@ -645,14 +720,16 @@ class _ProfileData {
     this.totalChallenges,
     this.userXp,
     required this.skills,
+    this.challenges = const [],
   });
 
   const _ProfileData.empty()
-      : lessons = const [],
-        completedChallenges = 0,
-        totalChallenges = null,
-        userXp = null,
-        skills = const {};
+    : lessons = const [],
+      completedChallenges = 0,
+      totalChallenges = null,
+      userXp = null,
+      skills = const {},
+      challenges = const [];
 
   final List<LessonDetailData> lessons;
   final int completedChallenges;
@@ -664,6 +741,10 @@ class _ProfileData {
   final int? userXp;
 
   final Map<String, double> skills;
+
+  /// Minggu 9: daftar SEMUA tantangan (status per siswa) untuk baris
+  /// sertifikat per tantangan; kosong bila katalog gagal diambil.
+  final List<ChallengeSummary> challenges;
 }
 
 class _StatCard extends StatelessWidget {
@@ -683,29 +764,45 @@ class _StatCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final p = context.palette;
     return Container(
-      padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 8),
+      padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 6),
       decoration: BoxDecoration(
         color: p.surfaceAlt,
         borderRadius: BorderRadius.circular(12),
       ),
       child: Column(
+        // Minggu 9 (owner): ikon lebih TONJOL — berdiri sendiri di atas,
+        // lalu nilai, lalu keterangan (jelas terbaca, ukuran tetap).
         children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(icon, size: 16, color: iconColor),
-              const SizedBox(width: 4),
-              Text(
-                value,
-                style: AppTypography.label.copyWith(color: p.text, fontWeight: FontWeight.bold, fontSize: 15),
-              ),
-            ],
+          Container(
+            width: 30,
+            height: 30,
+            decoration: BoxDecoration(
+              color: iconColor.withValues(alpha: 0.14),
+              shape: BoxShape.circle,
+            ),
+            alignment: Alignment.center,
+            child: Icon(icon, size: 17, color: iconColor),
+          ),
+          const SizedBox(height: 6),
+          Text(
+            value,
+            style: AppTypography.label.copyWith(
+              color: p.text,
+              fontWeight: FontWeight.bold,
+              fontSize: 15,
+            ),
           ),
           const SizedBox(height: 2),
           Text(
             label,
-            style: AppTypography.caption.copyWith(color: p.textMuted, fontSize: 11),
+            style: AppTypography.caption.copyWith(
+              color: p.text,
+              fontWeight: FontWeight.w600,
+              fontSize: 11,
+            ),
             textAlign: TextAlign.center,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
           ),
         ],
       ),
@@ -713,9 +810,10 @@ class _StatCard extends StatelessWidget {
   }
 }
 
-/// Satu baris progres per track (topic) beserta persentase bab selesai.
-/// Track yang belum pernah disentuh pun tampil (0/total) supaya siswa
-/// mengetahui ada materi apa saja di aplikasi.
+/// Satu baris progres per track (topic): nama, jumlah bab tuntas, dan
+/// ring persen. Track yang belum pernah disentuh pun tampil (0/total)
+/// supaya siswa mengetahui ada materi apa saja di aplikasi.
+/// Minggu 9: garis slider dihapus (owner) — degan (_ _ _) ring persen cukup.
 class _TrackRow extends StatelessWidget {
   const _TrackRow({required this.topic, required this.lessons});
 
@@ -728,7 +826,17 @@ class _TrackRow extends StatelessWidget {
     final total = lessons.length;
     final done = lessons.where((l) => l.status == 'completed').length;
     final pct = total == 0 ? 0.0 : done / total;
-    final isHtml = topic.toLowerCase().contains('html') || topic.toLowerCase().contains('web');
+    final isHtml =
+        topic.toLowerCase().contains('html') ||
+        topic.toLowerCase().contains('web');
+    // Minggu 9 (owner): deskripsi singkat materi ditarik tepat di bawah
+    // nama — bab pertama topik mewakili deskripsi topiknya (kolom
+    // lessons.description dari migrasi 000019).
+    final desc = lessons.isEmpty
+        ? ''
+        : lessons
+              .reduce((a, b) => a.orderIndex <= b.orderIndex ? a : b)
+              .description;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -752,35 +860,45 @@ class _TrackRow extends StatelessWidget {
             Expanded(
               child: Text(
                 topic,
-                style: AppTypography.label.copyWith(color: p.text, fontWeight: FontWeight.bold),
+                style: AppTypography.label.copyWith(
+                  color: p.text,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
             ),
             Text(
-              '$done/$total',
-              style: AppTypography.caption.copyWith(color: p.textMuted, fontWeight: FontWeight.bold),
+              '$done/$total Bab',
+              style: AppTypography.caption.copyWith(
+                color: p.textMuted,
+                fontWeight: FontWeight.bold,
+              ),
             ),
             const SizedBox(width: AppSpacing.sm),
-            Text(
-              '${(pct * 100).round()}%',
-              style: AppTypography.caption.copyWith(color: p.primary, fontWeight: FontWeight.bold),
-            ),
+            // Minggu 9 (owner): persen tampil sebagai ring melingkar yang
+            // mengikuti nilai — 50% = setengah lingkaran, bukan angka biasa.
+            AppProgressRing(value: pct, label: '${(pct * 100).round()}%'),
           ],
         ),
-        const SizedBox(height: AppSpacing.sm),
-        AppProgressBar(value: pct),
+        // Deskripsi singkat materi tepat di bawah nama materi.
+        if (desc.isNotEmpty)
+          Padding(
+            padding: const EdgeInsets.only(top: AppSpacing.xs),
+            child: Text(
+              desc,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              style: AppTypography.caption.copyWith(color: p.textMuted),
+            ),
+          ),
       ],
     );
   }
 }
 
-/// Baris sertifikat per track: Tuntas saat seluruh bab 100%, selain itu
-/// persentase realistis + status belajar (termasuk "Belum dimulai").
-/// Tidak ada aksi unduh palsu.
+/// Baris sertifikat per track: saat seluruh bab 100% → tombol unduh
+/// RINGKAS (mentah — snack placeholder), selain itu persen + status belajar.
 class _CertificateItem extends StatelessWidget {
-  const _CertificateItem({
-    required this.topic,
-    required this.lessons,
-  });
+  const _CertificateItem({required this.topic, required this.lessons});
 
   final String topic;
   final List<LessonDetailData> lessons;
@@ -794,7 +912,10 @@ class _CertificateItem extends StatelessWidget {
     final isComplete = total > 0 && done == total;
 
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md, vertical: AppSpacing.sm + 2),
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.md,
+        vertical: AppSpacing.sm + 2,
+      ),
       child: Row(
         children: [
           Container(
@@ -817,7 +938,10 @@ class _CertificateItem extends StatelessWidget {
               children: [
                 Text(
                   topic,
-                  style: AppTypography.label.copyWith(color: p.text, fontWeight: FontWeight.bold),
+                  style: AppTypography.label.copyWith(
+                    color: p.text,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
                 const SizedBox(height: 2),
                 Row(
@@ -826,18 +950,22 @@ class _CertificateItem extends StatelessWidget {
                       width: 6,
                       height: 6,
                       decoration: BoxDecoration(
-                        color: isComplete ? p.success : (done > 0 ? p.primary : p.textMuted),
+                        color: isComplete
+                            ? p.success
+                            : (done > 0 ? p.primary : p.textMuted),
                         shape: BoxShape.circle,
                       ),
                     ),
                     const SizedBox(width: 4),
                     Text(
                       isComplete
-                          ? 'Tuntas'
+                          ? 'Sertifikat siap diunduh'
                           : (done > 0 ? 'Sedang belajar' : 'Belum dimulai'),
                       style: AppTypography.caption.copyWith(
                         color: isComplete ? p.success : p.textMuted,
-                        fontWeight: isComplete ? FontWeight.bold : FontWeight.normal,
+                        fontWeight: isComplete
+                            ? FontWeight.bold
+                            : FontWeight.normal,
                         fontSize: 11,
                       ),
                     ),
@@ -846,32 +974,195 @@ class _CertificateItem extends StatelessWidget {
               ],
             ),
           ),
+          if (isComplete)
+            // Minggu 9 (owner): tombol unduh RINGKAS berlabel "Unduh"
+            // saja — aksi asli menyusul bersama generator PDF sertifikat.
+            const _CompactDownloadButton(label: 'Unduh')
+          else
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+              decoration: BoxDecoration(
+                color: p.primaryContainer,
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(Icons.lock_outline, size: 12, color: p.primary),
+                  const SizedBox(width: 4),
+                  Text(
+                    '$pct%',
+                    style: AppTypography.caption.copyWith(
+                      color: p.primary,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 11,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Minggu 9 (owner): sertifikat tantangan per baris — SATU tantangan per
+/// baris, tampil SEMUANYA (selesai maupun belum), status dari GET
+/// /challenges siswa yang sedang login.
+class _ChallengeCertItem extends StatelessWidget {
+  const _ChallengeCertItem({required this.challenge});
+
+  final ChallengeSummary challenge;
+
+  @override
+  Widget build(BuildContext context) {
+    final p = context.palette;
+    final isDone = challenge.status == ChallengeStatus.completed;
+    final isLocked = challenge.isLocked;
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.md,
+        vertical: AppSpacing.sm + 2,
+      ),
+      child: Row(
+        children: [
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+            width: 40,
+            height: 40,
             decoration: BoxDecoration(
-              color: isComplete ? p.success.withValues(alpha: 0.12) : p.primaryContainer,
+              color: isDone ? p.success.withValues(alpha: 0.16) : p.surfaceAlt,
               borderRadius: BorderRadius.circular(10),
             ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
+            child: Icon(
+              isDone
+                  ? Icons.workspace_premium_outlined
+                  : topicIcon(challenge.topicTag),
+              color: isDone ? p.success : p.textMuted,
+              size: 20,
+            ),
+          ),
+          const SizedBox(width: AppSpacing.md),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                if (isComplete)
-                  Icon(Icons.military_tech_rounded, size: 13, color: p.success)
-                else
-                  Icon(Icons.lock_outline, size: 12, color: p.primary),
-                const SizedBox(width: 4),
                 Text(
-                  isComplete ? 'Tuntas' : '$pct%',
-                  style: AppTypography.caption.copyWith(
-                    color: isComplete ? p.success : p.primary,
+                  challenge.title,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: AppTypography.label.copyWith(
+                    color: p.text,
                     fontWeight: FontWeight.bold,
-                    fontSize: 11,
                   ),
+                ),
+                const SizedBox(height: 2),
+                Row(
+                  children: [
+                    Container(
+                      width: 6,
+                      height: 6,
+                      decoration: BoxDecoration(
+                        color: isDone
+                            ? p.success
+                            : isLocked
+                            ? p.textMuted
+                            : p.primary,
+                        shape: BoxShape.circle,
+                      ),
+                    ),
+                    const SizedBox(width: 4),
+                    Text(
+                      isDone
+                          ? 'Selesai — sertifikat siap'
+                          : isLocked
+                          ? 'Terkunci — kurang XP'
+                          : challenge.status == ChallengeStatus.inProgress
+                          ? 'Sedang dikerjakan'
+                          : 'Belum dimulai',
+                      style: AppTypography.caption.copyWith(
+                        color: isDone ? p.success : p.textMuted,
+                        fontWeight: isDone
+                            ? FontWeight.bold
+                            : FontWeight.normal,
+                        fontSize: 11,
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),
           ),
+          if (isDone)
+            const _CompactDownloadButton(label: 'Unduh')
+          else
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+              decoration: BoxDecoration(
+                color: p.primaryContainer,
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  if (isLocked)
+                    Icon(Icons.lock_outline, size: 12, color: p.primary)
+                  else
+                    Icon(Icons.bolt_rounded, size: 13, color: p.primary),
+                  const SizedBox(width: 4),
+                  Text(
+                    '+${challenge.xp} XP',
+                    style: AppTypography.caption.copyWith(
+                      color: p.primary,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 11,
+                    ),
+                  ),
+                ],
+              ),
+            ),
         ],
+      ),
+    );
+  }
+}
+
+/// Minggu 9 (owner): tombol unduhan RINGKAS berbagi baris dengan judul —
+/// selama generator PDF sertifikat belum ada, aksinya snack placeholder.
+class _CompactDownloadButton extends StatelessWidget {
+  const _CompactDownloadButton({required this.label});
+
+  final String label;
+
+  @override
+  Widget build(BuildContext context) {
+    final p = context.palette;
+    return Material(
+      color: p.primary,
+      borderRadius: BorderRadius.circular(10),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(10),
+        onTap: () =>
+            showAppSnack(context, 'Fitur unduh sertifikat segera hadir, ya!'),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Icon(Icons.download_rounded, size: 14, color: Colors.white),
+              const SizedBox(width: 4),
+              Text(
+                label,
+                style: AppTypography.caption.copyWith(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 11,
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }

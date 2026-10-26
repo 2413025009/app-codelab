@@ -23,6 +23,7 @@ class AppTextField extends StatefulWidget {
     this.autofillHints,
     this.inputFormatters,
     this.autovalidateMode = AutovalidateMode.onUnfocus,
+    this.suffixWidget,
   });
 
   final String label;
@@ -41,6 +42,9 @@ class AppTextField extends StatefulWidget {
   final Iterable<String>? autofillHints;
   final List<TextInputFormatter>? inputFormatters;
   final AutovalidateMode autovalidateMode;
+
+  /// Widget opsional di ujung kanan field (mis. spinner saat verifikasi kode).
+  final Widget? suffixWidget;
 
   @override
   State<AppTextField> createState() => _AppTextFieldState();
@@ -61,6 +65,8 @@ class _AppTextFieldState extends State<AppTextField> {
         icon: Icon(_hidden ? Icons.visibility_off_rounded : Icons.visibility_rounded, color: p.textMuted),
         onPressed: () => setState(() => _hidden = !_hidden),
       );
+    } else if (widget.suffixWidget != null) {
+      suffix = widget.suffixWidget;
     } else if (widget.prefixIcon != null) {
       suffix = Icon(widget.prefixIcon, color: p.textMuted);
     }

@@ -4,7 +4,11 @@ import 'package:flutter/widgets.dart';
 import 'slide_models.dart';
 
 class LessonPoint extends Equatable {
-  const LessonPoint({required this.icon, required this.title, required this.description});
+  const LessonPoint({
+    required this.icon,
+    required this.title,
+    required this.description,
+  });
   final IconData icon;
   final String title;
   final String description;
@@ -75,7 +79,11 @@ class LessonContent extends Equatable {
 /// Contract for lesson content (GET /lessons/:id).
 abstract interface class LessonRepository {
   Future<LessonDetailData> getLessonDetail(String id);
-  Future<void> saveProgress({
+
+  /// Minggu 9: mengembalikan jumlah XP yang SAH dibayarkan server untuk
+  /// penyelesaian ini — 0 saat bab sudah pernah tuntas (XP tidak dihitung
+  /// dua kali; sumber kebenaran = klaim atomik xr di `xp_awarded`).
+  Future<int> saveProgress({
     required String id,
     required int currentSlideIndex,
     required double progressPercent,

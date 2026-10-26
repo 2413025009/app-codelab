@@ -8,12 +8,16 @@ abstract final class Validators {
   static String? name(String? v) => required(v, 'Isi nama lengkapmu dulu.');
 
   static String? email(String? v) {
-    if (v == null || v.trim().isEmpty) return 'Isi email kamu dulu.';
-    if (!_email.hasMatch(v.trim())) return 'Format email belum benar. Contoh: nama@smk.belajar.id';
+    final value = v?.trim() ?? '';
+    if (value.isEmpty) return 'Isi email kamu dulu.';
+    if (!_email.hasMatch(value)) {
+      return 'Format email belum benar. Contoh: nama@smk.belajar.id';
+    }
     return null;
   }
 
-  static String? loginPassword(String? v) => required(v, 'Isi kata sandi kamu dulu.');
+  static String? loginPassword(String? v) =>
+      required(v, 'Isi kata sandi kamu dulu.');
 
   static bool hasMinLength(String v) => v.length >= 8;
   static bool hasDigitOrSymbol(String v) => RegExp(r'[0-9\W_]').hasMatch(v);
@@ -24,6 +28,15 @@ abstract final class Validators {
     if (!hasMinLength(s) || !hasDigitOrSymbol(s)) {
       return 'Minimal 8 karakter dan ada angka atau simbol.';
     }
+    return null;
+  }
+
+  /// Minggu 9: kolom konfirmasi sandi pada formulir registrasi (siswa & guru).
+  static String? confirmPassword(String? v, String password) {
+    if (v == null || v.isEmpty) {
+      return 'Ketik ulang kata sandi untuk konfirmasi.';
+    }
+    if (v != password) return 'Kata sandi belum sama dengan isian pertama.';
     return null;
   }
 }

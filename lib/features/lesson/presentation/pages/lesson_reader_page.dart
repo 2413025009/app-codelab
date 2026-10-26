@@ -23,10 +23,7 @@ import '../widgets/slides/theory_slide_widget.dart';
 import '../widgets/slides/type_code_slide_widget.dart';
 
 class LessonReaderPage extends StatefulWidget {
-  const LessonReaderPage({
-    super.key,
-    required this.lessonId,
-  });
+  const LessonReaderPage({super.key, required this.lessonId});
 
   final String lessonId;
 
@@ -44,7 +41,8 @@ class _LessonReaderPageState extends State<LessonReaderPage> {
   // GlobalKeys to access slide state for validation
   final GlobalKey<TapToFillSlideWidgetState> _tapToFillKey = GlobalKey();
   final GlobalKey<TypeCodeSlideWidgetState> _typeCodeKey = GlobalKey();
-  final GlobalKey<OutputPredictSlideWidgetState> _outputPredictKey = GlobalKey();
+  final GlobalKey<OutputPredictSlideWidgetState> _outputPredictKey =
+      GlobalKey();
   final GlobalKey<BugHunterSlideWidgetState> _bugHunterKey = GlobalKey();
   final GlobalKey<QuizSlideWidgetState> _quizKey = GlobalKey();
 
@@ -57,7 +55,8 @@ class _LessonReaderPageState extends State<LessonReaderPage> {
   void _loadLesson() {
     final repo = context.read<LessonRepository>();
     _future = repo.getLessonDetail(widget.lessonId).then((data) {
-      if (data.currentSlideIndex > 1 && data.currentSlideIndex <= data.slides.length) {
+      if (data.currentSlideIndex > 1 &&
+          data.currentSlideIndex <= data.slides.length) {
         final targetIndex = data.currentSlideIndex - 1;
         WidgetsBinding.instance.addPostFrameCallback((_) {
           if (_pageController.hasClients) {
@@ -175,11 +174,11 @@ class _LessonReaderPageState extends State<LessonReaderPage> {
       // Save progress to backend
       final progressPercent = ((nextIdx + 1) / data.slides.length) * 100.0;
       context.read<LessonRepository>().saveProgress(
-            id: data.id,
-            currentSlideIndex: nextIdx + 1,
-            progressPercent: progressPercent,
-            completed: false,
-          );
+        id: data.id,
+        currentSlideIndex: nextIdx + 1,
+        progressPercent: progressPercent,
+        completed: false,
+      );
     }
   }
 
@@ -199,17 +198,25 @@ class _LessonReaderPageState extends State<LessonReaderPage> {
   }
 
   Future<void> _finishLesson(LessonDetailData data) async {
-    // Save completion: catat bab selesai 100% dan klaim reward XP
-    await context.read<LessonRepository>().saveProgress(
-          id: data.id,
-          currentSlideIndex: data.slides.length,
-          progressPercent: 100.0,
-          completed: true,
-        );
+    // Minggu 9: klaim XP diampu server (anti panen XP dobel) — hasil klaim
+    // baru jadi boyong toast; buka ulang bab selesai = toast jujur 0 XP.
+    final claimed = await context.read<LessonRepository>().saveProgress(
+      id: data.id,
+      currentSlideIndex: data.slides.length,
+      progressPercent: 100.0,
+      completed: true,
+    );
 
     if (mounted) {
       SoundService.playChapterClear();
-      showAppSnack(context, 'Selamat! Kamu memperoleh +${data.xpReward} XP! 🎉');
+      if (claimed > 0) {
+        showAppSnack(context, 'Selamat! Kamu memperoleh +$claimed XP! 🎉');
+      } else {
+        showAppSnack(
+          context,
+          'Bab sudah pernah dituntaskan — XP tidak dihitung dua kali.',
+        );
+      }
       context.go(AppRoutes.dashboard);
     }
   }
@@ -220,7 +227,9 @@ class _LessonReaderPageState extends State<LessonReaderPage> {
       context: context,
       builder: (ctx) => AlertDialog(
         title: const Text('Keluar dari Latihan?'),
-        content: const Text('Progres slide terakhirmu akan tersimpan secara otomatis.'),
+        content: const Text(
+          'Progres slide terakhirmu akan tersimpan secara otomatis.',
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(false),
@@ -280,7 +289,10 @@ class _LessonReaderPageState extends State<LessonReaderPage> {
                   padding: const EdgeInsets.only(right: AppSpacing.md),
                   child: Center(
                     child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 4,
+                      ),
                       decoration: BoxDecoration(
                         color: p.accent.withValues(alpha: 0.15),
                         borderRadius: BorderRadius.circular(12),
@@ -331,7 +343,10 @@ class _LessonReaderPageState extends State<LessonReaderPage> {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Text('Gagal memuat materi bab.', style: AppTypography.bodyM.copyWith(color: p.textMuted)),
+                    Text(
+                      'Gagal memuat materi bab.',
+                      style: AppTypography.bodyM.copyWith(color: p.textMuted),
+                    ),
                     const SizedBox(height: AppSpacing.md),
                     AppButton(
                       label: 'Coba lagi',
@@ -356,37 +371,39 @@ class _LessonReaderPageState extends State<LessonReaderPage> {
                     itemBuilder: (context, idx) {
                       final s = data.slides[idx];
                       return switch (s.type) {
-                        SlideType.theory => TheorySlideWidget(slide: s as TheorySlide),
+                        SlideType.theory => TheorySlideWidget(
+                          slide: s as TheorySlide,
+                        ),
                         SlideType.tapToFill => TapToFillSlideWidget(
-                            key: _tapToFillKey,
-                            slide: s as TapToFillSlide,
-                            onAnswerChanged: _onSlideAnswerChanged,
-                          ),
+                          key: _tapToFillKey,
+                          slide: s as TapToFillSlide,
+                          onAnswerChanged: _onSlideAnswerChanged,
+                        ),
                         SlideType.typeCode => TypeCodeSlideWidget(
-                            key: _typeCodeKey,
-                            slide: s as TypeCodeSlide,
-                            onAnswerChanged: _onSlideAnswerChanged,
-                          ),
+                          key: _typeCodeKey,
+                          slide: s as TypeCodeSlide,
+                          onAnswerChanged: _onSlideAnswerChanged,
+                        ),
                         SlideType.outputPredict => OutputPredictSlideWidget(
-                            key: _outputPredictKey,
-                            slide: s as OutputPredictSlide,
-                            onAnswerChanged: _onSlideAnswerChanged,
-                          ),
+                          key: _outputPredictKey,
+                          slide: s as OutputPredictSlide,
+                          onAnswerChanged: _onSlideAnswerChanged,
+                        ),
                         SlideType.bugHunter => BugHunterSlideWidget(
-                            key: _bugHunterKey,
-                            slide: s as BugHunterSlide,
-                            onAnswerChanged: _onSlideAnswerChanged,
-                          ),
+                          key: _bugHunterKey,
+                          slide: s as BugHunterSlide,
+                          onAnswerChanged: _onSlideAnswerChanged,
+                        ),
                         SlideType.quiz => QuizSlideWidget(
-                            key: _quizKey,
-                            slide: s as QuizSlide,
-                            onAnswerChanged: _onSlideAnswerChanged,
-                          ),
+                          key: _quizKey,
+                          slide: s as QuizSlide,
+                          onAnswerChanged: _onSlideAnswerChanged,
+                        ),
                         SlideType.outro => OutroSlideWidget(
-                            slide: s as OutroSlide,
-                            // Reward efektif DB (P2-15), fallback offline ke markdown.
-                            effectiveXp: data.xpReward,
-                          ),
+                          slide: s as OutroSlide,
+                          // Reward efektif DB (P2-15), fallback offline ke markdown.
+                          effectiveXp: data.xpReward,
+                        ),
                       };
                     },
                   ),
@@ -411,8 +428,13 @@ class _LessonReaderPageState extends State<LessonReaderPage> {
                           style: OutlinedButton.styleFrom(
                             foregroundColor: p.text,
                             side: BorderSide(color: p.outline),
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(16),
+                            ),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 14,
+                              vertical: 14,
+                            ),
                             minimumSize: const Size(48, 48),
                           ),
                           child: const Icon(Icons.arrow_back_rounded, size: 20),
@@ -422,18 +444,20 @@ class _LessonReaderPageState extends State<LessonReaderPage> {
                       Expanded(
                         child: switch (currentSlide.type) {
                           SlideType.theory => AppButton(
-                              label: 'Paham, Lanjutkan',
-                              onPressed: () => _nextSlide(data),
-                            ),
+                            label: 'Paham, Lanjutkan',
+                            onPressed: () => _nextSlide(data),
+                          ),
                           SlideType.outro => AppButton(
-                              label: 'Selesai & Simpan Progres',
-                              leadingIcon: Icons.check_circle_rounded,
-                              onPressed: () => _finishLesson(data),
-                            ),
+                            label: 'Selesai & Simpan Progres',
+                            leadingIcon: Icons.check_circle_rounded,
+                            onPressed: () => _finishLesson(data),
+                          ),
                           _ => AppButton(
-                              label: 'Periksa Jawaban',
-                              onPressed: _canCheckAnswer ? () => _checkCurrentAnswer(data) : null,
-                            ),
+                            label: 'Periksa Jawaban',
+                            onPressed: _canCheckAnswer
+                                ? () => _checkCurrentAnswer(data)
+                                : null,
+                          ),
                         },
                       ),
                     ],

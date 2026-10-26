@@ -10,6 +10,8 @@ class AuthUser extends Equatable {
     this.className,
     this.phone,
     this.bio,
+    this.address,
+    this.staffCode,
     this.xpPoints = 0,
     this.avatarUrl,
   });
@@ -22,6 +24,8 @@ class AuthUser extends Equatable {
   final String? className;
   final String? phone;
   final String? bio;
+  final String? address;
+  final String? staffCode;
   final int xpPoints;
   final String? avatarUrl;
 
@@ -34,6 +38,8 @@ class AuthUser extends Equatable {
     String? className,
     String? phone,
     String? bio,
+    String? address,
+    String? staffCode,
     int? xpPoints,
     String? avatarUrl,
   }) {
@@ -46,6 +52,8 @@ class AuthUser extends Equatable {
       className: className ?? this.className,
       phone: phone ?? this.phone,
       bio: bio ?? this.bio,
+      address: address ?? this.address,
+      staffCode: staffCode ?? this.staffCode,
       xpPoints: xpPoints ?? this.xpPoints,
       avatarUrl: avatarUrl ?? this.avatarUrl,
     );
@@ -53,20 +61,30 @@ class AuthUser extends Equatable {
 
   @override
   List<Object?> get props => [
-        name,
-        email,
-        role,
-        nisn,
-        schoolName,
-        className,
-        phone,
-        bio,
-        xpPoints,
-        avatarUrl,
-      ];
+    name,
+    email,
+    role,
+    nisn,
+    schoolName,
+    className,
+    phone,
+    bio,
+    address,
+    staffCode,
+    xpPoints,
+    avatarUrl,
+  ];
 }
 
-enum AuthFailureType { invalidCredentials, emailTaken, network }
+enum AuthFailureType {
+  invalidCredentials,
+  emailTaken,
+  network,
+  schoolCodeNotFound,
+  // Minggu 9: perubahan kata sandi (Pengaturan).
+  wrongOldPassword,
+  passwordPolicy,
+}
 
 class AuthFailure implements Exception {
   const AuthFailure(this.type);
@@ -74,10 +92,35 @@ class AuthFailure implements Exception {
 
   /// User-facing copy from DESIGN.md §4 (no blame, always a next step).
   String get message => switch (type) {
-        AuthFailureType.invalidCredentials => 'Email atau kata sandi belum cocok. Coba periksa lagi.',
-        AuthFailureType.emailTaken => 'Email ini sudah punya akun. Mau masuk saja?',
-        AuthFailureType.network => 'Belum tersambung ke internet. Coba lagi sebentar.',
-      };
+    AuthFailureType.invalidCredentials =>
+      'Email atau kata sandi belum cocok. Coba periksa lagi.',
+    AuthFailureType.emailTaken => 'Email ini sudah punya akun. Mau masuk saja?',
+    AuthFailureType.network =>
+      'Belum tersambung ke internet. Coba lagi sebentar.',
+    AuthFailureType.schoolCodeNotFound =>
+      'Kode sekolah tidak ditemukan. Silakan hubungi admin sekolahmu.',
+    AuthFailureType.wrongOldPassword =>
+      'Kata sandi lama belum cocok. Coba periksa lagi.',
+    AuthFailureType.passwordPolicy =>
+      'Kata sandi baru belum memenuhi aturan (minimal 8 karakter, ada angka atau simbol).',
+  };
+}
+
+/// Kartu verifikasi sekolah read-only hasil pencocokan kode resmi
+/// (Minggu 9 — PROMPT.md Bagian 3: RegisterRoleSchoolSection).
+class VerifiedSchool extends Equatable {
+  const VerifiedSchool({
+    required this.schoolCode,
+    required this.name,
+    required this.address,
+  });
+
+  final String schoolCode;
+  final String name;
+  final String address;
+
+  @override
+  List<Object?> get props => [schoolCode, name, address];
 }
 
 /// Contract for authentication. The mock implementation is swapped for an
@@ -92,6 +135,24 @@ abstract interface class AuthRepository {
     String? schoolName,
     String? className,
   });
+
+  /// Minggu 9: pendaftaran akun guru berpagar kode sekolah resmi.
+  Future<void> registerTeacher({
+    required String name,
+    required String email,
+    required String password,
+    required String schoolCode,
+  });
+
+  /// Minggu 9: kartu verifikasi sekolah read-only dari kode resmi.
+  Future<VerifiedSchool> verifySchool({required String schoolCode});
+
+  /// Minggu 9: Pengaturan akun (siswa & pengajar) — ganti kata sandi.
+  /// Wajib tahu sandi lama; aturan sandi baru sama seperti registrasi.
+  Future<void> changePassword({
+    required String oldPassword,
+    required String newPassword,
+  });
   Future<AuthUser> updateProfile({
     required String name,
     String? phone,
@@ -99,6 +160,8 @@ abstract interface class AuthRepository {
     String? schoolName,
     String? className,
     String? nisn,
+    String? address,
+    String? staffCode,
   });
   Future<void> logout();
 

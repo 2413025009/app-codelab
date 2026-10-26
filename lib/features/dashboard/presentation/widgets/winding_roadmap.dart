@@ -12,17 +12,23 @@ class WindingRoadmap extends StatefulWidget {
     required this.modules,
     required this.onModuleTap,
     required this.onOpenCatalog,
+    this.focusTopic,
   });
 
   final List<LearningModule> modules;
   final ValueChanged<LearningModule> onModuleTap;
   final VoidCallback onOpenCatalog;
 
+  /// Minggu 9 (owner): LESSON pilihan katalog — peta menampilkan SEMUA bab
+  /// lesson ini (selesai maupun belum). null = track aktif natural siswa.
+  final String? focusTopic;
+
   @override
   State<WindingRoadmap> createState() => _WindingRoadmapState();
 }
 
-class _WindingRoadmapState extends State<WindingRoadmap> with SingleTickerProviderStateMixin {
+class _WindingRoadmapState extends State<WindingRoadmap>
+    with SingleTickerProviderStateMixin {
   late final AnimationController _pulseController;
 
   @override
@@ -45,8 +51,9 @@ class _WindingRoadmapState extends State<WindingRoadmap> with SingleTickerProvid
     final p = context.palette;
     final modules = widget.modules;
 
-    // Anchor = bab yang sedang aktif (atau bab pertama bila semua sudah tuntas).
-    final activeModule = modules.firstWhere(
+    // Anchor GLOBAL = bab aktif siswa sekarang (fallback bab pertama) —
+    // menentukan topik standar peta saat siswa membuka dashboard biasa.
+    final globalActive = modules.firstWhere(
       (m) => m.status == ModuleStatus.active,
       orElse: () => modules.isNotEmpty
           ? modules.first
@@ -60,17 +67,43 @@ class _WindingRoadmapState extends State<WindingRoadmap> with SingleTickerProvid
             ),
     );
 
-    // Peta petualangan hanya menampilkan bab dari TRACK yang sedang aktif:
-    // bab dari track lain (mis. HTML saat siswa masih di Python) tidak di-loop.
-    final activeTopic = activeModule.topic;
-    final trackModules = activeTopic.isEmpty
+    // Minggu 9 (owner): peta menampilkan bab dari LESSON pilihan katalog
+    // (focusTopic) — termasuk lesson yang sudah tuntas penuh / belum
+    // dimulai — atau dari track aktif natural bila tanpa fokus katalog.
+    final chosenTopic =
+        (widget.focusTopic != null && widget.focusTopic!.isNotEmpty)
+        ? widget.focusTopic!
+        : globalActive.topic;
+    final trackModules = chosenTopic.isEmpty
         ? modules
-        : modules.where((m) => m.topic == activeTopic).toList();
+        : modules.where((m) => m.topic == chosenTopic).toList();
     final visibleModules = trackModules.isNotEmpty ? trackModules : modules;
 
-    // Posisi bab aktif di dalam track (mulai dari 1 untuk label & jalur rute).
-    final activePos = visibleModules.indexOf(activeModule);
-    final activeStep = (activePos >= 0 ? activePos : 0) + 1;
+    // Anchor dalam lesson: bab yang sedang aktif di track ini (bisa TIDAK
+    // ada — lesson tuntas penuh / belum mulai sama sekali).
+    LearningModule? trackActive;
+    for (final m in visibleModules) {
+      if (m.status == ModuleStatus.active) {
+        trackActive = m;
+        break;
+      }
+    }
+    final activePos = trackActive == null
+        ? -1
+        : visibleModules.indexOf(trackActive);
+    final doneCount = visibleModules
+        .where((m) => m.status == ModuleStatus.completed)
+        .length;
+    final trackAllDone =
+        visibleModules.isNotEmpty && doneCount == visibleModules.length;
+
+    // Jalur rute: berhenti di bab aktif; lesson tuntas → penuh sampai
+    // sertifikat; belum mulai → tertancap di bab pertama (posisi start).
+    final activeStep = activePos >= 0
+        ? activePos + 1
+        : trackAllDone
+        ? visibleModules.length + 1
+        : 1;
 
     final totalPositions = visibleModules.length + 1; // Modules + Certificate
 
@@ -129,9 +162,15 @@ class _WindingRoadmapState extends State<WindingRoadmap> with SingleTickerProvid
                   ],
                 ),
               ),
-              if (activeModule.title.isNotEmpty)
+              // Minggu 9: badge bab-aktif hanya muncul kalau lesson ini
+              // benar-benar punya bab aktif (track selesai/belum mulai
+              // tidak, jadi tidak ada klaim palsu "Bab 1 Aktif").
+              if (trackActive != null)
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 4,
+                  ),
                   decoration: BoxDecoration(
                     color: p.accent.withValues(alpha: 0.2),
                     borderRadius: BorderRadius.circular(999),
@@ -171,7 +210,9 @@ class _WindingRoadmapState extends State<WindingRoadmap> with SingleTickerProvid
                 // Layer 0: Radial dotted grid background
                 Positioned.fill(
                   child: CustomPaint(
-                    painter: _DottedGridPainter(dotColor: p.outline.withValues(alpha: 0.6)),
+                    painter: _DottedGridPainter(
+                      dotColor: p.outline.withValues(alpha: 0.6),
+                    ),
                   ),
                 ),
 
@@ -183,13 +224,18 @@ class _WindingRoadmapState extends State<WindingRoadmap> with SingleTickerProvid
                       lineColor: p.primaryContainer,
                       activeColor: p.primary,
                       activeStep: activeStep,
+                      // Selaras dengan jeda badge: 44 (baru) - 12 (vertical md lama).
+                      topShift: 32,
                     ),
                   ),
                 ),
 
                 // Layer 2: Interactive nodes
                 Padding(
-                  padding: const EdgeInsets.symmetric(vertical: AppSpacing.md, horizontal: 4),
+                  // Minggu 9 (owner): jeda atas 44px — badge "Mulai di sini! 🚀"
+                  // mengambang -24px di atas bab pertama (plus pantulan animasi),
+                  // jadi tidak lagi menempel/terpotong border atas canvas.
+                  padding: const EdgeInsets.fromLTRB(4, 44, 4, AppSpacing.md),
                   child: Column(
                     children: [
                       for (var i = 0; i < visibleModules.length; i++) ...[
@@ -221,14 +267,18 @@ class _WindingRoadmapState extends State<WindingRoadmap> with SingleTickerProvid
               ),
               child: Row(
                 children: [
-                  Icon(Icons.collections_bookmark_rounded, color: p.primary, size: 20),
+                  Icon(
+                    Icons.collections_bookmark_rounded,
+                    color: p.primary,
+                    size: 20,
+                  ),
                   const SizedBox(width: AppSpacing.sm),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Katalog Materi & Track',
+                          'Katalog Materi',
                           style: AppTypography.label.copyWith(
                             color: p.primary,
                             fontWeight: FontWeight.bold,
@@ -236,13 +286,20 @@ class _WindingRoadmapState extends State<WindingRoadmap> with SingleTickerProvid
                           ),
                         ),
                         Text(
-                          'Pilih trek lain atau telusuri materi lengkap',
-                          style: AppTypography.caption.copyWith(color: p.textMuted, fontSize: 11),
+                          'Telusuri bab dari seluruh materi',
+                          style: AppTypography.caption.copyWith(
+                            color: p.textMuted,
+                            fontSize: 11,
+                          ),
                         ),
                       ],
                     ),
                   ),
-                  Icon(Icons.arrow_forward_ios_rounded, color: p.primary, size: 14),
+                  Icon(
+                    Icons.arrow_forward_ios_rounded,
+                    color: p.primary,
+                    size: 14,
+                  ),
                 ],
               ),
             ),
@@ -255,7 +312,12 @@ class _WindingRoadmapState extends State<WindingRoadmap> with SingleTickerProvid
   Widget _buildNode(BuildContext context, LearningModule module, bool isEven) {
     final isCompleted = module.status == ModuleStatus.completed;
     final isActive = module.status == ModuleStatus.active;
-    final isQuiz = module.order == 4 || module.title.toLowerCase().contains('kuis');
+    // Minggu 9 (owner): bab tidak lagi berantai terkunci — 'available'
+    // berarti TERBUKA dan bisa langsung dikerjakan (tampil seperti node
+    // biasa, bukan kartu terkunci).
+    final isAvailable = module.status == ModuleStatus.available;
+    final isQuiz =
+        module.order == 4 || module.title.toLowerCase().contains('kuis');
 
     if (isActive) {
       return _buildActiveNode(context, module);
@@ -265,6 +327,10 @@ class _WindingRoadmapState extends State<WindingRoadmap> with SingleTickerProvid
       return _buildCompletedNode(context, module, isEven);
     }
 
+    if (isAvailable) {
+      return _buildAvailableNode(context, module, isEven);
+    }
+
     if (isQuiz) {
       return _buildQuizNode(context, module, isEven);
     }
@@ -272,7 +338,11 @@ class _WindingRoadmapState extends State<WindingRoadmap> with SingleTickerProvid
     return _buildLockedNode(context, module, isEven);
   }
 
-  Widget _buildCompletedNode(BuildContext context, LearningModule module, bool isEven) {
+  Widget _buildCompletedNode(
+    BuildContext context,
+    LearningModule module,
+    bool isEven,
+  ) {
     final p = context.palette;
     final pill = InkWell(
       onTap: () => widget.onModuleTap(module),
@@ -310,11 +380,17 @@ class _WindingRoadmapState extends State<WindingRoadmap> with SingleTickerProvid
                 ],
               ),
               alignment: Alignment.center,
-              child: const Icon(Icons.check_rounded, color: Colors.white, size: 22),
+              child: const Icon(
+                Icons.check_rounded,
+                color: Colors.white,
+                size: 22,
+              ),
             ),
             const SizedBox(width: 10),
             Column(
-              crossAxisAlignment: isEven ? CrossAxisAlignment.start : CrossAxisAlignment.end,
+              crossAxisAlignment: isEven
+                  ? CrossAxisAlignment.start
+                  : CrossAxisAlignment.end,
               mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
@@ -381,7 +457,10 @@ class _WindingRoadmapState extends State<WindingRoadmap> with SingleTickerProvid
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 10,
+                          vertical: 3,
+                        ),
                         decoration: BoxDecoration(
                           color: p.text,
                           borderRadius: BorderRadius.circular(999),
@@ -405,11 +484,7 @@ class _WindingRoadmapState extends State<WindingRoadmap> with SingleTickerProvid
                       // Little pointer arrow
                       Transform.rotate(
                         angle: math.pi / 4,
-                        child: Container(
-                          width: 6,
-                          height: 6,
-                          color: p.text,
-                        ),
+                        child: Container(width: 6, height: 6, color: p.text),
                       ),
                     ],
                   ),
@@ -421,11 +496,16 @@ class _WindingRoadmapState extends State<WindingRoadmap> with SingleTickerProvid
                   borderRadius: BorderRadius.circular(20),
                   child: Container(
                     margin: const EdgeInsets.only(top: 8),
-                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 14,
+                      vertical: 10,
+                    ),
                     decoration: BoxDecoration(
                       color: const Color(0xFFF1F3FF),
                       borderRadius: BorderRadius.circular(20),
-                      border: Border.all(color: p.primary.withValues(alpha: 0.35)),
+                      border: Border.all(
+                        color: p.primary.withValues(alpha: 0.35),
+                      ),
                       boxShadow: [
                         BoxShadow(
                           color: p.primary.withValues(alpha: 0.08),
@@ -445,7 +525,9 @@ class _WindingRoadmapState extends State<WindingRoadmap> with SingleTickerProvid
                               width: 58 + (pulseValue * 8),
                               height: 58 + (pulseValue * 8),
                               decoration: BoxDecoration(
-                                color: p.primary.withValues(alpha: 0.15 * (1 - pulseValue * 0.5)),
+                                color: p.primary.withValues(
+                                  alpha: 0.15 * (1 - pulseValue * 0.5),
+                                ),
                                 shape: BoxShape.circle,
                               ),
                             ),
@@ -464,7 +546,11 @@ class _WindingRoadmapState extends State<WindingRoadmap> with SingleTickerProvid
                                 ],
                               ),
                               alignment: Alignment.center,
-                              child: Icon(Icons.play_circle_fill_rounded, color: p.primary, size: 36),
+                              child: Icon(
+                                Icons.play_circle_fill_rounded,
+                                color: p.primary,
+                                size: 36,
+                              ),
                             ),
                           ],
                         ),
@@ -474,7 +560,10 @@ class _WindingRoadmapState extends State<WindingRoadmap> with SingleTickerProvid
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 8,
+                                vertical: 2,
+                              ),
                               decoration: BoxDecoration(
                                 color: p.primary,
                                 borderRadius: BorderRadius.circular(999),
@@ -499,7 +588,10 @@ class _WindingRoadmapState extends State<WindingRoadmap> with SingleTickerProvid
                             ),
                             Text(
                               'Bab ${module.order} • ${module.description.contains('Slide') ? module.description : '6 Latihan'}',
-                              style: AppTypography.caption.copyWith(color: p.textMuted, fontSize: 11),
+                              style: AppTypography.caption.copyWith(
+                                color: p.textMuted,
+                                fontSize: 11,
+                              ),
                             ),
                           ],
                         ),
@@ -516,7 +608,11 @@ class _WindingRoadmapState extends State<WindingRoadmap> with SingleTickerProvid
     );
   }
 
-  Widget _buildQuizNode(BuildContext context, LearningModule module, bool isEven) {
+  Widget _buildQuizNode(
+    BuildContext context,
+    LearningModule module,
+    bool isEven,
+  ) {
     final p = context.palette;
     final pill = InkWell(
       onTap: () => widget.onModuleTap(module),
@@ -540,11 +636,17 @@ class _WindingRoadmapState extends State<WindingRoadmap> with SingleTickerProvid
                 shape: BoxShape.circle,
               ),
               alignment: Alignment.center,
-              child: const Icon(Icons.bolt_rounded, color: Color(0xFF7C5800), size: 24),
+              child: const Icon(
+                Icons.bolt_rounded,
+                color: Color(0xFF7C5800),
+                size: 24,
+              ),
             ),
             const SizedBox(width: 10),
             Column(
-              crossAxisAlignment: isEven ? CrossAxisAlignment.start : CrossAxisAlignment.end,
+              crossAxisAlignment: isEven
+                  ? CrossAxisAlignment.start
+                  : CrossAxisAlignment.end,
               mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
@@ -557,7 +659,10 @@ class _WindingRoadmapState extends State<WindingRoadmap> with SingleTickerProvid
                 ),
                 Text(
                   'Uji Pemahaman',
-                  style: AppTypography.caption.copyWith(color: p.textMuted, fontSize: 11),
+                  style: AppTypography.caption.copyWith(
+                    color: p.textMuted,
+                    fontSize: 11,
+                  ),
                 ),
               ],
             ),
@@ -576,7 +681,82 @@ class _WindingRoadmapState extends State<WindingRoadmap> with SingleTickerProvid
     );
   }
 
-  Widget _buildLockedNode(BuildContext context, LearningModule module, bool isEven) {
+  /// Minggu 9: node bab TERBUKA (status 'available') — tanpa rantai gembok,
+  /// bab bisa langsung dibuka walau bab sebelumnya belum tamat.
+  Widget _buildAvailableNode(
+    BuildContext context,
+    LearningModule module,
+    bool isEven,
+  ) {
+    final p = context.palette;
+    final pill = InkWell(
+      onTap: () => widget.onModuleTap(module),
+      borderRadius: BorderRadius.circular(999),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+        decoration: BoxDecoration(
+          color: p.surface.withValues(alpha: 0.95),
+          borderRadius: BorderRadius.circular(999),
+          border: Border.all(color: p.outline.withValues(alpha: 0.6)),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          textDirection: isEven ? TextDirection.ltr : TextDirection.rtl,
+          children: [
+            Container(
+              width: 44,
+              height: 44,
+              decoration: BoxDecoration(
+                color: p.primaryContainer,
+                shape: BoxShape.circle,
+              ),
+              alignment: Alignment.center,
+              child: Icon(Icons.play_arrow_rounded, color: p.primary, size: 24),
+            ),
+            const SizedBox(width: 10),
+            Column(
+              crossAxisAlignment: isEven
+                  ? CrossAxisAlignment.start
+                  : CrossAxisAlignment.end,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  '${module.order}. ${module.title}',
+                  style: AppTypography.bodyM.copyWith(
+                    fontWeight: FontWeight.w600,
+                    color: p.text,
+                    fontSize: 13,
+                  ),
+                ),
+                Text(
+                  'Bisa langsung dikerjakan',
+                  style: AppTypography.caption.copyWith(
+                    color: p.textMuted,
+                    fontSize: 11,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(width: 4),
+          ],
+        ),
+      ),
+    );
+
+    return Align(
+      alignment: isEven ? Alignment.centerLeft : Alignment.centerRight,
+      child: Padding(
+        padding: EdgeInsets.only(left: isEven ? 16 : 0, right: isEven ? 0 : 16),
+        child: pill,
+      ),
+    );
+  }
+
+  Widget _buildLockedNode(
+    BuildContext context,
+    LearningModule module,
+    bool isEven,
+  ) {
     final p = context.palette;
     final pill = Opacity(
       opacity: 0.72,
@@ -606,7 +786,9 @@ class _WindingRoadmapState extends State<WindingRoadmap> with SingleTickerProvid
               ),
               const SizedBox(width: 10),
               Column(
-                crossAxisAlignment: isEven ? CrossAxisAlignment.start : CrossAxisAlignment.end,
+                crossAxisAlignment: isEven
+                    ? CrossAxisAlignment.start
+                    : CrossAxisAlignment.end,
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Text(
@@ -619,7 +801,10 @@ class _WindingRoadmapState extends State<WindingRoadmap> with SingleTickerProvid
                   ),
                   Text(
                     'Terkunci',
-                    style: AppTypography.caption.copyWith(color: p.textMuted, fontSize: 11),
+                    style: AppTypography.caption.copyWith(
+                      color: p.textMuted,
+                      fontSize: 11,
+                    ),
                   ),
                 ],
               ),
@@ -667,7 +852,11 @@ class _WindingRoadmapState extends State<WindingRoadmap> with SingleTickerProvid
                 shape: BoxShape.circle,
               ),
               alignment: Alignment.center,
-              child: const Icon(Icons.emoji_events_rounded, color: Color(0xFF7C5800), size: 28),
+              child: const Icon(
+                Icons.emoji_events_rounded,
+                color: Color(0xFF7C5800),
+                size: 28,
+              ),
             ),
             const SizedBox(height: 6),
             Text(
@@ -680,7 +869,10 @@ class _WindingRoadmapState extends State<WindingRoadmap> with SingleTickerProvid
             ),
             Text(
               'Target Kelulusan',
-              style: AppTypography.caption.copyWith(color: p.textMuted, fontSize: 11),
+              style: AppTypography.caption.copyWith(
+                color: p.textMuted,
+                fontSize: 11,
+              ),
             ),
           ],
         ),
@@ -724,6 +916,7 @@ class _RoadmapPathPainter extends CustomPainter {
     required this.lineColor,
     required this.activeColor,
     required this.activeStep,
+    required this.topShift,
   });
 
   final int nodeCount;
@@ -731,11 +924,17 @@ class _RoadmapPathPainter extends CustomPainter {
   final Color activeColor;
   final int activeStep;
 
+  /// Minggu 9: pergeseran vertikal seluruh jalur S — mengikuti jeda atas
+  /// baru (44px) pada kolom node supaya garis tetap menempel ke node,
+  /// bukan ke badge "Mulai di sini!" / border atas canvas.
+  final double topShift;
+
   @override
   void paint(Canvas canvas, Size size) {
     if (nodeCount <= 1) return;
 
-    final stepHeight = size.height / (nodeCount - 0.5);
+    final stepHeight = (size.height - topShift) / (nodeCount - 0.5);
+    final pathTop = 36 + topShift;
 
     final leftX = size.width * 0.22;
     final rightX = size.width * 0.78;
@@ -743,16 +942,25 @@ class _RoadmapPathPainter extends CustomPainter {
 
     // Full dashed background path (#E4EDFF)
     final bgPath = Path();
-    bgPath.moveTo(leftX, 36);
+    bgPath.moveTo(leftX, pathTop);
 
     for (var i = 0; i < nodeCount - 1; i++) {
       final fromX = i.isEven ? leftX : rightX;
-      final toX = (i == nodeCount - 2) ? centerX : ((i + 1).isEven ? leftX : rightX);
-      final fromY = 36 + i * stepHeight;
-      final toY = 36 + (i + 1) * stepHeight;
+      final toX = (i == nodeCount - 2)
+          ? centerX
+          : ((i + 1).isEven ? leftX : rightX);
+      final fromY = pathTop + i * stepHeight;
+      final toY = pathTop + (i + 1) * stepHeight;
 
       final controlX = (fromX + toX) / 2;
-      bgPath.cubicTo(controlX, fromY + stepHeight * 0.35, controlX, toY - stepHeight * 0.35, toX, toY);
+      bgPath.cubicTo(
+        controlX,
+        fromY + stepHeight * 0.35,
+        controlX,
+        toY - stepHeight * 0.35,
+        toX,
+        toY,
+      );
     }
 
     final paintBg = Paint()
@@ -767,16 +975,25 @@ class _RoadmapPathPainter extends CustomPainter {
     final activeStepsToDraw = math.min(activeStep - 1, nodeCount - 1);
     if (activeStepsToDraw > 0) {
       final activePath = Path();
-      activePath.moveTo(leftX, 36);
+      activePath.moveTo(leftX, pathTop);
 
       for (var i = 0; i < activeStepsToDraw; i++) {
         final fromX = i.isEven ? leftX : rightX;
-        final toX = (i == nodeCount - 2) ? centerX : ((i + 1).isEven ? leftX : rightX);
-        final fromY = 36 + i * stepHeight;
-        final toY = 36 + (i + 1) * stepHeight;
+        final toX = (i == nodeCount - 2)
+            ? centerX
+            : ((i + 1).isEven ? leftX : rightX);
+        final fromY = pathTop + i * stepHeight;
+        final toY = pathTop + (i + 1) * stepHeight;
 
         final controlX = (fromX + toX) / 2;
-        activePath.cubicTo(controlX, fromY + stepHeight * 0.35, controlX, toY - stepHeight * 0.35, toX, toY);
+        activePath.cubicTo(
+          controlX,
+          fromY + stepHeight * 0.35,
+          controlX,
+          toY - stepHeight * 0.35,
+          toX,
+          toY,
+        );
       }
 
       final paintActive = Paint()

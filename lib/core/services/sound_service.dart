@@ -94,4 +94,9 @@ class SoundService {
 
   // --- Kategori Profil ---
   static void playProfileSaved() => _playSound('profile_saved.mp3');
+
+  // --- Kategori Navigasi Umum ---
+  /// Nada klik lembut (aset dialog_info.mp3) untuk pemilihan peran akun
+  /// & aksi sekunder Minggu 9 (TODO.md §5: SoundService.playButtonClick).
+  static void playButtonClick() => _playSound('dialog_info.mp3');
 }

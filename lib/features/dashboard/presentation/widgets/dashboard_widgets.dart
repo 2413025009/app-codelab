@@ -133,7 +133,12 @@ class ResumeCard extends StatelessWidget {
 
 /// Radar + per-axis score chips. Empty state shows microcopy from DESIGN.md §4.
 class CompetencyCard extends StatelessWidget {
-  const CompetencyCard({super.key, required this.skills, required this.hasSkills, required this.onDetail});
+  const CompetencyCard({
+    super.key,
+    required this.skills,
+    required this.hasSkills,
+    required this.onDetail,
+  });
 
   final Map<String, double> skills;
   final bool hasSkills;
@@ -149,11 +154,21 @@ class CompetencyCard extends StatelessWidget {
         children: [
           Row(
             children: [
-              Expanded(child: Text('Kompetensimu', style: AppTypography.titleM.copyWith(color: p.text))),
+              Expanded(
+                child: Text(
+                  'Kompetensimu',
+                  style: AppTypography.titleM.copyWith(color: p.text),
+                ),
+              ),
               TextButton(
-                style: TextButton.styleFrom(minimumSize: const Size(AppSizes.minTouch, AppSizes.minTouch)),
+                style: TextButton.styleFrom(
+                  minimumSize: const Size(AppSizes.minTouch, AppSizes.minTouch),
+                ),
                 onPressed: onDetail,
-                child: Text('Lihat detail', style: AppTypography.label.copyWith(color: p.primary)),
+                child: Text(
+                  'Lihat detail',
+                  style: AppTypography.label.copyWith(color: p.primary),
+                ),
               ),
             ],
           ),
@@ -168,7 +183,10 @@ class CompetencyCard extends StatelessWidget {
               mainAxisSpacing: AppSpacing.sm,
               crossAxisSpacing: AppSpacing.sm,
               childAspectRatio: 3.4,
-              children: [for (final e in skills.entries) _ScoreChip(label: e.key, value: e.value)],
+              children: [
+                for (final e in skills.entries)
+                  _ScoreChip(label: e.key, value: e.value),
+              ],
             ),
           ] else
             Padding(
@@ -178,8 +196,15 @@ class CompetencyCard extends StatelessWidget {
                   Container(
                     width: 64,
                     height: 64,
-                    decoration: BoxDecoration(color: p.primaryContainer, shape: BoxShape.circle),
-                    child: Icon(Icons.radar_rounded, color: p.primary, size: 30),
+                    decoration: BoxDecoration(
+                      color: p.primaryContainer,
+                      shape: BoxShape.circle,
+                    ),
+                    child: Icon(
+                      Icons.radar_rounded,
+                      color: p.primary,
+                      size: 30,
+                    ),
                   ),
                   const SizedBox(width: AppSpacing.lg),
                   Expanded(
@@ -207,13 +232,24 @@ class _ScoreChip extends StatelessWidget {
     final p = context.palette;
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
-      decoration: BoxDecoration(color: p.surfaceAlt, borderRadius: BorderRadius.circular(14)),
+      decoration: BoxDecoration(
+        color: p.surfaceAlt,
+        borderRadius: BorderRadius.circular(14),
+      ),
       child: Row(
         children: [
-          Expanded(child: Text(label, style: AppTypography.bodyM.copyWith(color: p.textMuted))),
+          Expanded(
+            child: Text(
+              label,
+              style: AppTypography.bodyM.copyWith(color: p.textMuted),
+            ),
+          ),
           Text(
             '${value.round()}',
-            style: AppTypography.code.copyWith(color: p.text, fontWeight: FontWeight.w700),
+            style: AppTypography.code.copyWith(
+              color: p.text,
+              fontWeight: FontWeight.w700,
+            ),
           ),
         ],
       ),
@@ -223,7 +259,11 @@ class _ScoreChip extends StatelessWidget {
 
 /// Vertical learning path with a 2pt connector (DESIGN.md §3.3).
 class LearningPathList extends StatelessWidget {
-  const LearningPathList({super.key, required this.modules, required this.onTap});
+  const LearningPathList({
+    super.key,
+    required this.modules,
+    required this.onTap,
+  });
 
   final List<LearningModule> modules;
   final ValueChanged<LearningModule> onTap;
@@ -232,7 +272,12 @@ class LearningPathList extends StatelessWidget {
   Widget build(BuildContext context) {
     final p = context.palette;
     return AppCard(
-      padding: const EdgeInsets.fromLTRB(AppSpacing.lg, AppSpacing.lg, AppSpacing.lg, AppSpacing.sm),
+      padding: const EdgeInsets.fromLTRB(
+        AppSpacing.lg,
+        AppSpacing.lg,
+        AppSpacing.lg,
+        AppSpacing.sm,
+      ),
       child: Column(
         children: [
           for (var i = 0; i < modules.length; i++)
@@ -249,7 +294,12 @@ class LearningPathList extends StatelessWidget {
 }
 
 class _PathItem extends StatelessWidget {
-  const _PathItem({required this.module, required this.isLast, required this.lineColor, required this.onTap});
+  const _PathItem({
+    required this.module,
+    required this.isLast,
+    required this.lineColor,
+    required this.onTap,
+  });
 
   final LearningModule module;
   final bool isLast;
@@ -266,6 +316,8 @@ class _PathItem extends StatelessWidget {
     final statusLabel = switch (m.status) {
       ModuleStatus.completed => 'Selesai',
       ModuleStatus.active => 'Sedang dipelajari',
+      // Minggu 9: bab tidak lagi berantai terkunci — 'available' = terbuka.
+      ModuleStatus.available => 'Bisa dikerjakan',
       ModuleStatus.locked => 'Terkunci',
     };
 
@@ -284,7 +336,8 @@ class _PathItem extends StatelessWidget {
                 child: Column(
                   children: [
                     _Node(status: m.status),
-                    if (!isLast) Expanded(child: Container(width: 2, color: lineColor)),
+                    if (!isLast)
+                      Expanded(child: Container(width: 2, color: lineColor)),
                   ],
                 ),
               ),
@@ -301,18 +354,30 @@ class _PathItem extends StatelessWidget {
                             child: Text(
                               '${m.order}. ${m.title}',
                               style: AppTypography.bodyL.copyWith(
-                                fontWeight: active ? FontWeight.w700 : FontWeight.w600,
+                                fontWeight: active
+                                    ? FontWeight.w700
+                                    : FontWeight.w600,
                                 color: locked ? p.textMuted : p.text,
                               ),
                             ),
                           ),
                           if (m.status == ModuleStatus.completed)
-                            Text('Selesai', style: AppTypography.caption.copyWith(color: p.success, fontWeight: FontWeight.w700)),
+                            Text(
+                              'Selesai',
+                              style: AppTypography.caption.copyWith(
+                                color: p.success,
+                                fontWeight: FontWeight.w700,
+                              ),
+                            ),
                         ],
                       ),
                       if (active) ...[
                         const SizedBox(height: 6),
-                        AppTag('Sedang dipelajari', background: p.primaryContainer, foreground: p.primary),
+                        AppTag(
+                          'Sedang dipelajari',
+                          background: p.primaryContainer,
+                          foreground: p.primary,
+                        ),
                       ],
                       const SizedBox(height: 4),
                       Text(
@@ -350,20 +415,40 @@ class _Node extends StatelessWidget {
         return Container(
           width: 44,
           height: 44,
-          decoration: BoxDecoration(color: p.primaryContainer, shape: BoxShape.circle),
+          decoration: BoxDecoration(
+            color: p.primaryContainer,
+            shape: BoxShape.circle,
+          ),
           alignment: Alignment.center,
           child: Container(
             width: 36,
             height: 36,
             decoration: BoxDecoration(color: p.primary, shape: BoxShape.circle),
-            child: const Icon(Icons.auto_stories_rounded, color: Colors.white, size: 20),
+            child: const Icon(
+              Icons.auto_stories_rounded,
+              color: Colors.white,
+              size: 20,
+            ),
           ),
+        );
+      case ModuleStatus.available:
+        return Container(
+          width: 40,
+          height: 40,
+          decoration: BoxDecoration(
+            color: p.primaryContainer,
+            shape: BoxShape.circle,
+          ),
+          child: Icon(Icons.play_arrow_rounded, color: p.primary, size: 20),
         );
       case ModuleStatus.locked:
         return Container(
           width: 40,
           height: 40,
-          decoration: BoxDecoration(color: p.surfaceAlt, shape: BoxShape.circle),
+          decoration: BoxDecoration(
+            color: p.surfaceAlt,
+            shape: BoxShape.circle,
+          ),
           child: Icon(Icons.lock_outline_rounded, color: p.textMuted, size: 20),
         );
     }

@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../app/router/app_routes.dart';
+import '../../../../app/shell/app_shell.dart';
 import '../../../../core/theme/app_palette.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_typography.dart';
@@ -10,11 +11,36 @@ import '../../../../core/utils/topic_icons.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_card.dart';
 import '../../../../core/widgets/app_progress_bar.dart';
-import '../../../../core/widgets/app_snack.dart';
+import '../../../../core/widgets/app_refresh.dart';
 import '../../../../core/widgets/app_tag.dart';
 import '../../../../core/widgets/skeleton.dart';
 import '../../domain/lesson_repository.dart';
 import '../../domain/slide_models.dart';
+
+/// Katalog Materi (Minggu 9): daftar lesson per topik dari GET /lessons
+/// (tanpa mock) — kini dilengkapi pencarian, chip filter status (Semua /
+/// Selesai / Sedang Aktif / Belum Dimulai — pola katalog tantangan), dan
+/// tarik-ke-bawah untuk muat ulang (permintaan owner). Menekan baris topik
+/// → dashboard memetakan SEMUA bab lesson itu (selesai maupun belum) lewat
+/// [appShellFocusTopic].
+enum _MaterialFilter {
+  all('Semua'),
+  selesai('Selesai'),
+  sedangAktif('Sedang Aktif'),
+  belumMulai('Belum Dimulai');
+
+  const _MaterialFilter(this.label);
+  final String label;
+}
+
+/// Deskripsi topik = kolom description bab dengan orderIndex terkecil
+/// (diseed migrasi 000019 sebagai deskripsi topik).
+String lessonTopicDescription(List<LessonDetailData> lessons) {
+  if (lessons.isEmpty) return '';
+  return lessons
+      .reduce((a, b) => a.orderIndex <= b.orderIndex ? a : b)
+      .description;
+}
 
 class LessonCatalogPage extends StatefulWidget {
   const LessonCatalogPage({super.key});
@@ -25,32 +51,51 @@ class LessonCatalogPage extends StatefulWidget {
 
 class _LessonCatalogPageState extends State<LessonCatalogPage> {
   late Future<List<LessonDetailData>> _future;
-  final TextEditingController _searchController = TextEditingController();
-  String _selectedFilter = 'Semua';
-
-  /// Filter status yang datanya seluruhnya dari DB backend (GET /lessons).
-  static const _statusFilters = ['Sedang Dipelajari', 'Selesai', 'Belum Dimulai'];
-  static const _statusLabels = {
-    'Sedang Dipelajari': 'sedang',
-    'Selesai': 'selesai',
-    'Belum Dimulai': 'belum',
-  };
+  final _search = TextEditingController();
+  _MaterialFilter _filter = _MaterialFilter.all;
 
   @override
   void initState() {
     super.initState();
     _loadLessons();
-    _searchController.addListener(() => setState(() {}));
+  }
+
+  @override
+  void dispose() {
+    _search.dispose();
+    super.dispose();
   }
 
   void _loadLessons() {
     _future = context.read<LessonRepository>().listAllLessons();
   }
 
-  @override
-  void dispose() {
-    _searchController.dispose();
-    super.dispose();
+  /// Minggu 9 (owner): tarik layar dari atas → muat ulang katalog dari
+  /// server (lingkaran pemuat mengikuti jarak tarikan).
+  Future<void> _reload() {
+    setState(_loadLessons);
+    return _future;
+  }
+
+  /// Saring kata kunci pada nama topik + deskripsi materi.
+  bool _matchesQuery(String topic, List<LessonDetailData> lessons) {
+    final q = _search.text.trim().toLowerCase();
+    if (q.isEmpty) return true;
+    return topic.toLowerCase().contains(q) ||
+        lessonTopicDescription(lessons).toLowerCase().contains(q);
+  }
+
+  /// Saring chip status — definisi sama dengan chip pada tile materi.
+  bool _passesFilter(_MaterialFilter f, List<LessonDetailData> lessons) {
+    final done = lessons.where((l) => l.status == 'completed').length;
+    final hasActive = lessons.any((l) => l.status == 'active');
+    final allDone = lessons.isNotEmpty && done == lessons.length;
+    return switch (f) {
+      _MaterialFilter.all => true,
+      _MaterialFilter.selesai => allDone,
+      _MaterialFilter.sedangAktif => hasActive,
+      _MaterialFilter.belumMulai => done == 0 && !hasActive,
+    };
   }
 
   @override
@@ -62,9 +107,11 @@ class _LessonCatalogPageState extends State<LessonCatalogPage> {
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_rounded),
           tooltip: 'Kembali',
-          onPressed: () => context.canPop() ? context.pop() : context.go(AppRoutes.dashboard),
+          onPressed: () => context.canPop()
+              ? context.pop()
+              : context.go(AppRoutes.dashboard),
         ),
-        title: const Text('Katalog Materi & Track'),
+        title: const Text('Katalog Materi'),
       ),
       body: FutureBuilder<List<LessonDetailData>>(
         future: _future,
@@ -76,9 +123,9 @@ class _LessonCatalogPageState extends State<LessonCatalogPage> {
                 children: [
                   SkeletonBox(height: 48, radius: 12),
                   SizedBox(height: 16),
-                  SkeletonBox(height: 38, radius: 20),
-                  SizedBox(height: 24),
-                  SkeletonBox(height: 180, radius: 20),
+                  SkeletonBox(height: 88, radius: 20),
+                  SizedBox(height: 12),
+                  SkeletonBox(height: 88, radius: 20),
                 ],
               ),
             );
@@ -89,7 +136,10 @@ class _LessonCatalogPageState extends State<LessonCatalogPage> {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Text('Gagal memuat katalog materi.', style: AppTypography.bodyM.copyWith(color: p.textMuted)),
+                  Text(
+                    'Gagal memuat katalog materi.',
+                    style: AppTypography.bodyM.copyWith(color: p.textMuted),
+                  ),
                   const SizedBox(height: AppSpacing.md),
                   AppButton(
                     label: 'Coba lagi',
@@ -102,334 +152,120 @@ class _LessonCatalogPageState extends State<LessonCatalogPage> {
           }
 
           final allLessons = snap.data!;
-          final query = _searchController.text.trim().toLowerCase();
 
-          // Status belajar dari DB backend (GET /lessons):
-          // selesai = completed; sedang dipelajari = aktif & sudah dibuka; sisanya belum dimulai.
-          String statusOf(LessonDetailData l) {
-            if (l.status == 'completed') return 'selesai';
-            if (l.status == 'active' && l.progressPercent > 0) return 'sedang';
-            return 'belum';
-          }
-
-          int countStatus(String key) =>
-              allLessons.where((l) => statusOf(l) == key).length;
-          final sedangCount = countStatus('sedang');
-          final selesaiCount = countStatus('selesai');
-          final belumCount = countStatus('belum');
-
-          // Group by Topic
+          // Group per topik (lesson top-level) — isi bab tidak dijabarkan.
           final grouped = <String, List<LessonDetailData>>{};
           for (final l in allLessons) {
             grouped.putIfAbsent(l.topic, () => []).add(l);
           }
 
-          // Active Lesson
-          final activeLesson = allLessons.firstWhere(
-            (l) => l.status == 'active',
-            orElse: () => allLessons.first,
-          );
+          // Minggu 9 (owner): saring hasil sesuai kata kunci + chip filter.
+          final visible = grouped.entries
+              .where((e) => _matchesQuery(e.key, e.value))
+              .where((e) => _passesFilter(_filter, e.value))
+              .toList();
 
-          return ListView(
-            padding: const EdgeInsets.fromLTRB(AppSpacing.screen, AppSpacing.sm, AppSpacing.screen, AppSpacing.xxl),
-            children: [
-              // Search Input
-              Container(
-                decoration: BoxDecoration(
-                  color: p.surface,
-                  borderRadius: BorderRadius.circular(14),
-                  border: Border.all(color: p.outline),
-                ),
-                child: TextField(
-                  controller: _searchController,
+          return AppRefresh(
+            onRefresh: _reload,
+            child: ListView(
+              physics: const AlwaysScrollableScrollPhysics(),
+              padding: const EdgeInsets.fromLTRB(
+                AppSpacing.screen,
+                AppSpacing.md,
+                AppSpacing.screen,
+                AppSpacing.xxl,
+              ),
+              children: [
+                // Pencarian materi — gaya sama seperti katalog tantangan.
+                TextField(
+                  controller: _search,
+                  onChanged: (_) => setState(() {}),
+                  textInputAction: TextInputAction.search,
                   decoration: InputDecoration(
-                    hintText: 'Cari topik materi, sintaks, atau bahasa...',
-                    hintStyle: AppTypography.caption.copyWith(color: p.textMuted),
-                    prefixIcon: Icon(Icons.search_rounded, color: p.textMuted),
-                    suffixIcon: query.isNotEmpty
-                        ? IconButton(
+                    hintText: 'Cari materi atau deskripsinya…',
+                    prefixIcon: const Icon(Icons.search_rounded, size: 20),
+                    suffixIcon: _search.text.isEmpty
+                        ? null
+                        : IconButton(
+                            tooltip: 'Hapus pencarian',
                             icon: const Icon(Icons.close_rounded, size: 18),
-                            onPressed: () => _searchController.clear(),
-                          )
-                        : null,
-                    border: InputBorder.none,
-                    contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                            onPressed: () {
+                              _search.clear();
+                              setState(() {});
+                            },
+                          ),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(14),
+                      borderSide: BorderSide(color: p.outline),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(14),
+                      borderSide: BorderSide(color: p.outline),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(14),
+                      borderSide: BorderSide(color: p.primary, width: 2),
+                    ),
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 14,
+                      vertical: 12,
+                    ),
                   ),
-                ),
-              ),
-              const SizedBox(height: AppSpacing.md),
-              // Category filter chips
-              SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
-                child: Row(
-                  children: [
-                    _FilterChip(
-                      label: 'Semua (${allLessons.length})',
-                      isSelected: _selectedFilter == 'Semua',
-                      onTap: () => setState(() => _selectedFilter = 'Semua'),
-                    ),
-                    const SizedBox(width: 8),
-                    _FilterChip(
-                      label: 'Sedang Dipelajari ($sedangCount)',
-                      isSelected: _selectedFilter == 'Sedang Dipelajari',
-                      onTap: () => setState(() => _selectedFilter = 'Sedang Dipelajari'),
-                    ),
-                    const SizedBox(width: 8),
-                    _FilterChip(
-                      label: 'Selesai ($selesaiCount)',
-                      isSelected: _selectedFilter == 'Selesai',
-                      onTap: () => setState(() => _selectedFilter = 'Selesai'),
-                    ),
-                    const SizedBox(width: 8),
-                    _FilterChip(
-                      label: 'Belum Dimulai ($belumCount)',
-                      isSelected: _selectedFilter == 'Belum Dimulai',
-                      onTap: () => setState(() => _selectedFilter = 'Belum Dimulai'),
-                    ),
-                    const SizedBox(width: 8),
-                    ...grouped.keys.map((topic) {
-                      return Padding(
-                        padding: const EdgeInsets.only(right: 8),
-                        child: _FilterChip(
-                          label: topic,
-                          isSelected: _selectedFilter == topic,
-                          onTap: () => setState(() => _selectedFilter = topic),
-                        ),
-                      );
-                    }),
-                  ],
-                ),
-              ),
-              const SizedBox(height: AppSpacing.xl),
-              // Active Enrolled Track Card
-              if (_selectedFilter == 'Semua' || _selectedFilter == 'Sedang Dipelajari') ...[
-                Row(
-                  children: [
-                    Container(width: 8, height: 8, decoration: BoxDecoration(color: p.primary, shape: BoxShape.circle)),
-                    const SizedBox(width: 6),
-                    Text('Track yang Sedang Kamu Ikuti', style: AppTypography.titleM.copyWith(fontWeight: FontWeight.bold, color: p.text)),
-                    const Spacer(),
-                    AppTag('1 Berjalan', background: p.primaryContainer, foreground: p.primary),
-                  ],
                 ),
                 const SizedBox(height: AppSpacing.md),
-                AppCard(
-                  padding: const EdgeInsets.all(AppSpacing.lg),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
-                          Container(
-                            width: 44,
-                            height: 44,
-                            decoration: BoxDecoration(color: p.primaryContainer, borderRadius: BorderRadius.circular(12)),
-                            child: Icon(Icons.terminal_rounded, color: p.primary, size: 26),
-                          ),
-                          const SizedBox(width: AppSpacing.md),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Row(
-                                  children: [
-                                    AppTag('Sedang Aktif', background: p.primaryContainer, foreground: p.primary),
-                                    const SizedBox(width: 6),
-                                    Text(
-                                      'Bab ${activeLesson.orderIndex}',
-                                      style: AppTypography.caption.copyWith(color: p.textMuted),
-                                    ),
-                                  ],
-                                ),
-                                const SizedBox(height: 2),
-                                Text(
-                                  activeLesson.topic,
-                                  style: AppTypography.titleM.copyWith(fontWeight: FontWeight.bold, color: p.text),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: AppSpacing.lg),
-                      Container(
-                        padding: const EdgeInsets.all(12),
-                        decoration: BoxDecoration(color: p.surfaceAlt, borderRadius: BorderRadius.circular(12)),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Text(
-                                  'Bab ${activeLesson.orderIndex}: ${activeLesson.title}',
-                                  style: AppTypography.caption.copyWith(fontWeight: FontWeight.w600, color: p.text),
-                                ),
-                                Text(
-                                  '${activeLesson.progressPercent.round()}%',
-                                  style: AppTypography.label.copyWith(color: p.primary, fontWeight: FontWeight.bold),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 8),
-                            AppProgressBar(value: activeLesson.progressPercent / 100.0),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(height: AppSpacing.lg),
-                      AppButton(
-                        label: 'Lanjutkan Belajar',
-                        trailingIcon: Icons.arrow_forward_rounded,
-                        onPressed: () => context.push(AppRoutes.lesson(activeLesson.id)),
-                      ),
-                    ],
+                SizedBox(
+                  height: 40,
+                  child: ListView.separated(
+                    scrollDirection: Axis.horizontal,
+                    itemCount: _MaterialFilter.values.length,
+                    separatorBuilder: (_, _) =>
+                        const SizedBox(width: AppSpacing.sm),
+                    itemBuilder: (context, i) {
+                      final f = _MaterialFilter.values[i];
+                      return _FilterChip(
+                        label: f.label,
+                        selected: _filter == f,
+                        onTap: () => setState(() => _filter = f),
+                      );
+                    },
                   ),
                 ),
-                const SizedBox(height: AppSpacing.xl),
-              ],
-              // Other Tracks
-              Text(
-                'Pilihan Track Belajar',
-                style: AppTypography.titleM.copyWith(fontWeight: FontWeight.bold, color: p.text),
-              ),
-              const SizedBox(height: AppSpacing.md),
-              ...grouped.entries.map((entry) {
-                final topic = entry.key;
-                final lessons = entry.value;
-
-                if (_selectedFilter != 'Semua' &&
-                    _selectedFilter != topic &&
-                    !_statusFilters.contains(_selectedFilter)) {
-                  return const SizedBox.shrink();
-                }
-
-                // Filter by search query + status filter (dari DB backend).
-                final filteredLessons = lessons.where((l) {
-                  if (_statusFilters.contains(_selectedFilter) &&
-                      statusOf(l) != _statusLabels[_selectedFilter]) {
-                    return false;
-                  }
-                  if (query.isEmpty) return true;
-                  return l.title.toLowerCase().contains(query) ||
-                      l.topic.toLowerCase().contains(query);
-                }).toList();
-
-                if (filteredLessons.isEmpty) {
-                  return const SizedBox.shrink();
-                }
-
-                final isHtml = topic.toLowerCase().contains('html') || topic.toLowerCase().contains('web');
-
-                return Padding(
-                  padding: const EdgeInsets.only(bottom: AppSpacing.lg),
-                  child: AppCard(
-                    padding: const EdgeInsets.all(AppSpacing.lg),
+                const SizedBox(height: AppSpacing.md),
+                if (visible.isEmpty)
+                  Padding(
+                    padding: const EdgeInsets.only(top: AppSpacing.xl),
                     child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Row(
-                          children: [
-                            Container(
-                              width: 44,
-                              height: 44,
-                              decoration: BoxDecoration(
-                                color: isHtml
-                                    ? Colors.orange.withValues(alpha: 0.15)
-                                    : p.primaryContainer,
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                              child: Icon(
-                                isHtml ? Icons.language_rounded : topicIcon(topic),
-                                color: isHtml ? Colors.orange.shade800 : p.primary,
-                                size: 26,
-                              ),
-                            ),
-                            const SizedBox(width: AppSpacing.md),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    topic,
-                                    style: AppTypography.titleM.copyWith(fontWeight: FontWeight.bold, color: p.text),
-                                  ),
-                                  Text(
-                                    '${lessons.length} Bab • Kurikulum SMK RPL',
-                                    style: AppTypography.caption.copyWith(color: p.textMuted),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ],
+                        Icon(
+                          Icons.search_off_rounded,
+                          size: 44,
+                          color: p.textMuted,
                         ),
-                        const SizedBox(height: AppSpacing.md),
-                        const Divider(),
                         const SizedBox(height: AppSpacing.sm),
-                        ...filteredLessons.map((l) {
-                          final isLocked = l.status == 'locked';
-                          final isCompleted = l.status == 'completed';
-
-                          return ListTile(
-                            contentPadding: EdgeInsets.zero,
-                            leading: Container(
-                              width: 32,
-                              height: 32,
-                              decoration: BoxDecoration(
-                                color: isCompleted
-                                    ? p.success.withValues(alpha: 0.15)
-                                    : isLocked
-                                        ? p.surfaceAlt
-                                        : p.primaryContainer,
-                                shape: BoxShape.circle,
-                              ),
-                              child: Icon(
-                                isCompleted
-                                    ? Icons.check
-                                    : isLocked
-                                        ? Icons.lock_outline_rounded
-                                        : Icons.play_arrow_rounded,
-                                size: 18,
-                                color: isCompleted
-                                    ? p.success
-                                    : isLocked
-                                        ? p.textMuted
-                                        : p.primary,
-                              ),
-                            ),
-                            title: Text(
-                              'Bab ${l.orderIndex}: ${l.title}',
-                              style: AppTypography.bodyM.copyWith(
-                                fontWeight: FontWeight.w600,
-                                color: isLocked ? p.textMuted : p.text,
-                              ),
-                            ),
-                            subtitle: Text(
-                              isLocked
-                                  ? (l.requiredLessonTitle != null ? 'Syarat: ${l.requiredLessonTitle}' : 'Terkunci')
-                                  : '+${l.xpReward} XP',
-                              style: AppTypography.caption.copyWith(color: p.textMuted),
-                            ),
-                            trailing: const Icon(Icons.chevron_right_rounded, size: 20),
-                            onTap: () {
-                              if (isLocked) {
-                                showAppSnack(
-                                  context,
-                                  l.requiredLessonTitle != null
-                                      ? 'Selesaikan ${l.requiredLessonTitle} terlebih dahulu.'
-                                      : 'Bab ini masih terkunci.',
-                                );
-                              } else {
-                                context.push(AppRoutes.lesson(l.id));
-                              }
-                            },
-                          );
-                        }),
+                        Text(
+                          'Tidak ada materi yang cocok dengan pencarian '
+                          'atau filter.',
+                          textAlign: TextAlign.center,
+                          style: AppTypography.bodyM.copyWith(
+                            color: p.textMuted,
+                          ),
+                        ),
                       ],
                     ),
-                  ),
-                );
-              }),
-            ],
+                  )
+                else
+                  for (final entry in visible)
+                    _LessonTile(
+                      topic: entry.key,
+                      lessons: entry.value,
+                      onTap: () {
+                        // Lesson dipilih → dashboard memuat seluruh bab-nya.
+                        appShellFocusTopic.value = entry.key;
+                        context.go(AppRoutes.dashboard);
+                      },
+                    ),
+              ],
+            ),
           );
         },
       ),
@@ -437,44 +273,166 @@ class _LessonCatalogPageState extends State<LessonCatalogPage> {
   }
 }
 
-class _FilterChip extends StatelessWidget {
-  const _FilterChip({
-    required this.label,
-    required this.isSelected,
+/// Satu baris = satu lesson (topik): ikon, tajuk, bar progres bab, chip
+/// status, dan chevron — cukup menawarkan BUKA di dashboard.
+class _LessonTile extends StatelessWidget {
+  const _LessonTile({
+    required this.topic,
+    required this.lessons,
     required this.onTap,
   });
 
-  final String label;
-  final bool isSelected;
+  final String topic;
+  final List<LessonDetailData> lessons;
   final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
     final p = context.palette;
+    final done = lessons.where((l) => l.status == 'completed').length;
+    final pct = lessons.isEmpty ? 0.0 : done / lessons.length;
+    final hasActive = lessons.any((l) => l.status == 'active');
+    final allDone = lessons.isNotEmpty && done == lessons.length;
+    final isHtml =
+        topic.toLowerCase().contains('html') ||
+        topic.toLowerCase().contains('web');
+    // Minggu 9 (owner): deskripsi singkat materi dari kolom lessons
+    // .description (bab pertama topik mewakili deskripsi topik).
+    final desc = lessonTopicDescription(lessons);
 
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(20),
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        decoration: BoxDecoration(
-          color: isSelected ? p.primary : p.surface,
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: isSelected ? p.primary : p.outline),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.04),
-              blurRadius: 4,
-              offset: const Offset(0, 2),
+    return Padding(
+      padding: const EdgeInsets.only(bottom: AppSpacing.md),
+      child: AppCard(
+        padding: EdgeInsets.zero,
+        child: InkWell(
+          borderRadius: AppRadius.cardBorder,
+          onTap: onTap,
+          child: Padding(
+            padding: const EdgeInsets.all(AppSpacing.lg),
+            child: Row(
+              children: [
+                Container(
+                  width: 44,
+                  height: 44,
+                  decoration: BoxDecoration(
+                    color: isHtml
+                        ? Colors.orange.withValues(alpha: 0.15)
+                        : p.primaryContainer,
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Icon(
+                    isHtml ? Icons.language_rounded : topicIcon(topic),
+                    color: isHtml ? Colors.orange.shade800 : p.primary,
+                    size: 26,
+                  ),
+                ),
+                const SizedBox(width: AppSpacing.md),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        topic,
+                        style: AppTypography.label.copyWith(
+                          color: p.text,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 15,
+                        ),
+                      ),
+                      // Deskripsi singkat materi tepat di bawah nama lesson.
+                      if (desc.isNotEmpty) ...[
+                        const SizedBox(height: AppSpacing.xs),
+                        Text(
+                          desc,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                          style: AppTypography.caption.copyWith(
+                            color: p.textMuted,
+                          ),
+                        ),
+                        const SizedBox(height: AppSpacing.xs),
+                      ] else
+                        const SizedBox(height: AppSpacing.xs),
+                      AppProgressBar(value: pct, height: 6),
+                      const SizedBox(height: AppSpacing.xs),
+                      Text(
+                        '$done/${lessons.length} bab tuntas',
+                        style: AppTypography.caption.copyWith(
+                          color: p.textMuted,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(width: AppSpacing.md),
+                AppTag(
+                  hasActive
+                      ? 'Sedang Aktif'
+                      : allDone
+                      ? 'Selesai'
+                      : done > 0
+                      ? 'Berjalan'
+                      : 'Belum Dimulai',
+                  background: hasActive
+                      ? p.primaryContainer
+                      : allDone
+                      ? p.success.withValues(alpha: 0.15)
+                      : p.surfaceAlt,
+                  foreground: hasActive
+                      ? p.primary
+                      : allDone
+                      ? p.success
+                      : p.textMuted,
+                ),
+                const SizedBox(width: AppSpacing.sm),
+                Icon(
+                  Icons.arrow_forward_ios_rounded,
+                  color: p.primary,
+                  size: 14,
+                ),
+              ],
             ),
-          ],
+          ),
         ),
-        child: Text(
-          label,
-          style: AppTypography.label.copyWith(
-            color: isSelected ? Colors.white : p.text,
-            fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
-            fontSize: 13,
+      ),
+    );
+  }
+}
+
+/// Chip pilihan filter status — gaya sama dengan chip katalog tantangan.
+class _FilterChip extends StatelessWidget {
+  const _FilterChip({
+    required this.label,
+    required this.selected,
+    required this.onTap,
+  });
+
+  final String label;
+  final bool selected;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final p = context.palette;
+    return Material(
+      color: selected ? p.primary : p.surface,
+      shape: StadiumBorder(
+        side: BorderSide(color: selected ? p.primary : p.outline),
+      ),
+      child: InkWell(
+        customBorder: const StadiumBorder(),
+        onTap: onTap,
+        child: Container(
+          constraints: const BoxConstraints(minHeight: 36),
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          alignment: Alignment.center,
+          child: Text(
+            label,
+            style: TextStyle(
+              fontSize: 12.5,
+              fontWeight: selected ? FontWeight.bold : FontWeight.w500,
+              color: selected ? Colors.white : p.text,
+            ),
           ),
         ),
       ),

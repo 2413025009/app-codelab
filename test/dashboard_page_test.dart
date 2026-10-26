@@ -125,8 +125,8 @@ void main() {
       expect(find.text('Target Kelulusan'), findsOneWidget);
 
       // Test catalog button
-      await tester.ensureVisible(find.text('Katalog Materi & Track'));
-      await tester.tap(find.text('Katalog Materi & Track'));
+      await tester.ensureVisible(find.text('Katalog Materi'));
+      await tester.tap(find.text('Katalog Materi'));
       expect(catalogOpened, true);
 
       // Test active module tap

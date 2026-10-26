@@ -10,6 +10,7 @@ import '../../../../core/theme/app_typography.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_card.dart';
 import '../../../../core/widgets/app_progress_bar.dart';
+import '../../../../core/widgets/app_refresh.dart';
 import '../../../../core/widgets/app_sheet.dart';
 import '../../../../core/widgets/avatars.dart';
 import '../../../../core/widgets/skeleton.dart';
@@ -44,7 +45,9 @@ class _ChallengeCatalogPageState extends State<ChallengeCatalogPage> {
   void initState() {
     super.initState();
     final user = context.read<AuthCubit>().state.user;
-    _future = context.read<ChallengeRepository>().getCatalog(userXp: user?.xpPoints);
+    _future = context.read<ChallengeRepository>().getCatalog(
+      userXp: user?.xpPoints,
+    );
     appShellTabActivated.addListener(_handleTabActivated);
   }
 
@@ -71,7 +74,9 @@ class _ChallengeCatalogPageState extends State<ChallengeCatalogPage> {
   Future<void> _refreshSilent() async {
     final user = context.read<AuthCubit>().state.user;
     try {
-      final fresh = await context.read<ChallengeRepository>().getCatalog(userXp: user?.xpPoints);
+      final fresh = await context.read<ChallengeRepository>().getCatalog(
+        userXp: user?.xpPoints,
+      );
       if (!mounted) return;
       setState(() => _future = Future.value(fresh));
     } catch (_) {}
@@ -80,14 +85,18 @@ class _ChallengeCatalogPageState extends State<ChallengeCatalogPage> {
   void _refresh() {
     final user = context.read<AuthCubit>().state.user;
     setState(() {
-      _future = context.read<ChallengeRepository>().getCatalog(userXp: user?.xpPoints);
+      _future = context.read<ChallengeRepository>().getCatalog(
+        userXp: user?.xpPoints,
+      );
     });
   }
 
   bool _matches(ChallengeSummary c) {
     final q = _search.text.trim().toLowerCase();
     if (q.isNotEmpty &&
-        !('${c.title} ${c.topicTag} ${c.subtitle ?? ''}'.toLowerCase().contains(q))) {
+        !('${c.title} ${c.topicTag} ${c.subtitle ?? ''}'.toLowerCase().contains(
+          q,
+        ))) {
       return false;
     }
     if (_level != null && c.level != _level) return false;
@@ -110,7 +119,12 @@ class _ChallengeCatalogPageState extends State<ChallengeCatalogPage> {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('Tingkat kesulitan', style: AppTypography.label.copyWith(color: ctx.palette.textMuted)),
+              Text(
+                'Tingkat kesulitan',
+                style: AppTypography.label.copyWith(
+                  color: ctx.palette.textMuted,
+                ),
+              ),
               const SizedBox(height: AppSpacing.md),
               Wrap(
                 spacing: AppSpacing.sm,
@@ -135,7 +149,10 @@ class _ChallengeCatalogPageState extends State<ChallengeCatalogPage> {
                 ],
               ),
               const SizedBox(height: AppSpacing.xl),
-              AppButton(label: 'Terapkan', onPressed: () => Navigator.of(ctx).pop()),
+              AppButton(
+                label: 'Terapkan',
+                onPressed: () => Navigator.of(ctx).pop(),
+              ),
             ],
           ),
         ),
@@ -161,14 +178,24 @@ class _ChallengeCatalogPageState extends State<ChallengeCatalogPage> {
                   color: ctx.palette.warningContainer,
                   borderRadius: BorderRadius.circular(16),
                 ),
-                child: Icon(Icons.lock_rounded, color: ctx.palette.warningText, size: 28),
+                child: Icon(
+                  Icons.lock_rounded,
+                  color: ctx.palette.warningText,
+                  size: 28,
+                ),
               ),
               const SizedBox(height: AppSpacing.md),
-              Text(c.title, style: AppTypography.titleM.copyWith(color: ctx.palette.text)),
+              Text(
+                c.title,
+                style: AppTypography.titleM.copyWith(color: ctx.palette.text),
+              ),
               const SizedBox(height: AppSpacing.xs),
               Text(
                 'Syarat: Butuh minimal ${c.minXpRequired} XP untuk membuka tantangan ini. Saat ini kamu memiliki $userXp XP.',
-                style: AppTypography.bodyM.copyWith(color: ctx.palette.textMuted, height: 1.5),
+                style: AppTypography.bodyM.copyWith(
+                  color: ctx.palette.textMuted,
+                  height: 1.5,
+                ),
               ),
               const SizedBox(height: AppSpacing.lg),
               Row(
@@ -213,85 +240,136 @@ class _ChallengeCatalogPageState extends State<ChallengeCatalogPage> {
         child: FutureBuilder<ChallengeCatalog>(
           future: _future,
           builder: (context, snap) {
-            return ListView(
-              padding: const EdgeInsets.fromLTRB(AppSpacing.screen, AppSpacing.md, AppSpacing.screen, AppSpacing.xxl),
-              children: [
-                _TopBar(
-                  userName: userName,
-                  onSearch: () => _searchFocus.requestFocus(),
-                  onAvatar: () => context.go(AppRoutes.profile),
+            // Minggu 9 (owner): tarik layar dari atas → muat ulang katalog
+            // tantangan (lingkaran pemuat mengikuti jarak tarikan).
+            return AppRefresh(
+              onRefresh: _refreshSilent,
+              child: ListView(
+                physics: const AlwaysScrollableScrollPhysics(),
+                padding: const EdgeInsets.fromLTRB(
+                  AppSpacing.screen,
+                  AppSpacing.md,
+                  AppSpacing.screen,
+                  AppSpacing.xxl,
                 ),
-                const SizedBox(height: AppSpacing.xl),
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Expanded(
+                children: [
+                  _TopBar(
+                    userName: userName,
+                    onSearch: () => _searchFocus.requestFocus(),
+                    onAvatar: () => context.go(AppRoutes.profile),
+                  ),
+                  const SizedBox(height: AppSpacing.xl),
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Katalog Tantangan',
+                              style: AppTypography.titleL.copyWith(
+                                color: p.text,
+                                fontSize: 26,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            const SizedBox(height: 2),
+                            Text(
+                              'Asah logika algoritma & koding bertahap',
+                              style: AppTypography.bodyM.copyWith(
+                                color: p.textMuted,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      OutlinedButton.icon(
+                        style: OutlinedButton.styleFrom(
+                          minimumSize: const Size(AppSizes.minTouch, 40),
+                          side: BorderSide(color: p.outline),
+                          foregroundColor: p.primary,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                        onPressed: _openFilterSheet,
+                        icon: const Icon(Icons.tune_rounded, size: 16),
+                        label: Text(
+                          _level == null ? 'Filter' : 'Filter • 1',
+                          style: const TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: AppSpacing.lg),
+                  TextField(
+                    controller: _search,
+                    focusNode: _searchFocus,
+                    onChanged: (_) => setState(() {}),
+                    style: AppTypography.bodyL.copyWith(color: p.text),
+                    decoration: InputDecoration(
+                      hintText: 'Cari topik, fungsi, atau algoritma...',
+                      prefixIcon: Icon(
+                        Icons.search_rounded,
+                        color: p.textMuted,
+                        size: 20,
+                      ),
+                      suffixIcon: _search.text.isEmpty
+                          ? null
+                          : IconButton(
+                              tooltip: 'Hapus pencarian',
+                              icon: const Icon(Icons.close_rounded, size: 18),
+                              onPressed: () => setState(_search.clear),
+                            ),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(14),
+                        borderSide: BorderSide(color: p.outline),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(14),
+                        borderSide: BorderSide(color: p.outline),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(14),
+                        borderSide: BorderSide(color: p.primary, width: 2),
+                      ),
+                      contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 14,
+                        vertical: 12,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: AppSpacing.lg),
+                  if (snap.connectionState != ConnectionState.done)
+                    const _CatalogSkeleton()
+                  else if (snap.hasError)
+                    Padding(
+                      padding: const EdgeInsets.only(top: AppSpacing.xl),
                       child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text('Katalog Tantangan', style: AppTypography.titleL.copyWith(color: p.text, fontSize: 26, fontWeight: FontWeight.bold)),
-                          const SizedBox(height: 2),
-                          Text('Asah logika algoritma & koding bertahap', style: AppTypography.bodyM.copyWith(color: p.textMuted)),
+                          Text(
+                            'Ada kendala di sisi kami. Coba lagi sebentar.',
+                            style: AppTypography.bodyM.copyWith(
+                              color: p.textMuted,
+                            ),
+                          ),
+                          const SizedBox(height: AppSpacing.lg),
+                          AppButton(
+                            label: 'Coba lagi',
+                            expand: false,
+                            onPressed: _refresh,
+                          ),
                         ],
                       ),
-                    ),
-                    OutlinedButton.icon(
-                      style: OutlinedButton.styleFrom(
-                        minimumSize: const Size(AppSizes.minTouch, 40),
-                        side: BorderSide(color: p.outline),
-                        foregroundColor: p.primary,
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                      ),
-                      onPressed: _openFilterSheet,
-                      icon: const Icon(Icons.tune_rounded, size: 16),
-                      label: Text(_level == null ? 'Filter' : 'Filter • 1', style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: AppSpacing.lg),
-                TextField(
-                  controller: _search,
-                  focusNode: _searchFocus,
-                  onChanged: (_) => setState(() {}),
-                  style: AppTypography.bodyL.copyWith(color: p.text),
-                  decoration: InputDecoration(
-                    hintText: 'Cari topik, fungsi, atau algoritma...',
-                    prefixIcon: Icon(Icons.search_rounded, color: p.textMuted, size: 20),
-                    suffixIcon: _search.text.isEmpty
-                        ? null
-                        : IconButton(
-                            tooltip: 'Hapus pencarian',
-                            icon: const Icon(Icons.close_rounded, size: 18),
-                            onPressed: () => setState(_search.clear),
-                          ),
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: BorderSide(color: p.outline)),
-                    enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: BorderSide(color: p.outline)),
-                    focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: BorderSide(color: p.primary, width: 2)),
-                    contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-                  ),
-                ),
-                const SizedBox(height: AppSpacing.lg),
-                if (snap.connectionState != ConnectionState.done)
-                  const _CatalogSkeleton()
-                else if (snap.hasError)
-                  Padding(
-                    padding: const EdgeInsets.only(top: AppSpacing.xl),
-                    child: Column(
-                      children: [
-                        Text('Ada kendala di sisi kami. Coba lagi sebentar.',
-                            style: AppTypography.bodyM.copyWith(color: p.textMuted)),
-                        const SizedBox(height: AppSpacing.lg),
-                        AppButton(
-                          label: 'Coba lagi',
-                          expand: false,
-                          onPressed: _refresh,
-                        ),
-                      ],
-                    ),
-                  )
-                else
-                  ..._content(context, snap.data!, userXp),
-              ],
+                    )
+                  else
+                    ..._content(context, snap.data!, userXp),
+                ],
+              ),
             );
           },
         ),
@@ -299,7 +377,11 @@ class _ChallengeCatalogPageState extends State<ChallengeCatalogPage> {
     );
   }
 
-  List<Widget> _content(BuildContext context, ChallengeCatalog catalog, int userXp) {
+  List<Widget> _content(
+    BuildContext context,
+    ChallengeCatalog catalog,
+    int userXp,
+  ) {
     final p = context.palette;
     final groups = [
       for (final g in catalog.groups)
@@ -316,7 +398,9 @@ class _ChallengeCatalogPageState extends State<ChallengeCatalogPage> {
           itemBuilder: (_, i) {
             final f = _StatusFilter.values[i];
             return _ChoiceChip(
-              label: f == _StatusFilter.all ? '${f.label} (${catalog.total})' : f.label,
+              label: f == _StatusFilter.all
+                  ? '${f.label} (${catalog.total})'
+                  : f.label,
               selected: _status == f,
               onTap: () => setState(() => _status = f),
             );
@@ -333,8 +417,11 @@ class _ChallengeCatalogPageState extends State<ChallengeCatalogPage> {
             children: [
               Icon(Icons.search_off_rounded, size: 40, color: p.textMuted),
               const SizedBox(height: AppSpacing.md),
-              Text('Tidak ada tantangan yang cocok. Coba ubah kata kunci atau filter.',
-                  textAlign: TextAlign.center, style: AppTypography.bodyM.copyWith(color: p.textMuted)),
+              Text(
+                'Tidak ada tantangan yang cocok. Coba ubah kata kunci atau filter.',
+                textAlign: TextAlign.center,
+                style: AppTypography.bodyM.copyWith(color: p.textMuted),
+              ),
             ],
           ),
         ),
@@ -367,7 +454,9 @@ class _ChallengeCatalogPageState extends State<ChallengeCatalogPage> {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                 decoration: BoxDecoration(
-                  color: group.completed > 0 ? p.primaryContainer : p.surfaceAlt,
+                  color: group.completed > 0
+                      ? p.primaryContainer
+                      : p.surfaceAlt,
                   borderRadius: BorderRadius.circular(6),
                 ),
                 child: Text(
@@ -398,7 +487,11 @@ class _ChallengeCatalogPageState extends State<ChallengeCatalogPage> {
 }
 
 class _TopBar extends StatelessWidget {
-  const _TopBar({required this.userName, required this.onSearch, required this.onAvatar});
+  const _TopBar({
+    required this.userName,
+    required this.onSearch,
+    required this.onAvatar,
+  });
 
   final String userName;
   final VoidCallback onSearch;
@@ -423,8 +516,20 @@ class _TopBar extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('CodeLab AI', style: AppTypography.titleM.copyWith(color: p.text, fontSize: 16)),
-              Text('SMK RPL Platform', style: AppTypography.caption.copyWith(color: p.textMuted, fontSize: 11)),
+              Text(
+                'CodeLab AI',
+                style: AppTypography.titleM.copyWith(
+                  color: p.text,
+                  fontSize: 16,
+                ),
+              ),
+              Text(
+                'SMK RPL Platform',
+                style: AppTypography.caption.copyWith(
+                  color: p.textMuted,
+                  fontSize: 11,
+                ),
+              ),
             ],
           ),
         ),
@@ -433,7 +538,9 @@ class _TopBar extends StatelessWidget {
           style: IconButton.styleFrom(
             side: BorderSide(color: p.outline),
             minimumSize: const Size(36, 36),
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
+            ),
           ),
           icon: Icon(Icons.search_rounded, color: p.text, size: 18),
           onPressed: onSearch,
@@ -463,7 +570,11 @@ class _TopBar extends StatelessWidget {
 }
 
 class _ChoiceChip extends StatelessWidget {
-  const _ChoiceChip({required this.label, required this.selected, required this.onTap});
+  const _ChoiceChip({
+    required this.label,
+    required this.selected,
+    required this.onTap,
+  });
   final String label;
   final bool selected;
   final VoidCallback onTap;
@@ -473,7 +584,9 @@ class _ChoiceChip extends StatelessWidget {
     final p = context.palette;
     return Material(
       color: selected ? p.primary : p.surface,
-      shape: StadiumBorder(side: BorderSide(color: selected ? p.primary : p.outline)),
+      shape: StadiumBorder(
+        side: BorderSide(color: selected ? p.primary : p.outline),
+      ),
       child: InkWell(
         customBorder: const StadiumBorder(),
         onTap: onTap,
@@ -508,7 +621,11 @@ class _ProgressSummary extends StatelessWidget {
         borderRadius: BorderRadius.circular(20),
         border: Border.all(color: p.outline),
         boxShadow: const [
-          BoxShadow(color: Color(0x08000000), blurRadius: 8, offset: Offset(0, 2)),
+          BoxShadow(
+            color: Color(0x08000000),
+            blurRadius: 8,
+            offset: Offset(0, 2),
+          ),
         ],
       ),
       padding: const EdgeInsets.all(AppSpacing.lg),
@@ -525,29 +642,55 @@ class _ProgressSummary extends StatelessWidget {
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(color: const Color(0xFFFDE68A)),
                 ),
-                child: Icon(Icons.emoji_events_rounded, color: p.warningText, size: 24),
+                child: Icon(
+                  Icons.emoji_events_rounded,
+                  color: p.warningText,
+                  size: 24,
+                ),
               ),
               const SizedBox(width: AppSpacing.md),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('${catalog.completed} dari ${catalog.total} Selesai',
-                        style: AppTypography.titleM.copyWith(color: p.text, fontSize: 16)),
+                    Text(
+                      '${catalog.completed} dari ${catalog.total} Selesai',
+                      style: AppTypography.titleM.copyWith(
+                        color: p.text,
+                        fontSize: 16,
+                      ),
+                    ),
                     const SizedBox(height: 2),
-                    Text('Kemahiran Kurikulum Algoritma RPL',
-                        style: AppTypography.bodyM.copyWith(color: p.textMuted, fontSize: 12)),
+                    Text(
+                      'Kemahiran Kurikulum Algoritma RPL',
+                      style: AppTypography.bodyM.copyWith(
+                        color: p.textMuted,
+                        fontSize: 12,
+                      ),
+                    ),
                   ],
                 ),
               ),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
-                  Text('${(catalog.progress * 100).round()}%',
-                      style: AppTypography.titleL.copyWith(color: p.primary, fontSize: 18, fontWeight: FontWeight.w800)),
-                  Text('+${catalog.xpEarned} XP Didapat',
-                      textAlign: TextAlign.right,
-                      style: TextStyle(fontSize: 11, color: p.success, fontWeight: FontWeight.w600)),
+                  Text(
+                    '${(catalog.progress * 100).round()}%',
+                    style: AppTypography.titleL.copyWith(
+                      color: p.primary,
+                      fontSize: 18,
+                      fontWeight: FontWeight.w800,
+                    ),
+                  ),
+                  Text(
+                    '+${catalog.xpEarned} XP Didapat',
+                    textAlign: TextAlign.right,
+                    style: TextStyle(
+                      fontSize: 11,
+                      color: p.success,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
                 ],
               ),
             ],
@@ -576,10 +719,30 @@ class _ChallengeTile extends StatelessWidget {
     final p = context.palette;
     final c = challenge;
 
-    final (Color bg, Color fg, IconData icon, String statusText) = switch (c.status) {
-      ChallengeStatus.completed => (const Color(0xFFECFDF5), p.success, Icons.check_rounded, 'Selesai'),
-      ChallengeStatus.inProgress => (const Color(0xFFFFFBEB), const Color(0xFFD97706), Icons.more_horiz_rounded, 'Sedang Dicoba'),
-      ChallengeStatus.notStarted => (p.surfaceAlt, p.textMuted, c.isLocked ? Icons.lock_rounded : Icons.code_rounded, ''),
+    final (
+      Color bg,
+      Color fg,
+      IconData icon,
+      String statusText,
+    ) = switch (c.status) {
+      ChallengeStatus.completed => (
+        const Color(0xFFECFDF5),
+        p.success,
+        Icons.check_rounded,
+        'Selesai',
+      ),
+      ChallengeStatus.inProgress => (
+        const Color(0xFFFFFBEB),
+        const Color(0xFFD97706),
+        Icons.more_horiz_rounded,
+        'Sedang Dicoba',
+      ),
+      ChallengeStatus.notStarted => (
+        p.surfaceAlt,
+        p.textMuted,
+        c.isLocked ? Icons.lock_rounded : Icons.code_rounded,
+        '',
+      ),
     };
 
     return Opacity(
@@ -604,7 +767,13 @@ class _ChallengeTile extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(c.title, style: AppTypography.titleM.copyWith(color: p.text, fontSize: 15)),
+                  Text(
+                    c.title,
+                    style: AppTypography.titleM.copyWith(
+                      color: p.text,
+                      fontSize: 15,
+                    ),
+                  ),
                   const SizedBox(height: AppSpacing.xs),
                   Wrap(
                     spacing: 6,
@@ -612,9 +781,14 @@ class _ChallengeTile extends StatelessWidget {
                     crossAxisAlignment: WrapCrossAlignment.center,
                     children: [
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 6,
+                          vertical: 2,
+                        ),
                         decoration: BoxDecoration(
-                          color: c.level == ChallengeLevel.intermediate ? const Color(0xFFE4EDFF) : p.surfaceAlt,
+                          color: c.level == ChallengeLevel.intermediate
+                              ? const Color(0xFFE4EDFF)
+                              : p.surfaceAlt,
                           borderRadius: BorderRadius.circular(6),
                         ),
                         child: Text(
@@ -622,17 +796,31 @@ class _ChallengeTile extends StatelessWidget {
                           style: TextStyle(
                             fontSize: 10.5,
                             fontWeight: FontWeight.w600,
-                            color: c.level == ChallengeLevel.intermediate ? p.primary : p.textMuted,
+                            color: c.level == ChallengeLevel.intermediate
+                                ? p.primary
+                                : p.textMuted,
                           ),
                         ),
                       ),
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                        decoration: BoxDecoration(color: p.surfaceAlt, borderRadius: BorderRadius.circular(6)),
-                        child: Text(c.topicTag, style: TextStyle(fontSize: 10.5, color: p.textMuted)),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 6,
+                          vertical: 2,
+                        ),
+                        decoration: BoxDecoration(
+                          color: p.surfaceAlt,
+                          borderRadius: BorderRadius.circular(6),
+                        ),
+                        child: Text(
+                          c.topicTag,
+                          style: TextStyle(fontSize: 10.5, color: p.textMuted),
+                        ),
                       ),
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 6,
+                          vertical: 2,
+                        ),
                         decoration: BoxDecoration(
                           color: const Color(0xFFFEF3C7),
                           borderRadius: BorderRadius.circular(6),
@@ -640,25 +828,43 @@ class _ChallengeTile extends StatelessWidget {
                         ),
                         child: Text(
                           '+${c.xp} XP',
-                          style: const TextStyle(fontSize: 10.5, fontWeight: FontWeight.bold, color: Color(0xFF92400E)),
+                          style: const TextStyle(
+                            fontSize: 10.5,
+                            fontWeight: FontWeight.bold,
+                            color: Color(0xFF92400E),
+                          ),
                         ),
                       ),
                       if (c.isLocked)
                         Text(
                           'Butuh ${c.minXpRequired} XP',
-                          style: const TextStyle(fontSize: 10.5, color: Color(0xFFD97706), fontWeight: FontWeight.bold),
+                          style: const TextStyle(
+                            fontSize: 10.5,
+                            color: Color(0xFFD97706),
+                            fontWeight: FontWeight.bold,
+                          ),
                         )
                       else if (statusText.isNotEmpty)
                         Text(
                           statusText,
-                          style: TextStyle(fontSize: 10.5, color: fg, fontWeight: FontWeight.w600),
+                          style: TextStyle(
+                            fontSize: 10.5,
+                            color: fg,
+                            fontWeight: FontWeight.w600,
+                          ),
                         ),
                     ],
                   ),
                 ],
               ),
             ),
-            Icon(c.isLocked ? Icons.lock_outline_rounded : Icons.chevron_right_rounded, color: p.textMuted, size: 20),
+            Icon(
+              c.isLocked
+                  ? Icons.lock_outline_rounded
+                  : Icons.chevron_right_rounded,
+              color: p.textMuted,
+              size: 20,
+            ),
           ],
         ),
       ),
@@ -684,18 +890,30 @@ class _MiniProjectHeader extends StatelessWidget {
                 children: [
                   Text(
                     'MINI-PROYEK TERAPAN',
-                    style: AppTypography.label.copyWith(color: p.textMuted, letterSpacing: 0.8, fontSize: 12, fontWeight: FontWeight.bold),
+                    style: AppTypography.label.copyWith(
+                      color: p.textMuted,
+                      letterSpacing: 0.8,
+                      fontSize: 12,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                   const SizedBox(width: 6),
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 6,
+                      vertical: 2,
+                    ),
                     decoration: BoxDecoration(
                       color: const Color(0xFFE4EDFF),
                       borderRadius: BorderRadius.circular(4),
                     ),
                     child: Text(
                       'Real-World',
-                      style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: p.primary),
+                      style: TextStyle(
+                        fontSize: 10,
+                        fontWeight: FontWeight.bold,
+                        color: p.primary,
+                      ),
                     ),
                   ),
                 ],
@@ -716,7 +934,11 @@ class _MiniProjectHeader extends StatelessWidget {
           ),
           child: Text(
             '${group.unlockedCount} / ${group.challenges.length} Dibuka',
-            style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: p.primary),
+            style: TextStyle(
+              fontSize: 11,
+              fontWeight: FontWeight.w600,
+              color: p.primary,
+            ),
           ),
         ),
       ],
@@ -744,7 +966,9 @@ class _MiniProjectCard extends StatelessWidget {
     if (c.id.contains('parkir')) projectIcon = Icons.local_parking_rounded;
     if (c.id.contains('nilai')) projectIcon = Icons.school_rounded;
 
-    final borderColor = c.isLocked ? p.outline : p.primary.withValues(alpha: 0.35);
+    final borderColor = c.isLocked
+        ? p.outline
+        : p.primary.withValues(alpha: 0.35);
 
     return Opacity(
       opacity: c.isLocked ? 0.8 : 1.0,
@@ -754,7 +978,11 @@ class _MiniProjectCard extends StatelessWidget {
           borderRadius: BorderRadius.circular(20),
           border: Border.all(color: borderColor),
           boxShadow: const [
-            BoxShadow(color: Color(0x06000000), blurRadius: 8, offset: Offset(0, 2)),
+            BoxShadow(
+              color: Color(0x06000000),
+              blurRadius: 8,
+              offset: Offset(0, 2),
+            ),
           ],
         ),
         child: Material(
@@ -774,9 +1002,15 @@ class _MiniProjectCard extends StatelessWidget {
                         width: 40,
                         height: 40,
                         decoration: BoxDecoration(
-                          color: c.isLocked ? p.surfaceAlt : const Color(0xFFE4EDFF),
+                          color: c.isLocked
+                              ? p.surfaceAlt
+                              : const Color(0xFFE4EDFF),
                           borderRadius: BorderRadius.circular(12),
-                          border: Border.all(color: c.isLocked ? p.outline : p.primary.withValues(alpha: 0.2)),
+                          border: Border.all(
+                            color: c.isLocked
+                                ? p.outline
+                                : p.primary.withValues(alpha: 0.2),
+                          ),
                         ),
                         child: Icon(
                           projectIcon,
@@ -794,24 +1028,41 @@ class _MiniProjectCard extends StatelessWidget {
                                 Expanded(
                                   child: Text(
                                     c.title,
-                                    style: AppTypography.titleM.copyWith(color: p.text, fontSize: 15, fontWeight: FontWeight.bold),
+                                    style: AppTypography.titleM.copyWith(
+                                      color: p.text,
+                                      fontSize: 15,
+                                      fontWeight: FontWeight.bold,
+                                    ),
                                     maxLines: 1,
                                     overflow: TextOverflow.ellipsis,
                                   ),
                                 ),
                                 const SizedBox(width: 6),
                                 Container(
-                                  padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 7,
+                                    vertical: 2,
+                                  ),
                                   decoration: BoxDecoration(
-                                    color: c.isLocked ? p.surfaceAlt : const Color(0xFFECFDF5),
+                                    color: c.isLocked
+                                        ? p.surfaceAlt
+                                        : const Color(0xFFECFDF5),
                                     borderRadius: BorderRadius.circular(10),
-                                    border: Border.all(color: c.isLocked ? p.outline : const Color(0xFFA7F3D0)),
+                                    border: Border.all(
+                                      color: c.isLocked
+                                          ? p.outline
+                                          : const Color(0xFFA7F3D0),
+                                    ),
                                   ),
                                   child: Row(
                                     mainAxisSize: MainAxisSize.min,
                                     children: [
                                       if (c.isLocked) ...[
-                                        const Icon(Icons.lock_rounded, size: 10, color: Color(0xFF5B6475)),
+                                        const Icon(
+                                          Icons.lock_rounded,
+                                          size: 10,
+                                          color: Color(0xFF5B6475),
+                                        ),
                                         const SizedBox(width: 3),
                                       ],
                                       Text(
@@ -819,7 +1070,9 @@ class _MiniProjectCard extends StatelessWidget {
                                         style: TextStyle(
                                           fontSize: 10,
                                           fontWeight: FontWeight.bold,
-                                          color: c.isLocked ? p.textMuted : p.success,
+                                          color: c.isLocked
+                                              ? p.textMuted
+                                              : p.success,
                                         ),
                                       ),
                                     ],
@@ -831,7 +1084,10 @@ class _MiniProjectCard extends StatelessWidget {
                               const SizedBox(height: 3),
                               Text(
                                 c.subtitle!,
-                                style: TextStyle(fontSize: 11.5, color: p.textMuted),
+                                style: TextStyle(
+                                  fontSize: 11.5,
+                                  color: p.textMuted,
+                                ),
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
                               ),
@@ -841,7 +1097,9 @@ class _MiniProjectCard extends StatelessWidget {
                       ),
                       const SizedBox(width: 4),
                       Icon(
-                        c.isLocked ? Icons.lock_rounded : Icons.chevron_right_rounded,
+                        c.isLocked
+                            ? Icons.lock_rounded
+                            : Icons.chevron_right_rounded,
                         color: c.isLocked ? p.textMuted : p.primary,
                         size: 20,
                       ),
@@ -853,9 +1111,14 @@ class _MiniProjectCard extends StatelessWidget {
                   Row(
                     children: [
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 6,
+                          vertical: 2,
+                        ),
                         decoration: BoxDecoration(
-                          color: c.level == ChallengeLevel.intermediate ? const Color(0xFFE4EDFF) : p.surfaceAlt,
+                          color: c.level == ChallengeLevel.intermediate
+                              ? const Color(0xFFE4EDFF)
+                              : p.surfaceAlt,
                           borderRadius: BorderRadius.circular(6),
                         ),
                         child: Text(
@@ -863,26 +1126,47 @@ class _MiniProjectCard extends StatelessWidget {
                           style: TextStyle(
                             fontSize: 11,
                             fontWeight: FontWeight.w600,
-                            color: c.level == ChallengeLevel.intermediate ? p.primary : p.textMuted,
+                            color: c.level == ChallengeLevel.intermediate
+                                ? p.primary
+                                : p.textMuted,
                           ),
                         ),
                       ),
                       const SizedBox(width: 6),
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                        decoration: BoxDecoration(color: p.surfaceAlt, borderRadius: BorderRadius.circular(6)),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 6,
+                          vertical: 2,
+                        ),
+                        decoration: BoxDecoration(
+                          color: p.surfaceAlt,
+                          borderRadius: BorderRadius.circular(6),
+                        ),
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            Icon(Icons.schedule_rounded, size: 12, color: p.textMuted),
+                            Icon(
+                              Icons.schedule_rounded,
+                              size: 12,
+                              color: p.textMuted,
+                            ),
                             const SizedBox(width: 3),
-                            Text('${c.estimatedMinutes} Menit', style: TextStyle(fontSize: 11, color: p.textMuted)),
+                            Text(
+                              '${c.estimatedMinutes} Menit',
+                              style: TextStyle(
+                                fontSize: 11,
+                                color: p.textMuted,
+                              ),
+                            ),
                           ],
                         ),
                       ),
                       const SizedBox(width: 6),
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 6,
+                          vertical: 2,
+                        ),
                         decoration: BoxDecoration(
                           color: const Color(0xFFFEF3C7),
                           borderRadius: BorderRadius.circular(6),
@@ -890,7 +1174,11 @@ class _MiniProjectCard extends StatelessWidget {
                         ),
                         child: Text(
                           '+${c.xp} XP',
-                          style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Color(0xFF92400E)),
+                          style: const TextStyle(
+                            fontSize: 11,
+                            fontWeight: FontWeight.bold,
+                            color: Color(0xFF92400E),
+                          ),
                         ),
                       ),
                       const Spacer(),
@@ -898,11 +1186,19 @@ class _MiniProjectCard extends StatelessWidget {
                         Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            const Icon(Icons.lock_rounded, size: 12, color: Color(0xFFD97706)),
+                            const Icon(
+                              Icons.lock_rounded,
+                              size: 12,
+                              color: Color(0xFFD97706),
+                            ),
                             const SizedBox(width: 4),
                             Text(
                               'Syarat: Butuh ${c.minXpRequired} XP',
-                              style: const TextStyle(fontSize: 11, color: Color(0xFFD97706), fontWeight: FontWeight.w600),
+                              style: const TextStyle(
+                                fontSize: 11,
+                                color: Color(0xFFD97706),
+                                fontWeight: FontWeight.w600,
+                              ),
                             ),
                           ],
                         )
@@ -910,11 +1206,19 @@ class _MiniProjectCard extends StatelessWidget {
                         Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            Icon(Icons.fact_check_rounded, size: 12, color: p.success),
+                            Icon(
+                              Icons.fact_check_rounded,
+                              size: 12,
+                              color: p.success,
+                            ),
                             const SizedBox(width: 4),
                             Text(
                               '${c.testCount} Unit Test',
-                              style: TextStyle(fontSize: 11, color: p.success, fontWeight: FontWeight.w600),
+                              style: TextStyle(
+                                fontSize: 11,
+                                color: p.success,
+                                fontWeight: FontWeight.w600,
+                              ),
                             ),
                           ],
                         ),

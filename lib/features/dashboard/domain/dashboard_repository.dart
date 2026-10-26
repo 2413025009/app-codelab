@@ -1,6 +1,8 @@
 import 'package:equatable/equatable.dart';
 
-enum ModuleStatus { completed, active, locked }
+// Minggu 9 (owner): bab tidak lagi berantai terkunci — 'available' berarti
+// bab terbuka dan bisa langsung dikerjakan (aplikasi punya akun baru pun).
+enum ModuleStatus { completed, active, available, locked }
 
 class LearningModule extends Equatable {
   const LearningModule({
@@ -88,7 +90,14 @@ class DashboardData extends Equatable {
   bool get hasSkills => skills.values.any((v) => v > 0);
 
   @override
-  List<Object?> get props => [completedChallenges, totalChallenges, userXp, resume, skills, modules];
+  List<Object?> get props => [
+    completedChallenges,
+    totalChallenges,
+    userXp,
+    resume,
+    skills,
+    modules,
+  ];
 }
 
 /// Contract for dashboard data (GET /me, /me/progress, /me/skills, /lessons).

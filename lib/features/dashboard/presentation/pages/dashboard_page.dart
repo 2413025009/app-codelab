@@ -3,12 +3,14 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../app/router/app_routes.dart';
+import '../../../../app/shell/app_shell.dart';
 import '../../../../core/theme/app_palette.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../core/utils/name_utils.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_loading_screen.dart';
+import '../../../../core/widgets/app_refresh.dart';
 import '../../../../core/widgets/app_snack.dart';
 import '../../../../core/widgets/avatars.dart';
 import '../../../auth/presentation/cubit/auth_cubit.dart';
@@ -17,14 +19,50 @@ import '../cubit/dashboard_cubit.dart';
 import '../widgets/dashboard_widgets.dart';
 import '../widgets/winding_roadmap.dart';
 
-class DashboardPage extends StatelessWidget {
+/// Minggu 9: modul anchor = bab 'active' global (fallback bab pertama).
+/// Dipakai kartu "Bab X dari Y" agar penghitungnya per topik anchor —
+/// dulu bercampur seluruh bab lintas topik (teks aneh "1 dari 49").
+LearningModule _anchorModule(List<LearningModule> modules) {
+  return modules.firstWhere(
+    (m) => m.status == ModuleStatus.active,
+    orElse: () => modules.first,
+  );
+}
+
+class DashboardPage extends StatefulWidget {
   const DashboardPage({super.key});
+
+  @override
+  State<DashboardPage> createState() => _DashboardPageState();
+}
+
+class _DashboardPageState extends State<DashboardPage> {
+  @override
+  void initState() {
+    super.initState();
+    // Minggu 9 (owner): menekan tab Belajar LAGI melepas fokus lesson
+    // pilihan katalog — peta kembali menampilkan track aktif natural.
+    appShellTabActivated.addListener(_handleTabActivated);
+  }
+
+  void _handleTabActivated() {
+    if (appShellTabActivated.value == 0 && appShellFocusTopic.value != null) {
+      appShellFocusTopic.value = null;
+    }
+  }
+
+  @override
+  void dispose() {
+    appShellTabActivated.removeListener(_handleTabActivated);
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     final user = context.read<AuthCubit>().state.user!;
     return BlocProvider(
-      create: (ctx) => DashboardCubit(ctx.read<DashboardRepository>(), user.email),
+      create: (ctx) =>
+          DashboardCubit(ctx.read<DashboardRepository>(), user.email),
       child: _DashboardView(userName: user.name),
     );
   }
@@ -68,12 +106,18 @@ class _DashboardView extends StatelessWidget {
                       color: p.primaryContainer,
                       shape: BoxShape.circle,
                     ),
-                    child: Icon(Icons.lightbulb_rounded, color: p.primary, size: 24),
+                    child: Icon(
+                      Icons.lightbulb_rounded,
+                      color: p.primary,
+                      size: 24,
+                    ),
                   ),
                   const SizedBox(width: AppSpacing.sm),
                   Text(
                     'Trik Cepat Python',
-                    style: AppTypography.titleM.copyWith(fontWeight: FontWeight.bold),
+                    style: AppTypography.titleM.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ],
               ),
@@ -109,71 +153,101 @@ class _DashboardView extends StatelessWidget {
       appBar: AppBar(
         title: Text(
           'Dashboard',
-          style: AppTypography.titleM.copyWith(fontWeight: FontWeight.w700, color: p.text),
+          style: AppTypography.titleM.copyWith(
+            fontWeight: FontWeight.w700,
+            color: p.text,
+          ),
         ),
-        actions: [ProfileActionButton(onTap: () => context.go(AppRoutes.profile))],
+        actions: [
+          ProfileActionButton(onTap: () => context.go(AppRoutes.profile)),
+        ],
       ),
       body: BlocBuilder<DashboardCubit, DashboardState>(
         builder: (context, state) {
           return switch (state) {
             DashboardLoading(:final done, :final total, :final stage) =>
-                AppLoadingScreen(
-                  title: 'Menyiapkan dashboard',
-                  subtitle: 'Menarik data belajar dari server',
-                  completedSteps: done,
-                  totalSteps: total,
-                  stageLabel: stage,
-                  showTips: false,
-                  compact: true,
+              AppLoadingScreen(
+                title: 'Menyiapkan dashboard',
+                subtitle: 'Menarik data belajar dari server',
+                completedSteps: done,
+                totalSteps: total,
+                stageLabel: stage,
+                showTips: false,
+                compact: true,
+              ),
+            DashboardError() => _ErrorView(
+              onRetry: () => context.read<DashboardCubit>().load(),
+            ),
+            DashboardLoaded(:final data) => AppRefresh(
+              onRefresh: () =>
+                  context.read<DashboardCubit>().load(silent: true),
+              child: ListView(
+                padding: const EdgeInsets.fromLTRB(
+                  AppSpacing.screen,
+                  0,
+                  AppSpacing.screen,
+                  AppSpacing.xxl,
                 ),
-            DashboardError() => _ErrorView(onRetry: () => context.read<DashboardCubit>().load()),
-            DashboardLoaded(:final data) => RefreshIndicator(
-                color: p.primary,
-                onRefresh: () => context.read<DashboardCubit>().load(silent: true),
-                child: ListView(
-                  padding: const EdgeInsets.fromLTRB(AppSpacing.screen, 0, AppSpacing.screen, AppSpacing.xxl),
-                  children: [
-                    // 1. Greeting Section (Halo, Farhan 👋 + Tantangan Selesai + Avatar)
-                    _Header(
-                      userName: userName,
-                      completed: data.completedChallenges,
-                      onAvatar: () => context.go(AppRoutes.profile),
-                    ),
-                    const SizedBox(height: AppSpacing.md),
+                physics: const AlwaysScrollableScrollPhysics(),
+                children: [
+                  // 1. Greeting Section (Halo, Farhan 👋 + Tantangan Selesai + Avatar)
+                  _Header(
+                    userName: userName,
+                    completed: data.completedChallenges,
+                    onAvatar: () => context.go(AppRoutes.profile),
+                  ),
+                  const SizedBox(height: AppSpacing.md),
 
-                    // 2. Active Lesson / Progress Card (Stitch v2)
-                    ResumeCard(
-                      resume: data.resume,
-                      currentChapter: data.modules.isNotEmpty
-                          ? data.modules
-                              .firstWhere(
-                                (m) => m.status == ModuleStatus.active,
-                                orElse: () => data.modules.first,
+                  // 2. Active Lesson / Progress Card (Stitch v2)
+                  ResumeCard(
+                    resume: data.resume,
+                    // Minggu 9 (owner): "Bab X dari Y" dihitung DALAM
+                    // topik anchor — dulu mencampur 49 bab semua topik.
+                    currentChapter: data.modules.isNotEmpty
+                        ? _anchorModule(data.modules).order
+                        : 1,
+                    totalChapters: data.modules.isNotEmpty
+                        ? data.modules
+                              .where(
+                                (m) =>
+                                    m.topic ==
+                                    _anchorModule(data.modules).topic,
                               )
-                              .order
-                          : 1,
-                      // P1-11: total bab dari data nyata — tanpa +n artifisial.
-                      totalChapters: data.modules.length,
-                      onPressed: () => context.push(AppRoutes.lesson(data.resume?.lessonId ?? data.firstLessonId)),
-                    ),
-                    const SizedBox(height: AppSpacing.lg),
+                              .length
+                        : data.modules.length,
+                    // Minggu 9 (owner): klik card atas membuka Katalog
+                    // Materi; bab bisa dikerjakan kapan saja (tanpa
+                    // rantai bab terkunci).
+                    onPressed: () => context.push(AppRoutes.catalog),
+                  ),
+                  const SizedBox(height: AppSpacing.lg),
 
-                    // 3. Winding Roadmap ("Peta Petualangan Belajar" with blueprint dotted canvas)
-                    if (data.modules.isEmpty)
-                      Text('Belum ada modul. Cek lagi sebentar.', style: AppTypography.bodyM.copyWith(color: p.textMuted))
-                    else
-                      WindingRoadmap(
+                  // 3. Winding Roadmap ("Peta Petualangan Belajar" with blueprint dotted canvas)
+                  if (data.modules.isEmpty)
+                    Text(
+                      'Belum ada modul. Cek lagi sebentar.',
+                      style: AppTypography.bodyM.copyWith(color: p.textMuted),
+                    )
+                  else
+                    ValueListenableBuilder<String?>(
+                      valueListenable: appShellFocusTopic,
+                      builder: (context, focusTopic, _) => WindingRoadmap(
                         modules: data.modules,
+                        // Minggu 9 (owner): bab dari LESSON pilihan katalog
+                        // (termasuk yang sudah selesai) — null = track
+                        // aktif natural siswa.
+                        focusTopic: focusTopic,
                         onModuleTap: (m) => _openModule(context, m),
                         onOpenCatalog: () => context.push(AppRoutes.catalog),
                       ),
-                    const SizedBox(height: AppSpacing.lg),
+                    ),
+                  const SizedBox(height: AppSpacing.lg),
 
-                    // 4. Quick Tip Banner ("Trik Cepat Python" from Stitch v2)
-                    _QuickTipCard(onTap: () => _showQuickTip(context)),
-                  ],
-                ),
+                  // 4. Quick Tip Banner ("Trik Cepat Python" from Stitch v2)
+                  _QuickTipCard(onTap: () => _showQuickTip(context)),
+                ],
               ),
+            ),
           };
         },
       ),
@@ -182,7 +256,11 @@ class _DashboardView extends StatelessWidget {
 }
 
 class _Header extends StatelessWidget {
-  const _Header({required this.userName, required this.completed, required this.onAvatar});
+  const _Header({
+    required this.userName,
+    required this.completed,
+    required this.onAvatar,
+  });
 
   final String userName;
   final int completed;
@@ -227,7 +305,11 @@ class _Header extends StatelessWidget {
                 Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Icon(Icons.check_circle_rounded, color: p.success, size: 16),
+                    Icon(
+                      Icons.check_circle_rounded,
+                      color: p.success,
+                      size: 16,
+                    ),
                     const SizedBox(width: 5),
                     Text(
                       '$completed tantangan selesai',
@@ -285,7 +367,11 @@ class _Header extends StatelessWidget {
                       border: Border.all(color: p.surface, width: 1.5),
                     ),
                     alignment: Alignment.center,
-                    child: const Icon(Icons.school_rounded, color: Colors.white, size: 10),
+                    child: const Icon(
+                      Icons.school_rounded,
+                      color: Colors.white,
+                      size: 10,
+                    ),
                   ),
                 ),
               ],
@@ -326,7 +412,11 @@ class _QuickTipCard extends StatelessWidget {
                   shape: BoxShape.circle,
                 ),
                 alignment: Alignment.center,
-                child: Icon(Icons.lightbulb_rounded, color: p.primary, size: 22),
+                child: Icon(
+                  Icons.lightbulb_rounded,
+                  color: p.primary,
+                  size: 22,
+                ),
               ),
               const SizedBox(width: AppSpacing.md),
               Expanded(
