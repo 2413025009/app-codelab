@@ -1,8 +1,9 @@
 // FILE: lib/features/challenges/data/api_challenge_repository.dart
 // TUGAS: tantangan nyata dari gateway — daftar, detail, uji kode (run),
 // kumpulkan jawaban (submit), dan klaim XP.
-// FUNGSI YANG DIKELOLA: metode API lewat ApiClient; error API diteruskan jujur
-// sebagai ApiChallengeException; data tiruan HANYA bila isNetworkError.
+// FUNGSI YANG DIKELOLA: metode API lewat ApiClient; error API dan error
+// jaringan diteruskan jujur sebagai ApiChallengeException (Week 9: tanpa
+// fallback data tiruan, data 100% database).
 // KOLOM DB: challenges, test_cases, submissions (bacaan untuk mobile).
 // WAJIB DIUBAH BILA: kontrak endpoint tantangan berubah di backend.
 import 'package:dio/dio.dart';
@@ -10,18 +11,14 @@ import 'package:dio/dio.dart';
 import '../../../core/network/api_client.dart';
 import '../domain/challenge_exceptions.dart';
 import '../domain/challenge_repository.dart';
-import 'mock_challenge_repository.dart';
 
 class ApiChallengeRepository implements ChallengeRepository {
-  ApiChallengeRepository({ApiClient? client, MockChallengeRepository? fallback})
-      : _client = client ?? ApiClient(),
-        _fallback = fallback ?? MockChallengeRepository();
+  ApiChallengeRepository({ApiClient? client}) : _client = client ?? ApiClient();
 
   final ApiClient _client;
-  final MockChallengeRepository _fallback;
 
-  /// Error dari API (badResponse) = kontrak nyata → lempar ke UI.
-  /// Error jaringan (offline/timeout) = demo mode → fallback mock.
+  /// Error dari API (badResponse) maupun jaringan (offline) = keduanya
+  /// diteruskan jujur ke UI — Week 9 tidak ada lagi fallback mock.
   static Never _rethrowApiError(DioException e) {
     throw ApiChallengeException.fromResponse(
       e.response?.statusCode ?? 0,
@@ -64,10 +61,13 @@ class ApiChallengeRepository implements ChallengeRepository {
           final diffStr = (cMap['difficulty'] as String? ?? 'Pemula');
           final level = _levelFrom(diffStr);
 
-          final statusStr = (cMap['status'] as String? ?? 'not_started').toLowerCase();
+          final statusStr = (cMap['status'] as String? ?? 'not_started')
+              .toLowerCase();
           final status = statusStr == 'completed'
               ? ChallengeStatus.completed
-              : (statusStr == 'in_progress' ? ChallengeStatus.inProgress : ChallengeStatus.notStarted);
+              : (statusStr == 'in_progress'
+                    ? ChallengeStatus.inProgress
+                    : ChallengeStatus.notStarted);
 
           challenges.add(
             ChallengeSummary(
@@ -106,11 +106,8 @@ class ApiChallengeRepository implements ChallengeRepository {
       if (e.type == DioExceptionType.badResponse) {
         return _rethrowApiError(e);
       }
-      // Hanya offline sungguhan yang jatuh ke data tiruan; 401/403/5xx
-      // adalah jawaban server → diteruskan jujur ke UI.
-      if (ApiClient.isNetworkError(e)) {
-        return _fallback.getCatalog(userXp: userXp);
-      }
+      // Hanya offline sungguhan jatuh ke sini: diteruskan jujur (401/403/5xx
+      // tetap jawaban server). Week 9: tanpa fallback mock.
       rethrow;
     } catch (_) {
       rethrow;
@@ -120,7 +117,9 @@ class ApiChallengeRepository implements ChallengeRepository {
   @override
   Future<ChallengeDetail> getDetail(String id, {int? userXp}) async {
     try {
-      final res = await _client.dio.get<Map<String, dynamic>>('/challenges/$id');
+      final res = await _client.dio.get<Map<String, dynamic>>(
+        '/challenges/$id',
+      );
       final data = res.data;
       if (data == null) throw Exception('Empty response');
 
@@ -149,7 +148,9 @@ class ApiChallengeRepository implements ChallengeRepository {
         title: data['title'] as String? ?? '',
         // Label tampilan seluruhnya bahasa Indonesia ('Pemula'/'Menengah'/'Mahir')
         // — backend mengirim nilai teknis difficulty (beginner/...).
-        levelLabel: _levelFrom(data['difficulty'] as String? ?? 'beginner').label,
+        levelLabel: _levelFrom(
+          data['difficulty'] as String? ?? 'beginner',
+        ).label,
         xp: data['xp_reward'] as int? ?? 40,
         minutes: data['estimated_minutes'] as int? ?? 10,
         position: data['position'] as String? ?? 'TANTANGAN',
@@ -167,10 +168,7 @@ class ApiChallengeRepository implements ChallengeRepository {
       if (e.type == DioExceptionType.badResponse) {
         return _rethrowApiError(e);
       }
-      if (ApiClient.isNetworkError(e)) {
-        return _fallback.getDetail(id, userXp: userXp);
-      }
-      rethrow;
+      rethrow; // Offline → error jujur ke UI (Week 9: tanpa fallback mock).
     } catch (_) {
       rethrow;
     }
@@ -202,17 +200,14 @@ class ApiChallengeRepository implements ChallengeRepository {
       return RunReport(
         results: results,
         millis: data['millis'] as int? ?? 50,
-        // Skor resmi server sudah berbobot (P0-5); mock punya null.
+        // Skor resmi server sudah berbobot (P0-5).
         serverScore: data['score'] as int?,
       );
     } on DioException catch (e) {
       if (e.type == DioExceptionType.badResponse) {
         return _rethrowApiError(e);
       }
-      if (ApiClient.isNetworkError(e)) {
-        return _fallback.runTests(challengeId, code);
-      }
-      rethrow;
+      rethrow; // Offline → error jujur ke UI (Week 9: tanpa fallback mock).
     } catch (_) {
       rethrow;
     }
@@ -251,7 +246,9 @@ class ApiChallengeRepository implements ChallengeRepository {
       final statusStr = data['status'] as String? ?? 'failed';
       final status = statusStr == 'passed'
           ? SubmissionStatus.passed
-          : (statusStr == 'error' ? SubmissionStatus.error : SubmissionStatus.failed);
+          : (statusStr == 'error'
+                ? SubmissionStatus.error
+                : SubmissionStatus.failed);
 
       return SubmissionResult(
         report: report,
@@ -264,10 +261,7 @@ class ApiChallengeRepository implements ChallengeRepository {
       if (e.type == DioExceptionType.badResponse) {
         return _rethrowApiError(e);
       }
-      if (ApiClient.isNetworkError(e)) {
-        return _fallback.submitCode(challengeId, code);
-      }
-      rethrow;
+      rethrow; // Offline → error jujur ke UI (Week 9: tanpa fallback mock).
     } catch (_) {
       rethrow;
     }
@@ -276,17 +270,21 @@ class ApiChallengeRepository implements ChallengeRepository {
   @override
   Future<SubmissionHistory> getHistory(String challengeId) async {
     try {
-      final res = await _client.dio.get<Map<String, dynamic>>('/challenges/$challengeId/history');
+      final res = await _client.dio.get<Map<String, dynamic>>(
+        '/challenges/$challengeId/history',
+      );
       final data = res.data;
       if (data == null) throw Exception('Empty response');
 
       final listData = (data['submissions'] as List<dynamic>? ?? []);
       final subs = listData.map((s) {
         final sMap = s as Map<String, dynamic>;
-        final stStr = sMap['status'] as String? ?? 'failed';
-        final status = stStr == 'passed'
+        final statusStr = sMap['status'] as String? ?? 'failed';
+        final status = statusStr == 'passed'
             ? SubmissionStatus.passed
-            : (stStr == 'error' ? SubmissionStatus.error : SubmissionStatus.failed);
+            : (statusStr == 'error'
+                  ? SubmissionStatus.error
+                  : SubmissionStatus.failed);
 
         return Submission(
           number: sMap['number'] as int? ?? 1,
@@ -309,10 +307,7 @@ class ApiChallengeRepository implements ChallengeRepository {
       if (e.type == DioExceptionType.badResponse) {
         return _rethrowApiError(e);
       }
-      if (ApiClient.isNetworkError(e)) {
-        return _fallback.getHistory(challengeId);
-      }
-      rethrow;
+      rethrow; // Offline → error jujur ke UI (Week 9: tanpa fallback mock).
     } catch (_) {
       rethrow;
     }

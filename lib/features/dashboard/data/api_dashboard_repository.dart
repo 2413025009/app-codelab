@@ -2,15 +2,11 @@ import 'package:dio/dio.dart';
 
 import '../../../core/network/api_client.dart';
 import '../domain/dashboard_repository.dart';
-import 'mock_dashboard_repository.dart';
 
 class ApiDashboardRepository implements DashboardRepository {
-  ApiDashboardRepository({ApiClient? client, MockDashboardRepository? fallback})
-      : _client = client ?? ApiClient(),
-        _fallback = fallback ?? MockDashboardRepository();
+  ApiDashboardRepository({ApiClient? client}) : _client = client ?? ApiClient();
 
   final ApiClient _client;
-  final MockDashboardRepository _fallback;
 
   @override
   Future<DashboardData> load({
@@ -27,27 +23,37 @@ class ApiDashboardRepository implements DashboardRepository {
         step(1, 'Profil siswa terbaca');
         return r;
       });
-      final progressF =
-          _client.dio.get<Map<String, dynamic>>('/me/progress').then((r) {
-        step(2, 'Kemajuan bab terbaca');
-        return r;
-      });
-      final skillsF =
-          _client.dio.get<Map<String, dynamic>>('/me/skills').then((r) {
+      final progressF = _client.dio
+          .get<Map<String, dynamic>>('/me/progress')
+          .then((r) {
+            step(2, 'Kemajuan bab terbaca');
+            return r;
+          });
+      final skillsF = _client.dio.get<Map<String, dynamic>>('/me/skills').then((
+        r,
+      ) {
         step(3, 'Radar skill terbaca');
         return r;
       });
-      final lessonsF =
-          _client.dio.get<Map<String, dynamic>>('/lessons').then((r) {
+      final lessonsF = _client.dio.get<Map<String, dynamic>>('/lessons').then((
+        r,
+      ) {
         step(4, 'Katalog materi terbaca');
         return r;
       });
-      final challengesF =
-          _client.dio.get<Map<String, dynamic>>('/challenges').then((r) {
-        step(5, 'Catatan tantangan terbaca');
-        return r;
-      });
-      final responses = await Future.wait([meF, progressF, skillsF, lessonsF, challengesF]);
+      final challengesF = _client.dio
+          .get<Map<String, dynamic>>('/challenges')
+          .then((r) {
+            step(5, 'Catatan tantangan terbaca');
+            return r;
+          });
+      final responses = await Future.wait([
+        meF,
+        progressF,
+        skillsF,
+        lessonsF,
+        challengesF,
+      ]);
       step(5, 'Menyusun dashboard…');
 
       final meData = responses[0].data ?? {};
@@ -75,7 +81,9 @@ class ApiDashboardRepository implements DashboardRepository {
           topic: currentMap['topic'] as String? ?? 'Python Dasar',
           title: currentMap['title'] as String? ?? 'Bab Lanjutan',
           description: 'Lanjutkan progres belajar pada bab ini.',
-          progress: ((currentMap['progressPercent'] as num?)?.toDouble() ?? 0) / 100.0,
+          progress:
+              ((currentMap['progressPercent'] as num?)?.toDouble() ?? 0) /
+              100.0,
         );
       }
 
@@ -113,6 +121,8 @@ class ApiDashboardRepository implements DashboardRepository {
         final status = switch (statusStr) {
           'completed' => ModuleStatus.completed,
           'active' => ModuleStatus.active,
+          // Minggu 9: bab terbuka (bukan lagi terkunci berantai).
+          'available' => ModuleStatus.available,
           _ => ModuleStatus.locked,
         };
 
@@ -146,12 +156,9 @@ class ApiDashboardRepository implements DashboardRepository {
         pathSubtitle: 'Alur kurikulum bertahap untuk siswa SMK',
         modules: modules,
       );
-    } on DioException catch (e) {
-      // Jawaban server (401/403/4xx/5xx) diteruskan supaya UI jujur;
-      // hanya offline sungguhan yang jatuh ke data tiruan.
-      if (ApiClient.isNetworkError(e)) {
-        return _fallback.load(studentEmail: studentEmail);
-      }
+    } on DioException {
+      // Jawaban server (401/403/4xx/5xx) maupun offline diteruskan supaya
+      // UI jujur — Week 9 tidak ada lagi fallback data tiruan.
       rethrow;
     } catch (_) {
       rethrow;

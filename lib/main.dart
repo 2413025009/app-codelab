@@ -7,16 +7,12 @@
 //     (2) pulihkan token sesi lama (TokenStore.restore) sehingga siswa
 //     tidak perlu login ulang, (3) runApp(CodelabApp).
 //   - CodelabApp : (1) bangun repositori yang MENGHIT API (SRD §2.3):
-//     auth, lesson, dashboard, challenge, AI tutor — versi tiruan lokal
-//     hanya dipakai saat server sungguh tidak terjangkau (uji bantuan:
-//     ApiClient.isNetworkError), (2) daftarkan semua lewat
+//     auth, lesson, dashboard, challenge, AI tutor — keputusan Week 9:
+//     data 100% dari database/REST, seluruh repository mock DIHAPUS,
+//     (2) daftarkan semua lewat
 //     MultiRepositoryProvider (satu sumber data untuk seluruh layar),
 //     (3) AuthCubit me-mount ulang sesi lama (restoreSession), (4)
 //     GoRouter menjaga rute: belum masuk → /login.
-//
-// CATATAN: kUseMockOnly hanya aktif bila dijalankan dengan
-// `flutter run --dart-define=USE_MOCK_API=true` (khusus debug UI tanpa
-// backend). Default tidak pernah aktif.
 //
 // WAJIB DIUBAH BILA: repositori baru (mis. tabel projects untuk
 // mini-proyek) → buat folder data/ + domain/-nya, lalu daftarkan di
@@ -36,7 +32,6 @@ import 'features/ai_tutor/data/api_tutor_repository.dart';
 import 'features/ai_tutor/domain/tutor_models.dart';
 import 'features/ai_tutor/domain/tutor_repository.dart';
 import 'features/auth/data/api_auth_repository.dart';
-import 'features/auth/data/mock_auth_repository.dart';
 import 'features/auth/domain/auth_repository.dart';
 import 'features/auth/presentation/cubit/auth_cubit.dart';
 import 'features/challenges/data/api_challenge_repository.dart';
@@ -46,14 +41,9 @@ import 'features/dashboard/domain/dashboard_repository.dart';
 import 'features/lesson/data/api_lesson_repository.dart';
 import 'features/lesson/domain/lesson_repository.dart';
 
-/// Paksa repositori mock murni (khusus debugging UI tanpa backend).
-const bool kUseMockOnly = bool.fromEnvironment('USE_MOCK_API');
-
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  SystemChrome.setPreferredOrientations([
-    DeviceOrientation.portraitUp,
-  ]);
+  SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
   await TokenStore.restore(); // Session token terselamatkan antar restart.
   await SoundService.init(); // Muat pengaturan efek suara lokal dari HP.
   runApp(const CodelabApp());
@@ -67,11 +57,8 @@ class CodelabApp extends StatefulWidget {
 }
 
 class _CodelabAppState extends State<CodelabApp> {
-  late final MockAuthRepository _mockAuthRepo = MockAuthRepository();
-
-  /// Primary: API gateway. Offline otomatis jatuh ke [MockAuthRepository].
-  late final AuthRepository _authRepo =
-      kUseMockOnly ? _mockAuthRepo : ApiAuthRepository(_mockAuthRepo);
+  /// Keputusan Week 9 (owner): aplikasi 100% REST/database — tanpa mock.
+  late final AuthRepository _authRepo = ApiAuthRepository();
   late final AuthCubit _authCubit = AuthCubit(_authRepo);
   late final TutorQuota _tutorQuota = TutorQuota();
   late final TutorRepository _tutorRepo = ApiTutorRepository();
@@ -110,9 +97,15 @@ class _CodelabAppState extends State<CodelabApp> {
     return MultiRepositoryProvider(
       providers: [
         RepositoryProvider<AuthRepository>.value(value: _authRepo),
-        RepositoryProvider<DashboardRepository>(create: (_) => ApiDashboardRepository()),
-        RepositoryProvider<LessonRepository>(create: (_) => ApiLessonRepository()),
-        RepositoryProvider<ChallengeRepository>(create: (_) => ApiChallengeRepository()),
+        RepositoryProvider<DashboardRepository>(
+          create: (_) => ApiDashboardRepository(),
+        ),
+        RepositoryProvider<LessonRepository>(
+          create: (_) => ApiLessonRepository(),
+        ),
+        RepositoryProvider<ChallengeRepository>(
+          create: (_) => ApiChallengeRepository(),
+        ),
         RepositoryProvider<TutorRepository>.value(value: _tutorRepo),
       ],
       child: BlocProvider<AuthCubit>.value(

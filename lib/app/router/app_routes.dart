@@ -4,11 +4,22 @@ abstract final class AppRoutes {
   static const login = '/login';
   static const register = '/register';
 
-  // Bottom-navigation tabs (inside the shell)
-  static const dashboard = '/dashboard';
-  static const challenges = '/challenges';
-  static const playground = '/playground';
-  static const profile = '/profile';
+  /// Minggu 9: pendaftaran akun guru berpagar kode sekolah (Stitch v3).
+  static const registerTeacher = '/register-teacher';
+
+  /// Minggu 9: URL area guru dibedakan dengan akhiran `-pengajar`
+  /// (dashboard guru penuh menyusul di Minggu 11).
+  static const teacherHome = '/dashboard-pengajar';
+
+  /// Minggu 9: profil pengajar (folder features/teacher) — data guru, bukan siswa.
+  static const teacherProfile = '/profile-pengajar';
+
+  // Bottom-navigation tabs (inside the shell) — area siswa memakai akhiran
+  // `-siswa` agar URL siswa dan pengajar terlihat berbeda (permintaan owner).
+  static const dashboard = '/dashboard-siswa';
+  static const challenges = '/challenges-siswa';
+  static const playground = '/playground-siswa';
+  static const profile = '/profile-siswa';
   static const settings = '/settings';
 
   // Pushed on top of the shell

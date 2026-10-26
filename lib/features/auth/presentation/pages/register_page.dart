@@ -25,13 +25,14 @@ class _RegisterPageState extends State<RegisterPage> {
   final _name = TextEditingController();
   final _email = TextEditingController();
   final _password = TextEditingController();
+  final _confirm = TextEditingController();
   bool _loading = false;
   String? _error;
 
   @override
   void initState() {
     super.initState();
-    for (final c in [_name, _email, _password]) {
+    for (final c in [_name, _email, _password, _confirm]) {
       c.addListener(_onChanged);
     }
   }
@@ -41,6 +42,7 @@ class _RegisterPageState extends State<RegisterPage> {
     _name.dispose();
     _email.dispose();
     _password.dispose();
+    _confirm.dispose();
     super.dispose();
   }
 
@@ -49,7 +51,47 @@ class _RegisterPageState extends State<RegisterPage> {
   bool get _formReady =>
       Validators.name(_name.text) == null &&
       Validators.email(_email.text) == null &&
-      Validators.newPassword(_password.text) == null;
+      Validators.newPassword(_password.text) == null &&
+      Validators.confirmPassword(_confirm.text, _password.text) == null;
+
+  /// Minggu 9: popup konfirmasi bahwa pendaftaran sukses + imbauan login.
+  Future<void> _showRegisteredSuccess() {
+    final p = context.palette;
+    return showDialog<void>(
+      context: context,
+      barrierDismissible: false,
+      builder: (dialogContext) => AlertDialog(
+        backgroundColor: p.surface,
+        icon: Container(
+          width: 64,
+          height: 64,
+          alignment: Alignment.center,
+          decoration: BoxDecoration(
+            color: p.successContainer,
+            shape: BoxShape.circle,
+          ),
+          child: Icon(Icons.celebration_rounded, size: 30, color: p.success),
+        ),
+        title: Text(
+          'Pendaftaran Berhasil! 🎉',
+          style: AppTypography.titleM.copyWith(color: p.text),
+        ),
+        content: Text(
+          'Akunmu sudah dibuat dan siap dipakai.\n\nSilakan masuk (login) menggunakan email dan kata sandi yang baru saja kamu buat.',
+          style: AppTypography.bodyM.copyWith(color: p.textMuted),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(),
+            child: Text(
+              'Masuk Sekarang',
+              style: AppTypography.label.copyWith(color: p.primary),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 
   Future<void> _submit() async {
     FocusScope.of(context).unfocus();
@@ -60,10 +102,21 @@ class _RegisterPageState extends State<RegisterPage> {
     });
     try {
       final email = _email.text.trim();
-      await context.read<AuthCubit>().register(name: _name.text, email: email, password: _password.text);
+      await context.read<AuthCubit>().register(
+        name: _name.text,
+        email: email,
+        password: _password.text,
+      );
       if (!mounted) return;
-      // Open question in PRD §9: after register we return to Login with the email filled in.
-      context.go(Uri(path: AppRoutes.login, queryParameters: {'registered': '1', 'email': email}).toString());
+      // Minggu 9: popup sukses dulu, lalu ke Login dengan email terisi (PRD §9).
+      await _showRegisteredSuccess();
+      if (!mounted) return;
+      context.go(
+        Uri(
+          path: AppRoutes.login,
+          queryParameters: {'registered': '1', 'email': email},
+        ).toString(),
+      );
     } on AuthFailure catch (e) {
       if (mounted) setState(() => _error = e.message);
     } finally {
@@ -86,7 +139,12 @@ class _RegisterPageState extends State<RegisterPage> {
       body: SafeArea(
         child: SingleChildScrollView(
           keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-          padding: const EdgeInsets.fromLTRB(AppSpacing.screen, AppSpacing.sm, AppSpacing.screen, AppSpacing.xl),
+          padding: const EdgeInsets.fromLTRB(
+            AppSpacing.screen,
+            AppSpacing.sm,
+            AppSpacing.screen,
+            AppSpacing.xl,
+          ),
           child: Center(
             child: ConstrainedBox(
               constraints: const BoxConstraints(maxWidth: 440),
@@ -100,9 +158,18 @@ class _RegisterPageState extends State<RegisterPage> {
                       child: AppTagBanner(label: 'Platform Belajar Coding RPL'),
                     ),
                     const SizedBox(height: AppSpacing.lg),
-                    Text('Yuk, buat akunmu', style: AppTypography.titleL.copyWith(color: p.text, fontSize: 28)),
+                    Text(
+                      'Yuk, buat akunmu',
+                      style: AppTypography.titleL.copyWith(
+                        color: p.text,
+                        fontSize: 28,
+                      ),
+                    ),
                     const SizedBox(height: AppSpacing.sm),
-                    Text('Untuk siswa SMK/SMA jurusan RPL.', style: AppTypography.bodyL.copyWith(color: p.textMuted)),
+                    Text(
+                      'Untuk siswa SMK/SMA jurusan RPL.',
+                      style: AppTypography.bodyL.copyWith(color: p.textMuted),
+                    ),
                     const SizedBox(height: AppSpacing.xl),
                     if (_error != null) ...[
                       FormBanner(message: _error!),
@@ -136,13 +203,26 @@ class _RegisterPageState extends State<RegisterPage> {
                       controller: _password,
                       hint: 'Kombinasi sandi kuat',
                       obscure: true,
-                      textInputAction: TextInputAction.done,
+                      textInputAction: TextInputAction.next,
                       autofillHints: const [AutofillHints.newPassword],
                       validator: Validators.newPassword,
+                    ),
+                    const SizedBox(height: AppSpacing.lg),
+                    // Minggu 9: konfirmasi sandi wajib sama persis.
+                    AppTextField(
+                      label: 'Konfirmasi Kata Sandi',
+                      hintAside: 'Sama persis',
+                      controller: _confirm,
+                      hint: 'Ketik ulang kata sandimu',
+                      obscure: true,
+                      textInputAction: TextInputAction.done,
+                      autofillHints: const [AutofillHints.newPassword],
+                      validator: (v) =>
+                          Validators.confirmPassword(v, _password.text),
                       onSubmitted: (_) => _formReady ? _submit() : null,
                     ),
                     const SizedBox(height: AppSpacing.md),
-                    _PasswordChecklist(password: _password.text),
+                    PasswordChecklist(password: _password.text),
                     const SizedBox(height: AppSpacing.lg),
                     const _CommunityNote(),
                     const SizedBox(height: AppSpacing.xl),
@@ -156,13 +236,49 @@ class _RegisterPageState extends State<RegisterPage> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Text('Sudah punya akun?', style: AppTypography.bodyL.copyWith(color: p.textMuted)),
+                        Text(
+                          'Sudah punya akun?',
+                          style: AppTypography.bodyL.copyWith(
+                            color: p.textMuted,
+                          ),
+                        ),
                         TextButton(
-                          style: TextButton.styleFrom(minimumSize: const Size(AppSizes.minTouch, AppSizes.minTouch)),
+                          style: TextButton.styleFrom(
+                            minimumSize: const Size(
+                              AppSizes.minTouch,
+                              AppSizes.minTouch,
+                            ),
+                          ),
                           onPressed: () => context.go(AppRoutes.login),
-                          child: Text('Masuk', style: AppTypography.label.copyWith(color: p.primary, fontSize: 16)),
+                          child: Text(
+                            'Masuk',
+                            style: AppTypography.label.copyWith(
+                              color: p.primary,
+                              fontSize: 16,
+                            ),
+                          ),
                         ),
                       ],
+                    ),
+                    const SizedBox(height: AppSpacing.sm),
+                    // Minggu 9: pendaftaran khusus pendidik berpagar kode sekolah.
+                    Align(
+                      child: TextButton(
+                        style: TextButton.styleFrom(
+                          minimumSize: const Size(
+                            AppSizes.minTouch,
+                            AppSizes.minTouch,
+                          ),
+                        ),
+                        onPressed: () => context.go(AppRoutes.registerTeacher),
+                        child: Text(
+                          'Anda Guru / Pengajar? Daftar akun pendidik di sini →',
+                          style: AppTypography.label.copyWith(
+                            color: p.primary,
+                            fontSize: 15,
+                          ),
+                        ),
+                      ),
                     ),
                   ],
                 ),
@@ -185,90 +301,23 @@ class AppTagBanner extends StatelessWidget {
     return Container(
       height: AppSizes.tagHeight + 4,
       padding: const EdgeInsets.symmetric(horizontal: 14),
-      decoration: BoxDecoration(color: p.primaryContainer, borderRadius: AppRadius.pillBorder),
+      decoration: BoxDecoration(
+        color: p.primaryContainer,
+        borderRadius: AppRadius.pillBorder,
+      ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
           Icon(Icons.school_outlined, size: 16, color: p.primary),
           const SizedBox(width: 8),
-          Text(label, style: AppTypography.caption.copyWith(color: p.primary, fontWeight: FontWeight.w600, fontSize: 13)),
-        ],
-      ),
-    );
-  }
-}
-
-class _PasswordChecklist extends StatelessWidget {
-  const _PasswordChecklist({required this.password});
-
-  final String password;
-
-  @override
-  Widget build(BuildContext context) {
-    final p = context.palette;
-    final okLength = Validators.hasMinLength(password);
-    final okChar = Validators.hasDigitOrSymbol(password);
-    final status = password.isEmpty
-        ? 'Belum diisi'
-        : (okLength && okChar ? 'Sangat Bagus!' : 'Perlu ditingkatkan');
-
-    return Container(
-      padding: const EdgeInsets.all(AppSpacing.lg),
-      decoration: BoxDecoration(
-        color: p.surface,
-        borderRadius: AppRadius.cardBorder,
-        border: Border.all(color: p.outline),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Expanded(
-                child: Text(
-                  'KEAMANAN SANDI',
-                  style: AppTypography.caption.copyWith(color: p.textMuted, fontWeight: FontWeight.w700, letterSpacing: 0.6),
-                ),
-              ),
-              Text(status, style: AppTypography.caption.copyWith(color: p.textMuted, fontWeight: FontWeight.w600)),
-            ],
-          ),
-          const SizedBox(height: AppSpacing.md),
-          _CheckRow(ok: okLength, label: 'Minimal 8 karakter'),
-          const SizedBox(height: AppSpacing.sm),
-          _CheckRow(ok: okChar, label: 'Ada angka atau simbol'),
-        ],
-      ),
-    );
-  }
-}
-
-class _CheckRow extends StatelessWidget {
-  const _CheckRow({required this.ok, required this.label});
-
-  final bool ok;
-  final String label;
-
-  @override
-  Widget build(BuildContext context) {
-    final p = context.palette;
-    return Semantics(
-      label: '$label, ${ok ? 'terpenuhi' : 'belum terpenuhi'}',
-      child: Row(
-        children: [
-          AnimatedContainer(
-            duration: const Duration(milliseconds: 200),
-            width: 24,
-            height: 24,
-            decoration: BoxDecoration(
-              color: ok ? p.success : p.surfaceAlt,
-              shape: BoxShape.circle,
-              border: ok ? null : Border.all(color: p.textMuted, width: 1.5),
+          Text(
+            label,
+            style: AppTypography.caption.copyWith(
+              color: p.primary,
+              fontWeight: FontWeight.w600,
+              fontSize: 13,
             ),
-            child: ok ? const Icon(Icons.check_rounded, size: 16, color: Colors.white) : null,
           ),
-          const SizedBox(width: 12),
-          Text(label, style: AppTypography.bodyL.copyWith(color: ok ? p.text : p.textMuted, fontSize: 15)),
         ],
       ),
     );
@@ -283,14 +332,20 @@ class _CommunityNote extends StatelessWidget {
     final p = context.palette;
     return Container(
       padding: const EdgeInsets.all(AppSpacing.lg),
-      decoration: BoxDecoration(color: p.primaryContainer.withValues(alpha: 0.6), borderRadius: AppRadius.cardBorder),
+      decoration: BoxDecoration(
+        color: p.primaryContainer.withValues(alpha: 0.6),
+        borderRadius: AppRadius.cardBorder,
+      ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Container(
             width: 44,
             height: 44,
-            decoration: BoxDecoration(color: p.primaryContainer, shape: BoxShape.circle),
+            decoration: BoxDecoration(
+              color: p.primaryContainer,
+              shape: BoxShape.circle,
+            ),
             child: Icon(Icons.code_rounded, color: p.primary),
           ),
           const SizedBox(width: 14),
@@ -300,8 +355,17 @@ class _CommunityNote extends StatelessWidget {
                 style: AppTypography.bodyM.copyWith(color: p.textMuted),
                 children: [
                   const TextSpan(text: 'Gabung bersama '),
-                  TextSpan(text: '12.400+', style: TextStyle(fontWeight: FontWeight.w700, color: p.text)),
-                  const TextSpan(text: ' rekan RPL yang mulai belajar logika algoritma, Git, dan web dev hari ini.'),
+                  TextSpan(
+                    text: '12.400+',
+                    style: TextStyle(
+                      fontWeight: FontWeight.w700,
+                      color: p.text,
+                    ),
+                  ),
+                  const TextSpan(
+                    text:
+                        ' rekan RPL yang mulai belajar logika algoritma, Git, dan web dev hari ini.',
+                  ),
                 ],
               ),
             ),

@@ -5,15 +5,11 @@ import '../../challenges/domain/challenge_exceptions.dart';
 import '../domain/lesson_parser.dart';
 import '../domain/lesson_repository.dart';
 import '../domain/slide_models.dart';
-import 'mock_lesson_repository.dart';
 
 class ApiLessonRepository implements LessonRepository {
-  ApiLessonRepository({ApiClient? client, MockLessonRepository? fallback})
-      : _client = client ?? ApiClient(),
-        _fallback = fallback ?? const MockLessonRepository();
+  ApiLessonRepository({ApiClient? client}) : _client = client ?? ApiClient();
 
   final ApiClient _client;
-  final MockLessonRepository _fallback;
 
   @override
   Future<LessonDetailData> getLessonDetail(String id) async {
@@ -37,6 +33,7 @@ class ApiLessonRepository implements LessonRepository {
         status: data['status'] as String? ?? 'active',
         progressPercent: (data['progressPercent'] as num?)?.toDouble() ?? 0.0,
         currentSlideIndex: data['currentSlideIndex'] as int? ?? 1,
+        description: data['description'] as String? ?? '',
         requiredLessonTitle: data['requiredLessonTitle'] as String?,
         slides: slides,
         contentMarkdown: markdown,
@@ -50,7 +47,7 @@ class ApiLessonRepository implements LessonRepository {
         );
       }
       if (ApiClient.isNetworkError(e)) {
-        return _fallback.getLessonDetail(id);
+        rethrow; // Offline → error jujur ke UI (Week 9: tanpa fallback mock).
       }
       rethrow;
     } catch (_) {
@@ -59,14 +56,14 @@ class ApiLessonRepository implements LessonRepository {
   }
 
   @override
-  Future<void> saveProgress({
+  Future<int> saveProgress({
     required String id,
     required int currentSlideIndex,
     required double progressPercent,
     required bool completed,
   }) async {
     try {
-      await _client.dio.post<Map<String, dynamic>>(
+      final res = await _client.dio.post<Map<String, dynamic>>(
         '/lessons/$id/progress',
         data: {
           'currentSlideIndex': currentSlideIndex,
@@ -74,6 +71,9 @@ class ApiLessonRepository implements LessonRepository {
           'completed': completed,
         },
       );
+      // Minggu 9: XP yang benar-benar dibayarkan server (bukan reward
+      // lokal bab). 0 = bab sudah pernah tuntas → XP tidak dihitung dobel.
+      return (res.data?['xpEarned'] as num?)?.toInt() ?? 0;
     } on DioException catch (e) {
       if (e.type == DioExceptionType.badResponse) {
         throw ApiChallengeException.fromResponse(
@@ -82,15 +82,9 @@ class ApiLessonRepository implements LessonRepository {
         );
       }
       if (ApiClient.isNetworkError(e)) {
-        await _fallback.saveProgress(
-          id: id,
-          currentSlideIndex: currentSlideIndex,
-          progressPercent: progressPercent,
-          completed: completed,
-        );
-      } else {
-        rethrow;
+        rethrow; // Offline → error jujur ke UI (Week 9: tanpa fallback mock).
       }
+      rethrow;
     } catch (_) {
       rethrow;
     }
@@ -118,8 +112,10 @@ class ApiLessonRepository implements LessonRepository {
               orderIndex: raw['orderIndex'] as int? ?? 1,
               xpReward: raw['xpReward'] as int? ?? 50,
               status: raw['status'] as String? ?? 'locked',
-              progressPercent: (raw['progressPercent'] as num?)?.toDouble() ?? 0.0,
+              progressPercent:
+                  (raw['progressPercent'] as num?)?.toDouble() ?? 0.0,
               currentSlideIndex: raw['currentSlideIndex'] as int? ?? 1,
+              description: raw['description'] as String? ?? '',
               requiredLessonTitle: raw['requiredLessonTitle'] as String?,
               slides: const [],
               contentMarkdown: '',
@@ -128,10 +124,8 @@ class ApiLessonRepository implements LessonRepository {
         }
       }
       return list;
-    } on DioException catch (e) {
-      if (ApiClient.isNetworkError(e)) {
-        return _fallback.listAllLessons();
-      }
+    } on DioException {
+      // Offline → error jujur ke UI (Week 9: tanpa fallback mock).
       rethrow;
     } catch (_) {
       rethrow;

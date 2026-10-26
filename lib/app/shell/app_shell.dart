@@ -9,6 +9,12 @@ import 'package:go_router/go_router.dart';
 /// dan tanpa "refresh manual" di halaman Tantangan maupun Profil.
 final ValueNotifier<int> appShellTabActivated = ValueNotifier<int>(-1);
 
+/// Minggu 9 (owner): LESSON yang dipilih di katalog — peta bab di dashboard
+/// memuat SEMUA bab lesson itu (selesai maupun belum). null = track aktif
+/// natural siswa; menekan tab Belajar ulang melepas fokus (listener
+/// DashboardPage).
+final ValueNotifier<String?> appShellFocusTopic = ValueNotifier<String?>(null);
+
 class AppShell extends StatelessWidget {
   const AppShell({super.key, required this.navigationShell});
 

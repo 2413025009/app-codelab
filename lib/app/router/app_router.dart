@@ -4,6 +4,9 @@ import 'package:go_router/go_router.dart';
 import '../../features/auth/presentation/cubit/auth_cubit.dart';
 import '../../features/auth/presentation/pages/login_page.dart';
 import '../../features/auth/presentation/pages/register_page.dart';
+import '../../features/auth/presentation/pages/teacher_register_page.dart';
+import '../../features/teacher/presentation/pages/teacher_home_page.dart';
+import '../../features/teacher/presentation/pages/teacher_profile_page.dart';
 import '../../features/dashboard/presentation/pages/dashboard_page.dart';
 import '../../features/challenges/presentation/pages/challenge_catalog_page.dart';
 import '../../features/challenges/presentation/pages/challenge_detail_page.dart';
@@ -37,16 +40,27 @@ GoRouter appRouter(AuthCubit authCubit) {
     refreshListenable: _AuthNotifier(authCubit),
     redirect: (context, state) {
       final isAuthenticated = authCubit.state.isAuthenticated;
+      // Minggu 9: guru paruh UTS belum punya dashboard penuh → placeholder.
+      final isTeacher = (authCubit.state.user?.role ?? 'student') == 'teacher';
       final path = state.matchedLocation;
       final isLogin = path == AppRoutes.login;
-      final isRegister = path == AppRoutes.register;
+      final isRegister = path == AppRoutes.register || path == AppRoutes.registerTeacher;
+      final isTeacherHome = path == AppRoutes.teacherHome;
 
       if (!isAuthenticated && !isLogin && !isRegister) {
         return AppRoutes.login;
       }
 
-      if (isAuthenticated && isLogin) {
-        return AppRoutes.dashboard;
+      if (isAuthenticated && (isLogin || isRegister)) {
+        return isTeacher ? AppRoutes.teacherHome : AppRoutes.dashboard;
+      }
+
+      // Guru hanya diizinkan di area guru (ruang kelas & profil), regristrasi
+      // guru, dan pengaturan — sisanya dialihkan ke ruang kelas.
+      final isTeacherArea =
+          isTeacherHome || path == AppRoutes.teacherProfile || path == AppRoutes.settings;
+      if (isAuthenticated && isTeacher && !isTeacherArea) {
+        return AppRoutes.teacherHome;
       }
 
       return null;
@@ -54,11 +68,26 @@ GoRouter appRouter(AuthCubit authCubit) {
     routes: [
       GoRoute(
         path: AppRoutes.login,
-        builder: (context, state) => const LoginPage(),
+        builder: (context, state) => LoginPage(
+          prefillEmail: state.uri.queryParameters['email'],
+          justRegistered: state.uri.queryParameters['registered'] == '1',
+        ),
       ),
       GoRoute(
         path: AppRoutes.register,
         builder: (context, state) => const RegisterPage(),
+      ),
+      GoRoute(
+        path: AppRoutes.registerTeacher,
+        builder: (context, state) => const TeacherRegisterPage(),
+      ),
+      GoRoute(
+        path: AppRoutes.teacherHome,
+        builder: (context, state) => const TeacherHomePage(),
+      ),
+      GoRoute(
+        path: AppRoutes.teacherProfile,
+        builder: (context, state) => const TeacherProfilePage(),
       ),
       StatefulShellRoute.indexedStack(
         builder: (context, state, navigationShell) {
