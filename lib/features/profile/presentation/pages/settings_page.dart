@@ -1,21 +1,25 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:image_picker/image_picker.dart';
 
 import '../../../../app/router/app_routes.dart';
+import '../../../../core/services/app_preferences.dart';
 import '../../../../core/services/sound_service.dart';
 import '../../../../core/theme/app_palette.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_typography.dart';
+import '../../../../core/utils/phone.dart';
 import '../../../../core/utils/validators.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_card.dart';
 import '../../../../core/widgets/app_refresh.dart';
 import '../../../../core/widgets/app_sheet.dart';
 import '../../../../core/widgets/app_snack.dart';
+import '../../../../core/widgets/avatars.dart';
 import '../../../auth/domain/auth_repository.dart';
 import '../../../auth/presentation/cubit/auth_cubit.dart';
-import '../../../auth/presentation/widgets/auth_widgets.dart';
+import '../widgets/change_password_sheet.dart';
 
 class SettingsPage extends StatefulWidget {
   const SettingsPage({super.key});
@@ -29,6 +33,7 @@ class _SettingsPageState extends State<SettingsPage> {
   // Minggu 9: pengaturan kini sadar peran — akun guru tidak lagi melihat
   // kolom NISN/Kelas milik siswa, melainkan Alamat + Kode Kepegawaian.
   late final TextEditingController _nameController;
+  late final TextEditingController _emailController;
   late final TextEditingController _phoneController;
   late final TextEditingController _bioController;
   late final TextEditingController _nisnController;
@@ -41,11 +46,12 @@ class _SettingsPageState extends State<SettingsPage> {
   bool _isTeacher = false;
 
   /// Kondisi awal halaman: data profil HANYA-BACA. Tap "Edit Data" membuka
-  /// semua kolom (kecuali email — identitas login) lalu tombolnya berubah
-  /// menjadi "Simpan Perubahan" (+ "Batalkan" untuk membuang perubahan);
-  /// mode baca kembali setelah tersimpan atau dibatalkan.
+  /// semua kolom (termasuk email — wajib berdomain @smk.belajar.id) lalu
+  /// tombolnya berubah menjadi "Simpan Perubahan" (+ "Batalkan" untuk membuang
+  /// perubahan); mode baca kembali setelah tersimpan atau dibatalkan.
   bool _isEditing = false;
   bool _isSaving = false;
+  bool _isUploadingAvatar = false;
   bool _sfxEnabled = SoundService.sfxEnabled;
   bool _labSoundEnabled = SoundService.labSfxEnabled;
 
@@ -56,7 +62,11 @@ class _SettingsPageState extends State<SettingsPage> {
     _labSoundEnabled = SoundService.labSfxEnabled;
     final user = context.read<AuthCubit>().state.user;
     _nameController = TextEditingController(text: user?.name ?? '');
-    _phoneController = TextEditingController(text: user?.phone ?? '');
+    _emailController = TextEditingController(text: user?.email ?? '');
+    // Nomor disimpan tanpa awalan; kolom isian menampilkan bagian setelah +62.
+    _phoneController = TextEditingController(
+      text: phoneInputValue(user?.phone ?? ''),
+    );
     _bioController = TextEditingController(text: user?.bio ?? '');
     _nisnController = TextEditingController(text: user?.nisn ?? '');
     _schoolController = TextEditingController(text: user?.schoolName ?? '');
@@ -69,6 +79,7 @@ class _SettingsPageState extends State<SettingsPage> {
   @override
   void dispose() {
     _nameController.dispose();
+    _emailController.dispose();
     _phoneController.dispose();
     _bioController.dispose();
     _nisnController.dispose();
@@ -84,7 +95,8 @@ class _SettingsPageState extends State<SettingsPage> {
   void _syncFieldsToUser() {
     final user = context.read<AuthCubit>().state.user;
     _nameController.text = user?.name ?? '';
-    _phoneController.text = user?.phone ?? '';
+    _emailController.text = user?.email ?? '';
+    _phoneController.text = phoneInputValue(user?.phone ?? '');
     _bioController.text = user?.bio ?? '';
     _nisnController.text = user?.nisn ?? '';
     _schoolController.text = user?.schoolName ?? '';
@@ -108,7 +120,7 @@ class _SettingsPageState extends State<SettingsPage> {
       context,
       title: 'Ubah Password',
       subtitle: 'Aturan sandi sama seperti saat kamu mendaftar akun.',
-      builder: (_) => const _ChangePasswordSheet(),
+      builder: (_) => const ChangePasswordSheet(),
     );
   }
 
@@ -132,12 +144,14 @@ class _SettingsPageState extends State<SettingsPage> {
     setState(() => _isSaving = true);
     try {
       final cubit = context.read<AuthCubit>();
+      final phone = normalizePhone(_phoneController.text);
       if (_isTeacher) {
         // Pengajar: afiliasi sekolah read-only pasca verifikasi — tidak
         // ikut payload; kolom kepegawaian (NIP/NIK) & alamat ikut disimpan.
         await cubit.updateProfile(
           name: _nameController.text.trim(),
-          phone: _phoneController.text.trim(),
+          email: _emailController.text.trim(),
+          phone: phone,
           bio: _bioController.text.trim(),
           address: _addressController.text.trim(),
           staffCode: _staffCodeController.text.trim(),
@@ -145,7 +159,8 @@ class _SettingsPageState extends State<SettingsPage> {
       } else {
         await cubit.updateProfile(
           name: _nameController.text.trim(),
-          phone: _phoneController.text.trim(),
+          email: _emailController.text.trim(),
+          phone: phone,
           bio: _bioController.text.trim(),
           nisn: _nisnController.text.trim(),
           schoolName: _schoolController.text.trim(),
@@ -160,6 +175,9 @@ class _SettingsPageState extends State<SettingsPage> {
           _syncFieldsToUser();
         });
       }
+    } on AuthFailure catch (e) {
+      // EMAIL_TAKEN / EMAIL_DOMAIN / sesi berakhir tampil apa adanya.
+      if (mounted) showAppSnack(context, e.message);
     } catch (e) {
       if (mounted) {
         showAppSnack(context, 'Gagal menyimpan profil. Coba lagi.');
@@ -168,6 +186,143 @@ class _SettingsPageState extends State<SettingsPage> {
       if (mounted) {
         setState(() => _isSaving = false);
       }
+    }
+  }
+
+  Future<void> _pickAvatar() async {
+    if (_isUploadingAvatar) return;
+    final cubit = context.read<AuthCubit>();
+    try {
+      final picked = await ImagePicker().pickImage(
+        source: ImageSource.gallery,
+        maxWidth: 1600,
+        maxHeight: 1600,
+        imageQuality: 85,
+      );
+      if (picked == null || !mounted) return;
+
+      final bytes = await picked.readAsBytes();
+      if (!mounted) return;
+      if (bytes.length > 2 * 1024 * 1024) {
+        showAppSnack(context, 'Ukuran foto maksimal 2 MB.');
+        return;
+      }
+
+      setState(() => _isUploadingAvatar = true);
+      await cubit.uploadAvatar(
+        bytes: bytes,
+        fileName: picked.name.trim().isEmpty ? 'avatar.jpg' : picked.name,
+      );
+      if (mounted) {
+        showAppSnack(context, 'Foto profil berhasil diperbarui.');
+      }
+    } on AuthFailure catch (e) {
+      if (mounted) showAppSnack(context, e.message);
+    } catch (_) {
+      if (mounted) {
+        showAppSnack(
+          context,
+          'Foto profil gagal diproses. Periksa izin galeri dan koneksi, lalu coba lagi.',
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isUploadingAvatar = false);
+    }
+  }
+
+  Future<void> _deleteAvatar() async {
+    if (_isUploadingAvatar) return;
+    final p = context.palette;
+    final cubit = context.read<AuthCubit>();
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: p.surface,
+        title: Text(
+          'Hapus Foto Profil?',
+          style: AppTypography.titleM.copyWith(color: p.text),
+        ),
+        content: Text(
+          'Foto akan dihapus dari akunmu. Kamu bisa mengunggah foto baru kapan saja.',
+          style: AppTypography.bodyM.copyWith(color: p.textMuted),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(false),
+            child: Text('Batal', style: TextStyle(color: p.textMuted)),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: p.error,
+              foregroundColor: Colors.white,
+            ),
+            onPressed: () => Navigator.of(ctx).pop(true),
+            child: const Text('Hapus'),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true || !mounted) return;
+
+    setState(() => _isUploadingAvatar = true);
+    try {
+      await cubit.deleteAvatar();
+      if (mounted) showAppSnack(context, 'Foto profil dihapus.');
+    } on AuthFailure catch (e) {
+      if (mounted) showAppSnack(context, e.message);
+    } catch (_) {
+      if (mounted) {
+        showAppSnack(
+          context,
+          'Foto profil gagal dihapus. Periksa koneksi lalu coba lagi.',
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isUploadingAvatar = false);
+    }
+  }
+
+  /// Pilih bahasa antarmuka (Indonesia / English).
+  Future<void> _pickLanguage() async {
+    final selected = await showModalBottomSheet<Locale>(
+      context: context,
+      builder: (ctx) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              title: const Text('Bahasa Aplikasi'),
+              subtitle: const Text('Berlaku untuk seluruh layar CodeLab AI'),
+              titleTextStyle: AppTypography.titleM.copyWith(
+                color: context.palette.text,
+              ),
+            ),
+            RadioGroup<String>(
+              groupValue: AppPreferences.instance.locale.languageCode,
+              onChanged: (value) {
+                if (value != null) Navigator.of(ctx).pop(Locale(value));
+              },
+              child: const Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  RadioListTile<String>(
+                    value: 'id',
+                    title: Text('Indonesia'),
+                  ),
+                  RadioListTile<String>(
+                    value: 'en',
+                    title: Text('English'),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+    if (selected != null) {
+      await AppPreferences.instance.setLocale(selected);
+      if (mounted) setState(() {});
     }
   }
 
@@ -214,7 +369,6 @@ class _SettingsPageState extends State<SettingsPage> {
         : 'S';
     final school = user?.schoolName ?? '—';
     final className = user?.className ?? '—';
-    final email = user?.email ?? '—';
 
     return Scaffold(
       backgroundColor: p.bg,
@@ -272,32 +426,32 @@ class _SettingsPageState extends State<SettingsPage> {
                     children: [
                       Stack(
                         children: [
-                          CircleAvatar(
-                            radius: 46,
-                            backgroundColor: p.primary,
-                            child: Text(
-                              initial,
-                              style: AppTypography.display.copyWith(
-                                color: Colors.white,
-                                fontSize: 32,
-                              ),
-                            ),
+                          UserAvatar(
+                            name: user?.name ?? initial,
+                            avatarUrl: user?.avatarUrl,
+                            size: 92,
+                            onTap: _isUploadingAvatar ? null : _pickAvatar,
                           ),
                           Positioned(
                             bottom: 0,
                             right: 0,
-                            child: Container(
-                              width: 32,
-                              height: 32,
-                              decoration: BoxDecoration(
-                                color: p.primary,
-                                shape: BoxShape.circle,
-                                border: Border.all(color: p.surface, width: 2),
-                              ),
-                              child: const Icon(
-                                Icons.camera_alt,
-                                size: 16,
-                                color: Colors.white,
+                            child: IgnorePointer(
+                              child: Container(
+                                width: 32,
+                                height: 32,
+                                decoration: BoxDecoration(
+                                  color: p.primary,
+                                  shape: BoxShape.circle,
+                                  border: Border.all(
+                                    color: p.surface,
+                                    width: 2,
+                                  ),
+                                ),
+                                child: const Icon(
+                                  Icons.camera_alt,
+                                  size: 16,
+                                  color: Colors.white,
+                                ),
                               ),
                             ),
                           ),
@@ -345,6 +499,39 @@ class _SettingsPageState extends State<SettingsPage> {
                           color: p.textMuted,
                         ),
                       ),
+                      const SizedBox(height: AppSpacing.xs),
+                      if (_isUploadingAvatar)
+                        Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 6),
+                          child: SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              color: p.primary,
+                            ),
+                          ),
+                        )
+                      else
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            TextButton.icon(
+                              onPressed: _pickAvatar,
+                              icon: const Icon(Icons.photo_camera_outlined),
+                              label: const Text('Ganti Foto'),
+                            ),
+                            if ((user?.avatarUrl ?? '').isNotEmpty)
+                              TextButton.icon(
+                                onPressed: _deleteAvatar,
+                                style: TextButton.styleFrom(
+                                  foregroundColor: p.error,
+                                ),
+                                icon: const Icon(Icons.delete_outline_rounded),
+                                label: const Text('Hapus'),
+                              ),
+                          ],
+                        ),
                     ],
                   ),
                 ),
@@ -493,20 +680,38 @@ class _SettingsPageState extends State<SettingsPage> {
                         maxLength: 25,
                         readOnly: !_isEditing,
                         showCursor: _isEditing,
-                        decoration: _fieldDecoration(Icons.call_outlined),
+                        validator: (value) {
+                          final digits = normalizePhone(value ?? '');
+                          if (digits.isEmpty) return null;
+                          if (digits.length < 8 || digits.length > 15) {
+                            return 'Nomor belum lengkap. Contoh: 81234567890';
+                          }
+                          return null;
+                        },
+                        decoration: _fieldDecoration(Icons.call_outlined)
+                            .copyWith(
+                              prefixText: '+62 ',
+                              helperText:
+                                  'Tulis tanpa 0 di depan, contoh: 81234567890',
+                              counterText: '',
+                            ),
                       ),
                       const SizedBox(height: AppSpacing.md),
 
-                      _buildFieldHeaderWithBadge(
+                      _buildFieldHeader(
                         _isTeacher ? 'Email Pengajar' : 'Email Akun Belajar',
-                        'Terverifikasi',
+                        'Wajib @smk.belajar.id',
                       ),
                       const SizedBox(height: AppSpacing.xs),
                       TextFormField(
-                        initialValue: email,
-                        readOnly: true,
-                        enabled: false,
-                        decoration: _lockedDecoration(Icons.lock_outline),
+                        controller: _emailController,
+                        keyboardType: TextInputType.emailAddress,
+                        maxLength: 254,
+                        readOnly: !_isEditing,
+                        showCursor: _isEditing,
+                        validator: Validators.schoolEmail,
+                        decoration: _fieldDecoration(Icons.alternate_email)
+                            .copyWith(counterText: ''),
                       ),
                       const SizedBox(height: AppSpacing.md),
 
@@ -576,12 +781,18 @@ class _SettingsPageState extends State<SettingsPage> {
                     children: [
                       ListTile(
                         leading: Icon(Icons.translate, color: p.primary),
-                        title: const Text('Bahasa Konten'),
+                        title: const Text('Bahasa Aplikasi'),
+                        subtitle: Text(
+                          'Indonesia atau English',
+                          style: AppTypography.caption.copyWith(
+                            color: p.textMuted,
+                          ),
+                        ),
                         trailing: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             Text(
-                              'Indonesia',
+                              AppPreferences.instance.languageLabel,
                               style: AppTypography.bodyM.copyWith(
                                 color: p.textMuted,
                               ),
@@ -589,28 +800,34 @@ class _SettingsPageState extends State<SettingsPage> {
                             const Icon(Icons.chevron_right),
                           ],
                         ),
-                        onTap: () {},
+                        onTap: _pickLanguage,
                       ),
                       Divider(
                         height: 1,
                         color: p.outline.withValues(alpha: 0.5),
                       ),
-                      ListTile(
-                        leading: Icon(Icons.palette_outlined, color: p.primary),
-                        title: const Text('Tampilan'),
-                        trailing: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Text(
-                              'Ikuti Sistem',
-                              style: AppTypography.bodyM.copyWith(
-                                color: p.textMuted,
-                              ),
-                            ),
-                            const Icon(Icons.chevron_right),
-                          ],
+                      SwitchListTile(
+                        secondary: Icon(
+                          Icons.dark_mode_outlined,
+                          color: p.primary,
                         ),
-                        onTap: () {},
+                        title: const Text('Mode Gelap'),
+                        subtitle: Text(
+                          'Tema gelap untuk mata yang lebih nyaman',
+                          style: AppTypography.caption.copyWith(
+                            color: p.textMuted,
+                          ),
+                        ),
+                        // Cerminkan tampilan yang benar-benar aktif, termasuk
+                        // saat tema mengikuti sistem.
+                        value: Theme.of(context).brightness == Brightness.dark,
+                        activeTrackColor: p.primary,
+                        onChanged: (val) async {
+                          await AppPreferences.instance.setThemeMode(
+                            val ? ThemeMode.dark : ThemeMode.light,
+                          );
+                          if (mounted) setState(() {});
+                        },
                       ),
                       Divider(
                         height: 1,
@@ -841,8 +1058,8 @@ class _SettingsPageState extends State<SettingsPage> {
     );
   }
 
-  /// Dekorasi kolom yang PERMANEN mati (email — identitas login): selalu
-  /// tampak pasif di mode mana pun, tidak ikut menyala saat mode edit.
+  /// Dekorasi kolom yang PERMANEN mati (sekolah terafiliasi — hasil
+  /// verifikasi kode): selalu tampak pasif di mode mana pun.
   InputDecoration _lockedDecoration(IconData icon) {
     final p = context.palette;
     return InputDecoration(
@@ -908,214 +1125,3 @@ class _SettingsPageState extends State<SettingsPage> {
   }
 }
 
-/// Minggu 9 (owner): sheet "Ubah Password" — dipakai akun siswa maupun
-/// pengajar (kontrak sama). Meniru checklist keamanan layar registrasi:
-/// minimal 8 karakter, ada angka atau simbol, plus keterangan hidup apakah
-/// konfirmasi sudah cocok. Endpoint: POST /auth/change-password (butuh
-/// sesi aktif + kata sandi lama yang cocok — galat dari server ditampilkan
-/// jujur sebagai banner, mis. sandi lama belum cocok).
-class _ChangePasswordSheet extends StatefulWidget {
-  const _ChangePasswordSheet();
-
-  @override
-  State<_ChangePasswordSheet> createState() => _ChangePasswordSheetState();
-}
-
-class _ChangePasswordSheetState extends State<_ChangePasswordSheet> {
-  final _formKey = GlobalKey<FormState>();
-  final _old = TextEditingController();
-  final _new = TextEditingController();
-  final _confirm = TextEditingController();
-
-  bool _obscureOld = true;
-  bool _obscureNew = true;
-  bool _obscureConfirm = true;
-  bool _saving = false;
-
-  /// Pesan galat dari server (mis. kata sandi lama salah) — tampil banner.
-  String? _submitError;
-
-  bool get _confirmMatch =>
-      _confirm.text.isNotEmpty && _confirm.text == _new.text;
-
-  bool get _canSubmit =>
-      _old.text.isNotEmpty &&
-      Validators.newPassword(_new.text) == null &&
-      _confirm.text == _new.text &&
-      !_saving;
-
-  @override
-  void dispose() {
-    _old.dispose();
-    _new.dispose();
-    _confirm.dispose();
-    super.dispose();
-  }
-
-  /// Setiap ketikan: segarkan checklist/caption + bersihkan banner galat.
-  void _onChanged() => setState(() => _submitError = null);
-
-  Future<void> _submit() async {
-    if (!_formKey.currentState!.validate() || !_canSubmit) return;
-    setState(() => _saving = true);
-    try {
-      await context.read<AuthCubit>().changePassword(
-        oldPassword: _old.text,
-        newPassword: _new.text,
-      );
-      if (!mounted) return;
-      Navigator.of(context).pop();
-      showAppSnack(context, 'Kata sandi berhasil diubah!');
-    } on AuthFailure catch (e) {
-      if (mounted) setState(() => _submitError = e.message);
-    } catch (_) {
-      if (mounted) {
-        setState(() => _submitError = 'Gagal mengubah kata sandi. Coba lagi.');
-      }
-    } finally {
-      if (mounted) setState(() => _saving = false);
-    }
-  }
-
-  InputDecoration _passwordDecoration({
-    required String label,
-    required IconData icon,
-    required bool obscure,
-    required ValueChanged<bool> toggle,
-  }) {
-    final p = context.palette;
-    return InputDecoration(
-      labelText: label,
-      prefixIcon: Icon(icon, color: p.primary),
-      counterText: '',
-      border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(14),
-        borderSide: BorderSide(color: p.outline),
-      ),
-      enabledBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(14),
-        borderSide: BorderSide(color: p.outline),
-      ),
-      focusedBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(14),
-        borderSide: BorderSide(color: p.primary, width: 2),
-      ),
-      suffixIcon: IconButton(
-        tooltip: obscure ? 'Tampilkan sandi' : 'Sembunyikan sandi',
-        icon: Icon(
-          obscure ? Icons.visibility_off_outlined : Icons.visibility_outlined,
-          size: 20,
-          color: p.textMuted,
-        ),
-        onPressed: () => toggle(!obscure),
-      ),
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final p = context.palette;
-    return Padding(
-      padding: EdgeInsets.only(
-        left: AppSpacing.screen,
-        right: AppSpacing.screen,
-        bottom: MediaQuery.of(context).viewInsets.bottom,
-      ),
-      child: SingleChildScrollView(
-        child: Form(
-          key: _formKey,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              const SizedBox(height: AppSpacing.sm),
-              TextFormField(
-                controller: _old,
-                obscureText: _obscureOld,
-                onChanged: (_) => _onChanged(),
-                maxLength: 72,
-                validator: (v) => (v == null || v.isEmpty)
-                    ? 'Isi kata sandi lama dulu.'
-                    : null,
-                decoration: _passwordDecoration(
-                  label: 'Kata Sandi Lama',
-                  icon: Icons.lock_outline_rounded,
-                  obscure: _obscureOld,
-                  toggle: (v) => setState(() => _obscureOld = v),
-                ),
-              ),
-              const SizedBox(height: AppSpacing.lg),
-              TextFormField(
-                controller: _new,
-                obscureText: _obscureNew,
-                onChanged: (_) => _onChanged(),
-                maxLength: 72,
-                autofillHints: const [AutofillHints.newPassword],
-                validator: Validators.newPassword,
-                decoration: _passwordDecoration(
-                  label: 'Kata Sandi Baru',
-                  icon: Icons.key_outlined,
-                  obscure: _obscureNew,
-                  toggle: (v) => setState(() => _obscureNew = v),
-                ),
-              ),
-              const SizedBox(height: AppSpacing.md),
-              // Checklist keamanan — komponen yang sama seperti registrasi.
-              PasswordChecklist(password: _new.text),
-              const SizedBox(height: AppSpacing.lg),
-              TextFormField(
-                controller: _confirm,
-                obscureText: _obscureConfirm,
-                onChanged: (_) => _onChanged(),
-                maxLength: 72,
-                autofillHints: const [AutofillHints.newPassword],
-                validator: (v) => Validators.confirmPassword(v, _new.text),
-                decoration: _passwordDecoration(
-                  label: 'Konfirmasi Kata Sandi Baru',
-                  icon: Icons.repeat_rounded,
-                  obscure: _obscureConfirm,
-                  toggle: (v) => setState(() => _obscureConfirm = v),
-                ),
-              ),
-              const SizedBox(height: AppSpacing.xs),
-              // Keterangan hidup: apakah konfirmasi sudah cocok.
-              Row(
-                children: [
-                  Icon(
-                    _confirmMatch
-                        ? Icons.check_circle_rounded
-                        : Icons.error_outline_rounded,
-                    size: 16,
-                    color: _confirmMatch ? p.success : p.textMuted,
-                  ),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: Text(
-                      _confirm.text.isEmpty
-                          ? 'Ketik ulang kata sandi baru untuk konfirmasi.'
-                          : _confirmMatch
-                          ? 'Konfirmasi cocok dengan kata sandi baru.'
-                          : 'Konfirmasi belum sama dengan kata sandi baru.',
-                      style: AppTypography.caption.copyWith(
-                        color: _confirmMatch ? p.success : p.textMuted,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-              if (_submitError != null) ...[
-                const SizedBox(height: AppSpacing.md),
-                FormBanner(message: _submitError!),
-              ],
-              const SizedBox(height: AppSpacing.lg),
-              AppButton(
-                label: _saving ? 'Menyimpan…' : 'Simpan Kata Sandi',
-                onPressed: _canSubmit ? _submit : null,
-              ),
-              const SizedBox(height: AppSpacing.md),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}

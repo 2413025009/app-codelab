@@ -1,7 +1,7 @@
 // FILE: lib/features/teacher/presentation/pages/teacher_class_analytics_page.dart
 //
-// TUGAS: Halaman Analitik Kelas & Mode Proyektor Lab Guru (Minggu 12).
-// Sesuai Stitch v3: detail_analitik_kelas_guru_x_rpl_1_codelab_ai.
+// TUGAS: Halaman Analisa Kelas & Mode Proyektor Lab Guru (Minggu 12).
+// Sesuai Stitch v3: detail_analisa_kelas_guru_x_rpl_1_codelab_ai.
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -20,10 +20,10 @@ import '../cubit/teacher_cubit.dart';
 import '../cubit/teacher_state.dart';
 
 class TeacherClassAnalyticsPage extends StatefulWidget {
-  const TeacherClassAnalyticsPage({super.key, this.classId, this.initialClass});
+  const TeacherClassAnalyticsPage({super.key, required this.classId});
 
-  final String? classId;
-  final ClassInfo? initialClass;
+  /// Kelas yang dianalisa. Route: /analisa-pengajar/:classId
+  final String classId;
 
   @override
   State<TeacherClassAnalyticsPage> createState() =>
@@ -31,39 +31,38 @@ class TeacherClassAnalyticsPage extends StatefulWidget {
 }
 
 class _TeacherClassAnalyticsPageState extends State<TeacherClassAnalyticsPage> {
-  String? _selectedClassId;
+  late String _selectedClassId;
   String _rosterFilter = 'ALL';
+
+  /// Peringkat hanya menampilkan 10 siswa teratas per kategori. Daftar siswa
+  /// di bawahnya tetap memuat seluruh anggota kelas.
+  static const int _maxRankedStudents = 10;
 
   @override
   void initState() {
     super.initState();
-    _selectedClassId = widget.classId ?? widget.initialClass?.id;
+    _selectedClassId = widget.classId;
     WidgetsBinding.instance.addPostFrameCallback((_) => _initOrLoad());
+  }
+
+  @override
+  void didUpdateWidget(covariant TeacherClassAnalyticsPage oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.classId != widget.classId) {
+      _selectedClassId = widget.classId;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) return;
+        context.read<TeacherCubit>().loadClassAnalytics(widget.classId);
+      });
+    }
   }
 
   void _initOrLoad() {
     if (!mounted) return;
     final cubit = context.read<TeacherCubit>();
-    final classes = cubit.state.classes;
-    if (_selectedClassId == null || _selectedClassId!.isEmpty) {
-      if (classes.isNotEmpty) {
-        setState(() => _selectedClassId = classes.first.id);
-        cubit.loadClassAnalytics(classes.first.id);
-      } else {
-        cubit.loadDashboard().then((_) {
-          if (!mounted) return;
-          final updated = context.read<TeacherCubit>().state.classes;
-          if (updated.isNotEmpty) {
-            setState(() => _selectedClassId = updated.first.id);
-            context.read<TeacherCubit>().loadClassAnalytics(updated.first.id);
-          }
-        });
-      }
-    } else {
-      cubit.loadClassAnalytics(_selectedClassId!);
-      if (classes.isEmpty) {
-        cubit.loadDashboard();
-      }
+    cubit.loadClassAnalytics(_selectedClassId);
+    if (cubit.state.classes.isEmpty) {
+      cubit.loadDashboard();
     }
   }
 
@@ -77,19 +76,52 @@ class _TeacherClassAnalyticsPageState extends State<TeacherClassAnalyticsPage> {
     // Wajib `watch`, bukan `read`: kartu kode kelas harus ikut berubah saat
     // kode diacak ulang (state.classes diganti dengan kode terbaru).
     final classes = context.watch<TeacherCubit>().state.classes;
-    final activeId =
-        _selectedClassId ?? widget.classId ?? widget.initialClass?.id;
-    if (activeId != null) {
-      final found = classes.where((c) => c.id == activeId).firstOrNull;
-      if (found != null) return found;
-    }
-    if (widget.initialClass != null) return widget.initialClass;
-    return classes.isNotEmpty ? classes.first : null;
+    final found = classes.where((c) => c.id == _selectedClassId).firstOrNull;
+    return found;
   }
 
   void _copyCode(String code) {
     Clipboard.setData(ClipboardData(text: code));
     showAppSnack(context, 'Kode kelas "$code" disalin ke clipboard!');
+  }
+
+  Future<void> _confirmRemoveStudent(StudentRosterRow student) async {
+    final p = context.palette;
+    // `read` (bukan `watch`): method ini dipanggil dari callback, di luar build.
+    final classes = context.read<TeacherCubit>().state.classes;
+    final room = classes
+        .where((item) => item.id == _selectedClassId)
+        .firstOrNull;
+    final className = room?.name ?? 'kelas ini';
+
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Keluarkan Siswa'),
+        content: Text(
+          'Keluarkan ${student.name} dari $className?\n\n'
+          'Siswa tidak akan muncul lagi di daftar dan peringkat kelas. '
+          'Ia bisa bergabung kembali dengan kode kelas.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(false),
+            child: const Text('Batal'),
+          ),
+          TextButton(
+            style: TextButton.styleFrom(foregroundColor: p.error),
+            onPressed: () => Navigator.of(ctx).pop(true),
+            child: const Text('Keluarkan'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed != true || !mounted) return;
+    await context.read<TeacherCubit>().removeStudentFromClass(
+      _selectedClassId,
+      student.studentId,
+    );
   }
 
   void _showFullscreenProjector(String code, String className) {
@@ -278,7 +310,7 @@ class _TeacherClassAnalyticsPageState extends State<TeacherClassAnalyticsPage> {
                 onTap: () {
                   Navigator.of(ctx).pop();
                   cubit.archiveClass(room.id);
-                  // Dari tab analitik (StatefulShellRoute) belum tentu ada
+                  // Dari tab analisa (StatefulShellRoute) belum tentu ada
                   // halaman untuk di-pop; kembali ke dashboard selalu aman.
                   context.go(AppRoutes.teacherHome);
                 },
@@ -290,11 +322,45 @@ class _TeacherClassAnalyticsPageState extends State<TeacherClassAnalyticsPage> {
     );
   }
 
+  /// Saran kelompok tutor sebaya dari data roster kelas.
+  ///
+  /// Parameter pemilihan:
+  ///  - Tutor: sudah menuntaskan minimal 1 materi (completedCount > 0),
+  ///    diurutkan materi tuntas terbanyak → latihan lulus → XP → nama.
+  ///  - Siswa didampingi: belum menuntaskan materi (completedCount == 0),
+  ///    diurutkan latihan lulus terbanyak (paling aktif berlatih) → XP → nama.
+  ///  - Pembagian: bergiliran (round-robin) agar jumlah siswa per tutor
+  ///    seimbang, selisih maksimal satu siswa.
   void _showTutorGroups(BuildContext context, List<StudentRosterRow> roster) {
     final p = context.palette;
+
+    int byName(StudentRosterRow a, StudentRosterRow b) =>
+        a.name.toLowerCase().compareTo(b.name.toLowerCase());
+
     final tutors = roster.where((s) => s.completedCount > 0).toList()
-      ..sort((a, b) => b.completedCount.compareTo(a.completedCount));
-    final mentees = roster.where((s) => s.completedCount == 0).toList();
+      ..sort((a, b) {
+        final byMaterial = b.completedCount.compareTo(a.completedCount);
+        if (byMaterial != 0) return byMaterial;
+        final byPractice = b.practiceCompletedCount.compareTo(
+          a.practiceCompletedCount,
+        );
+        if (byPractice != 0) return byPractice;
+        final byXp = b.xpPoints.compareTo(a.xpPoints);
+        if (byXp != 0) return byXp;
+        return byName(a, b);
+      });
+
+    final mentees = roster.where((s) => s.completedCount == 0).toList()
+      ..sort((a, b) {
+        final byPractice = b.practiceCompletedCount.compareTo(
+          a.practiceCompletedCount,
+        );
+        if (byPractice != 0) return byPractice;
+        final byXp = b.xpPoints.compareTo(a.xpPoints);
+        if (byXp != 0) return byXp;
+        return byName(a, b);
+      });
+
     final pairs = <MapEntry<StudentRosterRow, StudentRosterRow>>[];
     if (tutors.isNotEmpty) {
       for (var i = 0; i < mentees.length; i++) {
@@ -339,12 +405,30 @@ class _TeacherClassAnalyticsPageState extends State<TeacherClassAnalyticsPage> {
                 const SizedBox(height: AppSpacing.xs),
                 Text(
                   tutors.isEmpty
-                      ? 'Belum ada siswa dengan bab tuntas. Saran kelompok akan muncul setelah ada siswa yang menyelesaikan bab.'
+                      ? 'Belum ada siswa dengan materi tuntas. Saran kelompok akan muncul setelah ada siswa yang menyelesaikan materi.'
                       : mentees.isEmpty
-                      ? 'Semua siswa sudah memiliki bab tuntas. Tidak ada siswa yang perlu pendampingan saat ini.'
-                      : 'Pasangan berikut disusun dari data bab tuntas: siswa dengan capaian tertinggi mendampingi siswa yang belum tuntas.',
+                      ? 'Semua siswa sudah memiliki materi tuntas. Tidak ada siswa yang perlu didampingi saat ini.'
+                      : 'Tutor dipilih dari siswa dengan materi tuntas terbanyak; siswa didampingi adalah yang belum menuntaskan materi. Pasangan dibagi bergiliran agar jumlahnya seimbang.',
                   style: AppTypography.bodySm.copyWith(color: p.textMuted),
                 ),
+                if (tutors.isNotEmpty && mentees.isNotEmpty) ...[
+                  const SizedBox(height: AppSpacing.sm),
+                  Container(
+                    padding: const EdgeInsets.all(AppSpacing.sm),
+                    decoration: BoxDecoration(
+                      color: p.surfaceAlt,
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: Text(
+                      'Parameter: materi tuntas → latihan lulus → XP (tutor); '
+                      'latihan lulus → XP (siswa didampingi).',
+                      style: AppTypography.caption.copyWith(
+                        color: p.textMuted,
+                        fontSize: 11,
+                      ),
+                    ),
+                  ),
+                ],
                 const SizedBox(height: AppSpacing.md),
                 if (pairs.isEmpty)
                   Padding(
@@ -392,7 +476,7 @@ class _TeacherClassAnalyticsPageState extends State<TeacherClassAnalyticsPage> {
                                       ),
                                     ),
                                     Text(
-                                      'Pendamping: ${pair.value.name}',
+                                      'Siswa Didampingi: ${pair.value.name}',
                                       style: AppTypography.bodySm.copyWith(
                                         color: p.textMuted,
                                       ),
@@ -401,7 +485,7 @@ class _TeacherClassAnalyticsPageState extends State<TeacherClassAnalyticsPage> {
                                 ),
                               ),
                               Text(
-                                '${pair.key.completedCount} bab',
+                                '${pair.key.completedCount} materi',
                                 style: AppTypography.caption.copyWith(
                                   color: p.success,
                                 ),
@@ -425,6 +509,145 @@ class _TeacherClassAnalyticsPageState extends State<TeacherClassAnalyticsPage> {
     );
   }
 
+  /// Susun daftar siswa sesuai filter yang aktif:
+  ///  - Semua / Materi Tuntas : materi tuntas terbanyak di atas;
+  ///  - Latihan Terbanyak    : latihan lulus terbanyak di atas;
+  ///  - Belum Kerjakan Materi: siswa tanpa materi tuntas, latihan terbanyak
+  ///    lebih dulu agar guru melihat yang aktif berlatih tetapi tertinggal
+  ///    di materi.
+  List<StudentRosterRow> _displayedRoster(List<StudentRosterRow> roster) {
+    final filtered = roster.where((s) {
+      switch (_rosterFilter) {
+        case 'TUNTAS':
+          return s.completedCount > 0;
+        case 'BELUM':
+          return s.completedCount == 0;
+        default:
+          return true;
+      }
+    }).toList();
+
+    int byName(StudentRosterRow a, StudentRosterRow b) =>
+        a.name.toLowerCase().compareTo(b.name.toLowerCase());
+
+    filtered.sort((a, b) {
+      if (_rosterFilter == 'LATIHAN' || _rosterFilter == 'BELUM') {
+        final byPractice = b.practiceCompletedCount.compareTo(
+          a.practiceCompletedCount,
+        );
+        if (byPractice != 0) return byPractice;
+      }
+      final byMaterial = b.completedCount.compareTo(a.completedCount);
+      if (byMaterial != 0) return byMaterial;
+      final byPractice = b.practiceCompletedCount.compareTo(
+        a.practiceCompletedCount,
+      );
+      if (byPractice != 0) return byPractice;
+      return byName(a, b);
+    });
+    return filtered;
+  }
+
+  /// Papan peringkat kecil untuk satu kategori (Materi / Latihan).
+  /// Dua papan ini ditampilkan bersampingan, bukan sebagai section terpisah.
+  Widget _rankPanel(
+    BuildContext context, {
+    required String title,
+    required String subtitle,
+    required IconData icon,
+    required Color accent,
+    required List<StudentRosterRow> roster,
+    required int Function(StudentRosterRow) valueOf,
+  }) {
+    final p = context.palette;
+    final ranked = roster.where((s) => valueOf(s) > 0).toList()
+      ..sort((a, b) {
+        final byValue = valueOf(b).compareTo(valueOf(a));
+        return byValue != 0 ? byValue : a.name.compareTo(b.name);
+      });
+    final visible = ranked.take(_maxRankedStudents).toList();
+
+    return Container(
+      padding: const EdgeInsets.all(AppSpacing.sm),
+      decoration: BoxDecoration(
+        color: p.surface,
+        borderRadius: AppRadius.cardBorder,
+        border: Border.all(color: p.outline),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(icon, size: 16, color: accent),
+              const SizedBox(width: 6),
+              Expanded(
+                child: Text(
+                  title,
+                  style: AppTypography.labelL.copyWith(
+                    color: p.text,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          Text(
+            subtitle,
+            style: AppTypography.caption.copyWith(color: p.textMuted),
+          ),
+          const SizedBox(height: AppSpacing.sm),
+          if (visible.isEmpty)
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: AppSpacing.sm),
+              child: Text(
+                'Belum ada siswa.',
+                style: AppTypography.bodySm.copyWith(color: p.textMuted),
+              ),
+            )
+          else
+            for (var i = 0; i < visible.length; i++)
+              Padding(
+                padding: const EdgeInsets.only(bottom: 6),
+                child: Row(
+                  children: [
+                    SizedBox(
+                      // 26px cukup untuk nomor 2-3 digit tanpa pecah vertikal.
+                      width: 26,
+                      child: Text(
+                        '${i + 1}',
+                        maxLines: 1,
+                        softWrap: false,
+                        style: AppTypography.codeSm.copyWith(
+                          color: i < 3 ? accent : p.textMuted,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                    Expanded(
+                      child: Text(
+                        visible[i].name,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: AppTypography.bodySm.copyWith(color: p.text),
+                      ),
+                    ),
+                    const SizedBox(width: 4),
+                    Text(
+                      '${valueOf(visible[i])}',
+                      style: AppTypography.codeSm.copyWith(
+                        color: accent,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final p = context.palette;
@@ -433,19 +656,17 @@ class _TeacherClassAnalyticsPageState extends State<TeacherClassAnalyticsPage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Analisa Kelas'),
-        leading: widget.classId == null
-            ? null
-            : IconButton(
-                icon: const Icon(Icons.arrow_back_rounded),
-                tooltip: 'Kembali',
-                onPressed: () {
-                  if (context.canPop()) {
-                    context.pop();
-                  } else {
-                    context.go(AppRoutes.teacherHome);
-                  }
-                },
-              ),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_rounded),
+          tooltip: 'Kembali',
+          onPressed: () {
+            if (context.canPop()) {
+              context.pop();
+            } else {
+              context.go(AppRoutes.teacherAnalytics);
+            }
+          },
+        ),
         actions: [
           if (room != null)
             IconButton(
@@ -510,7 +731,7 @@ class _TeacherClassAnalyticsPageState extends State<TeacherClassAnalyticsPage> {
                       ),
                       const SizedBox(height: AppSpacing.xs),
                       Text(
-                        'Buat kelas pertamamu di Dashboard untuk memantau analitik kurikulum dan progres belajar siswa.',
+                        'Buat kelas pertamamu di Dashboard untuk memantau analisa kurikulum dan progres belajar siswa.',
                         textAlign: TextAlign.center,
                         style: AppTypography.bodyM.copyWith(color: p.textMuted),
                       ),
@@ -526,9 +747,7 @@ class _TeacherClassAnalyticsPageState extends State<TeacherClassAnalyticsPage> {
               );
             }
 
-            final activeClassId =
-                room?.id ??
-                (state.classes.isNotEmpty ? state.classes.first.id : '');
+            final activeClassId = _selectedClassId;
 
             return RefreshIndicator(
               onRefresh: () async {
@@ -859,12 +1078,75 @@ class _TeacherClassAnalyticsPageState extends State<TeacherClassAnalyticsPage> {
                         ),
                     const SizedBox(height: AppSpacing.lg),
 
-                    // Leaderboard Roster & Filter Chips
+                    // Peringkat Siswa: materi & latihan bersampingan.
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
                           'Peringkat Siswa Kelas',
+                          style: AppTypography.titleM.copyWith(
+                            color: p.text,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        Text(
+                          roster.length > _maxRankedStudents
+                              ? '$_maxRankedStudents teratas dari ${roster.length}'
+                              : '${roster.length} Siswa',
+                          style: AppTypography.codeSm.copyWith(
+                            color: p.textMuted,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      'Peringkat hanya menampilkan maksimal $_maxRankedStudents '
+                      'siswa dengan materi/latihan terbanyak. Semua siswa tetap '
+                      'tampil lengkap di bagian Daftar Siswa.',
+                      style: AppTypography.caption.copyWith(
+                        color: p.textMuted,
+                        fontSize: 11,
+                      ),
+                    ),
+                    const SizedBox(height: AppSpacing.sm),
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Expanded(
+                          child: _rankPanel(
+                            context,
+                            title: 'Materi',
+                            subtitle: 'Materi tuntas',
+                            icon: Icons.menu_book_rounded,
+                            accent: p.primary,
+                            roster: roster,
+                            valueOf: (student) => student.completedCount,
+                          ),
+                        ),
+                        const SizedBox(width: AppSpacing.sm),
+                        Expanded(
+                          child: _rankPanel(
+                            context,
+                            title: 'Latihan',
+                            subtitle: 'Tantangan lulus',
+                            icon: Icons.code_rounded,
+                            accent: p.success,
+                            roster: roster,
+                            valueOf: (student) =>
+                                student.practiceCompletedCount,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: AppSpacing.lg),
+
+                    // Daftar siswa + aksi kelola anggota.
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          'Daftar Siswa',
                           style: AppTypography.titleM.copyWith(
                             color: p.text,
                             fontWeight: FontWeight.bold,
@@ -880,7 +1162,8 @@ class _TeacherClassAnalyticsPageState extends State<TeacherClassAnalyticsPage> {
                     ),
                     const SizedBox(height: AppSpacing.sm),
 
-                    // Filter Chips: Semua, Tuntas, Perlu Bimbingan
+                    // Filter Chips: Semua, Materi Tuntas, Latihan Terbanyak,
+                    // Belum Kerjakan Materi.
                     SingleChildScrollView(
                       scrollDirection: Axis.horizontal,
                       child: Row(
@@ -906,7 +1189,7 @@ class _TeacherClassAnalyticsPageState extends State<TeacherClassAnalyticsPage> {
                           const SizedBox(width: 8),
                           ChoiceChip(
                             label: Text(
-                              'Tuntas (${roster.where((s) => s.completedCount > 0).length})',
+                              'Materi Tuntas (${roster.where((s) => s.completedCount > 0).length})',
                             ),
                             selected: _rosterFilter == 'TUNTAS',
                             selectedColor: p.success,
@@ -926,26 +1209,57 @@ class _TeacherClassAnalyticsPageState extends State<TeacherClassAnalyticsPage> {
                           ),
                           const SizedBox(width: 8),
                           ChoiceChip(
-                            label: Text(
-                              'Perlu Bimbingan (${roster.where((s) => s.completedCount == 0).length})',
-                            ),
-                            selected: _rosterFilter == 'BIMBINGAN',
-                            selectedColor: p.accent,
+                            label: const Text('Latihan Terbanyak'),
+                            selected: _rosterFilter == 'LATIHAN',
+                            selectedColor: p.primary,
                             labelStyle: AppTypography.labelSm.copyWith(
-                              color: _rosterFilter == 'BIMBINGAN'
+                              color: _rosterFilter == 'LATIHAN'
                                   ? Colors.white
                                   : p.text,
-                              fontWeight: _rosterFilter == 'BIMBINGAN'
+                              fontWeight: _rosterFilter == 'LATIHAN'
                                   ? FontWeight.bold
                                   : FontWeight.normal,
                             ),
                             onSelected: (val) {
                               if (val) {
-                                setState(() => _rosterFilter = 'BIMBINGAN');
+                                setState(() => _rosterFilter = 'LATIHAN');
+                              }
+                            },
+                          ),
+                          const SizedBox(width: 8),
+                          ChoiceChip(
+                            label: Text(
+                              'Belum Kerjakan Materi (${roster.where((s) => s.completedCount == 0).length})',
+                            ),
+                            selected: _rosterFilter == 'BELUM',
+                            selectedColor: p.accent,
+                            labelStyle: AppTypography.labelSm.copyWith(
+                              color: _rosterFilter == 'BELUM'
+                                  ? Colors.white
+                                  : p.text,
+                              fontWeight: _rosterFilter == 'BELUM'
+                                  ? FontWeight.bold
+                                  : FontWeight.normal,
+                            ),
+                            onSelected: (val) {
+                              if (val) {
+                                setState(() => _rosterFilter = 'BELUM');
                               }
                             },
                           ),
                         ],
+                      ),
+                    ),
+                    const SizedBox(height: 6),
+                    Text(
+                      // Jelaskan basis filter supaya guru tidak menebak.
+                      '"Semua" dan "Materi Tuntas" diurutkan dari materi '
+                      'tuntas terbanyak. "Latihan Terbanyak" diurutkan dari '
+                      'latihan lulus terbanyak. "Belum Kerjakan Materi" = '
+                      'siswa yang belum menuntaskan satu materi pun.',
+                      style: AppTypography.caption.copyWith(
+                        color: p.textMuted,
+                        fontSize: 11,
                       ),
                     ),
                     const SizedBox(height: AppSpacing.sm),
@@ -987,15 +1301,7 @@ class _TeacherClassAnalyticsPageState extends State<TeacherClassAnalyticsPage> {
                       )
                     else ...[
                       () {
-                        final displayedRoster = roster.where((s) {
-                          if (_rosterFilter == 'TUNTAS') {
-                            return s.completedCount > 0;
-                          }
-                          if (_rosterFilter == 'BIMBINGAN') {
-                            return s.completedCount == 0;
-                          }
-                          return true;
-                        }).toList();
+                        final displayedRoster = _displayedRoster(roster);
 
                         if (displayedRoster.isEmpty) {
                           return Padding(
@@ -1033,8 +1339,8 @@ class _TeacherClassAnalyticsPageState extends State<TeacherClassAnalyticsPage> {
                               child: Row(
                                 children: [
                                   Container(
-                                    width: 28,
-                                    height: 28,
+                                    width: 32,
+                                    height: 32,
                                     alignment: Alignment.center,
                                     decoration: BoxDecoration(
                                       color: i < 3
@@ -1044,6 +1350,8 @@ class _TeacherClassAnalyticsPageState extends State<TeacherClassAnalyticsPage> {
                                     ),
                                     child: Text(
                                       '${i + 1}',
+                                      maxLines: 1,
+                                      softWrap: false,
                                       style: AppTypography.codeSm.copyWith(
                                         color: i < 3 ? p.primary : p.textMuted,
                                         fontWeight: FontWeight.bold,
@@ -1063,11 +1371,10 @@ class _TeacherClassAnalyticsPageState extends State<TeacherClassAnalyticsPage> {
                                           ),
                                         ),
                                         Text(
-                                          student.completedCount > 0
-                                              ? (student.lastBabTitle.isNotEmpty
-                                                    ? '${student.lastBabTitle} • ${student.completedCount} bab tuntas'
-                                                    : '${student.completedCount} bab tuntas')
-                                              : 'Perlu Pendampingan Guru',
+                                          // Sebutkan angka nyata, bukan label
+                                          // samar: berapa materi & latihan tuntas.
+                                          '${student.completedCount} materi tuntas • '
+                                          '${student.practiceCompletedCount} latihan lulus',
                                           style: AppTypography.caption.copyWith(
                                             color: student.completedCount > 0
                                                 ? p.success
@@ -1097,6 +1404,24 @@ class _TeacherClassAnalyticsPageState extends State<TeacherClassAnalyticsPage> {
                                         ),
                                       ),
                                     ],
+                                  ),
+                                  const SizedBox(width: 2),
+                                  IconButton(
+                                    icon: const Icon(
+                                      Icons.person_remove_rounded,
+                                      size: 18,
+                                    ),
+                                    color: p.error,
+                                    tooltip: 'Keluarkan dari kelas',
+                                    visualDensity: VisualDensity.compact,
+                                    padding: EdgeInsets.zero,
+                                    constraints: const BoxConstraints(
+                                      minWidth: 32,
+                                      minHeight: 32,
+                                    ),
+                                    onPressed: state.isLoading
+                                        ? null
+                                        : () => _confirmRemoveStudent(student),
                                   ),
                                 ],
                               ),

@@ -1,7 +1,7 @@
 // FILE: lib/features/teacher/presentation/shell/teacher_shell.dart
 //
 // TUGAS: kerangka navigasi bawah (bottom navigation) untuk akun guru/instruktur.
-// 4 Tab Utama: Dashboard | Materi | Analitik | Profil.
+// 4 Tab Utama: Dashboard | Materi | Analisa | Profil.
 
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';

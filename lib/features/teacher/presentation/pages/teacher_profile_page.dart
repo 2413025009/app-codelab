@@ -47,6 +47,45 @@ class _TeacherProfilePageState extends State<TeacherProfilePage> {
     ]);
   }
 
+  Future<void> _confirmLogout() async {
+    final p = context.palette;
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: p.surface,
+        title: Text(
+          'Keluar dari Akun Pengajar?',
+          style: AppTypography.titleM.copyWith(color: p.text),
+        ),
+        content: Text(
+          'Kamu perlu memasukkan email dan kata sandi kembali untuk masuk ke akun pengajar ini.',
+          style: AppTypography.bodyM.copyWith(color: p.textMuted),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(false),
+            child: Text('Batal', style: TextStyle(color: p.textMuted)),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: p.error,
+              foregroundColor: Colors.white,
+            ),
+            onPressed: () => Navigator.of(ctx).pop(true),
+            child: const Text('Ya, Keluar'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed == true && mounted) {
+      await context.read<AuthCubit>().logout();
+      if (mounted) {
+        context.go(AppRoutes.login);
+      }
+    }
+  }
+
   IconData _resolveIcon(String code) {
     switch (code.trim().toLowerCase()) {
       case 'code':
@@ -441,8 +480,8 @@ class _TeacherProfilePageState extends State<TeacherProfilePage> {
                                     ),
                                   ],
                                 ),
-                                onTap: () => context.push(
-                                  AppRoutes.teacherClassAnalytics(
+                                onTap: () => context.go(
+                                  AppRoutes.teacherAnalyticsRoute(
                                     classes[i].id,
                                   ),
                                 ),
@@ -594,6 +633,25 @@ class _TeacherProfilePageState extends State<TeacherProfilePage> {
                   leadingIcon: Icons.settings_rounded,
                   kind: AppButtonKind.secondary,
                   onPressed: () => context.push(AppRoutes.teacherSettings),
+                ),
+                const SizedBox(height: AppSpacing.sm),
+
+                // 5. Keluar akun — sengaja hanya ada di halaman profil.
+                OutlinedButton.icon(
+                  onPressed: _confirmLogout,
+                  icon: const Icon(Icons.logout_rounded, size: 18),
+                  label: const Text('Keluar dari Akun'),
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: p.error,
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    side: BorderSide(color: p.error.withAlpha(90)),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    textStyle: AppTypography.labelL.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
                 ),
               ],
             ),

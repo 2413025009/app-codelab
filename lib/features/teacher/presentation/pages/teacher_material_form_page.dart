@@ -183,8 +183,25 @@ class _TeacherMaterialFormPageState extends State<TeacherMaterialFormPage> {
       return;
     }
 
-    setState(() => _isSubmitting = true);
     final cubit = context.read<TeacherCubit>();
+
+    // Tolak nama yang sudah dipakai materi lain milik guru ini — lintas
+    // draft/terbit dan tanpa peduli huruf besar/kecil. Server tetap menjadi
+    // penjaga terakhir; cek lokal ini hanya mempercepat umpan balik.
+    final duplicate = cubit.state.materials.any(
+      (lesson) =>
+          lesson.id != _currentLessonId &&
+          lesson.title.trim().toLowerCase() == title.toLowerCase(),
+    );
+    if (duplicate) {
+      showAppSnack(
+        context,
+        'Nama materi sudah dipakai. Gunakan nama lain agar siswa tidak bingung.',
+      );
+      return;
+    }
+
+    setState(() => _isSubmitting = true);
 
     final iconCode = _iconController.text.trim().isEmpty
         ? 'terminal'
@@ -227,6 +244,14 @@ class _TeacherMaterialFormPageState extends State<TeacherMaterialFormPage> {
       } else {
         context.go(AppRoutes.teacherStudio);
       }
+    } else {
+      // Simpan gagal (mis. server menolak nama duplikat) — tampilkan pesan
+      // jujur dari server, jangan diam saja.
+      showAppSnack(
+        context,
+        cubit.state.errorMessage ??
+            'Materi belum tersimpan. Periksa koneksi lalu coba lagi.',
+      );
     }
   }
 

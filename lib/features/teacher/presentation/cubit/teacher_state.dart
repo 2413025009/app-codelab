@@ -1,7 +1,7 @@
 // FILE: lib/features/teacher/presentation/cubit/teacher_state.dart
 //
 // State terpusat untuk fitur instruktur/guru: dashboard kelas,
-// studio materi (CRUD), bab builder, dan analitik performa.
+// studio materi (CRUD), bab builder, dan analisa performa.
 
 import 'package:equatable/equatable.dart';
 import 'package:mobile_codelab_ai/features/class/domain/class_repository.dart';

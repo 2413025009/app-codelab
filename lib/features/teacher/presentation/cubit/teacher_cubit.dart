@@ -1,7 +1,7 @@
 // FILE: lib/features/teacher/presentation/cubit/teacher_cubit.dart
 //
 // TUGAS: otak fitur pengajar — dashboard kelas, studio materi, bab builder,
-// dan analitik performa. Semua data berasal dari TeacherRepository (REST),
+// dan analisa performa. Semua data berasal dari TeacherRepository (REST),
 // tanpa mock. Cubit menyimpan salinan state agar layar bisa memperbarui
 // daftar tanpa memuat ulang seluruh halaman.
 //
@@ -23,7 +23,7 @@ class TeacherCubit extends Cubit<TeacherState> {
 
   final TeacherRepository _repository;
 
-  /// Nomor permintaan analitik terakhir — mencegah respons lama menimpa
+  /// Nomor permintaan analisa terakhir — mencegah respons lama menimpa
   /// kelas yang baru dipilih saat guru berpindah kelas dengan cepat.
   int _analyticsRequest = 0;
 
@@ -511,12 +511,12 @@ class TeacherCubit extends Cubit<TeacherState> {
     }
   }
 
-  // ── Analitik kelas ───────────────────────────────────────────────────────
+  // ── Analisa kelas ───────────────────────────────────────────────────────
 
   Future<void> loadClassAnalytics(String classId) async {
     final request = ++_analyticsRequest;
 
-    // Kosongkan analitik lama supaya layar menampilkan animasi memuat saat
+    // Kosongkan analisa lama supaya layar menampilkan animasi memuat saat
     // guru berpindah kelas, bukan data kelas sebelumnya.
     emit(
       TeacherState(
@@ -549,6 +549,67 @@ class TeacherCubit extends Cubit<TeacherState> {
     }
   }
 
+  /// Mengeluarkan satu siswa dari kelas. State diperbarui lokal supaya daftar
+  /// dan kedua papan peringkat langsung berubah tanpa memuat ulang halaman.
+  Future<void> removeStudentFromClass(
+    String classId,
+    String studentId,
+  ) async {
+    final removed = state.roster
+        .where((student) => student.studentId == studentId)
+        .firstOrNull;
+
+    // Batalkan permintaan analisa yang masih berjalan agar respons lama tidak
+    // memunculkan kembali siswa yang baru saja dikeluarkan.
+    _analyticsRequest++;
+
+    emit(
+      state.copyWith(isLoading: true, clearError: true, clearSuccess: true),
+    );
+    try {
+      await _repository.removeStudentFromClass(classId, studentId);
+      if (isClosed) return;
+
+      final currentAnalytics = state.analytics;
+      emit(
+        state.copyWith(
+          roster: state.roster
+              .where((student) => student.studentId != studentId)
+              .toList(),
+          classes: state.classes
+              .map(
+                (room) => room.id == classId
+                    ? _copyClass(
+                        room,
+                        memberCount: room.memberCount > 0
+                            ? room.memberCount - 1
+                            : 0,
+                      )
+                    : room,
+              )
+              .toList(),
+          analytics: currentAnalytics == null
+              ? null
+              : ClassAnalytics(
+                  memberCount: currentAnalytics.memberCount > 0
+                      ? currentAnalytics.memberCount - 1
+                      : 0,
+                  trackBars: currentAnalytics.trackBars,
+                  hardestChapters: currentAnalytics.hardestChapters,
+                ),
+          isLoading: false,
+          actionSuccessMessage: removed == null
+              ? 'Siswa dikeluarkan dari kelas.'
+              : '${removed.name} dikeluarkan dari kelas.',
+          clearError: true,
+        ),
+      );
+    } catch (error) {
+      if (isClosed) return;
+      emit(state.copyWith(isLoading: false, errorMessage: _messageOf(error)));
+    }
+  }
+
   // ── Utilitas ─────────────────────────────────────────────────────────────
 
   void clearMessages() {
@@ -574,6 +635,7 @@ class TeacherCubit extends Cubit<TeacherState> {
     ClassInfo room, {
     String? status,
     String? classCode,
+    int? memberCount,
   }) {
     return ClassInfo(
       id: room.id,
@@ -582,7 +644,7 @@ class TeacherCubit extends Cubit<TeacherState> {
       status: status ?? room.status,
       schoolName: room.schoolName,
       teacherName: room.teacherName,
-      memberCount: room.memberCount,
+      memberCount: memberCount ?? room.memberCount,
       academicYear: room.academicYear,
       scheduleNote: room.scheduleNote,
     );

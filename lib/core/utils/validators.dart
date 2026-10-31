@@ -16,6 +16,19 @@ abstract final class Validators {
     return null;
   }
 
+  /// Email akun CodeLab wajib memakai domain sekolah @smk.belajar.id.
+  static const schoolEmailDomain = '@smk.belajar.id';
+
+  static String? schoolEmail(String? v) {
+    final base = email(v);
+    if (base != null) return base;
+    final value = v!.trim().toLowerCase();
+    if (!value.endsWith(schoolEmailDomain)) {
+      return 'Email harus memakai domain $schoolEmailDomain.';
+    }
+    return null;
+  }
+
   static String? loginPassword(String? v) =>
       required(v, 'Isi kata sandi kamu dulu.');
 

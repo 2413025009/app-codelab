@@ -8,6 +8,7 @@ import '../../features/auth/presentation/pages/teacher_register_page.dart';
 import '../../features/teacher/domain/teacher_models.dart';
 import '../../features/teacher/presentation/pages/bab_editor_page.dart';
 import '../../features/teacher/presentation/pages/bab_list_page.dart';
+import '../../features/teacher/presentation/pages/teacher_analytics_picker_page.dart';
 import '../../features/teacher/presentation/pages/teacher_archived_classes_page.dart';
 import '../../features/teacher/presentation/pages/teacher_class_analytics_page.dart';
 import '../../features/teacher/presentation/pages/teacher_home_page.dart';
@@ -17,7 +18,6 @@ import '../../features/teacher/presentation/pages/teacher_settings_page.dart';
 import '../../features/teacher/presentation/pages/teacher_slide_editor_page.dart';
 import '../../features/teacher/presentation/pages/teacher_studio_page.dart';
 import '../../features/teacher/presentation/shell/teacher_shell.dart';
-import '../../features/class/domain/class_repository.dart';
 import '../../features/dashboard/presentation/pages/dashboard_page.dart';
 import '../../features/challenges/presentation/pages/challenge_catalog_page.dart';
 import '../../features/challenges/presentation/pages/challenge_detail_page.dart';
@@ -72,7 +72,7 @@ GoRouter appRouter(AuthCubit authCubit) {
       }
 
       // Guru hanya diizinkan di area guru (ruang kelas, studio materi, profil,
-      // pengaturan, analitik) — halaman siswa dialihkan ke ruang kelas.
+      // pengaturan, analisa) — halaman siswa dialihkan ke ruang kelas.
       final isTeacherArea =
           isTeacherHome ||
           path == AppRoutes.teacherArchivedClasses ||
@@ -80,8 +80,8 @@ GoRouter appRouter(AuthCubit authCubit) {
           path == AppRoutes.teacherSettings ||
           path == AppRoutes.teacherStudio ||
           path.startsWith('/materi-pengajar/') ||
-          path.startsWith('/analitik-pengajar/') ||
-          path.startsWith('/kelas/');
+          path == AppRoutes.teacherAnalytics ||
+          path.startsWith('/analisa-pengajar/');
       if (isAuthenticated && isTeacher && !isTeacherArea) {
         return AppRoutes.teacherHome;
       }
@@ -133,10 +133,16 @@ GoRouter appRouter(AuthCubit authCubit) {
             routes: [
               GoRoute(
                 path: AppRoutes.teacherAnalytics,
-                builder: (context, state) {
-                  final classId = state.uri.queryParameters['classId'];
-                  return TeacherClassAnalyticsPage(classId: classId);
-                },
+                builder: (context, state) => const TeacherAnalyticsPickerPage(),
+                routes: [
+                  GoRoute(
+                    path: ':classId',
+                    builder: (context, state) {
+                      final classId = state.pathParameters['classId'] ?? '';
+                      return TeacherClassAnalyticsPage(classId: classId);
+                    },
+                  ),
+                ],
               ),
             ],
           ),
@@ -151,13 +157,6 @@ GoRouter appRouter(AuthCubit authCubit) {
         ],
       ),
       // Halaman fitur guru pushed on top
-      GoRoute(
-        path: '/analitik-pengajar/:classId',
-        builder: (context, state) {
-          final classId = state.pathParameters['classId'];
-          return TeacherClassAnalyticsPage(classId: classId);
-        },
-      ),
       GoRoute(
         path: AppRoutes.teacherSettings,
         builder: (context, state) => const TeacherSettingsPage(),
@@ -220,17 +219,6 @@ GoRouter appRouter(AuthCubit authCubit) {
             slideIndex: index,
             initialSlide: args?.slide,
             xpReward: args?.xpReward ?? 50,
-          );
-        },
-      ),
-      GoRoute(
-        path: AppRoutes.teacherClassAnalyticsPattern,
-        builder: (context, state) {
-          final classId = state.pathParameters['classId'] ?? '';
-          final initial = state.extra as ClassInfo?;
-          return TeacherClassAnalyticsPage(
-            classId: classId,
-            initialClass: initial,
           );
         },
       ),
@@ -317,6 +305,15 @@ GoRouter appRouter(AuthCubit authCubit) {
 /// Contoh: /studio-pengajar/materi/12/babs/3/edit
 ///      → /materi-pengajar/12/silabus/3/edit
 String? _legacyTeacherPath(String path) {
+  // Tautan lama "/analitik-pengajar" diarahkan ke nama baru "/analisa-pengajar".
+  const legacyAnalytics = '/analitik-pengajar';
+  if (path == legacyAnalytics) return AppRoutes.teacherAnalytics;
+  if (path.startsWith('$legacyAnalytics/')) {
+    return AppRoutes.teacherAnalyticsRoute(
+      path.substring(legacyAnalytics.length + 1),
+    );
+  }
+
   if (!path.startsWith('/studio-pengajar')) return null;
 
   final babEdit = RegExp(

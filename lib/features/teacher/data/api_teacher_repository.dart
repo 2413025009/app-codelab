@@ -489,6 +489,9 @@ class ApiTeacherRepository implements TeacherRepository {
       completedCount: data['completedCount'] is int
           ? data['completedCount'] as int
           : int.tryParse('${data['completedCount']}') ?? 0,
+      practiceCompletedCount: data['practiceCompletedCount'] is int
+          ? data['practiceCompletedCount'] as int
+          : int.tryParse('${data['practiceCompletedCount']}') ?? 0,
     );
   }
 

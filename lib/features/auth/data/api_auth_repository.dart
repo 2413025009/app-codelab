@@ -200,6 +200,9 @@ class ApiAuthRepository implements AuthRepository {
         if (status == 422) {
           throw const AuthFailure(AuthFailureType.passwordPolicy);
         }
+        if (status != null && status >= 500) {
+          throw const AuthFailure(AuthFailureType.server);
+        }
         throw const AuthFailure(AuthFailureType.network);
       }
       throw const AuthFailure(AuthFailureType.network);
@@ -216,6 +219,7 @@ class ApiAuthRepository implements AuthRepository {
   @override
   Future<AuthUser> updateProfile({
     required String name,
+    String? email,
     String? phone,
     String? bio,
     String? schoolName,
@@ -229,6 +233,7 @@ class ApiAuthRepository implements AuthRepository {
         '/me',
         data: {
           'name': name.trim(),
+          'email': email?.trim(),
           'phone': phone,
           'bio': bio,
           'schoolName': schoolName,
@@ -246,7 +251,23 @@ class ApiAuthRepository implements AuthRepository {
         if (status == 401) {
           throw const AuthFailure(AuthFailureType.invalidCredentials);
         }
-        throw const AuthFailure(AuthFailureType.network);
+        // Baca kode galat server: 409/EMAIL_TAKEN = email sudah dipakai,
+        // EMAIL_DOMAIN = domain bukan @smk.belajar.id. Jangan menebak dari
+        // status saja — 400/422 juga dipakai untuk kolom lain yang tidak valid.
+        final code = _errorCode(e.response?.data);
+        if (status == 409 || code == 'EMAIL_TAKEN') {
+          throw const AuthFailure(AuthFailureType.emailTaken);
+        }
+        if (code == 'EMAIL_DOMAIN') {
+          throw const AuthFailure(AuthFailureType.emailDomain);
+        }
+        if (status == 400 || status == 422) {
+          throw AuthFailure(
+            AuthFailureType.invalidInput,
+            detail: _errorDetail(e.response?.data),
+          );
+        }
+        throw const AuthFailure(AuthFailureType.server);
       }
       throw const AuthFailure(AuthFailureType.network);
     } on AuthFailure {
@@ -284,6 +305,10 @@ class ApiAuthRepository implements AuthRepository {
         if (status == 400 || status == 413 || status == 422) {
           throw const AuthFailure(AuthFailureType.avatarUpload);
         }
+        if (status != null && status >= 500) {
+          // Server menjawab, jadi jangan bilang "belum tersambung ke internet".
+          throw const AuthFailure(AuthFailureType.server);
+        }
       }
       throw const AuthFailure(AuthFailureType.network);
     } on AuthFailure {
@@ -307,6 +332,10 @@ class ApiAuthRepository implements AuthRepository {
         if (status == 401) {
           throw const AuthFailure(AuthFailureType.invalidCredentials);
         }
+        if (status != null && status >= 500) {
+          throw const AuthFailure(AuthFailureType.server);
+        }
+        throw const AuthFailure(AuthFailureType.avatarUpload);
       }
       throw const AuthFailure(AuthFailureType.network);
     } on AuthFailure {
@@ -348,6 +377,35 @@ class ApiAuthRepository implements AuthRepository {
   Future<AuthUser> _fetchMe() async {
     final res = await _client.dio.get<Map<String, dynamic>>('/me');
     return _userFromJson(res.data ?? const {});
+  }
+
+  /// Kode galat mesin dari badan respons `{"error":{"code":...}}`.
+  String? _errorCode(Object? data) {
+    if (data is! Map) return null;
+    final error = data['error'];
+    if (error is! Map) return null;
+    final code = error['code'];
+    return code is String ? code : null;
+  }
+
+  /// Pesan galat pertama yang bisa dibaca pengguna. Server mengirim
+  /// `details` per kolom, mis. `{"bio": "Maksimal 120 karakter."}`.
+  String? _errorDetail(Object? data) {
+    if (data is! Map) return null;
+    final error = data['error'];
+    if (error is! Map) return null;
+    final details = error['details'];
+    if (details is Map && details.isNotEmpty) {
+      final entry = details.entries.first;
+      final value = entry.value;
+      if (value is String && value.trim().isNotEmpty) {
+        return '${entry.key}: ${value.trim()}';
+      }
+    }
+    final message = error['message'];
+    return message is String && message.trim().isNotEmpty
+        ? message.trim()
+        : null;
   }
 
   AuthUser _userFromJson(Map<String, dynamic> j) {

@@ -2,7 +2,7 @@
 //
 // Model domain untuk fitur Teacher Studio (Minggu 11-12).
 // Materi guru (TeacherLesson), bab (Bab), progres bab (BabProgress),
-// analitik kelas (StudentRosterRow, TrackBar, HardestChapter, ClassAnalytics).
+// analisa kelas (StudentRosterRow, TrackBar, HardestChapter, ClassAnalytics).
 
 /// Satu materi milik guru (baris lessons dengan author_id NOT NULL).
 class TeacherLesson {
@@ -70,6 +70,7 @@ class StudentRosterRow {
     required this.xpPoints,
     required this.lastBabTitle,
     required this.completedCount,
+    this.practiceCompletedCount = 0,
   });
 
   final String studentId;
@@ -77,10 +78,17 @@ class StudentRosterRow {
   final String avatarUrl;
   final int xpPoints;
   final String lastBabTitle;
+
+  /// Jumlah materi (lesson) tuntas — dasar peringkat "Materi".
   final int completedCount;
+
+  /// Jumlah latihan (challenge) berbeda yang sudah lulus — dasar peringkat
+  /// "Latihan". Dipisah dari materi agar guru bisa melihat dua kemampuan
+  /// berbeda tanpa menumpuk section baru di bawah halaman.
+  final int practiceCompletedCount;
 }
 
-/// Satu bar track di halaman analitik kelas.
+/// Satu bar track di halaman analisa kelas.
 class TrackBar {
   const TrackBar({
     required this.track,
@@ -93,7 +101,7 @@ class TrackBar {
   final int completedCount;
 }
 
-/// Kartu bab tersulit di analitik kelas.
+/// Kartu bab tersulit di analisa kelas.
 class HardestChapter {
   const HardestChapter({
     required this.lessonTitle,
@@ -106,7 +114,7 @@ class HardestChapter {
   final String challengeSlug;
 }
 
-/// Hasil lengkap analitik satu kelas.
+/// Hasil lengkap analisa satu kelas.
 class ClassAnalytics {
   const ClassAnalytics({
     required this.memberCount,

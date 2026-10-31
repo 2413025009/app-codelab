@@ -81,6 +81,7 @@ class AuthCubit extends Cubit<AuthState> {
 
   Future<void> updateProfile({
     required String name,
+    String? email,
     String? phone,
     String? bio,
     String? schoolName,
@@ -91,6 +92,7 @@ class AuthCubit extends Cubit<AuthState> {
   }) async {
     final updated = await _repository.updateProfile(
       name: name,
+      email: email,
       phone: phone,
       bio: bio,
       schoolName: schoolName,

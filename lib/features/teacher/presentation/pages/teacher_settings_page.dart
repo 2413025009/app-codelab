@@ -2,26 +2,32 @@
 //
 // TUGAS: Halaman Pengaturan & Edit Data Pribadi Pengajar (/pengaturan-pengajar).
 // Mengelola perubahan profil pengajar (foto, Nama, Telepon, Bio, Alamat,
-// Kode Kepegawaian/NIP), preferensi lokal (notifikasi & efek suara), serta
-// opsi sesi (Keluar Akun) dengan styling label di atas border input.
+// Kode Kepegawaian/NIP), serta preferensi lokal (bahasa, tema, notifikasi &
+// efek suara) dengan styling label di atas border input.
+// Tombol keluar akun sengaja hanya ada di halaman Profil Pengajar.
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 
 import '../../../../app/router/app_routes.dart';
+import '../../../../core/services/app_preferences.dart';
 import '../../../../core/services/sound_service.dart';
 import '../../../../core/services/teacher_preferences.dart';
 import '../../../../core/theme/app_palette.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_typography.dart';
+import '../../../../core/utils/phone.dart';
 import '../../../../core/utils/validators.dart';
+import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_card.dart';
 import '../../../../core/widgets/app_refresh.dart';
+import '../../../../core/widgets/app_sheet.dart';
 import '../../../../core/widgets/app_snack.dart';
 import '../../../../core/widgets/avatars.dart';
 import '../../../auth/domain/auth_repository.dart';
 import '../../../auth/presentation/cubit/auth_cubit.dart';
+import '../../../profile/presentation/widgets/change_password_sheet.dart';
 
 class TeacherSettingsPage extends StatefulWidget {
   const TeacherSettingsPage({super.key});
@@ -34,11 +40,13 @@ class _TeacherSettingsPageState extends State<TeacherSettingsPage> {
   final _formKey = GlobalKey<FormState>();
 
   late final TextEditingController _nameController;
+  late final TextEditingController _emailController;
   late final TextEditingController _phoneController;
   late final TextEditingController _bioController;
   late final TextEditingController _addressController;
   late final TextEditingController _staffCodeController;
 
+  bool _isEditing = false;
   bool _isSaving = false;
   bool _isUploadingAvatar = false;
   bool _submissionNotifications = TeacherPreferences.submissionNotifications;
@@ -50,7 +58,10 @@ class _TeacherSettingsPageState extends State<TeacherSettingsPage> {
     super.initState();
     final user = context.read<AuthCubit>().state.user;
     _nameController = TextEditingController(text: user?.name ?? '');
-    _phoneController = TextEditingController(text: user?.phone ?? '');
+    _emailController = TextEditingController(text: user?.email ?? '');
+    _phoneController = TextEditingController(
+      text: phoneInputValue(user?.phone ?? ''),
+    );
     _bioController = TextEditingController(text: user?.bio ?? '');
     _addressController = TextEditingController(text: user?.address ?? '');
     _staffCodeController = TextEditingController(text: user?.staffCode ?? '');
@@ -62,6 +73,7 @@ class _TeacherSettingsPageState extends State<TeacherSettingsPage> {
   @override
   void dispose() {
     _nameController.dispose();
+    _emailController.dispose();
     _phoneController.dispose();
     _bioController.dispose();
     _addressController.dispose();
@@ -69,16 +81,37 @@ class _TeacherSettingsPageState extends State<TeacherSettingsPage> {
     super.dispose();
   }
 
-  Future<void> _reloadProfile() async {
-    await context.read<AuthCubit>().restoreSession();
-    if (!mounted) return;
+  /// Sinkronkan isi kolom dengan data user terbaru (dipakai saat masuk mode
+  /// edit dan setelah tersimpan supaya tampilan selalu mulai dari data DB).
+  void _syncFieldsToUser() {
     final user = context.read<AuthCubit>().state.user;
     _nameController.text = user?.name ?? '';
-    _phoneController.text = user?.phone ?? '';
+    _emailController.text = user?.email ?? '';
+    _phoneController.text = phoneInputValue(user?.phone ?? '');
     _bioController.text = user?.bio ?? '';
     _addressController.text = user?.address ?? '';
     _staffCodeController.text = user?.staffCode ?? '';
-    setState(() {});
+  }
+
+  /// Masuk mode edit: semua kolom profil jadi bisa diubah, tombol berubah
+  /// menjadi "Simpan Perubahan".
+  void _startEditing() {
+    _syncFieldsToUser();
+    setState(() => _isEditing = true);
+  }
+
+  /// Keluar mode edit TANPA menyimpan: isi kolom dikembalikan ke data user
+  /// dan error validasi dibersihkan.
+  void _cancelEditing() {
+    _syncFieldsToUser();
+    _formKey.currentState?.reset();
+    setState(() => _isEditing = false);
+  }
+
+  Future<void> _reloadProfile() async {
+    await context.read<AuthCubit>().restoreSession();
+    if (!mounted) return;
+    setState(_syncFieldsToUser);
   }
 
   Future<void> _pickAvatar() async {
@@ -181,13 +214,19 @@ class _TeacherSettingsPageState extends State<TeacherSettingsPage> {
     try {
       await cubit.updateProfile(
         name: _nameController.text.trim(),
-        phone: _phoneController.text.trim(),
+        email: _emailController.text.trim(),
+        phone: normalizePhone(_phoneController.text),
         bio: _bioController.text.trim(),
         address: _addressController.text.trim(),
         staffCode: _staffCodeController.text.trim(),
       );
       if (mounted) {
+        SoundService.playProfileSaved();
         showAppSnack(context, 'Data profil pengajar berhasil diperbarui.');
+        setState(() {
+          _isEditing = false;
+          _syncFieldsToUser();
+        });
       }
     } on AuthFailure catch (e) {
       if (mounted) showAppSnack(context, e.message);
@@ -203,149 +242,104 @@ class _TeacherSettingsPageState extends State<TeacherSettingsPage> {
     }
   }
 
-  Future<void> _confirmLogout() async {
-    final p = context.palette;
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        backgroundColor: p.surface,
-        title: Text(
-          'Keluar dari Akun Pengajar?',
-          style: AppTypography.titleM.copyWith(color: p.text),
-        ),
-        content: Text(
-          'Kamu perlu memasukkan email dan kata sandi kembali untuk masuk ke akun pengajar ini.',
-          style: AppTypography.bodyM.copyWith(color: p.textMuted),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(ctx).pop(false),
-            child: Text('Batal', style: TextStyle(color: p.textMuted)),
-          ),
-          ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              backgroundColor: p.error,
-              foregroundColor: Colors.white,
-            ),
-            onPressed: () => Navigator.of(ctx).pop(true),
-            child: const Text('Ya, Keluar'),
-          ),
-        ],
-      ),
+  void _openChangePassword() {
+    showAppSheet<void>(
+      context,
+      title: 'Ubah Kata Sandi',
+      subtitle: 'Aturan sandi sama seperti saat mendaftar akun.',
+      builder: (_) => const ChangePasswordSheet(),
     );
-
-    if (confirmed == true && mounted) {
-      await context.read<AuthCubit>().logout();
-      if (mounted) {
-        context.go(AppRoutes.login);
-      }
-    }
   }
 
-  Future<void> _openChangePasswordDialog() async {
-    final p = context.palette;
-    final formKey = GlobalKey<FormState>();
-    final oldCtrl = TextEditingController();
-    final newCtrl = TextEditingController();
-    final confirmCtrl = TextEditingController();
-    var submitting = false;
-
-    await showDialog<void>(
+  /// Pilih bahasa antarmuka (Indonesia / English).
+  Future<void> _pickLanguage() async {
+    final selected = await showModalBottomSheet<Locale>(
       context: context,
-      builder: (ctx) => StatefulBuilder(
-        builder: (ctx, setDialogState) => AlertDialog(
-          backgroundColor: p.surface,
-          title: Text(
-            'Ubah Kata Sandi',
-            style: AppTypography.titleM.copyWith(color: p.text),
-          ),
-          content: Form(
-            key: formKey,
-            child: SingleChildScrollView(
-              child: Column(
+      builder: (ctx) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              title: const Text('Bahasa Aplikasi'),
+              subtitle: const Text('Berlaku untuk seluruh layar CodeLab AI'),
+              titleTextStyle: AppTypography.titleM.copyWith(
+                color: context.palette.text,
+              ),
+            ),
+            RadioGroup<String>(
+              groupValue: AppPreferences.instance.locale.languageCode,
+              onChanged: (value) {
+                if (value != null) Navigator.of(ctx).pop(Locale(value));
+              },
+              child: const Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  TextFormField(
-                    controller: oldCtrl,
-                    obscureText: true,
-                    validator: Validators.loginPassword,
-                    decoration: const InputDecoration(
-                      labelText: 'Kata sandi saat ini',
-                    ),
+                  RadioListTile<String>(
+                    value: 'id',
+                    title: Text('Indonesia'),
                   ),
-                  const SizedBox(height: 12),
-                  TextFormField(
-                    controller: newCtrl,
-                    obscureText: true,
-                    validator: Validators.newPassword,
-                    decoration: const InputDecoration(
-                      labelText: 'Kata sandi baru',
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-                  TextFormField(
-                    controller: confirmCtrl,
-                    obscureText: true,
-                    validator: (value) =>
-                        Validators.confirmPassword(value, newCtrl.text),
-                    decoration: const InputDecoration(
-                      labelText: 'Ulangi kata sandi baru',
-                    ),
+                  RadioListTile<String>(
+                    value: 'en',
+                    title: Text('English'),
                   ),
                 ],
               ),
-            ),
-          ),
-          actions: [
-            TextButton(
-              onPressed: submitting ? null : () => Navigator.of(ctx).pop(),
-              child: const Text('Batal'),
-            ),
-            ElevatedButton(
-              onPressed: submitting
-                  ? null
-                  : () async {
-                      if (!(formKey.currentState?.validate() ?? false)) return;
-                      setDialogState(() => submitting = true);
-                      try {
-                        await context.read<AuthCubit>().changePassword(
-                          oldPassword: oldCtrl.text,
-                          newPassword: newCtrl.text,
-                        );
-                        if (!ctx.mounted) return;
-                        Navigator.of(ctx).pop();
-                        if (mounted) {
-                          showAppSnack(context, 'Kata sandi berhasil diubah.');
-                        }
-                      } on AuthFailure catch (e) {
-                        if (!ctx.mounted) return;
-                        setDialogState(() => submitting = false);
-                        showAppSnack(ctx, e.message);
-                      } catch (_) {
-                        if (!ctx.mounted) return;
-                        setDialogState(() => submitting = false);
-                        showAppSnack(
-                          ctx,
-                          'Gagal mengubah kata sandi. Periksa koneksi lalu coba lagi.',
-                        );
-                      }
-                    },
-              child: submitting
-                  ? const SizedBox(
-                      width: 18,
-                      height: 18,
-                      child: CircularProgressIndicator(strokeWidth: 2),
-                    )
-                  : const Text('Simpan'),
             ),
           ],
         ),
       ),
     );
+    if (selected != null) {
+      await AppPreferences.instance.setLocale(selected);
+      if (mounted) setState(() {});
+    }
+  }
 
-    oldCtrl.dispose();
-    newCtrl.dispose();
-    confirmCtrl.dispose();
+  /// Dekorasi kolom profil: mode baca tampil datar tanpa border, mode edit
+  /// tampil sebagai bidang putih ber-border biru (senada dengan pengaturan
+  /// profil siswa).
+  InputDecoration _profileInputDecoration({String? hintText}) {
+    final p = context.palette;
+    if (_isEditing) {
+      return InputDecoration(
+        hintText: hintText,
+        isDense: true,
+        filled: true,
+        fillColor: p.surface,
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 14,
+          vertical: 12,
+        ),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10),
+          borderSide: BorderSide(
+            color: p.primary.withValues(alpha: 0.4),
+            width: 1.5,
+          ),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10),
+          borderSide: BorderSide(
+            color: p.primary.withValues(alpha: 0.4),
+            width: 1.5,
+          ),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10),
+          borderSide: BorderSide(color: p.primary, width: 1.5),
+        ),
+      );
+    }
+    return InputDecoration(
+      hintText: hintText,
+      isDense: true,
+      filled: true,
+      fillColor: p.surfaceAlt.withValues(alpha: 0.45),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+      border: InputBorder.none,
+      enabledBorder: InputBorder.none,
+      focusedBorder: InputBorder.none,
+    );
   }
 
   Widget _buildLabeledInput({
@@ -374,93 +368,9 @@ class _TeacherSettingsPageState extends State<TeacherSettingsPage> {
           maxLines: maxLines,
           keyboardType: keyboardType,
           validator: validator,
-          decoration: InputDecoration(
-            hintText: hintText ?? label,
-            isDense: true,
-            filled: true,
-            fillColor: p.surfaceAlt,
-            contentPadding: const EdgeInsets.symmetric(
-              horizontal: 14,
-              vertical: 12,
-            ),
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(10),
-              borderSide: BorderSide(color: p.outline),
-            ),
-            enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(10),
-              borderSide: BorderSide(color: p.outline.withAlpha(120)),
-            ),
-            focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(10),
-              borderSide: BorderSide(color: p.primary, width: 1.5),
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildReadOnlyField({
-    required BuildContext context,
-    required String label,
-    required String value,
-    required IconData icon,
-    String? badgeText,
-  }) {
-    final p = context.palette;
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(
-              label,
-              style: AppTypography.labelSm.copyWith(
-                color: p.textMuted,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-            if (badgeText != null)
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                decoration: BoxDecoration(
-                  color: p.primaryContainer.withAlpha(50),
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: Text(
-                  badgeText,
-                  style: AppTypography.caption.copyWith(
-                    color: p.primary,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-          ],
-        ),
-        const SizedBox(height: 6),
-        Container(
-          width: double.infinity,
-          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-          decoration: BoxDecoration(
-            color: p.surfaceAlt.withAlpha(120),
-            borderRadius: BorderRadius.circular(10),
-            border: Border.all(color: p.outline.withAlpha(80)),
-          ),
-          child: Row(
-            children: [
-              Icon(icon, size: 18, color: p.textMuted),
-              const SizedBox(width: 10),
-              Expanded(
-                child: Text(
-                  value.isNotEmpty ? value : '-',
-                  style: AppTypography.bodyM.copyWith(color: p.text),
-                ),
-              ),
-              Icon(Icons.lock_outline_rounded, size: 16, color: p.textMuted),
-            ],
-          ),
+          readOnly: !_isEditing,
+          showCursor: _isEditing,
+          decoration: _profileInputDecoration(hintText: hintText ?? label),
         ),
       ],
     );
@@ -612,7 +522,10 @@ class _TeacherSettingsPageState extends State<TeacherSettingsPage> {
                         ),
                         const SizedBox(height: AppSpacing.lg),
 
-                        // Section 1: Identitas Pengajar
+                        // Section 1 & 2: Identitas + Bio & Kontak.
+                        // Digabung dalam satu kartu supaya tombol "Edit Data" /
+                        // "Simpan Perubahan" tampil inline di bawah data profil,
+                        // bukan sebagai bar mengambang di bawah layar.
                         AppCard(
                           padding: const EdgeInsets.all(AppSpacing.md),
                           child: Column(
@@ -637,6 +550,40 @@ class _TeacherSettingsPageState extends State<TeacherSettingsPage> {
                                 ],
                               ),
                               const SizedBox(height: AppSpacing.md),
+                              if (_isEditing)
+                                Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 12,
+                                    vertical: 10,
+                                  ),
+                                  margin: const EdgeInsets.only(
+                                    bottom: AppSpacing.md,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: p.primaryContainer,
+                                    borderRadius: BorderRadius.circular(10),
+                                  ),
+                                  child: Row(
+                                    children: [
+                                      Icon(
+                                        Icons.edit_note_rounded,
+                                        size: 18,
+                                        color: p.primary,
+                                      ),
+                                      const SizedBox(width: AppSpacing.sm),
+                                      Expanded(
+                                        child: Text(
+                                          'Mode edit aktif — ubah datamu, lalu tekan "Simpan Perubahan".',
+                                          style: AppTypography.caption.copyWith(
+                                            color: p.primary,
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 12,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
                               _buildLabeledInput(
                                 context: context,
                                 label: 'Nama Lengkap & Gelar *',
@@ -729,17 +676,12 @@ class _TeacherSettingsPageState extends State<TeacherSettingsPage> {
                                   ],
                                 ),
                               ),
-                            ],
-                          ),
-                        ),
-                        const SizedBox(height: AppSpacing.md),
-
-                        // Section 2: Bio & Kontak
-                        AppCard(
-                          padding: const EdgeInsets.all(AppSpacing.md),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
+                              const SizedBox(height: AppSpacing.lg),
+                              Divider(
+                                height: 1,
+                                color: p.outline.withValues(alpha: 0.5),
+                              ),
+                              const SizedBox(height: AppSpacing.md),
                               Row(
                                 children: [
                                   Icon(
@@ -784,36 +726,13 @@ class _TeacherSettingsPageState extends State<TeacherSettingsPage> {
                                 controller: _bioController,
                                 maxLength: 120,
                                 maxLines: 3,
+                                readOnly: !_isEditing,
+                                showCursor: _isEditing,
                                 onChanged: (_) => setState(() {}),
-                                decoration: InputDecoration(
+                                decoration: _profileInputDecoration(
                                   hintText:
                                       'Tuliskan pengalaman mengajar atau bidang spesialisasi kodingmu...',
-                                  counterText: '',
-                                  isDense: true,
-                                  filled: true,
-                                  fillColor: p.surfaceAlt,
-                                  contentPadding: const EdgeInsets.symmetric(
-                                    horizontal: 14,
-                                    vertical: 12,
-                                  ),
-                                  border: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(10),
-                                    borderSide: BorderSide(color: p.outline),
-                                  ),
-                                  enabledBorder: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(10),
-                                    borderSide: BorderSide(
-                                      color: p.outline.withAlpha(120),
-                                    ),
-                                  ),
-                                  focusedBorder: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(10),
-                                    borderSide: BorderSide(
-                                      color: p.primary,
-                                      width: 1.5,
-                                    ),
-                                  ),
-                                ),
+                                ).copyWith(counterText: ''),
                               ),
                               const SizedBox(height: AppSpacing.md),
 
@@ -869,41 +788,21 @@ class _TeacherSettingsPageState extends State<TeacherSettingsPage> {
                                     child: TextFormField(
                                       controller: _phoneController,
                                       keyboardType: TextInputType.phone,
-                                      decoration: InputDecoration(
-                                        hintText: '812-7890-1234',
-                                        isDense: true,
-                                        filled: true,
-                                        fillColor: p.surfaceAlt,
-                                        contentPadding:
-                                            const EdgeInsets.symmetric(
-                                              horizontal: 14,
-                                              vertical: 12,
-                                            ),
-                                        border: OutlineInputBorder(
-                                          borderRadius: BorderRadius.circular(
-                                            10,
-                                          ),
-                                          borderSide: BorderSide(
-                                            color: p.outline,
-                                          ),
-                                        ),
-                                        enabledBorder: OutlineInputBorder(
-                                          borderRadius: BorderRadius.circular(
-                                            10,
-                                          ),
-                                          borderSide: BorderSide(
-                                            color: p.outline.withAlpha(120),
-                                          ),
-                                        ),
-                                        focusedBorder: OutlineInputBorder(
-                                          borderRadius: BorderRadius.circular(
-                                            10,
-                                          ),
-                                          borderSide: BorderSide(
-                                            color: p.primary,
-                                            width: 1.5,
-                                          ),
-                                        ),
+                                      readOnly: !_isEditing,
+                                      showCursor: _isEditing,
+                                      validator: (value) {
+                                        final digits = normalizePhone(
+                                          value ?? '',
+                                        );
+                                        if (digits.isEmpty) return null;
+                                        if (digits.length < 8 ||
+                                            digits.length > 15) {
+                                          return 'Nomor belum lengkap.';
+                                        }
+                                        return null;
+                                      },
+                                      decoration: _profileInputDecoration(
+                                        hintText: '81234567890',
                                       ),
                                     ),
                                   ),
@@ -911,14 +810,46 @@ class _TeacherSettingsPageState extends State<TeacherSettingsPage> {
                               ),
                               const SizedBox(height: AppSpacing.md),
 
-                              // Email Kedinasan (Read-only)
-                              _buildReadOnlyField(
+                              // Email akun bisa diubah, wajib @smk.belajar.id.
+                              _buildLabeledInput(
                                 context: context,
-                                label: 'Email Akun',
-                                value: user?.email ?? '',
-                                icon: Icons.alternate_email_rounded,
-                                badgeText: 'Terkunci',
+                                label: 'Email Akun (wajib @smk.belajar.id)',
+                                controller: _emailController,
+                                hintText: 'nama@smk.belajar.id',
+                                keyboardType: TextInputType.emailAddress,
+                                validator: Validators.schoolEmail,
                               ),
+                              const SizedBox(height: AppSpacing.lg),
+                              if (_isEditing) ...[
+                                Row(
+                                  children: [
+                                    Expanded(
+                                      child: AppButton(
+                                        label: 'Simpan Perubahan',
+                                        loading: _isSaving,
+                                        onPressed: _handleSave,
+                                      ),
+                                    ),
+                                    const SizedBox(width: AppSpacing.sm),
+                                    Expanded(
+                                      child: AppButton(
+                                        label: 'Batalkan',
+                                        kind: AppButtonKind.secondary,
+                                        leadingIcon: Icons.close_rounded,
+                                        onPressed: _isSaving
+                                            ? null
+                                            : _cancelEditing,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ] else
+                                AppButton(
+                                  label: 'Edit Data',
+                                  kind: AppButtonKind.secondary,
+                                  leadingIcon: Icons.edit_outlined,
+                                  onPressed: _startEditing,
+                                ),
                             ],
                           ),
                         ),
@@ -979,7 +910,7 @@ class _TeacherSettingsPageState extends State<TeacherSettingsPage> {
                                   Icons.chevron_right_rounded,
                                   size: 20,
                                 ),
-                                onTap: _openChangePasswordDialog,
+                                onTap: _openChangePassword,
                               ),
                             ],
                           ),
@@ -1000,6 +931,62 @@ class _TeacherSettingsPageState extends State<TeacherSettingsPage> {
                           padding: EdgeInsets.zero,
                           child: Column(
                             children: [
+                              ListTile(
+                                leading: Icon(Icons.translate, color: p.primary),
+                                title: const Text('Bahasa Aplikasi'),
+                                subtitle: Text(
+                                  'Indonesia atau English',
+                                  style: AppTypography.caption.copyWith(
+                                    color: p.textMuted,
+                                  ),
+                                ),
+                                trailing: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Text(
+                                      AppPreferences.instance.languageLabel,
+                                      style: AppTypography.bodyM.copyWith(
+                                        color: p.textMuted,
+                                      ),
+                                    ),
+                                    const Icon(Icons.chevron_right),
+                                  ],
+                                ),
+                                onTap: _pickLanguage,
+                              ),
+                              Divider(
+                                height: 1,
+                                color: p.outline.withValues(alpha: 0.5),
+                              ),
+                              SwitchListTile(
+                                secondary: Icon(
+                                  Icons.dark_mode_outlined,
+                                  color: p.primary,
+                                ),
+                                title: const Text('Mode Gelap'),
+                                subtitle: Text(
+                                  'Tema gelap untuk mata yang lebih nyaman',
+                                  style: AppTypography.caption.copyWith(
+                                    color: p.textMuted,
+                                  ),
+                                ),
+                                // Cerminkan tampilan yang benar-benar aktif,
+                                // termasuk saat tema mengikuti sistem.
+                                value:
+                                    Theme.of(context).brightness ==
+                                    Brightness.dark,
+                                activeTrackColor: p.primary,
+                                onChanged: (val) async {
+                                  await AppPreferences.instance.setThemeMode(
+                                    val ? ThemeMode.dark : ThemeMode.light,
+                                  );
+                                  if (mounted) setState(() {});
+                                },
+                              ),
+                              Divider(
+                                height: 1,
+                                color: p.outline.withValues(alpha: 0.5),
+                              ),
                               SwitchListTile(
                                 secondary: Icon(
                                   Icons.notifications_active_outlined,
@@ -1074,117 +1061,32 @@ class _TeacherSettingsPageState extends State<TeacherSettingsPage> {
                             ],
                           ),
                         ),
-                        const SizedBox(height: AppSpacing.lg),
-
-                        // Section 5: Keluar Akun
-                        Container(
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(12),
-                            border: Border.all(color: p.error.withAlpha(90)),
-                          ),
-                          child: InkWell(
-                            onTap: _confirmLogout,
-                            borderRadius: BorderRadius.circular(12),
-                            child: Padding(
-                              padding: const EdgeInsets.symmetric(vertical: 14),
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Icon(
-                                    Icons.logout_rounded,
-                                    size: 18,
-                                    color: p.error,
-                                  ),
-                                  const SizedBox(width: 8),
-                                  Text(
-                                    'Keluar dari Akun (Logout)',
-                                    style: AppTypography.labelL.copyWith(
-                                      color: p.error,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                ],
+                        const SizedBox(height: AppSpacing.xxl),
+                        Center(
+                          child: Column(
+                            children: [
+                              Text(
+                                'CodeLab AI Studio v2.4.0 (Build 384)',
+                                style: AppTypography.caption.copyWith(
+                                  color: p.textMuted,
+                                  fontWeight: FontWeight.w500,
+                                ),
                               ),
-                            ),
+                              const SizedBox(height: 2),
+                              Text(
+                                '© 2025 CodeLab AI Inc. All rights reserved.',
+                                style: AppTypography.caption.copyWith(
+                                  color: p.textMuted.withValues(alpha: 0.7),
+                                ),
+                              ),
+                            ],
                           ),
                         ),
+                        const SizedBox(height: AppSpacing.xxl),
                       ],
                     ),
                   ),
                 ),
-              ),
-            ),
-
-            // Sticky Bottom Floating Bar
-            Container(
-              padding: const EdgeInsets.all(AppSpacing.screen),
-              decoration: BoxDecoration(
-                color: p.surface,
-                border: Border(top: BorderSide(color: p.outline)),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withAlpha(10),
-                    blurRadius: 8,
-                    offset: const Offset(0, -2),
-                  ),
-                ],
-              ),
-              child: Row(
-                children: [
-                  Expanded(
-                    flex: 1,
-                    child: OutlinedButton(
-                      style: OutlinedButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(vertical: 14),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        side: BorderSide(color: p.outline),
-                      ),
-                      onPressed: () {
-                        if (context.canPop()) {
-                          context.pop();
-                        } else {
-                          context.go(AppRoutes.teacherHome);
-                        }
-                      },
-                      child: Text(
-                        'Batal',
-                        style: AppTypography.labelL.copyWith(color: p.text),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: AppSpacing.sm),
-                  Expanded(
-                    flex: 2,
-                    child: ElevatedButton.icon(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: p.primary,
-                        foregroundColor: Colors.white,
-                        padding: const EdgeInsets.symmetric(vertical: 14),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        elevation: 0,
-                      ),
-                      icon: _isSaving
-                          ? const SizedBox(
-                              width: 16,
-                              height: 16,
-                              child: CircularProgressIndicator(
-                                strokeWidth: 2,
-                                color: Colors.white,
-                              ),
-                            )
-                          : const Icon(Icons.save_rounded, size: 18),
-                      label: Text(
-                        _isSaving ? 'Menyimpan...' : 'Simpan Perubahan',
-                        style: const TextStyle(fontWeight: FontWeight.bold),
-                      ),
-                      onPressed: _isSaving ? null : _handleSave,
-                    ),
-                  ),
-                ],
               ),
             ),
           ],

@@ -1033,10 +1033,7 @@ class _TeacherDashboardPageState extends State<TeacherDashboardPage> {
                   elevation: 0,
                 ),
                 onPressed: () {
-                  context.push(
-                    AppRoutes.teacherClassAnalytics(room.id),
-                    extra: room,
-                  );
+                  context.go(AppRoutes.teacherAnalyticsRoute(room.id));
                 },
               );
 

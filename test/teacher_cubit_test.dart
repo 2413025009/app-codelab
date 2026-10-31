@@ -9,6 +9,7 @@ class FakeTeacherRepository implements TeacherRepository {
   final List<ClassInfo> archivedClasses = [];
   final List<TeacherLesson> materials = [];
   final Map<String, List<Bab>> babs = {};
+  final List<String> removedStudents = [];
 
   @override
   Future<List<ClassInfo>> listClasses() async => List.unmodifiable(classes);
@@ -290,7 +291,9 @@ class FakeTeacherRepository implements TeacherRepository {
   Future<void> moveBab(String babId, String direction) async {}
 
   @override
-  Future<void> removeStudentFromClass(String classId, String studentId) async {}
+  Future<void> removeStudentFromClass(String classId, String studentId) async {
+    removedStudents.add('$classId:$studentId');
+  }
 
   @override
   Future<List<StudentRosterRow>> classRoster(String classId) async {
@@ -302,6 +305,7 @@ class FakeTeacherRepository implements TeacherRepository {
         xpPoints: 120,
         lastBabTitle: 'Variabel',
         completedCount: 2,
+        practiceCompletedCount: 3,
       ),
     ];
   }
@@ -469,9 +473,25 @@ void main() {
 
       expect(cubit.state.roster.length, 1);
       expect(cubit.state.roster.first.name, 'Budi Pratama');
+      expect(cubit.state.roster.first.completedCount, 2);
+      expect(cubit.state.roster.first.practiceCompletedCount, 3);
       expect(cubit.state.analytics, isNotNull);
       expect(cubit.state.analytics!.memberCount, 24);
       expect(cubit.state.analytics!.trackBars.first.track, 'Python Dasar');
+    });
+
+    test('removeStudentFromClass drops roster row and member count', () async {
+      await cubit.loadClassAnalytics('1');
+      expect(cubit.state.roster.length, 1);
+      expect(cubit.state.analytics!.memberCount, 24);
+
+      await cubit.removeStudentFromClass('1', '2');
+
+      expect(repo.removedStudents, contains('1:2'));
+      expect(cubit.state.roster, isEmpty);
+      expect(cubit.state.analytics!.memberCount, 23);
+      expect(cubit.state.actionSuccessMessage, contains('Budi Pratama'));
+      expect(cubit.state.isLoading, isFalse);
     });
   });
 }

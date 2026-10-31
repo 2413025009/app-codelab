@@ -176,7 +176,7 @@ class _TeacherArchivedClassesPageState
                           ),
                           const SizedBox(height: AppSpacing.xs),
                           Text(
-                            'Kelas yang kamu arsipkan dari halaman analitik '
+                            'Kelas yang kamu arsipkan dari halaman analisa '
                             'akan muncul di sini.',
                             textAlign: TextAlign.center,
                             style: AppTypography.bodyM.copyWith(

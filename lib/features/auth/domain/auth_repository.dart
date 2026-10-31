@@ -86,14 +86,24 @@ enum AuthFailureType {
   passwordPolicy,
   // Foto profil: berkas ditolak server (format/ukuran) atau gagal diunggah.
   avatarUpload,
+  // Email akun tidak memakai domain @smk.belajar.id.
+  emailDomain,
+  // Isian lain ditolak server (mis. bio terlalu panjang) — bukan email.
+  invalidInput,
+  // Server menjawab tetapi sedang bermasalah (5xx) — jangan disebut offline.
+  server,
 }
 
 class AuthFailure implements Exception {
-  const AuthFailure(this.type);
+  const AuthFailure(this.type, {this.detail});
+
   final AuthFailureType type;
 
+  /// Pesan tambahan dari server (mis. nama kolom yang belum sesuai).
+  final String? detail;
+
   /// User-facing copy from DESIGN.md §4 (no blame, always a next step).
-  String get message => switch (type) {
+  String get message => detail ?? switch (type) {
     AuthFailureType.invalidCredentials =>
       'Email atau kata sandi belum cocok. Coba periksa lagi.',
     AuthFailureType.emailTaken => 'Email ini sudah punya akun. Mau masuk saja?',
@@ -107,6 +117,12 @@ class AuthFailure implements Exception {
       'Kata sandi baru belum memenuhi aturan (minimal 8 karakter, ada angka atau simbol).',
     AuthFailureType.avatarUpload =>
       'Foto profil belum bisa diunggah. Gunakan JPG atau PNG maksimal 2 MB.',
+    AuthFailureType.emailDomain =>
+      'Email harus memakai domain @smk.belajar.id.',
+    AuthFailureType.invalidInput =>
+      'Ada isian yang belum sesuai. Periksa kembali lalu simpan lagi.',
+    AuthFailureType.server =>
+      'Server sedang bermasalah. Coba lagi beberapa saat lagi.',
   };
 }
 
@@ -159,6 +175,7 @@ abstract interface class AuthRepository {
   });
   Future<AuthUser> updateProfile({
     required String name,
+    String? email,
     String? phone,
     String? bio,
     String? schoolName,

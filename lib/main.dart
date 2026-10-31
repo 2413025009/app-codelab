@@ -20,11 +20,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart' show ChangeNotifierProvider;
 
 import 'app/router/app_router.dart';
 import 'core/network/token_store.dart';
+import 'core/services/app_preferences.dart';
 import 'core/services/sound_service.dart';
 import 'core/services/teacher_preferences.dart';
 import 'core/theme/app_theme.dart';
@@ -53,6 +55,7 @@ Future<void> main() async {
   await TokenStore.restore(); // Session token terselamatkan antar restart.
   await SoundService.init(); // Muat pengaturan efek suara lokal dari HP.
   await TeacherPreferences.init(); // Preferensi lokal khusus pengajar.
+  await AppPreferences.instance.init(); // Mode gelap + bahasa aplikasi.
   runApp(const CodelabApp());
 }
 
@@ -117,7 +120,7 @@ class _CodelabAppState extends State<CodelabApp> {
         RepositoryProvider<ClassRepository>(
           create: (_) => ApiClassRepository(),
         ),
-        // Instruktur / Guru (minggu 11-12): studio materi, bab, analitik.
+        // Instruktur / Guru (minggu 11-12): studio materi, bab, analisa.
         RepositoryProvider<TeacherRepository>(
           create: (_) => ApiTeacherRepository(),
         ),
@@ -132,33 +135,37 @@ class _CodelabAppState extends State<CodelabApp> {
         ],
         child: ChangeNotifierProvider<TutorQuota>.value(
           value: _tutorQuota,
-          child: MaterialApp.router(
-            title: 'CodeLab AI',
-            debugShowCheckedModeBanner: false,
-            theme: AppTheme.light,
-            darkTheme: AppTheme.dark,
-            // P2-19 (keputusan): dark theme tersedia & teruji, namun belum ada
-            // switch "Mode Gelap" di Settings. Halaman tetap light eksplisit
-            // agar tidak bergantung pada setting OS (Stitch v2 = light-only).
-            // Ganti ke ThemeMode.system begitu switch settings dibuat.
-            themeMode: ThemeMode.light,
-            routerConfig: _router,
-            // Boot gate: layar memuat nyata selagi TokenStore dibaca.
-            builder: (context, child) => AnimatedSwitcher(
-              duration: const Duration(milliseconds: 300),
-              child: !_bootReady || child == null
-                  ? const AppLoadingScreen(
-                      key: ValueKey<String>('codelab-boot'),
-                      title: 'Memulihkan sesimu…',
-                      subtitle: 'Menyiapkan lab kode di perangkat',
-                      totalSteps: 1,
-                      completedSteps: 0,
-                      stageLabel: 'Memeriksa penyimpanan aman',
-                    )
-                  : KeyedSubtree(
-                      key: const ValueKey<String>('codelab-app'),
-                      child: child,
-                    ),
+          child: ListenableBuilder(
+            listenable: AppPreferences.instance,
+            builder: (context, _) => MaterialApp.router(
+              title: 'CodeLab AI',
+              debugShowCheckedModeBanner: false,
+              theme: AppTheme.light,
+              darkTheme: AppTheme.dark,
+              // Pilihan pengguna dari Pengaturan (Terang/Gelap/Ikuti Sistem).
+              themeMode: AppPreferences.instance.themeMode,
+              locale: AppPreferences.instance.locale,
+              supportedLocales: const [Locale('id'), Locale('en')],
+              localizationsDelegates:
+                  GlobalMaterialLocalizations.delegates,
+              routerConfig: _router,
+              // Boot gate: layar memuat nyata selagi TokenStore dibaca.
+              builder: (context, child) => AnimatedSwitcher(
+                duration: const Duration(milliseconds: 300),
+                child: !_bootReady || child == null
+                    ? const AppLoadingScreen(
+                        key: ValueKey<String>('codelab-boot'),
+                        title: 'Memulihkan sesimu…',
+                        subtitle: 'Menyiapkan lab kode di perangkat',
+                        totalSteps: 1,
+                        completedSteps: 0,
+                        stageLabel: 'Memeriksa penyimpanan aman',
+                      )
+                    : KeyedSubtree(
+                        key: const ValueKey<String>('codelab-app'),
+                        child: child,
+                      ),
+              ),
             ),
           ),
         ),

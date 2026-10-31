@@ -11,6 +11,7 @@ import '../../../../app/router/app_routes.dart';
 import '../../../../core/theme/app_palette.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_typography.dart';
+import '../../../../core/utils/topic_icons.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_snack.dart';
 import '../../../auth/presentation/cubit/auth_cubit.dart';
@@ -32,16 +33,6 @@ class _TeacherStudioPageState extends State<TeacherStudioPage> {
     final cubit = context.read<TeacherCubit>();
     cubit.loadMaterials();
     cubit.loadDashboard();
-  }
-
-  IconData _getTopicIcon(String topic) {
-    final lower = topic.toLowerCase();
-    if (lower.contains('html')) return Icons.html_rounded;
-    if (lower.contains('css')) return Icons.grid_view_rounded;
-    if (lower.contains('javascript') || lower.contains('js')) {
-      return Icons.javascript_rounded;
-    }
-    return Icons.terminal_rounded;
   }
 
   void _openActionSheet(BuildContext context, TeacherLesson lesson) {
@@ -592,7 +583,9 @@ class _TeacherStudioPageState extends State<TeacherStudioPage> {
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Icon(
-                    _getTopicIcon(lesson.topic),
+                    // Ikon mengikuti pilihan guru di form materi (icon_code),
+                    // bukan ditebak dari nama topik.
+                    materialIcon(lesson.iconCode, topic: lesson.topic),
                     color: p.primary,
                     size: 24,
                   ),

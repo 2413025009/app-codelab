@@ -28,8 +28,14 @@ abstract final class AppRoutes {
   //   .../silabus/:babId/edit              → bab builder edit
   //   .../silabus/:babId/slide/:type/:index → editor slide per tipe
   static const teacherStudio = '/materi-pengajar';
-  static const teacherAnalytics = '/analitik-pengajar';
-  static String teacherAnalyticsRoute(String classId) => '/analitik-pengajar/$classId';
+
+  // Analisa kelas punya dua layar berbeda:
+  //   /analisa-pengajar            → pilih kelas (daftar kelas guru)
+  //   /analisa-pengajar/:classId   → analisa satu kelas
+  static const teacherAnalytics = '/analisa-pengajar';
+  static String teacherAnalyticsRoute(String classId) =>
+      '/analisa-pengajar/$classId';
+
   static const teacherMaterialCreate = '/materi-pengajar/baru';
   static const teacherMaterialEditPattern = '/materi-pengajar/:id/edit';
   static String teacherMaterialEdit(String id) => '/materi-pengajar/$id/edit';
@@ -59,10 +65,6 @@ abstract final class AppRoutes {
     required int index,
   }) =>
       '/materi-pengajar/$lessonId/silabus/$babId/slide/${type.toLowerCase()}/$index';
-
-  static const teacherClassAnalyticsPattern = '/kelas/:classId/analitik';
-  static String teacherClassAnalytics(String classId) =>
-      '/kelas/$classId/analitik';
 
   // Bottom-navigation tabs (inside the shell) — area siswa memakai akhiran
   // `-siswa` agar URL siswa dan pengajar terlihat berbeda (permintaan owner).
