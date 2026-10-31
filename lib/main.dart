@@ -26,6 +26,7 @@ import 'package:provider/provider.dart' show ChangeNotifierProvider;
 import 'app/router/app_router.dart';
 import 'core/network/token_store.dart';
 import 'core/services/sound_service.dart';
+import 'core/services/teacher_preferences.dart';
 import 'core/theme/app_theme.dart';
 import 'core/widgets/app_loading_screen.dart';
 import 'features/ai_tutor/data/api_tutor_repository.dart';
@@ -36,16 +37,22 @@ import 'features/auth/domain/auth_repository.dart';
 import 'features/auth/presentation/cubit/auth_cubit.dart';
 import 'features/challenges/data/api_challenge_repository.dart';
 import 'features/challenges/domain/challenge_repository.dart';
+import 'features/class/data/api_class_repository.dart';
+import 'features/class/domain/class_repository.dart';
 import 'features/dashboard/data/api_dashboard_repository.dart';
 import 'features/dashboard/domain/dashboard_repository.dart';
 import 'features/lesson/data/api_lesson_repository.dart';
 import 'features/lesson/domain/lesson_repository.dart';
+import 'features/teacher/data/api_teacher_repository.dart';
+import 'features/teacher/domain/teacher_repository.dart';
+import 'features/teacher/presentation/cubit/teacher_cubit.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
   await TokenStore.restore(); // Session token terselamatkan antar restart.
   await SoundService.init(); // Muat pengaturan efek suara lokal dari HP.
+  await TeacherPreferences.init(); // Preferensi lokal khusus pengajar.
   runApp(const CodelabApp());
 }
 
@@ -106,10 +113,23 @@ class _CodelabAppState extends State<CodelabApp> {
         RepositoryProvider<ChallengeRepository>(
           create: (_) => ApiChallengeRepository(),
         ),
+        // Kelas siswa (minggu 10): gabung/pratinjau/keluar rombel.
+        RepositoryProvider<ClassRepository>(
+          create: (_) => ApiClassRepository(),
+        ),
+        // Instruktur / Guru (minggu 11-12): studio materi, bab, analitik.
+        RepositoryProvider<TeacherRepository>(
+          create: (_) => ApiTeacherRepository(),
+        ),
         RepositoryProvider<TutorRepository>.value(value: _tutorRepo),
       ],
-      child: BlocProvider<AuthCubit>.value(
-        value: _authCubit,
+      child: MultiBlocProvider(
+        providers: [
+          BlocProvider<AuthCubit>.value(value: _authCubit),
+          BlocProvider<TeacherCubit>(
+            create: (ctx) => TeacherCubit(ctx.read<TeacherRepository>()),
+          ),
+        ],
         child: ChangeNotifierProvider<TutorQuota>.value(
           value: _tutorQuota,
           child: MaterialApp.router(

@@ -23,9 +23,16 @@ import '../widgets/slides/theory_slide_widget.dart';
 import '../widgets/slides/type_code_slide_widget.dart';
 
 class LessonReaderPage extends StatefulWidget {
-  const LessonReaderPage({super.key, required this.lessonId});
+  const LessonReaderPage({
+    super.key,
+    required this.lessonId,
+    this.isTeacherPreview = false,
+    this.previewData,
+  });
 
   final String lessonId;
+  final bool isTeacherPreview;
+  final LessonDetailData? previewData;
 
   @override
   State<LessonReaderPage> createState() => _LessonReaderPageState();
@@ -53,6 +60,10 @@ class _LessonReaderPageState extends State<LessonReaderPage> {
   }
 
   void _loadLesson() {
+    if (widget.previewData != null) {
+      _future = Future.value(widget.previewData!);
+      return;
+    }
     final repo = context.read<LessonRepository>();
     _future = repo.getLessonDetail(widget.lessonId).then((data) {
       if (data.currentSlideIndex > 1 &&
@@ -172,13 +183,15 @@ class _LessonReaderPageState extends State<LessonReaderPage> {
       });
 
       // Save progress to backend
-      final progressPercent = ((nextIdx + 1) / data.slides.length) * 100.0;
-      context.read<LessonRepository>().saveProgress(
-        id: data.id,
-        currentSlideIndex: nextIdx + 1,
-        progressPercent: progressPercent,
-        completed: false,
-      );
+      if (!widget.isTeacherPreview) {
+        final progressPercent = ((nextIdx + 1) / data.slides.length) * 100.0;
+        context.read<LessonRepository>().saveProgress(
+          id: data.id,
+          currentSlideIndex: nextIdx + 1,
+          progressPercent: progressPercent,
+          completed: false,
+        );
+      }
     }
   }
 
@@ -198,6 +211,18 @@ class _LessonReaderPageState extends State<LessonReaderPage> {
   }
 
   Future<void> _finishLesson(LessonDetailData data) async {
+    if (widget.isTeacherPreview) {
+      if (mounted) {
+        SoundService.playChapterClear();
+        showAppSnack(
+          context,
+          'Pratinjau Siswa Selesai! Semua slide berhasil dievaluasi.',
+        );
+        Navigator.of(context).pop();
+      }
+      return;
+    }
+
     // Minggu 9: klaim XP diampu server (anti panen XP dobel) — hasil klaim
     // baru jadi boyong toast; buka ulang bab selesai = toast jujur 0 XP.
     final claimed = await context.read<LessonRepository>().saveProgress(
@@ -222,6 +247,7 @@ class _LessonReaderPageState extends State<LessonReaderPage> {
   }
 
   Future<bool> _confirmExit() async {
+    if (widget.isTeacherPreview) return true;
     SoundService.playAlertWarning();
     final result = await showDialog<bool>(
       context: context,
@@ -253,6 +279,10 @@ class _LessonReaderPageState extends State<LessonReaderPage> {
       canPop: false,
       onPopInvokedWithResult: (didPop, _) async {
         if (didPop) return;
+        if (widget.isTeacherPreview) {
+          Navigator.of(context).pop();
+          return;
+        }
         final shouldExit = await _confirmExit();
         if (shouldExit && context.mounted) {
           context.go(AppRoutes.dashboard);
@@ -264,6 +294,10 @@ class _LessonReaderPageState extends State<LessonReaderPage> {
             tooltip: 'Tutup',
             icon: const Icon(Icons.close_rounded),
             onPressed: () async {
+              if (widget.isTeacherPreview) {
+                Navigator.of(context).pop();
+                return;
+              }
               final shouldExit = await _confirmExit();
               if (shouldExit && context.mounted) {
                 context.go(AppRoutes.dashboard);
@@ -363,6 +397,34 @@ class _LessonReaderPageState extends State<LessonReaderPage> {
 
             return Column(
               children: [
+                if (widget.isTeacherPreview)
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: AppSpacing.md,
+                      vertical: 8,
+                    ),
+                    color: Colors.amber.shade800,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Icon(
+                          Icons.visibility_rounded,
+                          size: 15,
+                          color: Colors.white,
+                        ),
+                        const SizedBox(width: 8),
+                        Text(
+                          'MODE PRATINJAU GURU (Data tidak disimpan)',
+                          style: AppTypography.labelSm.copyWith(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                            letterSpacing: 0.5,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
                 Expanded(
                   child: PageView.builder(
                     controller: _pageController,

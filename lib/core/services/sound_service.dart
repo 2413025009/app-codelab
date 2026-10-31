@@ -61,7 +61,10 @@ class SoundService {
   }
 
   /// Pemutar audio internal menggunakan instance player yang stabil dan reusable.
-  static Future<void> _playSound(String fileName, {bool isLabSound = false}) async {
+  static Future<void> _playSound(
+    String fileName, {
+    bool isLabSound = false,
+  }) async {
     if (!_sfxEnabled) return;
     if (isLabSound && !_labSfxEnabled) return;
 
@@ -81,8 +84,10 @@ class SoundService {
   static void playDialogInfo() => _playSound('dialog_info.mp3');
 
   // --- Kategori Efek Suara Lab / Playground ---
-  static void playLabTerminalPrint() => _playSound('lab_terminal_print.mp3', isLabSound: true);
-  static void playLabSyntaxError() => _playSound('lab_syntax_error.mp3', isLabSound: true);
+  static void playLabTerminalPrint() =>
+      _playSound('lab_terminal_print.mp3', isLabSound: true);
+  static void playLabSyntaxError() =>
+      _playSound('lab_syntax_error.mp3', isLabSound: true);
 
   // --- Kategori Belajar, Kuis & Tantangan ---
   static void playQuizCorrect() => _playSound('quiz_correct.mp3');
@@ -91,6 +96,11 @@ class SoundService {
   static void playChallengeFail() => _playSound('challenge_fail.mp3');
   static void playChapterClear() => _playSound('chapter_clear.mp3');
   static void playAiHintUnlock() => _playSound('ai_hint_unlock.mp3');
+
+  // --- Kategori Kelas (Minggu 10) ---
+  /// Lencana rusuk keberhasilan siswa bergabung ke kelas (TODO.md W10).
+  /// Aset jingle pencapaian khusus belum ada — menggunakan chapter_clear.
+  static void playBadgeUnlocked() => _playSound('chapter_clear.mp3');
 
   // --- Kategori Profil ---
   static void playProfileSaved() => _playSound('profile_saved.mp3');

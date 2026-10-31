@@ -260,6 +260,66 @@ class ApiAuthRepository implements AuthRepository {
   }
 
   @override
+  Future<AuthUser> uploadAvatar({
+    required List<int> bytes,
+    required String fileName,
+  }) async {
+    try {
+      final safeName = fileName.trim().isEmpty ? 'avatar.jpg' : fileName.trim();
+      final form = FormData.fromMap({
+        'avatar': MultipartFile.fromBytes(bytes, filename: safeName),
+      });
+      await _client.dio.post<Map<String, dynamic>>(
+        '/me/avatar',
+        data: form,
+        options: Options(contentType: 'multipart/form-data'),
+      );
+      return _fetchMe();
+    } on DioException catch (e) {
+      if (e.type == DioExceptionType.badResponse) {
+        final status = e.response?.statusCode;
+        if (status == 401) {
+          throw const AuthFailure(AuthFailureType.invalidCredentials);
+        }
+        if (status == 400 || status == 413 || status == 422) {
+          throw const AuthFailure(AuthFailureType.avatarUpload);
+        }
+      }
+      throw const AuthFailure(AuthFailureType.network);
+    } on AuthFailure {
+      rethrow;
+    } catch (e) {
+      if (ApiClient.isNetworkError(e)) {
+        throw const AuthFailure(AuthFailureType.network);
+      }
+      rethrow;
+    }
+  }
+
+  @override
+  Future<AuthUser> deleteAvatar() async {
+    try {
+      await _client.dio.delete<Map<String, dynamic>>('/me/avatar');
+      return _fetchMe();
+    } on DioException catch (e) {
+      if (e.type == DioExceptionType.badResponse) {
+        final status = e.response?.statusCode;
+        if (status == 401) {
+          throw const AuthFailure(AuthFailureType.invalidCredentials);
+        }
+      }
+      throw const AuthFailure(AuthFailureType.network);
+    } on AuthFailure {
+      rethrow;
+    } catch (e) {
+      if (ApiClient.isNetworkError(e)) {
+        throw const AuthFailure(AuthFailureType.network);
+      }
+      rethrow;
+    }
+  }
+
+  @override
   Future<void> logout() async {
     await TokenStore.clear();
   }

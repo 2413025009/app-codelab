@@ -1,18 +1,28 @@
 import 'package:flutter/material.dart';
 
+import '../config/app_config.dart';
 import '../theme/app_palette.dart';
 import '../theme/app_typography.dart';
 
 /// Circle with the user's initials.
 class InitialAvatar extends StatelessWidget {
-  const InitialAvatar({super.key, required this.name, this.size = 40, this.onTap});
+  const InitialAvatar({
+    super.key,
+    required this.name,
+    this.size = 40,
+    this.onTap,
+  });
 
   final String name;
   final double size;
   final VoidCallback? onTap;
 
   static String initialsOf(String name) {
-    final parts = name.trim().split(RegExp(r'\s+')).where((s) => s.isNotEmpty).toList();
+    final parts = name
+        .trim()
+        .split(RegExp(r'\s+'))
+        .where((s) => s.isNotEmpty)
+        .toList();
     if (parts.isEmpty) return '?';
     if (parts.length == 1) return parts.first[0].toUpperCase();
     return (parts.first[0] + parts.last[0]).toUpperCase();
@@ -25,12 +35,76 @@ class InitialAvatar extends StatelessWidget {
       width: size,
       height: size,
       alignment: Alignment.center,
-      decoration: BoxDecoration(color: p.primaryContainer, shape: BoxShape.circle),
+      decoration: BoxDecoration(
+        color: p.primaryContainer,
+        shape: BoxShape.circle,
+      ),
       child: Text(
         initialsOf(name),
-        style: AppTypography.label.copyWith(color: p.primary, fontSize: size * 0.36),
+        style: AppTypography.label.copyWith(
+          color: p.primary,
+          fontSize: size * 0.36,
+        ),
       ),
     );
+    if (onTap == null) return avatar;
+    return Semantics(
+      button: true,
+      label: 'Buka profil',
+      child: InkResponse(onTap: onTap, radius: size, child: avatar),
+    );
+  }
+}
+
+/// Avatar pengguna: memakai foto profil dari server bila tersedia, dan
+/// kembali ke inisial nama saat foto kosong/gagal dimuat.
+class UserAvatar extends StatelessWidget {
+  const UserAvatar({
+    super.key,
+    required this.name,
+    this.avatarUrl,
+    this.size = 40,
+    this.onTap,
+  });
+
+  final String name;
+  final String? avatarUrl;
+  final double size;
+  final VoidCallback? onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final fallback = InitialAvatar(name: name, size: size);
+    final url = AppConfig.resolveMediaUrl(avatarUrl);
+
+    final Widget avatar;
+    if (url == null) {
+      avatar = fallback;
+    } else {
+      avatar = SizedBox(
+        width: size,
+        height: size,
+        child: ClipOval(
+          child: Image.network(
+            url,
+            width: size,
+            height: size,
+            fit: BoxFit.cover,
+            errorBuilder: (context, error, stackTrace) => fallback,
+            loadingBuilder: (context, child, progress) {
+              if (progress == null) return child;
+              final p = context.palette;
+              return Container(
+                width: size,
+                height: size,
+                color: p.primaryContainer,
+              );
+            },
+          ),
+        ),
+      );
+    }
+
     if (onTap == null) return avatar;
     return Semantics(
       button: true,
@@ -61,7 +135,11 @@ class ProfileActionButton extends StatelessWidget {
             width: 40,
             height: 40,
             decoration: BoxDecoration(color: p.primary, shape: BoxShape.circle),
-            child: const Icon(Icons.person_outline_rounded, color: Colors.white, size: 22),
+            child: const Icon(
+              Icons.person_outline_rounded,
+              color: Colors.white,
+              size: 22,
+            ),
           ),
         ),
       ),

@@ -102,6 +102,22 @@ class AuthCubit extends Cubit<AuthState> {
     emit(AuthState(status: AuthStatus.authenticated, user: updated));
   }
 
+  Future<void> uploadAvatar({
+    required List<int> bytes,
+    required String fileName,
+  }) async {
+    final updated = await _repository.uploadAvatar(
+      bytes: bytes,
+      fileName: fileName,
+    );
+    emit(AuthState(status: AuthStatus.authenticated, user: updated));
+  }
+
+  Future<void> deleteAvatar() async {
+    final updated = await _repository.deleteAvatar();
+    emit(AuthState(status: AuthStatus.authenticated, user: updated));
+  }
+
   void addXp(int xp) {
     final current = state.user;
     if (current == null) return;

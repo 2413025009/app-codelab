@@ -48,4 +48,26 @@ class AppConfig {
 
   /// true bila aplikasi sedang melesat ke server cloud (bukan localhost).
   static bool get usesCloudApi => apiBaseUrl.startsWith('https://');
+
+  /// Mengubah path media dari server (mis. `/uploads/avatars/abc.jpg`)
+  /// menjadi URL absolut agar bisa dipakai `Image.network`.
+  ///
+  /// URL yang sudah absolut (mis. foto lama di CDN) dikembalikan apa adanya.
+  static String? resolveMediaUrl(String? raw) {
+    final value = raw?.trim();
+    if (value == null || value.isEmpty) return null;
+
+    final parsed = Uri.tryParse(value);
+    if (parsed != null && parsed.hasScheme) return value;
+
+    final base = Uri.parse(apiBaseUrl);
+    final path = (parsed?.path.isNotEmpty ?? false) ? parsed!.path : value;
+    final normalizedPath = path.startsWith('/') ? path : '/$path';
+    return base
+        .replace(
+          path: normalizedPath,
+          query: parsed?.hasQuery == true ? parsed!.query : null,
+        )
+        .toString();
+  }
 }

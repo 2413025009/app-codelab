@@ -57,6 +57,7 @@ class TapToFillSlide extends LessonSlide {
     required this.codeLines,
     required this.options,
     required this.correctAnswers,
+    this.instruction = '',
     this.successTitle = 'Tepat Sekali!',
     this.successMsg = 'Kamu berhasil menyusun potongan sintaks.',
     this.errorTitle = 'Coba Periksa Lagi!',
@@ -64,6 +65,7 @@ class TapToFillSlide extends LessonSlide {
   }) : super(type: SlideType.tapToFill);
 
   final String file;
+  final String instruction;
   final List<String> codeLines;
   final List<String> options;
   final List<String> correctAnswers;
@@ -73,7 +75,14 @@ class TapToFillSlide extends LessonSlide {
   final String errorMsg;
 
   @override
-  List<Object?> get props => [id, file, codeLines, options, correctAnswers];
+  List<Object?> get props => [
+    id,
+    file,
+    instruction,
+    codeLines,
+    options,
+    correctAnswers,
+  ];
 }
 
 class TypeCodeSlide extends LessonSlide {

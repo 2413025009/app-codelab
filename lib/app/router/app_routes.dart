@@ -13,6 +13,56 @@ abstract final class AppRoutes {
 
   /// Minggu 9: profil pengajar (folder features/teacher) — data guru, bukan siswa.
   static const teacherProfile = '/profile-pengajar';
+  static const teacherSettings = '/pengaturan-pengajar';
+
+  /// Kelas yang sudah diarsipkan (punya layar sendiri, bukan tersembunyi).
+  static const teacherArchivedClasses = '/dashboard-pengajar/arsip';
+
+  // ── Studio Materi Pengajar (Minggu 11-12) ──────────────────────────────────
+  // Tiap layar punya URL sendiri agar mudah dibaca dan di-bookmark:
+  //   /materi-pengajar                     → daftar materi
+  //   /materi-pengajar/baru                → tambah materi
+  //   /materi-pengajar/:id/edit            → edit info materi
+  //   /materi-pengajar/:lessonId/silabus   → daftar bab (silabus)
+  //   .../silabus/baru                     → bab builder baru
+  //   .../silabus/:babId/edit              → bab builder edit
+  //   .../silabus/:babId/slide/:type/:index → editor slide per tipe
+  static const teacherStudio = '/materi-pengajar';
+  static const teacherAnalytics = '/analitik-pengajar';
+  static String teacherAnalyticsRoute(String classId) => '/analitik-pengajar/$classId';
+  static const teacherMaterialCreate = '/materi-pengajar/baru';
+  static const teacherMaterialEditPattern = '/materi-pengajar/:id/edit';
+  static String teacherMaterialEdit(String id) => '/materi-pengajar/$id/edit';
+
+  static const teacherBabListPattern = '/materi-pengajar/:lessonId/silabus';
+  static String teacherBabList(String lessonId) =>
+      '/materi-pengajar/$lessonId/silabus';
+
+  static const teacherBabCreatePattern =
+      '/materi-pengajar/:lessonId/silabus/baru';
+  static String teacherBabCreate(String lessonId) =>
+      '/materi-pengajar/$lessonId/silabus/baru';
+
+  static const teacherBabEditPattern =
+      '/materi-pengajar/:lessonId/silabus/:babId/edit';
+  static String teacherBabEdit(String lessonId, String babId) =>
+      '/materi-pengajar/$lessonId/silabus/$babId/edit';
+
+  /// Editor slide khusus per tipe (THEORY, TAP_TO_FILL, TYPE_CODE, dst).
+  /// `index` adalah posisi slide di dalam bab; bab baru memakai `baru`.
+  static const teacherSlideEditorPattern =
+      '/materi-pengajar/:lessonId/silabus/:babId/slide/:type/:index';
+  static String teacherSlideEditor({
+    required String lessonId,
+    required String babId,
+    required String type,
+    required int index,
+  }) =>
+      '/materi-pengajar/$lessonId/silabus/$babId/slide/${type.toLowerCase()}/$index';
+
+  static const teacherClassAnalyticsPattern = '/kelas/:classId/analitik';
+  static String teacherClassAnalytics(String classId) =>
+      '/kelas/$classId/analitik';
 
   // Bottom-navigation tabs (inside the shell) — area siswa memakai akhiran
   // `-siswa` agar URL siswa dan pengajar terlihat berbeda (permintaan owner).

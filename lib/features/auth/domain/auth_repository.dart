@@ -84,6 +84,8 @@ enum AuthFailureType {
   // Minggu 9: perubahan kata sandi (Pengaturan).
   wrongOldPassword,
   passwordPolicy,
+  // Foto profil: berkas ditolak server (format/ukuran) atau gagal diunggah.
+  avatarUpload,
 }
 
 class AuthFailure implements Exception {
@@ -103,6 +105,8 @@ class AuthFailure implements Exception {
       'Kata sandi lama belum cocok. Coba periksa lagi.',
     AuthFailureType.passwordPolicy =>
       'Kata sandi baru belum memenuhi aturan (minimal 8 karakter, ada angka atau simbol).',
+    AuthFailureType.avatarUpload =>
+      'Foto profil belum bisa diunggah. Gunakan JPG atau PNG maksimal 2 MB.',
   };
 }
 
@@ -163,6 +167,16 @@ abstract interface class AuthRepository {
     String? address,
     String? staffCode,
   });
+
+  /// Unggah/ganti foto profil. Server mengembalikan profil terbaru.
+  Future<AuthUser> uploadAvatar({
+    required List<int> bytes,
+    required String fileName,
+  });
+
+  /// Hapus foto profil lalu kembalikan profil tanpa avatar.
+  Future<AuthUser> deleteAvatar();
+
   Future<void> logout();
 
   /// Restores a saved session at app startup (null when nobody was logged in).

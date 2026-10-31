@@ -1,14 +1,9 @@
 // FILE: lib/features/teacher/presentation/pages/teacher_profile_page.dart
 //
-// TUGAS (Minggu 9): profil pengajar dengan edit INLINE — tanpa modal.
-// Konsepnya sama seperti Pengaturan siswa: tanpa mode edit seluruh data
-// tampil read-only; tap "Edit Data" → kolom berubah menjadi input dengan
-// border berwarna utama ditutup tombol Simpan/Batal. Email & afiliasi
-// sekolah tetap read-only pasca verifikasi kode sekolah (PROMPT.md §3).
-//
-// Minggu 9 (owner): data pengajar bertambah Alamat & Kode Kepegawaian
-// (NIP/NIK) — tersimpan via PUT /me (kolom address & staff_code, migrasi
-// 000018). Daftar kelas & siswa yang dikelola menyusul pada Minggu 11.
+// TUGAS: Halaman Profil Pengajar (/profile-pengajar).
+// Menampilkan identitas pengajar, statistik pengajaran, kartu Kelas yang Diajar
+// (bergaya konsisten dengan card Sertifikat siswa), kartu Materi Ajar,
+// dan tautan langsung ke /pengaturan-pengajar untuk mengedit profil.
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -17,12 +12,12 @@ import '../../../../app/router/app_routes.dart';
 import '../../../../core/theme/app_palette.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_typography.dart';
-import '../../../../core/utils/validators.dart';
 import '../../../../core/widgets/app_button.dart';
+import '../../../../core/widgets/app_card.dart';
 import '../../../../core/widgets/app_refresh.dart';
-import '../../../../core/widgets/app_snack.dart';
-import '../../../auth/domain/auth_repository.dart';
+import '../../../../core/widgets/avatars.dart';
 import '../../../auth/presentation/cubit/auth_cubit.dart';
+import '../cubit/teacher_cubit.dart';
 
 class TeacherProfilePage extends StatefulWidget {
   const TeacherProfilePage({super.key});
@@ -32,560 +27,630 @@ class TeacherProfilePage extends StatefulWidget {
 }
 
 class _TeacherProfilePageState extends State<TeacherProfilePage> {
-  final _formKey = GlobalKey<FormState>();
-  // Kolom profil pengajar — diisi ulang setiap masuk/keluar mode edit.
-  final _nameCtrl = TextEditingController();
-  final _phoneCtrl = TextEditingController();
-  final _bioCtrl = TextEditingController();
-  final _addressCtrl = TextEditingController();
-  final _staffCodeCtrl = TextEditingController();
-
-  /// Pola sama seperti Pengaturan siswa: mode BACA dulu, edit menyala
-  /// saat tombol "Edit Data" ditekan (bukan lagi lewat modal).
-  bool _isEditing = false;
-  bool _isSaving = false;
-
   @override
-  void dispose() {
-    _nameCtrl.dispose();
-    _phoneCtrl.dispose();
-    _bioCtrl.dispose();
-    _addressCtrl.dispose();
-    _staffCodeCtrl.dispose();
-    super.dispose();
-  }
-
-  void _syncFields(AuthUser user) {
-    void set(TextEditingController c, String v) {
-      if (c.text != v) c.text = v;
-    }
-
-    set(_nameCtrl, user.name);
-    set(_phoneCtrl, user.phone ?? '');
-    set(_bioCtrl, user.bio ?? '');
-    set(_addressCtrl, user.address ?? '');
-    set(_staffCodeCtrl, user.staffCode ?? '');
-  }
-
-  void _startEditing(AuthUser user) {
-    _syncFields(user);
-    setState(() => _isEditing = true);
-  }
-
-  /// Keluar mode edit TANPA menyimpan: kolom kembali ke data user terbaru.
-  void _cancelEditing(AuthUser user) {
-    _syncFields(user);
-    _formKey.currentState?.reset();
-    setState(() => _isEditing = false);
-  }
-
-  /// Afiliasi sekolah sengaja TIDAK dikirim — read-only pasca verifikasi
-  /// kode sekolah; yang berubah hanya data diri + kepegawaian.
-  Future<void> _saveProfile() async {
-    if (!(_formKey.currentState?.validate() ?? false)) return;
-    final cubit = context.read<AuthCubit>();
-    setState(() => _isSaving = true);
-    try {
-      await cubit.updateProfile(
-        name: _nameCtrl.text.trim(),
-        phone: _phoneCtrl.text.trim(),
-        bio: _bioCtrl.text.trim(),
-        address: _addressCtrl.text.trim(),
-        staffCode: _staffCodeCtrl.text.trim(),
-      );
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) {
-        setState(() => _isEditing = false);
-        showAppSnack(context, 'Profil pengajar berhasil diperbarui.');
+        context.read<TeacherCubit>().loadDashboard();
+        context.read<TeacherCubit>().loadMaterials();
       }
-    } on AuthFailure catch (e) {
-      if (mounted) showAppSnack(context, e.message);
-    } finally {
-      if (mounted) setState(() => _isSaving = false);
+    });
+  }
+
+  Future<void> _refresh() async {
+    await context.read<AuthCubit>().restoreSession();
+    if (!mounted) return;
+    await Future.wait([
+      context.read<TeacherCubit>().loadDashboard(),
+      context.read<TeacherCubit>().loadMaterials(),
+    ]);
+  }
+
+  IconData _resolveIcon(String code) {
+    switch (code.trim().toLowerCase()) {
+      case 'code':
+        return Icons.code_rounded;
+      case 'html':
+        return Icons.html_rounded;
+      case 'css':
+        return Icons.css_rounded;
+      case 'javascript':
+      case 'js':
+        return Icons.javascript_rounded;
+      case 'database':
+      case 'db':
+        return Icons.storage_rounded;
+      case 'psychology':
+      case 'ai':
+        return Icons.psychology_rounded;
+      case 'phone_android':
+      case 'mobile':
+        return Icons.phone_android_rounded;
+      case 'shield':
+      case 'security':
+        return Icons.shield_rounded;
+      case 'data_object':
+        return Icons.data_object_rounded;
+      case 'terminal':
+      default:
+        return Icons.terminal_rounded;
     }
-  }
-
-  String _initials(String name) {
-    final parts = name.trim().split(RegExp(r'\s+')).where((w) => w.isNotEmpty);
-    final first = parts.isEmpty ? 'G' : parts.first[0];
-    final second = parts.length > 1 ? parts.last[0] : '';
-    return ('$first$second').toUpperCase();
-  }
-
-  /// Dekorasi kolom identik Pengaturan siswa supaya konsep editnya nyaris
-  /// tidak bisa dibedakan: mode BACA = chip abu datar tanpa border; mode
-  /// EDIT = bidang putih ber-border warna utama (jelas sedang diedit).
-  InputDecoration _fieldDecoration(IconData? icon) {
-    final p = context.palette;
-    if (_isEditing) {
-      return InputDecoration(
-        prefixIcon: icon != null ? Icon(icon, color: p.primary) : null,
-        counterText: '',
-        filled: true,
-        fillColor: p.surface,
-        enabledBorder: OutlineInputBorder(
-          borderRadius: AppRadius.inputBorder,
-          borderSide: BorderSide(
-            color: p.primary.withValues(alpha: 0.4),
-            width: 1.5,
-          ),
-        ),
-      );
-    }
-    return InputDecoration(
-      prefixIcon: icon != null ? Icon(icon, color: p.textMuted) : null,
-      counterText: '',
-      filled: true,
-      fillColor: p.surfaceAlt.withValues(alpha: 0.45),
-      border: InputBorder.none,
-      enabledBorder: InputBorder.none,
-      focusedBorder: InputBorder.none,
-    );
-  }
-
-  Widget _fieldLabel(String label) {
-    return Text(
-      label,
-      style: AppTypography.label.copyWith(
-        color: context.palette.text,
-        fontWeight: FontWeight.bold,
-      ),
-    );
   }
 
   @override
   Widget build(BuildContext context) {
     final p = context.palette;
+    final user = context.watch<AuthCubit>().state.user;
+    final teacherState = context.watch<TeacherCubit>().state;
+
+    final userName = user?.name.isNotEmpty == true
+        ? user!.name
+        : 'Pengajar RPL';
+    final email = user?.email ?? '';
+    final bio = user?.bio?.trim() ?? '';
+
+    final classes = teacherState.classes;
+    final materials = teacherState.materials;
+    final totalStudents = teacherState.totalStudentCount;
+
     return Scaffold(
       appBar: AppBar(
-        leading: IconButton(
-          tooltip: 'Kembali',
-          icon: const Icon(Icons.arrow_back_rounded),
-          onPressed: () => context.go(AppRoutes.teacherHome),
-        ),
         title: const Text('Profil Pengajar'),
+        actions: [
+          IconButton(
+            tooltip: 'Pengaturan Profil',
+            icon: const Icon(Icons.settings_outlined),
+            onPressed: () => context.push(AppRoutes.teacherSettings),
+          ),
+        ],
       ),
-      body: BlocBuilder<AuthCubit, AuthState>(
-        builder: (context, state) {
-          final user = state.user;
-          if (user == null) {
-            return const Center(child: CircularProgressIndicator());
-          }
-          return Center(
-            // Minggu 9 (owner): tarik layar dari atas → muat ulang profil
-            // pengajar dari server (lingkaran mengikuti tarikan).
-            child: AppRefresh(
-              onRefresh: () => context.read<AuthCubit>().restoreSession(),
-              child: SingleChildScrollView(
-                physics: const AlwaysScrollableScrollPhysics(),
-                keyboardDismissBehavior:
-                    ScrollViewKeyboardDismissBehavior.onDrag,
-                padding: const EdgeInsets.all(AppSpacing.screen),
-                child: ConstrainedBox(
-                  constraints: const BoxConstraints(maxWidth: 460),
+      body: SafeArea(
+        child: AppRefresh(
+          onRefresh: _refresh,
+          child: SingleChildScrollView(
+            physics: const AlwaysScrollableScrollPhysics(),
+            padding: const EdgeInsets.fromLTRB(
+              AppSpacing.screen,
+              AppSpacing.md,
+              AppSpacing.screen,
+              AppSpacing.xxl,
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                // 1. Teacher Profile Hero Card
+                AppCard(
+                  padding: const EdgeInsets.all(AppSpacing.lg),
                   child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      // --- Kartu identitas pengajar ---
-                      Container(
-                        padding: const EdgeInsets.all(AppSpacing.xl),
-                        decoration: BoxDecoration(
-                          color: p.surface,
-                          borderRadius: AppRadius.cardBorder,
-                          border: Border.all(color: p.outline),
-                        ),
-                        child: Column(
-                          children: [
-                            Container(
-                              width: 84,
-                              height: 84,
-                              alignment: Alignment.center,
+                      Stack(
+                        children: [
+                          UserAvatar(
+                            name: userName,
+                            avatarUrl: user?.avatarUrl,
+                            size: 68,
+                          ),
+                          Positioned(
+                            bottom: 0,
+                            right: 0,
+                            child: Container(
+                              width: 16,
+                              height: 16,
                               decoration: BoxDecoration(
-                                color: p.primaryContainer,
+                                color: p.success,
                                 shape: BoxShape.circle,
+                                border: Border.all(color: p.surface, width: 2),
                               ),
-                              child: Text(
-                                _initials(user.name),
-                                style: AppTypography.titleL.copyWith(
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: AppSpacing.md),
+                      Text(
+                        userName,
+                        textAlign: TextAlign.center,
+                        style: AppTypography.titleM.copyWith(
+                          color: p.text,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      const SizedBox(height: AppSpacing.xs),
+                      if (email.isNotEmpty)
+                        Text(
+                          email,
+                          textAlign: TextAlign.center,
+                          style: AppTypography.caption.copyWith(
+                            color: p.textMuted,
+                          ),
+                        ),
+                      const SizedBox(height: AppSpacing.sm),
+                      // Chips: Role + School + NIP
+                      Wrap(
+                        alignment: WrapAlignment.center,
+                        spacing: 6,
+                        runSpacing: 6,
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 10,
+                              vertical: 4,
+                            ),
+                            decoration: BoxDecoration(
+                              color: p.primaryContainer.withAlpha(50),
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(
+                                  Icons.verified_user_rounded,
+                                  size: 14,
                                   color: p.primary,
-                                  fontSize: 28,
                                 ),
-                              ),
+                                const SizedBox(width: 4),
+                                Text(
+                                  'Instruktur RPL',
+                                  style: AppTypography.caption.copyWith(
+                                    color: p.primary,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ],
                             ),
-                            const SizedBox(height: AppSpacing.lg),
-                            Text(
-                              user.name,
-                              textAlign: TextAlign.center,
-                              style: AppTypography.titleM.copyWith(
-                                color: p.text,
-                              ),
+                          ),
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 10,
+                              vertical: 4,
                             ),
-                            const SizedBox(height: AppSpacing.sm),
+                            decoration: BoxDecoration(
+                              color: p.surfaceAlt,
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(
+                                  Icons.school_rounded,
+                                  size: 14,
+                                  color: p.textMuted,
+                                ),
+                                const SizedBox(width: 4),
+                                Text(
+                                  user?.schoolName ?? 'SMK Swadhipa 2 Natar',
+                                  style: AppTypography.caption.copyWith(
+                                    color: p.textMuted,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          if (user?.staffCode?.isNotEmpty == true)
                             Container(
-                              height: AppSizes.tagHeight,
                               padding: const EdgeInsets.symmetric(
-                                horizontal: 12,
+                                horizontal: 10,
+                                vertical: 4,
                               ),
                               decoration: BoxDecoration(
-                                color: p.primaryContainer,
-                                borderRadius: AppRadius.pillBorder,
+                                color: p.surfaceAlt,
+                                borderRadius: BorderRadius.circular(12),
                               ),
                               child: Row(
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
                                   Icon(
-                                    Icons.cast_for_education_rounded,
-                                    size: 14,
-                                    color: p.primary,
-                                  ),
-                                  const SizedBox(width: AppSpacing.sm),
-                                  Text(
-                                    'Guru / Pengajar',
-                                    style: AppTypography.caption.copyWith(
-                                      color: p.primary,
-                                      fontWeight: FontWeight.w700,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            const SizedBox(height: AppSpacing.md),
-                            Text(
-                              user.email,
-                              textAlign: TextAlign.center,
-                              style: AppTypography.bodyM.copyWith(
-                                color: p.textMuted,
-                              ),
-                            ),
-                            // Minggu 9: bio pribadi pengajar tampil rata tengah,
-                            // selaras dengan kartu identitas profil siswa.
-                            if ((user.bio ?? '').trim().isNotEmpty) ...[
-                              const SizedBox(height: AppSpacing.sm),
-                              Text(
-                                user.bio!.trim(),
-                                textAlign: TextAlign.center,
-                                style: AppTypography.bodyM.copyWith(
-                                  color: p.textMuted,
-                                ),
-                              ),
-                            ],
-                          ],
-                        ),
-                      ),
-                      const SizedBox(height: AppSpacing.lg),
-                      // --- Data pengajar — edit INLINE (tanpa modal) ---
-                      Container(
-                        padding: const EdgeInsets.all(AppSpacing.xl),
-                        decoration: BoxDecoration(
-                          color: p.surface,
-                          borderRadius: AppRadius.cardBorder,
-                          border: Border.all(color: p.outline),
-                        ),
-                        child: Form(
-                          key: _formKey,
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Row(
-                                children: [
-                                  Icon(
                                     Icons.badge_rounded,
-                                    size: 20,
-                                    color: p.primary,
+                                    size: 14,
+                                    color: p.textMuted,
                                   ),
-                                  const SizedBox(width: AppSpacing.sm),
-                                  Expanded(
-                                    child: Text(
-                                      'Data Pengajar',
-                                      style: AppTypography.label.copyWith(
-                                        color: p.text,
-                                        fontSize: 16,
-                                      ),
+                                  const SizedBox(width: 4),
+                                  Text(
+                                    'NIP: ${user!.staffCode}',
+                                    style: AppTypography.caption.copyWith(
+                                      color: p.textMuted,
+                                      fontWeight: FontWeight.w600,
                                     ),
                                   ),
-                                  if (!_isEditing)
-                                    IconButton(
-                                      tooltip: 'Edit data pengajar',
-                                      icon: Icon(
-                                        Icons.edit_rounded,
-                                        size: 18,
-                                        color: p.primary,
-                                      ),
-                                      onPressed: () => _startEditing(user),
-                                    )
-                                  else
-                                    IconButton(
-                                      tooltip: 'Batalkan edit',
-                                      icon: Icon(
-                                        Icons.close_rounded,
-                                        size: 18,
-                                        color: p.textMuted,
-                                      ),
-                                      onPressed: _isSaving
-                                          ? null
-                                          : () => _cancelEditing(user),
-                                    ),
                                 ],
                               ),
-                              if (_isEditing) ...[
-                                Container(
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 12,
-                                    vertical: 10,
-                                  ),
-                                  margin: const EdgeInsets.symmetric(
-                                    vertical: AppSpacing.md,
-                                  ),
-                                  decoration: BoxDecoration(
-                                    color: p.primaryContainer,
-                                    borderRadius: BorderRadius.circular(
-                                      AppRadius.input,
-                                    ),
-                                  ),
-                                  child: Row(
-                                    children: [
-                                      Icon(
-                                        Icons.edit_note_rounded,
-                                        size: 18,
-                                        color: p.primary,
-                                      ),
-                                      const SizedBox(width: AppSpacing.sm),
-                                      Expanded(
-                                        child: Text(
-                                          'Mode edit aktif — ubah datamu, lalu tekan "Simpan Perubahan".',
-                                          style: AppTypography.caption.copyWith(
-                                            color: p.primary,
-                                            fontWeight: FontWeight.bold,
-                                            fontSize: 12,
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                                _fieldLabel('Nama & Gelar'),
-                                const SizedBox(height: AppSpacing.xs),
-                                TextFormField(
-                                  controller: _nameCtrl,
-                                  maxLength: 40,
-                                  textInputAction: TextInputAction.next,
-                                  validator: Validators.name,
-                                  decoration: _fieldDecoration(
-                                    Icons.badge_outlined,
-                                  ),
-                                ),
-                                const SizedBox(height: AppSpacing.md),
-                                _fieldLabel('Telepon'),
-                                const SizedBox(height: AppSpacing.xs),
-                                TextFormField(
-                                  controller: _phoneCtrl,
-                                  maxLength: 25,
-                                  keyboardType: TextInputType.phone,
-                                  textInputAction: TextInputAction.next,
-                                  decoration: _fieldDecoration(
-                                    Icons.call_outlined,
-                                  ),
-                                ),
-                                const SizedBox(height: AppSpacing.md),
-                                _fieldLabel('Bio Pengajar'),
-                                const SizedBox(height: AppSpacing.xs),
-                                TextFormField(
-                                  controller: _bioCtrl,
-                                  maxLines: 3,
-                                  maxLength: 120,
-                                  decoration: _fieldDecoration(null),
-                                ),
-                                const SizedBox(height: AppSpacing.md),
-                                // Minggu 9 (owner): data kepegawaian pengajar.
-                                _fieldLabel('Alamat'),
-                                const SizedBox(height: AppSpacing.xs),
-                                TextFormField(
-                                  controller: _addressCtrl,
-                                  maxLength: 255,
-                                  textInputAction: TextInputAction.next,
-                                  decoration: _fieldDecoration(
-                                    Icons.home_outlined,
-                                  ),
-                                ),
-                                const SizedBox(height: AppSpacing.md),
-                                _fieldLabel('Kode Kepegawaian (NIP/NIK)'),
-                                const SizedBox(height: AppSpacing.xs),
-                                TextFormField(
-                                  controller: _staffCodeCtrl,
-                                  maxLength: 64,
-                                  textInputAction: TextInputAction.done,
-                                  decoration: _fieldDecoration(
-                                    Icons.work_outline,
-                                  ),
-                                ),
-                                const SizedBox(height: AppSpacing.lg),
-                                Row(
-                                  children: [
-                                    Expanded(
-                                      child: AppButton(
-                                        label: 'Simpan Perubahan',
-                                        loading: _isSaving,
-                                        onPressed: _saveProfile,
-                                      ),
-                                    ),
-                                    const SizedBox(width: AppSpacing.sm),
-                                    Expanded(
-                                      child: AppButton(
-                                        label: 'Batalkan',
-                                        kind: AppButtonKind.secondary,
-                                        leadingIcon: Icons.close_rounded,
-                                        onPressed: _isSaving
-                                            ? null
-                                            : () => _cancelEditing(user),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ] else ...[
-                                const SizedBox(height: AppSpacing.md),
-                                _DataRow(
-                                  label: 'Nama & Gelar',
-                                  value: user.name,
-                                ),
-                                _DataRow(
-                                  label: 'Telepon',
-                                  value: user.phone ?? '-',
-                                ),
-                                _DataRow(
-                                  label: 'Bio Pengajar',
-                                  value: user.bio ?? '-',
-                                ),
-                                // Minggu 9 (owner): data kepegawaian pengajar
-                                // ikut tampil pada mode baca.
-                                _DataRow(
-                                  label: 'Alamat',
-                                  value: user.address ?? '-',
-                                ),
-                                _DataRow(
-                                  label: 'Kode Kepegawaian',
-                                  value: user.staffCode ?? '-',
-                                ),
-                              ],
-                            ],
+                            ),
+                        ],
+                      ),
+                      const SizedBox(height: AppSpacing.sm),
+                      if (bio.isNotEmpty)
+                        Text(
+                          bio,
+                          textAlign: TextAlign.center,
+                          style: AppTypography.bodyM.copyWith(
+                            color: p.textMuted,
+                          ),
+                        )
+                      else
+                        TextButton.icon(
+                          onPressed: () =>
+                              context.push(AppRoutes.teacherSettings),
+                          icon: const Icon(
+                            Icons.add_circle_outline_rounded,
+                            size: 18,
+                          ),
+                          label: const Text('Tambah Bio'),
+                          style: TextButton.styleFrom(
+                            foregroundColor: p.primary,
+                            textStyle: AppTypography.label.copyWith(
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
                         ),
-                      ),
                       const SizedBox(height: AppSpacing.lg),
-                      // --- Afiliasi sekolah READ-ONLY (Minggu 9) ---
-                      Container(
-                        padding: const EdgeInsets.all(AppSpacing.xl),
-                        decoration: BoxDecoration(
-                          color: p.successContainer,
-                          borderRadius: AppRadius.cardBorder,
-                          border: Border.all(
-                            color: p.success.withValues(alpha: 0.45),
+
+                      // Quick Metrics Row (3 cards)
+                      Row(
+                        children: [
+                          Expanded(
+                            child: _TeacherStatCard(
+                              icon: Icons.school_rounded,
+                              value: '${classes.length}',
+                              label: 'Kelas Diajar',
+                              iconColor: p.primary,
+                            ),
                           ),
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
-                              children: [
-                                Icon(
-                                  Icons.account_balance_rounded,
-                                  size: 20,
-                                  color: p.success,
-                                ),
-                                const SizedBox(width: AppSpacing.sm),
-                                Expanded(
-                                  child: Text(
-                                    'Sekolah Terafiliasi',
-                                    style: AppTypography.label.copyWith(
-                                      color: p.text,
-                                      fontSize: 16,
-                                    ),
-                                  ),
-                                ),
-                                Icon(
-                                  Icons.lock_outline_rounded,
-                                  size: 16,
-                                  color: p.success,
-                                ),
-                              ],
+                          const SizedBox(width: AppSpacing.xs),
+                          Expanded(
+                            child: _TeacherStatCard(
+                              icon: Icons.people_alt_rounded,
+                              value: '$totalStudents',
+                              label: 'Siswa Dibimbing',
+                              iconColor: p.accent,
                             ),
-                            const SizedBox(height: AppSpacing.md),
-                            Text(
-                              user.schoolName ?? 'Belum terafiliasi',
-                              style: AppTypography.label.copyWith(
-                                color: p.text,
-                                fontSize: 15,
-                              ),
+                          ),
+                          const SizedBox(width: AppSpacing.xs),
+                          Expanded(
+                            child: _TeacherStatCard(
+                              icon: Icons.auto_stories_rounded,
+                              value: '${materials.length}',
+                              label: 'Materi Ajar',
+                              iconColor: p.success,
                             ),
-                            const SizedBox(height: AppSpacing.sm),
-                            Text(
-                              'Hasil verifikasi kode sekolah resmi — data instansi bersifat read-only dan tidak dapat diubah oleh instruktur.',
-                              style: AppTypography.caption.copyWith(
-                                color: p.success,
-                                fontStyle: FontStyle.italic,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(height: AppSpacing.xl),
-                      AppButton(
-                        label: 'Buka Pengaturan',
-                        kind: AppButtonKind.secondary,
-                        leadingIcon: Icons.settings_outlined,
-                        // Minggu 9 (owner): push (bukan go) agar tombol
-                        // kembali di Pengaturan punya riwayat stack.
-                        onPressed: () => context.push(AppRoutes.settings),
-                      ),
-                      const SizedBox(height: AppSpacing.md),
-                      AppButton(
-                        label: 'Keluar Akun',
-                        kind: AppButtonKind.text,
-                        onPressed: () => context.read<AuthCubit>().logout(),
+                          ),
+                        ],
                       ),
                     ],
                   ),
                 ),
-              ),
+                const SizedBox(height: AppSpacing.lg),
+
+                // 2. Section: Kelas yang Diajar (gaya konsisten dengan card Sertifikat)
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      'Kelas yang Diajar',
+                      style: AppTypography.titleM.copyWith(color: p.text),
+                    ),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 4,
+                      ),
+                      decoration: BoxDecoration(
+                        color: p.primaryContainer,
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Text(
+                        '${classes.length} Kelas',
+                        style: AppTypography.caption.copyWith(
+                          color: p.primary,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: AppSpacing.sm),
+                AppCard(
+                  padding: EdgeInsets.zero,
+                  child: classes.isEmpty
+                      ? Padding(
+                          padding: const EdgeInsets.all(AppSpacing.lg),
+                          child: Center(
+                            child: Column(
+                              children: [
+                                Icon(
+                                  Icons.meeting_room_outlined,
+                                  size: 36,
+                                  color: p.textMuted,
+                                ),
+                                const SizedBox(height: AppSpacing.sm),
+                                Text(
+                                  'Belum ada kelas yang dibuat.',
+                                  style: AppTypography.bodyM.copyWith(
+                                    color: p.textMuted,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        )
+                      : Column(
+                          children: [
+                            for (var i = 0; i < classes.length; i++) ...[
+                              if (i > 0)
+                                Divider(
+                                  height: 1,
+                                  color: p.outline.withAlpha(80),
+                                ),
+                              ListTile(
+                                contentPadding: const EdgeInsets.symmetric(
+                                  horizontal: AppSpacing.md,
+                                  vertical: 4,
+                                ),
+                                leading: Container(
+                                  width: 40,
+                                  height: 40,
+                                  decoration: BoxDecoration(
+                                    color: p.primaryContainer.withAlpha(40),
+                                    borderRadius: BorderRadius.circular(10),
+                                  ),
+                                  child: Icon(
+                                    Icons.meeting_room_rounded,
+                                    color: p.primary,
+                                    size: 20,
+                                  ),
+                                ),
+                                title: Text(
+                                  classes[i].name,
+                                  style: AppTypography.labelL.copyWith(
+                                    color: p.text,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                                subtitle: Text(
+                                  'Tahun ${classes[i].academicYear} • ${classes[i].memberCount} Siswa',
+                                  style: AppTypography.caption.copyWith(
+                                    color: p.textMuted,
+                                  ),
+                                ),
+                                trailing: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Container(
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 8,
+                                        vertical: 4,
+                                      ),
+                                      decoration: BoxDecoration(
+                                        color: p.surfaceAlt,
+                                        borderRadius: BorderRadius.circular(8),
+                                      ),
+                                      child: Text(
+                                        classes[i].classCode,
+                                        style: AppTypography.codeSm.copyWith(
+                                          color: p.text,
+                                          fontWeight: FontWeight.bold,
+                                          letterSpacing: 1,
+                                        ),
+                                      ),
+                                    ),
+                                    const SizedBox(width: 4),
+                                    Icon(
+                                      Icons.chevron_right_rounded,
+                                      color: p.textMuted,
+                                      size: 20,
+                                    ),
+                                  ],
+                                ),
+                                onTap: () => context.push(
+                                  AppRoutes.teacherClassAnalytics(
+                                    classes[i].id,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ],
+                        ),
+                ),
+                const SizedBox(height: AppSpacing.lg),
+
+                // 3. Section: Materi Ajar
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      'Materi Ajar',
+                      style: AppTypography.titleM.copyWith(color: p.text),
+                    ),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 4,
+                      ),
+                      decoration: BoxDecoration(
+                        color: p.primaryContainer,
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Text(
+                        '${materials.length} Materi',
+                        style: AppTypography.caption.copyWith(
+                          color: p.primary,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: AppSpacing.sm),
+                AppCard(
+                  padding: EdgeInsets.zero,
+                  child: materials.isEmpty
+                      ? Padding(
+                          padding: const EdgeInsets.all(AppSpacing.lg),
+                          child: Center(
+                            child: Column(
+                              children: [
+                                Icon(
+                                  Icons.auto_stories_outlined,
+                                  size: 36,
+                                  color: p.textMuted,
+                                ),
+                                const SizedBox(height: AppSpacing.sm),
+                                Text(
+                                  'Belum ada materi yang dibuat.',
+                                  style: AppTypography.bodyM.copyWith(
+                                    color: p.textMuted,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        )
+                      : Column(
+                          children: [
+                            for (var i = 0; i < materials.length; i++) ...[
+                              if (i > 0)
+                                Divider(
+                                  height: 1,
+                                  color: p.outline.withAlpha(80),
+                                ),
+                              ListTile(
+                                contentPadding: const EdgeInsets.symmetric(
+                                  horizontal: AppSpacing.md,
+                                  vertical: 4,
+                                ),
+                                leading: Container(
+                                  width: 40,
+                                  height: 40,
+                                  decoration: BoxDecoration(
+                                    color: p.surfaceAlt,
+                                    borderRadius: BorderRadius.circular(10),
+                                  ),
+                                  child: Icon(
+                                    _resolveIcon(materials[i].iconCode),
+                                    color: p.primary,
+                                    size: 20,
+                                  ),
+                                ),
+                                title: Text(
+                                  materials[i].title,
+                                  style: AppTypography.labelL.copyWith(
+                                    color: p.text,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                                subtitle: Text(
+                                  '${materials[i].topic} • ${materials[i].babCount} Bab • ${materials[i].totalXp} XP',
+                                  style: AppTypography.caption.copyWith(
+                                    color: p.textMuted,
+                                  ),
+                                ),
+                                trailing: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Container(
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 8,
+                                        vertical: 4,
+                                      ),
+                                      decoration: BoxDecoration(
+                                        color: materials[i].isPublished
+                                            ? p.success.withAlpha(30)
+                                            : p.surfaceAlt,
+                                        borderRadius: BorderRadius.circular(8),
+                                      ),
+                                      child: Text(
+                                        materials[i].isPublished
+                                            ? 'Terbit'
+                                            : 'Draft',
+                                        style: AppTypography.caption.copyWith(
+                                          color: materials[i].isPublished
+                                              ? p.success
+                                              : p.textMuted,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ),
+                                    const SizedBox(width: 4),
+                                    Icon(
+                                      Icons.chevron_right_rounded,
+                                      color: p.textMuted,
+                                      size: 20,
+                                    ),
+                                  ],
+                                ),
+                                onTap: () => context.push(
+                                  AppRoutes.teacherBabList(materials[i].id),
+                                ),
+                              ),
+                            ],
+                          ],
+                        ),
+                ),
+                const SizedBox(height: AppSpacing.xl),
+
+                // 4. Tombol Akses Pengaturan
+                AppButton(
+                  label: 'Buka Pengaturan Akun',
+                  leadingIcon: Icons.settings_rounded,
+                  kind: AppButtonKind.secondary,
+                  onPressed: () => context.push(AppRoutes.teacherSettings),
+                ),
+              ],
             ),
-          );
-        },
+          ),
+        ),
       ),
     );
   }
 }
 
-/// Baris pasangan label-nilai pada kartu data pengajar (mode baca).
-class _DataRow extends StatelessWidget {
-  const _DataRow({required this.label, required this.value});
+class _TeacherStatCard extends StatelessWidget {
+  const _TeacherStatCard({
+    required this.icon,
+    required this.value,
+    required this.label,
+    required this.iconColor,
+  });
 
-  final String label;
+  final IconData icon;
   final String value;
+  final String label;
+  final IconColorStyle iconColor;
 
   @override
   Widget build(BuildContext context) {
     final p = context.palette;
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: AppSpacing.sm),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
+    return Container(
+      padding: const EdgeInsets.symmetric(
+        vertical: AppSpacing.md,
+        horizontal: AppSpacing.xs,
+      ),
+      decoration: BoxDecoration(
+        color: p.surfaceAlt,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Column(
         children: [
-          SizedBox(
-            width: 120,
-            child: Text(
-              label,
-              style: AppTypography.bodyM.copyWith(
-                color: p.textMuted,
-                fontWeight: FontWeight.w600,
-              ),
+          Icon(icon, size: 20, color: iconColor),
+          const SizedBox(height: AppSpacing.xs),
+          Text(
+            value,
+            textAlign: TextAlign.center,
+            style: AppTypography.titleM.copyWith(
+              color: p.text,
+              fontWeight: FontWeight.bold,
             ),
           ),
-          Expanded(
-            child: Text(
-              value,
-              style: AppTypography.bodyM.copyWith(color: p.text),
-            ),
+          const SizedBox(height: 2),
+          Text(
+            label,
+            textAlign: TextAlign.center,
+            style: AppTypography.caption.copyWith(color: p.textMuted),
           ),
         ],
       ),
     );
   }
 }
+
+typedef IconColorStyle = Color;
