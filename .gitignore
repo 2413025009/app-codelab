@@ -43,3 +43,27 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+
+# ── Secrets & credentials — DILARANG di-commit ──────────────────────────────
+# File env: hanya .env.example yang boleh masuk, dan wajib placeholder.
+.env
+.env.*
+!.env.example
+*.env
+
+# Kunci penandatangan Android
+android/key.properties
+android/app/*.jks
+android/app/*.keystore
+
+# Konfigurasi layanan berbayar / OAuth
+android/app/google-services.json
+ios/Runner/GoogleService-Info.plist
+
+# Sertifikat & private key
+*.pem
+*.p12
+*.pfx
+
+# Script sementara / alat bantu lokal
+/Zzz/
