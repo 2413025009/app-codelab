@@ -34,11 +34,7 @@ class TeacherCubit extends Cubit<TeacherState> {
     try {
       final classes = await _repository.listClasses();
       emit(
-        state.copyWith(
-          classes: classes,
-          isLoading: false,
-          clearError: true,
-        ),
+        state.copyWith(classes: classes, isLoading: false, clearError: true),
       );
     } catch (error) {
       emit(state.copyWith(isLoading: false, errorMessage: _messageOf(error)));
@@ -66,9 +62,7 @@ class TeacherCubit extends Cubit<TeacherState> {
     required String academicYear,
     String scheduleNote = '',
   }) async {
-    emit(
-      state.copyWith(isLoading: true, clearError: true, clearSuccess: true),
-    );
+    emit(state.copyWith(isLoading: true, clearError: true, clearSuccess: true));
     try {
       final room = await _repository.createClass(
         name: name,
@@ -91,12 +85,12 @@ class TeacherCubit extends Cubit<TeacherState> {
   }
 
   Future<void> archiveClass(String classId) async {
-    emit(
-      state.copyWith(isLoading: true, clearError: true, clearSuccess: true),
-    );
+    emit(state.copyWith(isLoading: true, clearError: true, clearSuccess: true));
     try {
       await _repository.archiveClass(classId);
-      final target = state.classes.where((room) => room.id == classId).firstOrNull;
+      final target = state.classes
+          .where((room) => room.id == classId)
+          .firstOrNull;
       emit(
         state.copyWith(
           classes: state.classes.where((room) => room.id != classId).toList(),
@@ -117,9 +111,7 @@ class TeacherCubit extends Cubit<TeacherState> {
   }
 
   Future<void> restoreClass(String classId) async {
-    emit(
-      state.copyWith(isLoading: true, clearError: true, clearSuccess: true),
-    );
+    emit(state.copyWith(isLoading: true, clearError: true, clearSuccess: true));
     try {
       await _repository.restoreClass(classId);
       final target = state.archivedClasses
@@ -144,9 +136,7 @@ class TeacherCubit extends Cubit<TeacherState> {
   }
 
   Future<String?> regenerateClassCode(String classId) async {
-    emit(
-      state.copyWith(isLoading: true, clearError: true, clearSuccess: true),
-    );
+    emit(state.copyWith(isLoading: true, clearError: true, clearSuccess: true));
     try {
       final code = await _repository.regenerateCode(classId);
       emit(
@@ -178,11 +168,7 @@ class TeacherCubit extends Cubit<TeacherState> {
   Future<void> loadMaterials({String? filter}) async {
     final target = _normalizeFilter(filter ?? state.materialFilter);
     emit(
-      state.copyWith(
-        isLoading: true,
-        materialFilter: target,
-        clearError: true,
-      ),
+      state.copyWith(isLoading: true, materialFilter: target, clearError: true),
     );
     try {
       final materials = await _repository.listMaterials(
@@ -234,9 +220,7 @@ class TeacherCubit extends Cubit<TeacherState> {
     required String description,
     String iconCode = 'terminal',
   }) async {
-    emit(
-      state.copyWith(isLoading: true, clearError: true, clearSuccess: true),
-    );
+    emit(state.copyWith(isLoading: true, clearError: true, clearSuccess: true));
     try {
       final material = await _repository.createMaterial(
         title: title,
@@ -268,9 +252,7 @@ class TeacherCubit extends Cubit<TeacherState> {
     required String description,
     String? iconCode,
   }) async {
-    emit(
-      state.copyWith(isLoading: true, clearError: true, clearSuccess: true),
-    );
+    emit(state.copyWith(isLoading: true, clearError: true, clearSuccess: true));
     try {
       final material = await _repository.updateMaterial(
         lessonId,
@@ -296,9 +278,7 @@ class TeacherCubit extends Cubit<TeacherState> {
   }
 
   Future<void> publishMaterial(String lessonId) async {
-    emit(
-      state.copyWith(isLoading: true, clearError: true, clearSuccess: true),
-    );
+    emit(state.copyWith(isLoading: true, clearError: true, clearSuccess: true));
     try {
       await _repository.publishMaterial(lessonId);
       final updated = _changeMaterialStatus(lessonId, 'published');
@@ -318,9 +298,7 @@ class TeacherCubit extends Cubit<TeacherState> {
   }
 
   Future<void> unpublishMaterial(String lessonId) async {
-    emit(
-      state.copyWith(isLoading: true, clearError: true, clearSuccess: true),
-    );
+    emit(state.copyWith(isLoading: true, clearError: true, clearSuccess: true));
     try {
       await _repository.unpublishMaterial(lessonId);
       final updated = _changeMaterialStatus(lessonId, 'draft');
@@ -340,9 +318,7 @@ class TeacherCubit extends Cubit<TeacherState> {
   }
 
   Future<void> deleteMaterial(String lessonId) async {
-    emit(
-      state.copyWith(isLoading: true, clearError: true, clearSuccess: true),
-    );
+    emit(state.copyWith(isLoading: true, clearError: true, clearSuccess: true));
     try {
       await _repository.deleteMaterial(lessonId);
       emit(
@@ -361,9 +337,7 @@ class TeacherCubit extends Cubit<TeacherState> {
   }
 
   Future<TeacherLesson?> duplicateMaterial(String lessonId) async {
-    emit(
-      state.copyWith(isLoading: true, clearError: true, clearSuccess: true),
-    );
+    emit(state.copyWith(isLoading: true, clearError: true, clearSuccess: true));
     try {
       final duplicate = await _repository.duplicateMaterial(lessonId);
       emit(
@@ -387,13 +361,7 @@ class TeacherCubit extends Cubit<TeacherState> {
     emit(state.copyWith(isLoading: true, clearError: true));
     try {
       final babs = await _repository.listBabs(lessonId);
-      emit(
-        state.copyWith(
-          babs: babs,
-          isLoading: false,
-          clearError: true,
-        ),
-      );
+      emit(state.copyWith(babs: babs, isLoading: false, clearError: true));
     } catch (error) {
       emit(state.copyWith(isLoading: false, errorMessage: _messageOf(error)));
     }
@@ -405,9 +373,7 @@ class TeacherCubit extends Cubit<TeacherState> {
     required int xpReward,
     required List<Map<String, dynamic>> slides,
   }) async {
-    emit(
-      state.copyWith(isLoading: true, clearError: true, clearSuccess: true),
-    );
+    emit(state.copyWith(isLoading: true, clearError: true, clearSuccess: true));
     try {
       final bab = await _repository.createBab(
         lessonId,
@@ -430,6 +396,24 @@ class TeacherCubit extends Cubit<TeacherState> {
     }
   }
 
+  Future<void> duplicateBab(String babId, String lessonId) async {
+    emit(state.copyWith(isLoading: true, clearError: true, clearSuccess: true));
+    try {
+      final bab = await _repository.duplicateBab(babId);
+      final babs = await _repository.listBabs(lessonId);
+      emit(
+        state.copyWith(
+          babs: babs,
+          isLoading: false,
+          actionSuccessMessage: 'Bab "${bab.title}" berhasil diduplikat.',
+          clearError: true,
+        ),
+      );
+    } catch (error) {
+      emit(state.copyWith(isLoading: false, errorMessage: _messageOf(error)));
+    }
+  }
+
   Future<Bab?> updateBab(
     String babId,
     String lessonId, {
@@ -437,9 +421,7 @@ class TeacherCubit extends Cubit<TeacherState> {
     required int xpReward,
     required List<Map<String, dynamic>> slides,
   }) async {
-    emit(
-      state.copyWith(isLoading: true, clearError: true, clearSuccess: true),
-    );
+    emit(state.copyWith(isLoading: true, clearError: true, clearSuccess: true));
     try {
       final bab = await _repository.updateBab(
         babId,
@@ -451,10 +433,7 @@ class TeacherCubit extends Cubit<TeacherState> {
       emit(
         state.copyWith(
           babs: exists
-              ? [
-                  for (final item in state.babs)
-                    item.id == babId ? bab : item,
-                ]
+              ? [for (final item in state.babs) item.id == babId ? bab : item]
               : [...state.babs, bab],
           isLoading: false,
           actionSuccessMessage: 'Bab berhasil diperbarui.',
@@ -469,9 +448,7 @@ class TeacherCubit extends Cubit<TeacherState> {
   }
 
   Future<void> deleteBab(String babId, String lessonId) async {
-    emit(
-      state.copyWith(isLoading: true, clearError: true, clearSuccess: true),
-    );
+    emit(state.copyWith(isLoading: true, clearError: true, clearSuccess: true));
     try {
       await _repository.deleteBab(babId);
       emit(
@@ -487,14 +464,8 @@ class TeacherCubit extends Cubit<TeacherState> {
     }
   }
 
-  Future<void> moveBab(
-    String babId,
-    String lessonId,
-    String direction,
-  ) async {
-    emit(
-      state.copyWith(isLoading: true, clearError: true, clearSuccess: true),
-    );
+  Future<void> moveBab(String babId, String lessonId, String direction) async {
+    emit(state.copyWith(isLoading: true, clearError: true, clearSuccess: true));
     try {
       await _repository.moveBab(babId, direction);
       final babs = await _repository.listBabs(lessonId);
@@ -551,10 +522,7 @@ class TeacherCubit extends Cubit<TeacherState> {
 
   /// Mengeluarkan satu siswa dari kelas. State diperbarui lokal supaya daftar
   /// dan kedua papan peringkat langsung berubah tanpa memuat ulang halaman.
-  Future<void> removeStudentFromClass(
-    String classId,
-    String studentId,
-  ) async {
+  Future<void> removeStudentFromClass(String classId, String studentId) async {
     final removed = state.roster
         .where((student) => student.studentId == studentId)
         .firstOrNull;
@@ -563,9 +531,7 @@ class TeacherCubit extends Cubit<TeacherState> {
     // memunculkan kembali siswa yang baru saja dikeluarkan.
     _analyticsRequest++;
 
-    emit(
-      state.copyWith(isLoading: true, clearError: true, clearSuccess: true),
-    );
+    emit(state.copyWith(isLoading: true, clearError: true, clearSuccess: true));
     try {
       await _repository.removeStudentFromClass(classId, studentId);
       if (isClosed) return;

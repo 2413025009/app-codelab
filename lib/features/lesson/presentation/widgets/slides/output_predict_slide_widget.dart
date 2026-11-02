@@ -106,8 +106,12 @@ class OutputPredictSlideWidgetState extends State<OutputPredictSlideWidget> {
                             color: isSelected ? p.primary : Colors.transparent,
                           ),
                           child: isSelected
-                              ? const Center(
-                                  child: Icon(Icons.check, size: 14, color: Colors.white),
+                              ? Center(
+                                  child: Icon(
+                                    Icons.check,
+                                    size: 14,
+                                    color: p.onPrimary,
+                                  ),
                                 )
                               : null,
                         ),

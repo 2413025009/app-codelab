@@ -165,7 +165,7 @@ class _LessonReaderPageState extends State<LessonReaderPage> {
       message: message,
       onContinue: () => _nextSlide(data),
       onRetry: onRetry,
-      onAskTutor: () => showAiTutorSheet(context),
+      onAskTutor: () => showAiTutorSheet(context, topic: data.title),
     );
   }
 

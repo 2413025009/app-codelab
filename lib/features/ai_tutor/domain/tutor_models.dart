@@ -89,36 +89,47 @@ class TutorScript {
   final String concept;
   final List<TutorHint> hints;
 
-  static const kkm = TutorScript(
-    concept: 'Percabangan Bersarang',
-    hints: [
-      TutorHint(
-        tabLabel: 'Hint 1: Konsep',
-        question:
-            'Apa yang terjadi pada variabel status kelulusan jika nilai input siswa tepat bernilai 75? Apakah kondisi pertama mengevaluasi nilai tersebut sebagai True?',
-        steps: [
-          'Periksa kembali operator relasional yang kamu gunakan (apakah > atau ≥).',
-          'Ingat kembali aturan KKM sekolah: siswa dengan nilai pas 75 termasuk dalam kategori Tuntas.',
-        ],
-      ),
-      TutorHint(
-        tabLabel: 'Hint 2: Logika',
-        question: 'Jika 75 harus lulus, kondisi seperti apa yang bernilai True saat nilai sama dengan batas?',
-        steps: [
-          'Tuliskan tiga nilai uji di kertas: 74, 75, dan 76. Mana yang harus LULUS?',
-          'Bandingkan dengan hasil kodemu untuk setiap nilai tersebut.',
-        ],
-      ),
-      TutorHint(
-        tabLabel: 'Hint 3: Struktur',
-        question: 'Operator mana yang memeriksa "lebih besar atau sama dengan" dalam Python?',
-        steps: [
-          'Cari simbol yang menggabungkan > dan = tanpa spasi.',
-          'Terapkan pada baris if, lalu jalankan Uji Coba lagi.',
-        ],
-      ),
-    ],
-  );
+  /// Script cadangan (mode offline / demo) yang MENYESUAIKAN soal aktif.
+  ///
+  /// Dulu semua tantangan jatuh ke script kelulusan KKM (percabangan
+  /// bersarang, nilai 75) sehingga tutor seolah selalu membahas soal itu.
+  /// Sekarang label konsep memakai judul soal asli dan pertanyaannya hanya
+  /// menuntun proses berpikir atas kode siswa sendiri.
+  factory TutorScript.forTopic(String? topic) {
+    final title = (topic ?? '').trim();
+    return TutorScript(
+      concept: title.isEmpty ? 'Latihan Koding' : title,
+      hints: const [
+        TutorHint(
+          tabLabel: 'Hint 1: Konsep',
+          question:
+              'Apa output yang diminta soal ini? Ceritakan dulu dengan bahasamu sendiri sebelum menyentuh kode.',
+          steps: [
+            'Sebutkan input yang tersedia dan output yang harus muncul.',
+            'Tandai bagian kode yang sudah kamu pahami dan bagian yang masih ragu.',
+          ],
+        ),
+        TutorHint(
+          tabLabel: 'Hint 2: Logika',
+          question:
+              'Bagaimana urutan langkah programmu dari baris pertama sampai terakhir?',
+          steps: [
+            'Tulis urutan langkahnya dalam bahasa sehari-hari, belum dalam kode.',
+            'Periksa apakah setiap langkah benar-benar mengarah ke output yang diminta soal.',
+          ],
+        ),
+        TutorHint(
+          tabLabel: 'Hint 3: Struktur',
+          question:
+              'Baris mana yang paling sering memunculkan error saat kamu jalankan?',
+          steps: [
+            'Baca pesan error dari baris paling atas: nama error dan nomor barisnya.',
+            'Cocokkan tanda baca di baris itu (kurung, titik dua, tanda kutip, indentasi).',
+          ],
+        ),
+      ],
+    );
+  }
 
   /// Script fallback offline untuk mode Playground (kode bebas di luar soal):
   /// panduan umum berpikir-proses yang TIDAK memuat konteks tantangan lama.

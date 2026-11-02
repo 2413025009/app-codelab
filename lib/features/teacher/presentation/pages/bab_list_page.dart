@@ -19,6 +19,29 @@ import 'package:mobile_codelab_ai/features/teacher/domain/teacher_models.dart';
 import '../../domain/slide_adapter.dart';
 import '../../../lesson/presentation/pages/lesson_reader_page.dart';
 
+enum _BabAction { edit, duplicate, delete }
+
+/// Satu baris ikon + label di dalam menu titik tiga pada daftar bab.
+class _BabMenuRow extends StatelessWidget {
+  const _BabMenuRow({required this.icon, required this.label, this.color});
+
+  final IconData icon;
+  final String label;
+  final Color? color;
+
+  @override
+  Widget build(BuildContext context) {
+    final tint = color ?? Theme.of(context).colorScheme.onSurface;
+    return Row(
+      children: [
+        Icon(icon, size: 20, color: tint),
+        const SizedBox(width: 12),
+        Text(label, style: TextStyle(color: tint)),
+      ],
+    );
+  }
+}
+
 class BabListPage extends StatefulWidget {
   const BabListPage({super.key, required this.lessonId});
 
@@ -74,6 +97,37 @@ class _BabListPageState extends State<BabListPage> {
               context.read<TeacherCubit>().deleteBab(bab.id, widget.lessonId);
             },
             child: Text('Hapus', style: TextStyle(color: p.error)),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _confirmDuplicateBab(BuildContext context, Bab bab) {
+    final p = context.palette;
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Duplikat Bab Ini?'),
+        content: Text(
+          'Salinan "${bab.title}" akan muncul sebagai bab nomor berikutnya, '
+          'lengkap dengan seluruh slide dan XP-nya.',
+          style: AppTypography.bodyM.copyWith(color: p.textMuted),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(),
+            child: const Text('Batal'),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.of(ctx).pop();
+              context.read<TeacherCubit>().duplicateBab(
+                bab.id,
+                widget.lessonId,
+              );
+            },
+            child: const Text('Duplikat'),
           ),
         ],
       ),
@@ -467,33 +521,53 @@ class _BabListPageState extends State<BabListPage> {
                                         );
                                       },
                                     ),
-                                    IconButton(
-                                      icon: const Icon(
-                                        Icons.edit_outlined,
-                                        size: 18,
-                                      ),
-                                      tooltip: 'Edit Bab',
-                                      visualDensity: VisualDensity.compact,
-                                      onPressed: () {
-                                        context.push(
-                                          AppRoutes.teacherBabEdit(
-                                            widget.lessonId,
-                                            bab.id,
-                                          ),
-                                          extra: bab,
-                                        );
-                                      },
-                                    ),
-                                    IconButton(
+                                    PopupMenuButton<_BabAction>(
+                                      tooltip: 'Aksi bab',
                                       icon: Icon(
-                                        Icons.delete_outline_rounded,
-                                        size: 18,
-                                        color: p.error,
+                                        Icons.more_vert_rounded,
+                                        size: 20,
+                                        color: p.textMuted,
                                       ),
-                                      tooltip: 'Hapus Bab',
-                                      visualDensity: VisualDensity.compact,
-                                      onPressed: () =>
-                                          _confirmDeleteBab(context, bab),
+                                      onSelected: (action) {
+                                        switch (action) {
+                                          case _BabAction.edit:
+                                            context.push(
+                                              AppRoutes.teacherBabEdit(
+                                                widget.lessonId,
+                                                bab.id,
+                                              ),
+                                              extra: bab,
+                                            );
+                                          case _BabAction.duplicate:
+                                            _confirmDuplicateBab(context, bab);
+                                          case _BabAction.delete:
+                                            _confirmDeleteBab(context, bab);
+                                        }
+                                      },
+                                      itemBuilder: (ctx) => [
+                                        const PopupMenuItem(
+                                          value: _BabAction.edit,
+                                          child: _BabMenuRow(
+                                            icon: Icons.edit_outlined,
+                                            label: 'Edit Bab',
+                                          ),
+                                        ),
+                                        const PopupMenuItem(
+                                          value: _BabAction.duplicate,
+                                          child: _BabMenuRow(
+                                            icon: Icons.copy_all_rounded,
+                                            label: 'Duplikat Bab',
+                                          ),
+                                        ),
+                                        PopupMenuItem(
+                                          value: _BabAction.delete,
+                                          child: _BabMenuRow(
+                                            icon: Icons.delete_outline_rounded,
+                                            label: 'Hapus Bab',
+                                            color: p.error,
+                                          ),
+                                        ),
+                                      ],
                                     ),
                                   ],
                                 ),

@@ -2,7 +2,7 @@
 //
 // TUGAS: modal "Gabung ke Kelas Gurumu" (PROMPT.md Bagian 1 + Stitch v3
 // modal_gabung_kelas_guru_siswa). Alur: siswa mengetik kode rombel 6
-// karakter → otomatis kapital + tanda lipat ("RPL-8K2") + haptic tiap
+// karakter → otomatis kapital + tanda lipat ("K7M-8Q2") + haptic tiap
 // karakter → kartu pratinjau kelas (GET /classes/preview) → gabung
 // (POST /classes/join). Berhasil: lencana russ (playBadgeUnlocked)
 // lalu sheet menutup mengirim nama kelas ke pemanggil (snackbar di pemanggil).
@@ -239,7 +239,7 @@ class _JoinClassSheetState extends State<_JoinClassSheet> {
           textAlign: TextAlign.center,
           decoration: InputDecoration(
             counterText: '',
-            hintText: 'RPL-…',
+            hintText: 'K7M-…',
             filled: true,
             fillColor: p.surfaceAlt,
             contentPadding: const EdgeInsets.symmetric(vertical: 18),
@@ -278,7 +278,7 @@ class _JoinClassSheetState extends State<_JoinClassSheet> {
         Align(
           alignment: Alignment.centerLeft,
           child: Text(
-            'Contoh: RPL-94X atau KOD-7B1',
+            'Contoh: K7M-8Q2 atau 4NB-9XT',
             style: AppTypography.caption.copyWith(color: p.textMuted),
           ),
         ),

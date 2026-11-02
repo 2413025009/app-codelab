@@ -110,7 +110,7 @@ class _EvaluationBodyState extends State<_EvaluationBody> {
                   BoxShadow(color: accent.withValues(alpha: 0.3), blurRadius: 16, offset: const Offset(0, 4)),
                 ],
               ),
-              child: Icon(ok ? Icons.check_rounded : Icons.error_outline_rounded, color: Colors.white, size: 36),
+              child: Icon(ok ? Icons.check_rounded : Icons.error_outline_rounded, color: p.onPrimary, size: 36),
             ),
           ),
         ),
@@ -216,9 +216,9 @@ class _EvaluationBodyState extends State<_EvaluationBody> {
           Container(
             padding: const EdgeInsets.all(AppSpacing.md),
             decoration: BoxDecoration(
-              color: const Color(0xFFE4EDFF),
+              color: p.primaryContainer,
               borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: const Color(0xFFC7D9FF)),
+              border: Border.all(color: p.primary.withValues(alpha: 0.35)),
             ),
             child: Row(
               children: [
@@ -226,7 +226,7 @@ class _EvaluationBodyState extends State<_EvaluationBody> {
                   width: 40,
                   height: 40,
                   decoration: BoxDecoration(color: p.primary, borderRadius: BorderRadius.circular(12)),
-                  child: const Icon(Icons.verified_rounded, color: Colors.white, size: 20),
+                  child: Icon(Icons.verified_rounded, color: p.onPrimary, size: 20),
                 ),
                 const SizedBox(width: AppSpacing.md),
                 Expanded(
@@ -242,7 +242,7 @@ class _EvaluationBodyState extends State<_EvaluationBody> {
                           const SizedBox(width: 6),
                           Container(
                             padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1.5),
-                            decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(10)),
+                            decoration: BoxDecoration(color: p.surface, borderRadius: BorderRadius.circular(10)),
                             child: Text(
                               widget.xpEarned > 0 ? '+${widget.xpEarned} XP' : '+5 Poin',
                               style: TextStyle(fontSize: 10.5, fontWeight: FontWeight.w800, color: p.primary),
@@ -265,9 +265,11 @@ class _EvaluationBodyState extends State<_EvaluationBody> {
         Container(
           padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
-            color: const Color(0xFFFEF3C7),
+            color: p.warningContainer,
             borderRadius: BorderRadius.circular(14),
-            border: Border.all(color: const Color(0xFFFDE68A)),
+            border: Border.all(
+              color: p.warningText.withValues(alpha: 0.35),
+            ),
           ),
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -278,12 +280,12 @@ class _EvaluationBodyState extends State<_EvaluationBody> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text('Cooldown Submisi Compiler',
-                        style: TextStyle(fontSize: 11.5, fontWeight: FontWeight.bold, color: Color(0xFF92400E))),
+                    Text('Cooldown Submisi Compiler',
+                        style: TextStyle(fontSize: 11.5, fontWeight: FontWeight.bold, color: p.warningText)),
                     const SizedBox(height: 2),
                     Text.rich(
                       TextSpan(
-                        style: const TextStyle(fontSize: 11, color: Color(0xFF92400E)),
+                        style: TextStyle(fontSize: 11, color: p.warningText),
                         children: [
                           if (_cooldown > 0) ...[
                             const TextSpan(text: 'Tunggu '),
@@ -409,7 +411,7 @@ class _ResultRow extends StatelessWidget {
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1),
                         decoration: BoxDecoration(
-                          color: const Color(0xFFE4EDFF),
+                          color: p.primaryContainer,
                           borderRadius: BorderRadius.circular(4),
                         ),
                         child: Text(
@@ -434,7 +436,7 @@ class _ResultRow extends StatelessWidget {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
             decoration: BoxDecoration(
-              color: r.passed ? const Color(0xFFECFDF5) : const Color(0xFFFFEBEB),
+              color: r.passed ? p.successContainer : p.errorContainer,
               borderRadius: BorderRadius.circular(6),
             ),
             child: Text(

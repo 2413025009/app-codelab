@@ -1,8 +1,8 @@
 // FILE: lib/features/teacher/presentation/pages/teacher_analytics_picker_page.dart
 //
 // TUGAS: Layar pemilih kelas untuk tab "Analisa".
-// Route /analisa-pengajar hanya menampilkan daftar kelas; analisa satu kelas
-// punya layar sendiri di /analisa-pengajar/:classId.
+// Route /analisa-kelas-pengajar hanya menampilkan daftar kelas; analisa satu kelas
+// punya layar sendiri di /analisa-kelas-pengajar/:classId.
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -131,8 +131,7 @@ class _TeacherAnalyticsPickerPageState
                       ),
                     )
                   else
-                    for (final room in classes)
-                      _ClassAnalyticsCard(room: room),
+                    for (final room in classes) _ClassAnalyticsCard(room: room),
                 ],
               ),
             );
@@ -201,7 +200,9 @@ class _ClassAnalyticsCard extends StatelessWidget {
                         '${room.schoolName.isEmpty ? 'Sekolah belum diatur' : room.schoolName} • ${room.academicYear}',
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                        style: AppTypography.bodySm.copyWith(color: p.textMuted),
+                        style: AppTypography.bodySm.copyWith(
+                          color: p.textMuted,
+                        ),
                       ),
                       const SizedBox(height: 4),
                       Text(
@@ -214,11 +215,7 @@ class _ClassAnalyticsCard extends StatelessWidget {
                     ],
                   ),
                 ),
-                Icon(
-                  Icons.chevron_right_rounded,
-                  color: p.textMuted,
-                  size: 22,
-                ),
+                Icon(Icons.chevron_right_rounded, color: p.textMuted, size: 22),
               ],
             ),
           ),

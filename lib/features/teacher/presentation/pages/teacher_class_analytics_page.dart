@@ -22,7 +22,7 @@ import '../cubit/teacher_state.dart';
 class TeacherClassAnalyticsPage extends StatefulWidget {
   const TeacherClassAnalyticsPage({super.key, required this.classId});
 
-  /// Kelas yang dianalisa. Route: /analisa-pengajar/:classId
+  /// Kelas yang dianalisa. Route: /analisa-kelas-pengajar/:classId
   final String classId;
 
   @override
@@ -33,6 +33,15 @@ class TeacherClassAnalyticsPage extends StatefulWidget {
 class _TeacherClassAnalyticsPageState extends State<TeacherClassAnalyticsPage> {
   late String _selectedClassId;
   String _rosterFilter = 'ALL';
+
+  /// Sub-filter "Latihan Terbanyak": SEMUA | BIASA | MINI.
+  String _practiceFilter = 'SEMUA';
+
+  /// Sub-filter "Belum Memulai": SEMUA (materi & latihan) | MATERI | LATIHAN.
+  String _belumFilter = 'SEMUA';
+
+  /// Materi yang dipakai menyaring daftar siswa (null = semua materi).
+  String? _materialFilter;
 
   /// Peringkat hanya menampilkan 10 siswa teratas per kategori. Daftar siswa
   /// di bawahnya tetap memuat seluruh anggota kelas.
@@ -227,7 +236,7 @@ class _TeacherClassAnalyticsPageState extends State<TeacherClassAnalyticsPage> {
                         label: const Text('Salin Kode'),
                         style: ElevatedButton.styleFrom(
                           backgroundColor: p.primary,
-                          foregroundColor: Colors.white,
+                          foregroundColor: p.onPrimary,
                           padding: const EdgeInsets.symmetric(
                             horizontal: 24,
                             vertical: 14,
@@ -322,206 +331,213 @@ class _TeacherClassAnalyticsPageState extends State<TeacherClassAnalyticsPage> {
     );
   }
 
-  /// Saran kelompok tutor sebaya dari data roster kelas.
-  ///
-  /// Parameter pemilihan:
-  ///  - Tutor: sudah menuntaskan minimal 1 materi (completedCount > 0),
-  ///    diurutkan materi tuntas terbanyak → latihan lulus → XP → nama.
-  ///  - Siswa didampingi: belum menuntaskan materi (completedCount == 0),
-  ///    diurutkan latihan lulus terbanyak (paling aktif berlatih) → XP → nama.
-  ///  - Pembagian: bergiliran (round-robin) agar jumlah siswa per tutor
-  ///    seimbang, selisih maksimal satu siswa.
-  void _showTutorGroups(BuildContext context, List<StudentRosterRow> roster) {
-    final p = context.palette;
-
-    int byName(StudentRosterRow a, StudentRosterRow b) =>
-        a.name.toLowerCase().compareTo(b.name.toLowerCase());
-
-    final tutors = roster.where((s) => s.completedCount > 0).toList()
-      ..sort((a, b) {
-        final byMaterial = b.completedCount.compareTo(a.completedCount);
-        if (byMaterial != 0) return byMaterial;
-        final byPractice = b.practiceCompletedCount.compareTo(
-          a.practiceCompletedCount,
-        );
-        if (byPractice != 0) return byPractice;
-        final byXp = b.xpPoints.compareTo(a.xpPoints);
-        if (byXp != 0) return byXp;
-        return byName(a, b);
-      });
-
-    final mentees = roster.where((s) => s.completedCount == 0).toList()
-      ..sort((a, b) {
-        final byPractice = b.practiceCompletedCount.compareTo(
-          a.practiceCompletedCount,
-        );
-        if (byPractice != 0) return byPractice;
-        final byXp = b.xpPoints.compareTo(a.xpPoints);
-        if (byXp != 0) return byXp;
-        return byName(a, b);
-      });
-
-    final pairs = <MapEntry<StudentRosterRow, StudentRosterRow>>[];
-    if (tutors.isNotEmpty) {
-      for (var i = 0; i < mentees.length; i++) {
-        pairs.add(MapEntry(tutors[i % tutors.length], mentees[i]));
-      }
+  /// Nilai latihan yang sedang dipakai filter: semua / latihan biasa / mini
+  /// proyek. Dipakai untuk penyaringan sekaligus pengurutan.
+  int _practiceValue(StudentRosterRow s) {
+    switch (_practiceFilter) {
+      case 'BIASA':
+        return s.regularPracticeCount;
+      case 'MINI':
+        return s.miniProjectCount;
+      default:
+        return s.practiceCompletedCount;
     }
+  }
 
-    showModalBottomSheet<void>(
-      context: context,
-      isScrollControlled: true,
-      useSafeArea: true,
-      backgroundColor: p.surface,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+  /// Siswa memenuhi sub-filter "Belum Memulai" yang aktif?
+  bool _belumMatch(StudentRosterRow s) {
+    switch (_belumFilter) {
+      case 'MATERI':
+        return s.completedCount == 0;
+      case 'LATIHAN':
+        return s.practiceCompletedCount == 0;
+      default:
+        return s.completedCount == 0 && s.practiceCompletedCount == 0;
+    }
+  }
+
+  /// Chip filter kecil yang dipakai berulang di bagian Daftar Siswa.
+  Widget _filterChip(
+    BuildContext context, {
+    required String label,
+    required bool selected,
+    required Color accent,
+    required VoidCallback onSelected,
+  }) {
+    final p = context.palette;
+    return ChoiceChip(
+      label: Text(label),
+      selected: selected,
+      selectedColor: accent,
+      labelStyle: AppTypography.labelSm.copyWith(
+        // accent bisa amber terang (p.accent); onPrimary tetap terbaca di
+        // kedua mode, sedangkan putih gagal di mode gelap.
+        color: selected ? p.onPrimary : p.text,
+        fontWeight: selected ? FontWeight.bold : FontWeight.normal,
       ),
-      builder: (ctx) {
-        return ConstrainedBox(
-          constraints: BoxConstraints(
-            maxHeight: MediaQuery.of(ctx).size.height * 0.8,
-          ),
-          child: Padding(
-            padding: const EdgeInsets.all(AppSpacing.screen),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Center(
-                  child: Container(
-                    width: 44,
-                    height: 4,
-                    decoration: BoxDecoration(
-                      color: p.outline,
-                      borderRadius: BorderRadius.circular(2),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: AppSpacing.md),
-                Text(
-                  'Saran Kelompok Tutor Sebaya',
-                  style: AppTypography.titleM.copyWith(color: p.text),
-                ),
-                const SizedBox(height: AppSpacing.xs),
-                Text(
-                  tutors.isEmpty
-                      ? 'Belum ada siswa dengan materi tuntas. Saran kelompok akan muncul setelah ada siswa yang menyelesaikan materi.'
-                      : mentees.isEmpty
-                      ? 'Semua siswa sudah memiliki materi tuntas. Tidak ada siswa yang perlu didampingi saat ini.'
-                      : 'Tutor dipilih dari siswa dengan materi tuntas terbanyak; siswa didampingi adalah yang belum menuntaskan materi. Pasangan dibagi bergiliran agar jumlahnya seimbang.',
-                  style: AppTypography.bodySm.copyWith(color: p.textMuted),
-                ),
-                if (tutors.isNotEmpty && mentees.isNotEmpty) ...[
-                  const SizedBox(height: AppSpacing.sm),
-                  Container(
-                    padding: const EdgeInsets.all(AppSpacing.sm),
-                    decoration: BoxDecoration(
-                      color: p.surfaceAlt,
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    child: Text(
-                      'Parameter: materi tuntas → latihan lulus → XP (tutor); '
-                      'latihan lulus → XP (siswa didampingi).',
-                      style: AppTypography.caption.copyWith(
-                        color: p.textMuted,
-                        fontSize: 11,
-                      ),
-                    ),
-                  ),
-                ],
-                const SizedBox(height: AppSpacing.md),
-                if (pairs.isEmpty)
-                  Padding(
-                    padding: const EdgeInsets.symmetric(
-                      vertical: AppSpacing.lg,
-                    ),
-                    child: Icon(
-                      Icons.groups_rounded,
-                      size: 48,
-                      color: p.textMuted,
-                    ),
-                  )
-                else
-                  Flexible(
-                    child: ListView.separated(
-                      shrinkWrap: true,
-                      itemCount: pairs.length,
-                      separatorBuilder: (_, _) =>
-                          const SizedBox(height: AppSpacing.sm),
-                      itemBuilder: (context, index) {
-                        final pair = pairs[index];
-                        return Container(
-                          padding: const EdgeInsets.all(AppSpacing.md),
-                          decoration: BoxDecoration(
-                            color: p.surfaceAlt,
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: Row(
-                            children: [
-                              Icon(
-                                Icons.group_work_rounded,
-                                color: p.primary,
-                                size: 20,
-                              ),
-                              const SizedBox(width: AppSpacing.sm),
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      'Tutor: ${pair.key.name}',
-                                      style: AppTypography.labelM.copyWith(
-                                        color: p.text,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                    Text(
-                                      'Siswa Didampingi: ${pair.value.name}',
-                                      style: AppTypography.bodySm.copyWith(
-                                        color: p.textMuted,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              Text(
-                                '${pair.key.completedCount} materi',
-                                style: AppTypography.caption.copyWith(
-                                  color: p.success,
-                                ),
-                              ),
-                            ],
-                          ),
-                        );
-                      },
-                    ),
-                  ),
-                const SizedBox(height: AppSpacing.md),
-                AppButton(
-                  label: 'Tutup',
-                  onPressed: () => Navigator.of(ctx).pop(),
-                ),
-              ],
-            ),
-          ),
-        );
+      onSelected: (val) {
+        if (val) onSelected();
       },
     );
   }
 
+  /// Penjelasan spesifik untuk filter yang sedang aktif, supaya guru tahu
+  /// persis siswa mana yang muncul dan bagaimana urutannya.
+  String _rosterFilterHint(List<MaterialProgress> materials) {
+    final material = materials
+        .where((m) => m.lessonId == _materialFilter)
+        .firstOrNull;
+    final materi = material == null
+        ? ''
+        : ' yang sudah menuntaskan "${material.title}"';
+
+    switch (_rosterFilter) {
+      case 'TUNTAS':
+        return 'Materi Tuntas = siswa yang sudah menuntaskan minimal satu '
+            'materi$materi, diurutkan dari materi tuntas terbanyak.';
+      case 'LATIHAN':
+        final jenis = switch (_practiceFilter) {
+          'BIASA' => 'latihan biasa (bukan mini proyek)',
+          'MINI' => 'mini proyek',
+          _ => 'latihan apa pun (biasa + mini proyek)',
+        };
+        return 'Latihan Terbanyak = siswa yang sudah lulus minimal satu '
+            '$jenis$materi, diurutkan dari jumlah latihan lulus terbanyak.';
+      case 'BELUM':
+        final cakupan = switch (_belumFilter) {
+          'MATERI' => 'belum menuntaskan satu materi pun',
+          'LATIHAN' => 'belum menyelesaikan satu latihan pun',
+          _ => 'belum menuntaskan materi dan belum menyelesaikan latihan',
+        };
+        return 'Belum Memulai = siswa yang $cakupan$materi, diurutkan dari '
+            'siswa yang paling aktif berlatih.';
+      default:
+        return 'Semua = seluruh anggota kelas$materi, diurutkan dari materi '
+            'tuntas terbanyak lalu latihan lulus.';
+    }
+  }
+
+  /// Tombol satu-per-satu untuk tiap materi kurikulum resmi. Menekan tombol
+  /// menyaring Daftar Siswa ke materi tersebut (tekan lagi untuk melepas).
+  Widget _materialFilterButtons(
+    BuildContext context,
+    List<MaterialProgress> materials,
+    List<StudentRosterRow> roster,
+  ) {
+    final p = context.palette;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Icon(Icons.filter_list_rounded, size: 16, color: p.primary),
+            const SizedBox(width: 6),
+            Expanded(
+              child: Text(
+                'Saring Daftar Siswa per Materi',
+                style: AppTypography.labelL.copyWith(
+                  color: p.text,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+            if (_materialFilter != null)
+              TextButton(
+                onPressed: () => setState(() => _materialFilter = null),
+                child: const Text('Reset'),
+              ),
+          ],
+        ),
+        Text(
+          'Angka di tiap tombol = jumlah siswa yang sudah menuntaskan materi itu.',
+          style: AppTypography.caption.copyWith(
+            color: p.textMuted,
+            fontSize: 11,
+          ),
+        ),
+        const SizedBox(height: AppSpacing.sm),
+        SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: Row(
+            children: [
+              _filterChip(
+                context,
+                label: 'Semua Materi (${roster.length})',
+                selected: _materialFilter == null,
+                accent: p.primary,
+                onSelected: () => setState(() => _materialFilter = null),
+              ),
+              for (final m in materials) ...[
+                const SizedBox(width: 8),
+                _filterChip(
+                  context,
+                  label: '${m.title} (${m.completedCount})',
+                  selected: _materialFilter == m.lessonId,
+                  accent: p.success,
+                  onSelected: () => setState(() {
+                    _materialFilter = _materialFilter == m.lessonId
+                        ? null
+                        : m.lessonId;
+                  }),
+                ),
+              ],
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  /// Penjelasan rumus bar "Kemajuan Kurikulum Per Track".
+  void _showTrackInfo() {
+    final p = context.palette;
+    showDialog<void>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Dasar Nilai Kemajuan Per Track'),
+        content: SingleChildScrollView(
+          child: Text(
+            'Persentase tiap track = rata-rata progress_percent seluruh siswa '
+            'kelas pada SEMUA materi resmi (kurikulum bawaan) di track itu.\n\n'
+            '• Setiap pasangan siswa × materi dihitung satu baris, termasuk '
+            'materi yang belum pernah dibuka (dianggap 0%).\n'
+            '• Nilai 100% berarti seluruh siswa kelas sudah menuntaskan '
+            'seluruh materi di track tersebut.\n'
+            '• Materi buatan guru tidak dihitung (hanya kurikulum resmi).\n'
+            '• Angka ini mengukur ketuntasan materi, bukan nilai latihan.',
+            style: AppTypography.bodySm.copyWith(color: p.text),
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(),
+            child: const Text('Mengerti'),
+          ),
+        ],
+      ),
+    );
+  }
+
   /// Susun daftar siswa sesuai filter yang aktif:
-  ///  - Semua / Materi Tuntas : materi tuntas terbanyak di atas;
-  ///  - Latihan Terbanyak    : latihan lulus terbanyak di atas;
-  ///  - Belum Kerjakan Materi: siswa tanpa materi tuntas, latihan terbanyak
-  ///    lebih dulu agar guru melihat yang aktif berlatih tetapi tertinggal
-  ///    di materi.
+  ///  - Semua          : seluruh anggota kelas, materi tuntas terbanyak di atas;
+  ///  - Materi Tuntas  : sudah menuntaskan ≥1 materi;
+  ///  - Latihan Terbanyak: diurutkan menurut jenis latihan yang dipilih
+  ///    (semua / latihan biasa / mini proyek);
+  ///  - Belum Memulai  : belum menuntaskan materi & belum menyelesaikan
+  ///    latihan, dapat dipersempit ke salah satunya.
+  /// Filter materi (`_materialFilter`) berlaku untuk semua kategori.
   List<StudentRosterRow> _displayedRoster(List<StudentRosterRow> roster) {
     final filtered = roster.where((s) {
+      if (_materialFilter != null && !s.hasCompletedLesson(_materialFilter!)) {
+        return false;
+      }
       switch (_rosterFilter) {
         case 'TUNTAS':
           return s.completedCount > 0;
+        case 'LATIHAN':
+          return _practiceValue(s) > 0;
         case 'BELUM':
-          return s.completedCount == 0;
+          return _belumMatch(s);
         default:
           return true;
       }
@@ -531,7 +547,10 @@ class _TeacherClassAnalyticsPageState extends State<TeacherClassAnalyticsPage> {
         a.name.toLowerCase().compareTo(b.name.toLowerCase());
 
     filtered.sort((a, b) {
-      if (_rosterFilter == 'LATIHAN' || _rosterFilter == 'BELUM') {
+      if (_rosterFilter == 'LATIHAN') {
+        final byPractice = _practiceValue(b).compareTo(_practiceValue(a));
+        if (byPractice != 0) return byPractice;
+      } else if (_rosterFilter == 'BELUM') {
         final byPractice = b.practiceCompletedCount.compareTo(
           a.practiceCompletedCount,
         );
@@ -690,7 +709,9 @@ class _TeacherClassAnalyticsPageState extends State<TeacherClassAnalyticsPage> {
           builder: (context, state) {
             final analytics = state.analytics;
             final roster = state.roster;
-            final classCode = room?.classCode ?? 'RPL-XXX';
+            final materials =
+                analytics?.materials ?? const <MaterialProgress>[];
+            final classCode = room?.classCode ?? 'XXX-XXX';
             final className = room?.name ?? 'Kelas Laboratorium';
 
             if (state.isLoading && analytics == null) {
@@ -780,7 +801,7 @@ class _TeacherClassAnalyticsPageState extends State<TeacherClassAnalyticsPage> {
                                 },
                                 selectedColor: p.primary,
                                 labelStyle: AppTypography.labelSm.copyWith(
-                                  color: isSelected ? Colors.white : p.text,
+                                  color: isSelected ? p.onPrimary : p.text,
                                   fontWeight: isSelected
                                       ? FontWeight.bold
                                       : FontWeight.normal,
@@ -925,7 +946,7 @@ class _TeacherClassAnalyticsPageState extends State<TeacherClassAnalyticsPage> {
                                   label: const Text('Perbesar ↗'),
                                   style: ElevatedButton.styleFrom(
                                     backgroundColor: p.primary,
-                                    foregroundColor: Colors.white,
+                                    foregroundColor: p.onPrimary,
                                     shape: RoundedRectangleBorder(
                                       borderRadius: BorderRadius.circular(20),
                                     ),
@@ -944,9 +965,34 @@ class _TeacherClassAnalyticsPageState extends State<TeacherClassAnalyticsPage> {
                     const SizedBox(height: AppSpacing.lg),
 
                     // 4 Track Progress Bars
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            'Kemajuan Kurikulum Per Track',
+                            style: AppTypography.titleM.copyWith(color: p.text),
+                          ),
+                        ),
+                        IconButton(
+                          icon: const Icon(Icons.info_outline_rounded),
+                          iconSize: 18,
+                          color: p.textMuted,
+                          tooltip:
+                              'Rata-rata progress semua siswa kelas pada '
+                              'semua materi resmi di track ini (materi yang '
+                              'belum dibuka = 0%).',
+                          visualDensity: VisualDensity.compact,
+                          onPressed: _showTrackInfo,
+                        ),
+                      ],
+                    ),
                     Text(
-                      'Kemajuan Kurikulum Per Track',
-                      style: AppTypography.titleM.copyWith(color: p.text),
+                      'Rata-rata ketuntasan seluruh siswa kelas pada semua '
+                      'materi resmi track tersebut.',
+                      style: AppTypography.caption.copyWith(
+                        color: p.textMuted,
+                        fontSize: 11,
+                      ),
                     ),
                     const SizedBox(height: AppSpacing.sm),
                     Container(
@@ -1162,124 +1208,154 @@ class _TeacherClassAnalyticsPageState extends State<TeacherClassAnalyticsPage> {
                     ),
                     const SizedBox(height: AppSpacing.sm),
 
-                    // Filter Chips: Semua, Materi Tuntas, Latihan Terbanyak,
-                    // Belum Kerjakan Materi.
+                    // Filter utama Daftar Siswa: Semua, Materi Tuntas,
+                    // Latihan Terbanyak, Belum Memulai.
                     SingleChildScrollView(
                       scrollDirection: Axis.horizontal,
                       child: Row(
                         children: [
-                          ChoiceChip(
-                            label: Text('Semua (${roster.length})'),
+                          _filterChip(
+                            context,
+                            label: 'Semua (${roster.length})',
                             selected: _rosterFilter == 'ALL',
-                            selectedColor: p.primary,
-                            labelStyle: AppTypography.labelSm.copyWith(
-                              color: _rosterFilter == 'ALL'
-                                  ? Colors.white
-                                  : p.text,
-                              fontWeight: _rosterFilter == 'ALL'
-                                  ? FontWeight.bold
-                                  : FontWeight.normal,
-                            ),
-                            onSelected: (val) {
-                              if (val) {
-                                setState(() => _rosterFilter = 'ALL');
-                              }
-                            },
+                            accent: p.primary,
+                            onSelected: () => setState(() {
+                              _rosterFilter = 'ALL';
+                            }),
                           ),
                           const SizedBox(width: 8),
-                          ChoiceChip(
-                            label: Text(
-                              'Materi Tuntas (${roster.where((s) => s.completedCount > 0).length})',
-                            ),
+                          _filterChip(
+                            context,
+                            label:
+                                'Materi Tuntas (${roster.where((s) => s.completedCount > 0).length})',
                             selected: _rosterFilter == 'TUNTAS',
-                            selectedColor: p.success,
-                            labelStyle: AppTypography.labelSm.copyWith(
-                              color: _rosterFilter == 'TUNTAS'
-                                  ? Colors.white
-                                  : p.text,
-                              fontWeight: _rosterFilter == 'TUNTAS'
-                                  ? FontWeight.bold
-                                  : FontWeight.normal,
-                            ),
-                            onSelected: (val) {
-                              if (val) {
-                                setState(() => _rosterFilter = 'TUNTAS');
-                              }
-                            },
+                            accent: p.success,
+                            onSelected: () => setState(() {
+                              _rosterFilter = 'TUNTAS';
+                            }),
                           ),
                           const SizedBox(width: 8),
-                          ChoiceChip(
-                            label: const Text('Latihan Terbanyak'),
+                          _filterChip(
+                            context,
+                            label: 'Latihan Terbanyak',
                             selected: _rosterFilter == 'LATIHAN',
-                            selectedColor: p.primary,
-                            labelStyle: AppTypography.labelSm.copyWith(
-                              color: _rosterFilter == 'LATIHAN'
-                                  ? Colors.white
-                                  : p.text,
-                              fontWeight: _rosterFilter == 'LATIHAN'
-                                  ? FontWeight.bold
-                                  : FontWeight.normal,
-                            ),
-                            onSelected: (val) {
-                              if (val) {
-                                setState(() => _rosterFilter = 'LATIHAN');
-                              }
-                            },
+                            accent: p.primary,
+                            onSelected: () => setState(() {
+                              _rosterFilter = 'LATIHAN';
+                            }),
                           ),
                           const SizedBox(width: 8),
-                          ChoiceChip(
-                            label: Text(
-                              'Belum Kerjakan Materi (${roster.where((s) => s.completedCount == 0).length})',
-                            ),
+                          _filterChip(
+                            context,
+                            label:
+                                'Belum Memulai (${roster.where((s) => _belumMatch(s)).length})',
                             selected: _rosterFilter == 'BELUM',
-                            selectedColor: p.accent,
-                            labelStyle: AppTypography.labelSm.copyWith(
-                              color: _rosterFilter == 'BELUM'
-                                  ? Colors.white
-                                  : p.text,
-                              fontWeight: _rosterFilter == 'BELUM'
-                                  ? FontWeight.bold
-                                  : FontWeight.normal,
-                            ),
-                            onSelected: (val) {
-                              if (val) {
-                                setState(() => _rosterFilter = 'BELUM');
-                              }
-                            },
+                            accent: p.accent,
+                            onSelected: () => setState(() {
+                              _rosterFilter = 'BELUM';
+                            }),
                           ),
                         ],
                       ),
                     ),
+
+                    // Sub-filter Latihan Terbanyak: semua / biasa / mini proyek.
+                    if (_rosterFilter == 'LATIHAN') ...[
+                      const SizedBox(height: 6),
+                      SingleChildScrollView(
+                        scrollDirection: Axis.horizontal,
+                        child: Row(
+                          children: [
+                            _filterChip(
+                              context,
+                              label: 'Semua Latihan',
+                              selected: _practiceFilter == 'SEMUA',
+                              accent: p.primary,
+                              onSelected: () => setState(() {
+                                _practiceFilter = 'SEMUA';
+                              }),
+                            ),
+                            const SizedBox(width: 8),
+                            _filterChip(
+                              context,
+                              label: 'Latihan Biasa',
+                              selected: _practiceFilter == 'BIASA',
+                              accent: p.primary,
+                              onSelected: () => setState(() {
+                                _practiceFilter = 'BIASA';
+                              }),
+                            ),
+                            const SizedBox(width: 8),
+                            _filterChip(
+                              context,
+                              label: 'Mini Proyek',
+                              selected: _practiceFilter == 'MINI',
+                              accent: p.primary,
+                              onSelected: () => setState(() {
+                                _practiceFilter = 'MINI';
+                              }),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+
+                    // Sub-filter Belum Memulai: materi / latihan.
+                    if (_rosterFilter == 'BELUM') ...[
+                      const SizedBox(height: 6),
+                      SingleChildScrollView(
+                        scrollDirection: Axis.horizontal,
+                        child: Row(
+                          children: [
+                            _filterChip(
+                              context,
+                              label: 'Materi & Latihan',
+                              selected: _belumFilter == 'SEMUA',
+                              accent: p.accent,
+                              onSelected: () => setState(() {
+                                _belumFilter = 'SEMUA';
+                              }),
+                            ),
+                            const SizedBox(width: 8),
+                            _filterChip(
+                              context,
+                              label: 'Belum Kerjakan Materi',
+                              selected: _belumFilter == 'MATERI',
+                              accent: p.accent,
+                              onSelected: () => setState(() {
+                                _belumFilter = 'MATERI';
+                              }),
+                            ),
+                            const SizedBox(width: 8),
+                            _filterChip(
+                              context,
+                              label: 'Belum Selesaikan Latihan',
+                              selected: _belumFilter == 'LATIHAN',
+                              accent: p.accent,
+                              onSelected: () => setState(() {
+                                _belumFilter = 'LATIHAN';
+                              }),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+
                     const SizedBox(height: 6),
                     Text(
-                      // Jelaskan basis filter supaya guru tidak menebak.
-                      '"Semua" dan "Materi Tuntas" diurutkan dari materi '
-                      'tuntas terbanyak. "Latihan Terbanyak" diurutkan dari '
-                      'latihan lulus terbanyak. "Belum Kerjakan Materi" = '
-                      'siswa yang belum menuntaskan satu materi pun.',
+                      // Jelaskan persis basis filter yang aktif.
+                      _rosterFilterHint(materials),
                       style: AppTypography.caption.copyWith(
                         color: p.textMuted,
                         fontSize: 11,
                       ),
                     ),
-                    const SizedBox(height: AppSpacing.sm),
+                    const SizedBox(height: AppSpacing.md),
 
-                    // Saran kelompok tutor sebaya (dihitung dari data nyata).
-                    if (roster.isNotEmpty) ...[
-                      OutlinedButton.icon(
-                        style: OutlinedButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(vertical: 10),
-                          foregroundColor: p.primary,
-                          side: BorderSide(color: p.primary.withAlpha(120)),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                        ),
-                        icon: const Icon(Icons.group_work_rounded, size: 18),
-                        label: const Text('Saran Kelompok Tutor Sebaya'),
-                        onPressed: () => _showTutorGroups(context, roster),
-                      ),
-                      const SizedBox(height: AppSpacing.sm),
+                    // Tombol satu-per-satu tiap materi kurikulum.
+                    if (roster.isNotEmpty && materials.isNotEmpty) ...[
+                      _materialFilterButtons(context, materials, roster),
+                      const SizedBox(height: AppSpacing.md),
                     ],
 
                     if (roster.isEmpty)
@@ -1373,8 +1449,12 @@ class _TeacherClassAnalyticsPageState extends State<TeacherClassAnalyticsPage> {
                                         Text(
                                           // Sebutkan angka nyata, bukan label
                                           // samar: berapa materi & latihan tuntas.
-                                          '${student.completedCount} materi tuntas • '
-                                          '${student.practiceCompletedCount} latihan lulus',
+                                          _rosterFilter == 'LATIHAN'
+                                              ? '${student.completedCount} materi tuntas • '
+                                                    '${student.regularPracticeCount} latihan biasa • '
+                                                    '${student.miniProjectCount} mini proyek'
+                                              : '${student.completedCount} materi tuntas • '
+                                                    '${student.practiceCompletedCount} latihan lulus',
                                           style: AppTypography.caption.copyWith(
                                             color: student.completedCount > 0
                                                 ? p.success

@@ -326,17 +326,19 @@ class _ChallengeDetailPageState extends State<ChallengeDetailPage> {
                         Container(
                           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                           decoration: BoxDecoration(
-                            color: const Color(0xFFFEF3C7),
+                            color: p.warningContainer,
                             borderRadius: BorderRadius.circular(16),
-                            border: Border.all(color: const Color(0xFFFDE68A)),
+                            border: Border.all(
+                              color: p.warningText.withValues(alpha: 0.35),
+                            ),
                           ),
                           child: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              const Icon(Icons.bolt_rounded, size: 14, color: Color(0xFF92400E)),
+                              Icon(Icons.bolt_rounded, size: 14, color: p.warningText),
                               const SizedBox(width: 3),
                               Text('+${d.xp} XP',
-                                  style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Color(0xFF92400E))),
+                                  style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: p.warningText)),
                             ],
                           ),
                         ),
@@ -392,7 +394,10 @@ class _ChallengeDetailPageState extends State<ChallengeDetailPage> {
                     ),
                     const SizedBox(height: AppSpacing.md),
 
-                    if (_tab == 0) ..._instructionTab(context, d, shownReport, completed) else _solutionTab(context),
+                    if (_tab == 0)
+                      ..._instructionTab(context, d, shownReport, completed)
+                    else
+                      _solutionTab(context, d.title),
                   ],
                 ),
               ),
@@ -421,7 +426,7 @@ class _ChallengeDetailPageState extends State<ChallengeDetailPage> {
               Container(
                 width: 36,
                 height: 36,
-                decoration: BoxDecoration(color: const Color(0xFFE4EDFF), borderRadius: BorderRadius.circular(10)),
+                decoration: BoxDecoration(color: p.primaryContainer, borderRadius: BorderRadius.circular(10)),
                 child: Icon(Icons.menu_book_rounded, color: p.primary, size: 20),
               ),
               const SizedBox(width: 10),
@@ -479,6 +484,7 @@ class _ChallengeDetailPageState extends State<ChallengeDetailPage> {
           report: shownReport,
           onAsk: () => showAiTutorSheet(
             context,
+            topic: d.title,
             challengeId: widget.challengeId,
             getCode: () => _code.text,
             errorMessage: _tutorErrorMessage(),
@@ -499,7 +505,7 @@ class _ChallengeDetailPageState extends State<ChallengeDetailPage> {
     ];
   }
 
-  Widget _solutionTab(BuildContext context) {
+  Widget _solutionTab(BuildContext context, String challengeTitle) {
     final p = context.palette;
     const accessorySymbols = ['>=', '>', '<=', '<', '==', ':', '(', ')', '"', 'tab', 'indent'];
 
@@ -620,7 +626,7 @@ class _ChallengeDetailPageState extends State<ChallengeDetailPage> {
                 width: 38,
                 height: 38,
                 decoration: BoxDecoration(
-                  color: const Color(0xFFE4EDFF),
+                  color: p.primaryContainer,
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: Icon(Icons.smart_toy_rounded, color: p.primary, size: 20),
@@ -636,7 +642,7 @@ class _ChallengeDetailPageState extends State<ChallengeDetailPage> {
                         const SizedBox(width: 6),
                         Container(
                           padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1.5),
-                          decoration: BoxDecoration(color: const Color(0xFFE4EDFF), borderRadius: BorderRadius.circular(10)),
+                          decoration: BoxDecoration(color: p.primaryContainer, borderRadius: BorderRadius.circular(10)),
                           child: Builder(
                             builder: (pillContext) {
                               // Kuota nyata dari server (ai_quotas 5/hari),
@@ -671,6 +677,7 @@ class _ChallengeDetailPageState extends State<ChallengeDetailPage> {
                 ),
                 onPressed: () => showAiTutorSheet(
                   context,
+                  topic: challengeTitle,
                   challengeId: widget.challengeId,
                   getCode: () => _code.text,
                 ),
@@ -760,7 +767,7 @@ class _SegmentedTabs extends StatelessWidget {
       testBadge = Container(
         padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1.5),
         decoration: BoxDecoration(
-          color: hasPassBadge ? const Color(0xFFECFDF5) : const Color(0xFFFFEBEB),
+          color: hasPassBadge ? p.successContainer : p.errorContainer,
           borderRadius: BorderRadius.circular(8),
         ),
         child: Text(
@@ -852,7 +859,7 @@ class _ResultsCard extends StatelessWidget {
       child: Column(
         children: [
           Container(
-            color: ok ? const Color(0xFFECFDF5) : const Color(0xFFFFEBEB),
+            color: ok ? p.successContainer : p.errorContainer,
             padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -862,7 +869,7 @@ class _ResultsCard extends StatelessWidget {
                     width: 28,
                     height: 28,
                     decoration: BoxDecoration(color: c, shape: BoxShape.circle),
-                    child: Icon(ok ? Icons.check_rounded : Icons.close_rounded, color: Colors.white, size: 16),
+                    child: Icon(ok ? Icons.check_rounded : Icons.close_rounded, color: p.onPrimary, size: 16),
                   ),
                   const SizedBox(width: 10),
                   Expanded(
@@ -956,9 +963,11 @@ class _HintCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(AppSpacing.md),
       decoration: BoxDecoration(
-        color: const Color(0xFFFEF3C7),
+        color: p.warningContainer,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFFFDE68A)),
+        border: Border.all(
+          color: p.warningText.withValues(alpha: 0.35),
+        ),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -967,15 +976,22 @@ class _HintCard extends StatelessWidget {
             Container(
               width: 32,
               height: 32,
-              decoration: const BoxDecoration(color: Color(0xFFD97706), shape: BoxShape.circle),
-              child: const Icon(Icons.lightbulb_outline_rounded, size: 18, color: Colors.white),
+              // accent selalu amber cerah di kedua mode, jadi ikonnya pakai
+              // onAccent (gelap) supaya tetap terlihat.
+              decoration: BoxDecoration(color: p.accent, shape: BoxShape.circle),
+              child: const Icon(
+                Icons.lightbulb_outline_rounded,
+                size: 18,
+                color: AppPalette.onAccent,
+              ),
             ),
             const SizedBox(width: 10),
             Expanded(
               child: Text('CodeLab AI Scaffolding',
                   style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: p.text)),
             ),
-            const Text('Scaffolding 3 Level', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Color(0xFF92400E))),
+            Text('Scaffolding 3 Level',
+                style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: p.warningText)),
           ]),
           const SizedBox(height: 8),
           Text.rich(
@@ -1035,7 +1051,7 @@ class _CompletedSummaryCard extends StatelessWidget {
               width: 28,
               height: 28,
               decoration: BoxDecoration(color: p.success, shape: BoxShape.circle),
-              child: const Icon(Icons.check_rounded, color: Colors.white, size: 16),
+              child: Icon(Icons.check_rounded, color: p.onPrimary, size: 16),
             ),
             const SizedBox(width: 10),
             Expanded(
@@ -1133,13 +1149,20 @@ class _BottomActions extends StatelessWidget {
                 style: ElevatedButton.styleFrom(
                   minimumSize: const Size(0, 48),
                   backgroundColor: p.primary,
-                  foregroundColor: Colors.white,
+                  foregroundColor: p.onPrimary,
                   shape: const StadiumBorder(),
                   elevation: 2,
                 ),
                 onPressed: onSubmit,
                 icon: submitting
-                    ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
+                    ? SizedBox(
+                        width: 16,
+                        height: 16,
+                        child: CircularProgressIndicator(
+                          color: p.onPrimary,
+                          strokeWidth: 2,
+                        ),
+                      )
                     : const Icon(Icons.send_rounded, size: 18),
                 label: const Text('Kirim Solusi', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
               ),

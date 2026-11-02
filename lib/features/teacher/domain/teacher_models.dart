@@ -71,6 +71,9 @@ class StudentRosterRow {
     required this.lastBabTitle,
     required this.completedCount,
     this.practiceCompletedCount = 0,
+    this.completedLessonIds = const [],
+    this.regularPracticeCount = 0,
+    this.miniProjectCount = 0,
   });
 
   final String studentId;
@@ -86,6 +89,17 @@ class StudentRosterRow {
   /// "Latihan". Dipisah dari materi agar guru bisa melihat dua kemampuan
   /// berbeda tanpa menumpuk section baru di bawah halaman.
   final int practiceCompletedCount;
+
+  /// ID materi yang sudah tuntas — dipakai filter per materi.
+  final List<String> completedLessonIds;
+
+  /// Pecahan [practiceCompletedCount]: latihan biasa vs mini proyek.
+  final int regularPracticeCount;
+  final int miniProjectCount;
+
+  /// Sudah menuntaskan materi [lessonId]?
+  bool hasCompletedLesson(String lessonId) =>
+      completedLessonIds.contains(lessonId);
 }
 
 /// Satu bar track di halaman analisa kelas.
@@ -114,15 +128,35 @@ class HardestChapter {
   final String challengeSlug;
 }
 
+/// Satu materi resmi + berapa anggota kelas yang menuntaskannya.
+/// Dasar tombol filter per materi di daftar siswa.
+class MaterialProgress {
+  const MaterialProgress({
+    required this.lessonId,
+    required this.title,
+    required this.topic,
+    required this.completedCount,
+  });
+
+  final String lessonId;
+  final String title;
+  final String topic;
+  final int completedCount;
+}
+
 /// Hasil lengkap analisa satu kelas.
 class ClassAnalytics {
   const ClassAnalytics({
     required this.memberCount,
     required this.trackBars,
     required this.hardestChapters,
+    this.materials = const [],
   });
 
   final int memberCount;
   final List<TrackBar> trackBars;
   final List<HardestChapter> hardestChapters;
+
+  /// Materi resmi berurutan (dengan jumlah siswa tuntas).
+  final List<MaterialProgress> materials;
 }

@@ -107,7 +107,7 @@ class QuizSlideWidgetState extends State<QuizSlideWidget> {
                             letter,
                             style: TextStyle(
                               fontWeight: FontWeight.bold,
-                              color: isSelected ? Colors.white : p.text,
+                              color: isSelected ? p.onPrimary : p.text,
                               fontSize: 14,
                             ),
                           ),

@@ -48,7 +48,9 @@ class BugHunterSlideWidgetState extends State<BugHunterSlideWidget> {
             children: [
               AppTag(
                 'Bug Hunter',
-                background: const Color(0xFFFDECEE),
+                // errorContainer/error adalah pasangan token; versi hardcoded
+                // merah muda muda membuat teks error tak terbaca di mode gelap.
+                background: p.errorContainer,
                 foreground: p.error,
                 icon: Icons.bug_report_rounded,
               ),

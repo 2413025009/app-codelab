@@ -21,6 +21,7 @@ class AppPalette extends ThemeExtension<AppPalette> {
     required this.warningContainer,
     required this.warningText,
     required this.codeBg,
+    required this.onPrimary,
   });
 
   final Color bg;
@@ -39,6 +40,11 @@ class AppPalette extends ThemeExtension<AppPalette> {
   final Color warningContainer;
   final Color warningText;
   final Color codeBg;
+
+  /// Warna teks/ikon di atas permukaan berwarna kuat: [primary], [success],
+  /// atau [error]. Di mode terang isinya putih; di mode gelap permukaan itu
+  /// lebih cerah, jadi teksnya justru harus gelap supaya tetap terbaca.
+  final Color onPrimary;
 
   /// Text colour that sits on top of [accent] (always dark, per DESIGN.md).
   static const Color onAccent = Color(0xFF1F2430);
@@ -60,6 +66,7 @@ class AppPalette extends ThemeExtension<AppPalette> {
     warningContainer: Color(0xFFFFF4DC),
     warningText: Color(0xFF9D4200),
     codeBg: Color(0xFFF1EFE9),
+    onPrimary: Color(0xFFFFFFFF),
   );
 
   static const dark = AppPalette(
@@ -79,6 +86,7 @@ class AppPalette extends ThemeExtension<AppPalette> {
     warningContainer: Color(0xFF3D3015),
     warningText: Color(0xFFFFC145),
     codeBg: Color(0xFF262A33),
+    onPrimary: Color(0xFF14161B),
   );
 
   @override

@@ -22,6 +22,7 @@ import '../../../../core/widgets/app_card.dart';
 import '../../../../core/widgets/app_snack.dart';
 import '../../domain/class_repository.dart';
 import 'join_class_sheet.dart';
+import 'my_classes_sheet.dart';
 import 'student_class_detail_sheet.dart';
 
 /// Kartu kelas aktif siswa — disisipkan di halaman Profil (tab 3).
@@ -45,6 +46,9 @@ class _MyClassSectionState extends State<MyClassSection> {
   void initState() {
     super.initState();
     appShellTabActivated.addListener(_handleTabActivated);
+    // Muat pertama: event tab bisa terlewat karena IndexedStack baru
+    // membangun halaman ini SETELAH notifier diubah.
+    WidgetsBinding.instance.addPostFrameCallback((_) => _load());
   }
 
   @override
@@ -107,6 +111,18 @@ class _MyClassSectionState extends State<MyClassSection> {
     _load();
   }
 
+  /// Buka daftar kelas; `true` berarti siswa ingin membuka lembar gabung.
+  Future<void> _openAllClasses() async {
+    final wantsJoin = await showMyClassesSheet(context);
+    if (!mounted) return;
+    if (wantsJoin == true) {
+      await _openJoin();
+      return;
+    }
+    // Daftar bisa berubah karena siswa keluar dari kelas di dalamnya.
+    _load();
+  }
+
   @override
   Widget build(BuildContext context) {
     final p = context.palette;
@@ -114,9 +130,27 @@ class _MyClassSectionState extends State<MyClassSection> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Text(
-          'Kelas Belajar',
-          style: AppTypography.titleM.copyWith(color: p.text),
+        Row(
+          children: [
+            Expanded(
+              child: Text(
+                'Kelas Belajar',
+                style: AppTypography.titleM.copyWith(color: p.text),
+              ),
+            ),
+            if (!_loading && !_failed)
+              TextButton(
+                onPressed: _openAllClasses,
+                child: Text(
+                  'Lihat Semua',
+                  style: AppTypography.label.copyWith(
+                    color: p.primary,
+                    fontSize: 13,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+          ],
         ),
         const SizedBox(height: AppSpacing.sm),
         if (_loading)
@@ -203,8 +237,10 @@ class _MyClassSectionState extends State<MyClassSection> {
                   ),
           )
         else
-          // Kelas aktif: satu kelas per siswa (aturan minggu 10).
-          for (final info in _classes)
+          // Kelas aktif: satu kelas per siswa (aturan minggu 10). Tiap kartu
+          // diberi jarak bawah agar daftar kelas tidak menempel saat siswa
+          // tergabung di lebih dari satu kelas.
+          for (final info in _classes) ...[
             AppCard(
               padding: EdgeInsets.zero,
               child: InkWell(
@@ -288,6 +324,8 @@ class _MyClassSectionState extends State<MyClassSection> {
                 ),
               ),
             ),
+            const SizedBox(height: AppSpacing.md),
+          ],
       ],
     );
   }

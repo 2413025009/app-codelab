@@ -10,6 +10,7 @@ import '../../../../core/theme/app_palette.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../domain/slide_templates.dart';
+import 'slide_field_help.dart';
 
 /// Memilih form yang tepat berdasarkan tipe slide.
 class SlideTypeForm extends StatelessWidget {
@@ -60,6 +61,7 @@ class SlideFormField extends StatelessWidget {
     required this.initialValue,
     required this.onChanged,
     this.hint,
+    this.help,
     this.maxLines = 1,
     this.monospace = false,
     this.keyboardType,
@@ -69,6 +71,11 @@ class SlideFormField extends StatelessWidget {
   final String initialValue;
   final ValueChanged<String> onChanged;
   final String? hint;
+
+  /// Panduan pengisian yang muncul saat tombol "?" ditekan. Statis di kode,
+  /// tidak pernah disimpan ke database.
+  final String? help;
+
   final int maxLines;
   final bool monospace;
   final TextInputType? keyboardType;
@@ -79,13 +86,7 @@ class SlideFormField extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          label,
-          style: AppTypography.labelSm.copyWith(
-            color: p.text,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
+        SlideFieldLabel(label: label, help: help),
         const SizedBox(height: 6),
         TextFormField(
           initialValue: initialValue,
@@ -134,6 +135,7 @@ class SlideChipPicker extends StatelessWidget {
     required this.values,
     required this.selected,
     required this.onSelected,
+    this.help,
   });
 
   final String label;
@@ -141,19 +143,16 @@ class SlideChipPicker extends StatelessWidget {
   final String selected;
   final ValueChanged<String> onSelected;
 
+  /// Panduan pengisian yang muncul saat tombol "?" ditekan.
+  final String? help;
+
   @override
   Widget build(BuildContext context) {
     final p = context.palette;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          label,
-          style: AppTypography.labelSm.copyWith(
-            color: p.text,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
+        SlideFieldLabel(label: label, help: help),
         const SizedBox(height: 6),
         Wrap(
           spacing: 6,
@@ -222,6 +221,10 @@ class _TheorySlideFormState extends State<TheorySlideForm> {
           label: 'Judul Materi Teori',
           initialValue: slide['title'] as String? ?? '',
           hint: 'Contoh: Struktur Dasar Dokumen HTML5',
+          help:
+              'Judul tampil paling atas di layar siswa.\n'
+              '- Buat ringkas dan spesifik, maksimal 120 karakter.\n'
+              '- Sebut inti konsepnya, bukan nama bab.',
           onChanged: (value) => slide['title'] = value,
         ),
         const SizedBox(height: AppSpacing.md),
@@ -230,6 +233,18 @@ class _TheorySlideFormState extends State<TheorySlideForm> {
           initialValue: slide['content'] as String? ?? '',
           hint: 'Tuliskan konsep utama, poin-poin, atau contoh...',
           maxLines: 6,
+          help:
+              'Cara menulis isi materi:\n'
+              '- Pisahkan paragraf dengan satu baris kosong.\n'
+              '- Baris yang diawali "- " atau "* " otomatis jadi butir daftar.\n'
+              '- Selain itu teks ditampilkan apa adanya: **tebal**, # judul, '
+              'tautan, dan `kode` tidak diformat.\n'
+              '\n'
+              'Contoh:\n'
+              'HTML adalah bahasa penanda untuk menyusun halaman web.\n'
+              '\n'
+              '- Tag dibuka lalu ditutup.\n'
+              '- Atribut menempel pada tag pembuka.',
           onChanged: (value) => slide['content'] = value,
         ),
         const SizedBox(height: AppSpacing.md),
@@ -237,6 +252,12 @@ class _TheorySlideFormState extends State<TheorySlideForm> {
           label: 'Bahasa Kode Sampel',
           values: const ['HTML', 'CSS', 'JavaScript', 'Python'],
           selected: codeLang,
+          help:
+              'Hanya menentukan nama berkas pada kartu kode:\n'
+              '- HTML → index.html\n'
+              '- CSS → style.css\n'
+              '- JavaScript → script.js\n'
+              '- Python → script.py',
           onSelected: (value) {
             setState(() => slide['code_lang'] = value);
             widget.onChanged();
@@ -249,6 +270,11 @@ class _TheorySlideFormState extends State<TheorySlideForm> {
           hint: '<h1>Halo Dunia</h1>',
           maxLines: 4,
           monospace: true,
+          help:
+              'Kode contoh yang tampil di kotak kode di bawah penjelasan.\n'
+              '- Kosongkan bila slide tidak perlu contoh kode.\n'
+              '- Tulis kode aslinya saja, tanpa penanda blok markdown.\n'
+              '- Maksimal 8000 karakter.',
           onChanged: (value) => slide['sample_code'] = value,
         ),
       ],
@@ -315,6 +341,9 @@ class _TapToFillSlideFormState extends State<TapToFillSlideForm> {
           label: 'Judul Latihan',
           initialValue: slide['title'] as String? ?? '',
           hint: 'Contoh: Lengkapi Tag Penutup HTML',
+          help:
+              'Judul tampil di kepala soal, maksimal 120 karakter.\n'
+              'Contoh: "Lengkapi Tag Penutup HTML".',
           onChanged: (value) => slide['title'] = value,
         ),
         const SizedBox(height: AppSpacing.md),
@@ -323,6 +352,10 @@ class _TapToFillSlideFormState extends State<TapToFillSlideForm> {
           initialValue: slide['prompt'] as String? ?? '',
           hint: 'Instruksi pengerjaan bagi siswa...',
           maxLines: 2,
+          help:
+              'Satu sampai dua kalimat arahan sebelum siswa mengetuk slot.\n'
+              '- Jelaskan bagian mana yang harus dilengkapi.\n'
+              '- Jangan sebut jawabannya di sini.',
           onChanged: (value) => slide['prompt'] = value,
         ),
         const SizedBox(height: AppSpacing.md),
@@ -332,6 +365,16 @@ class _TapToFillSlideFormState extends State<TapToFillSlideForm> {
           hint: 'x = ___1___\nprint(x)',
           maxLines: 4,
           monospace: true,
+          help:
+              'Tempel kode di sini, lalu tandai bagian kosong dengan '
+              '___1___, ___2___, dan seterusnya.\n'
+              '- Penanda dikenali selama memakai minimal dua garis bawah di '
+              'awal dan akhir, dengan angka opsional di tengah.\n'
+              '- Urutan slot mengikuti urutan kemunculannya di dalam kode.\n'
+              '- Satu slot berarti satu jawaban; jangan menaruh dua slot '
+              'untuk jawaban yang sama.\n'
+              '\n'
+              'Contoh:\nx = ___1___\nprint(x)',
           onChanged: (value) {
             slide['template'] = value;
             setState(() {
@@ -342,12 +385,14 @@ class _TapToFillSlideFormState extends State<TapToFillSlideForm> {
           },
         ),
         const SizedBox(height: AppSpacing.md),
-        Text(
-          'Kunci jawaban per slot ($_slotCount slot terdeteksi)',
-          style: AppTypography.labelSm.copyWith(
-            color: context.palette.text,
-            fontWeight: FontWeight.w600,
-          ),
+        SlideFieldLabel(
+          label: 'Kunci jawaban per slot ($_slotCount slot terdeteksi)',
+          help:
+              'Isi jawaban benar untuk setiap slot sesuai urutan kemunculan.\n'
+              '- Spasi di awal/akhir diabaikan, tetapi huruf besar-kecil '
+              'dihitung: tulis "print", bukan "Print".\n'
+              '- Tulis persis seperti yang seharusnya ada di dalam kode.\n'
+              '- Jumlah isian mengikuti jumlah slot yang terdeteksi.',
         ),
         const SizedBox(height: 6),
         if (_slotCount == 0)
@@ -376,6 +421,12 @@ class _TapToFillSlideFormState extends State<TapToFillSlideForm> {
           label: 'Pengecoh Tambahan (pisahkan dengan koma)',
           initialValue: distractors,
           hint: '20, print, console.log',
+          help:
+              'Kata tambahan yang muncul sebagai pilihan, tetapi bukan '
+              'jawaban benar.\n'
+              '- Pisahkan dengan koma.\n'
+              '- Pengecoh yang sama dengan kunci otomatis dibuang.\n'
+              '- Sisakan minimal satu agar siswa benar-benar harus memilih.',
           onChanged: (value) {
             slide['distractors'] = value
                 .split(',')
@@ -389,6 +440,12 @@ class _TapToFillSlideFormState extends State<TapToFillSlideForm> {
           label: 'Bahasa Kode',
           values: const ['HTML', 'CSS', 'JavaScript', 'Python'],
           selected: codeLang,
+          help:
+              'Menentukan nama berkas pada kartu kode:\n'
+              '- HTML → index.html\n'
+              '- CSS → style.css\n'
+              '- JavaScript → script.js\n'
+              '- Python → script.py',
           onSelected: (value) {
             setState(() => slide['code_lang'] = value);
             widget.onChanged();
@@ -428,6 +485,9 @@ class _TypeCodeSlideFormState extends State<TypeCodeSlideForm> {
           label: 'Judul Soal',
           initialValue: slide['title'] as String? ?? '',
           hint: 'Contoh: Deklarasi Variabel Python',
+          help:
+              'Judul tampil di kepala soal, maksimal 120 karakter.\n'
+              'Contoh: "Deklarasi Variabel Python".',
           onChanged: (value) => slide['title'] = value,
         ),
         const SizedBox(height: AppSpacing.md),
@@ -436,6 +496,10 @@ class _TypeCodeSlideFormState extends State<TypeCodeSlideForm> {
           initialValue: slide['prompt'] as String? ?? '',
           hint: 'Ketikkan kata kunci untuk mendeklarasikan variabel...',
           maxLines: 2,
+          help:
+              'Arahan singkat yang dibaca siswa sebelum mengetik.\n'
+              '- Sebutkan apa yang harus dicari tanpa memberi jawabannya.\n'
+              '- Maksimal 300 karakter.',
           onChanged: (value) => slide['prompt'] = value,
         ),
         const SizedBox(height: AppSpacing.md),
@@ -445,6 +509,12 @@ class _TypeCodeSlideFormState extends State<TypeCodeSlideForm> {
           hint: '[KETIK_DISINI] nama_siswa = "Ahmad"',
           maxLines: 4,
           monospace: true,
+          help:
+              'Tulis potongan kode, lalu ganti bagian yang harus diisi dengan '
+              '[KETIK_DISINI].\n'
+              '- Penanda itu berubah menjadi kotak input di layar siswa.\n'
+              '- Boleh lebih dari satu penanda dalam satu slide.\n'
+              '- Tanpa penanda, siswa tidak punya tempat mengetik jawaban.',
           onChanged: (value) => slide['code'] = value,
         ),
         const SizedBox(height: AppSpacing.md),
@@ -452,6 +522,11 @@ class _TypeCodeSlideFormState extends State<TypeCodeSlideForm> {
           label: 'Kata Kunci Jawaban Benar',
           initialValue: slide['answer'] as String? ?? '',
           hint: 'Contoh: def / const / let',
+          help:
+              'Jawaban yang dianggap benar.\n'
+              '- Perbandingan mengabaikan spasi awal/akhir dan huruf '
+              'besar-kecil, jadi "Print" sama dengan "print".\n'
+              '- Isi satu kata kunci atau ekspresi pendek saja.',
           onChanged: (value) => slide['answer'] = value,
         ),
         const SizedBox(height: AppSpacing.md),
@@ -460,6 +535,10 @@ class _TypeCodeSlideFormState extends State<TypeCodeSlideForm> {
           initialValue: slide['hint'] as String? ?? '',
           hint: 'Ingat penulisan huruf kecil semua.',
           maxLines: 2,
+          help:
+              'Bantuan yang muncul ketika jawaban siswa salah.\n'
+              '- Beri petunjuk arah, jangan tulis jawabannya langsung.\n'
+              '- Satu sampai dua kalimat sudah cukup.',
           onChanged: (value) => slide['hint'] = value,
         ),
       ],
@@ -512,6 +591,9 @@ class _OutputPredictSlideFormState extends State<OutputPredictSlideForm> {
           label: 'Judul Slide',
           initialValue: slide['title'] as String? ?? '',
           hint: 'Contoh: Tebak Output Operator Modulo',
+          help:
+              'Judul tampil di kepala slide, maksimal 120 karakter.\n'
+              'Contoh: "Tebak Output Operator Modulo".',
           onChanged: (value) => slide['title'] = value,
         ),
         const SizedBox(height: AppSpacing.md),
@@ -520,6 +602,9 @@ class _OutputPredictSlideFormState extends State<OutputPredictSlideForm> {
           initialValue: slide['prompt'] as String? ?? '',
           hint: 'Apakah output yang dicetak ke terminal?',
           maxLines: 2,
+          help:
+              'Pertanyaan singkat di atas blok kode.\n'
+              'Biasanya cukup: "Apakah output yang dicetak ke terminal?".',
           onChanged: (value) => slide['prompt'] = value,
         ),
         const SizedBox(height: AppSpacing.md),
@@ -528,15 +613,22 @@ class _OutputPredictSlideFormState extends State<OutputPredictSlideForm> {
           initialValue: slide['code'] as String? ?? '',
           maxLines: 5,
           monospace: true,
+          help:
+              'Kode yang dibaca siswa untuk menebak output.\n'
+              '- Tulis persis seperti program aslinya.\n'
+              '- Kode hanya ditampilkan, tidak dijalankan, jadi hasilnya harus '
+              'bisa ditebak dari isi kode.',
           onChanged: (value) => slide['code'] = value,
         ),
         const SizedBox(height: AppSpacing.md),
-        Text(
-          'Opsi output terminal (pilih satu jawaban benar)',
-          style: AppTypography.labelSm.copyWith(
-            color: context.palette.text,
-            fontWeight: FontWeight.w600,
-          ),
+        SlideFieldLabel(
+          label: 'Opsi output terminal (pilih satu jawaban benar)',
+          help:
+              'Isi keempat pilihan (A sampai D).\n'
+              '- Ketuk lingkaran di kiri untuk menandai kunci jawaban.\n'
+              '- Satu pilihan harus persis sama dengan output sebenarnya.\n'
+              '- Jangan biarkan pilihan kosong: pilihan kosong tetap tampil '
+              'di layar siswa.',
         ),
         const SizedBox(height: 6),
         for (var i = 0; i < 4; i++) ...[
@@ -562,6 +654,10 @@ class _OutputPredictSlideFormState extends State<OutputPredictSlideForm> {
           initialValue: slide['explanation'] as String? ?? '',
           hint: 'Mengapa output tersebut yang muncul?',
           maxLines: 3,
+          help:
+              'Muncul setelah siswa menjawab, benar maupun salah.\n'
+              'Jelaskan alasan output itu muncul, misalnya urutan operasi '
+              'atau tipe data yang terlibat.',
           onChanged: (value) => slide['explanation'] = value,
         ),
       ],
@@ -598,6 +694,9 @@ class _BugHunterSlideFormState extends State<BugHunterSlideForm> {
           label: 'Judul Tantangan',
           initialValue: slide['title'] as String? ?? '',
           hint: 'Contoh: Mencari Kesalahan Loop For',
+          help:
+              'Judul tampil di kepala tantangan, maksimal 120 karakter.\n'
+              'Contoh: "Mencari Kesalahan Loop For".',
           onChanged: (value) => slide['title'] = value,
         ),
         const SizedBox(height: AppSpacing.md),
@@ -606,6 +705,10 @@ class _BugHunterSlideFormState extends State<BugHunterSlideForm> {
           initialValue: slide['scenario'] as String? ?? '',
           hint: 'Deskripsi konteks masalah...',
           maxLines: 2,
+          help:
+              'Konteks singkat masalah yang dihadapi siswa; tampil sebagai '
+              'instruksi di atas kode.\n'
+              'Ceritakan situasinya, jangan sebut nomor baris yang salah.',
           onChanged: (value) => slide['scenario'] = value,
         ),
         const SizedBox(height: AppSpacing.md),
@@ -614,6 +717,12 @@ class _BugHunterSlideFormState extends State<BugHunterSlideForm> {
           initialValue: slide['buggy_code'] as String? ?? '',
           maxLines: 6,
           monospace: true,
+          help:
+              'Seluruh kode yang mengandung bug.\n'
+              '- Nomor baris dihitung dari 1 mengikuti urutan baris di kotak '
+              'ini, termasuk baris kosong.\n'
+              '- Sisipkan bug yang benar-benar bisa dijelaskan oleh "Jenis '
+              'Error" dan "Kode Perbaikan".',
           onChanged: (value) => slide['buggy_code'] = value,
         ),
         const SizedBox(height: AppSpacing.md),
@@ -622,6 +731,11 @@ class _BugHunterSlideFormState extends State<BugHunterSlideForm> {
           initialValue: slide['target_line']?.toString() ?? '1',
           hint: 'Contoh: 2',
           keyboardType: TextInputType.number,
+          help:
+              'Nomor baris yang benar, dihitung dari 1.\n'
+              '- Harus berada di antara 1 dan jumlah baris kode di atas.\n'
+              '- Bila di luar jangkauan, layar siswa mengunci ke baris '
+              'terdekat sehingga jawaban tidak pernah cocok.',
           onChanged: (value) => slide['target_line'] = value,
         ),
         const SizedBox(height: AppSpacing.md),
@@ -629,6 +743,9 @@ class _BugHunterSlideFormState extends State<BugHunterSlideForm> {
           label: 'Jenis Error',
           initialValue: slide['error_type'] as String? ?? 'SyntaxError',
           hint: 'SyntaxError / IndentationError / NameError',
+          help:
+              'Label kategori galat yang tampil ke siswa.\n'
+              'Contoh: SyntaxError, IndentationError, NameError.',
           onChanged: (value) => slide['error_type'] = value,
         ),
         const SizedBox(height: AppSpacing.md),
@@ -637,6 +754,12 @@ class _BugHunterSlideFormState extends State<BugHunterSlideForm> {
           initialValue: slide['bug_hint'] as String? ?? '',
           hint: 'Kurang tanda titik dua (:) di akhir pernyataan for',
           maxLines: 2,
+          help:
+              'Teks ini menjadi penjelasan yang muncul setelah siswa '
+              'menjawab.\n'
+              '- Jelaskan aturan yang dilanggar di baris tersebut.\n'
+              '- Bila dikosongkan, "Kode Perbaikan Valid" yang dipakai '
+              'sebagai penjelasan.',
           onChanged: (value) => slide['bug_hint'] = value,
         ),
         const SizedBox(height: AppSpacing.md),
@@ -646,6 +769,11 @@ class _BugHunterSlideFormState extends State<BugHunterSlideForm> {
           hint: 'for i in range(10):',
           maxLines: 3,
           monospace: true,
+          help:
+              'Cuplikan perbaikan yang benar untuk baris yang ditandai.\n'
+              '- Dipakai sebagai contoh solusi sekaligus penjelasan cadangan '
+              'bila "Pesan Indikator" kosong.\n'
+              '- Tulis hanya bagian yang diperbaiki, bukan seluruh program.',
           onChanged: (value) => slide['fix'] = value,
         ),
       ],
@@ -698,6 +826,9 @@ class _QuizSlideFormState extends State<QuizSlideForm> {
           label: 'Judul Slide',
           initialValue: slide['title'] as String? ?? '',
           hint: 'Contoh: Memahami Tipe Data',
+          help:
+              'Judul tampil di kepala kuis, maksimal 120 karakter.\n'
+              'Contoh: "Memahami Tipe Data".',
           onChanged: (value) => slide['title'] = value,
         ),
         const SizedBox(height: AppSpacing.md),
@@ -706,15 +837,20 @@ class _QuizSlideFormState extends State<QuizSlideForm> {
           initialValue: slide['question'] as String? ?? '',
           hint: 'Tuliskan pertanyaan konseptual...',
           maxLines: 3,
+          help:
+              'Pertanyaan dengan satu jawaban benar.\n'
+              '- Ajukan satu konsep saja, jangan digabung.\n'
+              '- Maksimal 300 karakter.',
           onChanged: (value) => slide['question'] = value,
         ),
         const SizedBox(height: AppSpacing.md),
-        Text(
-          'Daftar pilihan jawaban (pilih satu kunci benar)',
-          style: AppTypography.labelSm.copyWith(
-            color: context.palette.text,
-            fontWeight: FontWeight.w600,
-          ),
+        SlideFieldLabel(
+          label: 'Daftar pilihan jawaban (pilih satu kunci benar)',
+          help:
+              'Isi keempat pilihan (A sampai D).\n'
+              '- Ketuk lingkaran di kiri untuk menandai kunci jawaban.\n'
+              '- Jangan biarkan pilihan kosong karena tetap tampil sebagai '
+              'opsi kosong di layar siswa.',
         ),
         const SizedBox(height: 6),
         for (var i = 0; i < 4; i++) ...[
@@ -739,6 +875,10 @@ class _QuizSlideFormState extends State<QuizSlideForm> {
           initialValue: slide['explanation'] as String? ?? '',
           hint: 'Mengapa opsi tersebut benar?',
           maxLines: 3,
+          help:
+              'Muncul setelah siswa menjawab, benar maupun salah.\n'
+              'Jelaskan mengapa kunci jawabannya benar dan, bila perlu, '
+              'mengapa pengecohnya salah.',
           onChanged: (value) => slide['explanation'] = value,
         ),
       ],
@@ -782,6 +922,9 @@ class _OutroSlideFormState extends State<OutroSlideForm> {
           label: 'Judul Slide Penutup',
           initialValue: slide['title'] as String? ?? '',
           hint: 'Contoh: Rangkuman Bab',
+          help:
+              'Judul tampil di kepala slide penutup, maksimal 120 karakter.\n'
+              'Contoh: "Rangkuman Bab".',
           onChanged: (value) => slide['title'] = value,
         ),
         const SizedBox(height: AppSpacing.md),
@@ -790,6 +933,10 @@ class _OutroSlideFormState extends State<OutroSlideForm> {
           initialValue: slide['summary'] as String? ?? '',
           hint: 'Ringkasan capaian siswa setelah menuntaskan bab...',
           maxLines: 4,
+          help:
+              'Ringkasan yang dibaca siswa di akhir bab.\n'
+              '- Sebut kembali konsep utama yang baru dipelajari.\n'
+              '- Beri penutup yang memotivasi, bukan soal baru.',
           onChanged: (value) => slide['summary'] = value,
         ),
         const SizedBox(height: AppSpacing.md),
@@ -797,6 +944,11 @@ class _OutroSlideFormState extends State<OutroSlideForm> {
           label: 'Konsep yang Dikuasai (pisahkan dengan koma)',
           initialValue: concepts,
           hint: 'Variabel, Percabangan, Perulangan',
+          help:
+              'Daftar konsep yang dianggap dikuasai setelah bab ini.\n'
+              '- Pisahkan dengan koma, misalnya: Variabel, Perulangan.\n'
+              '- Setiap konsep tampil sebagai label capaian.\n'
+              '- Isi minimal satu konsep.',
           onChanged: (value) {
             slide['mastered_concepts'] = value
                 .split(',')

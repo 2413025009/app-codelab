@@ -13,10 +13,12 @@ import '../../../../core/widgets/app_card.dart';
 import '../../../../core/widgets/app_progress_ring.dart';
 import '../../../../core/widgets/app_refresh.dart';
 import '../../../../core/widgets/app_snack.dart';
+import '../../../../core/widgets/avatars.dart';
 import '../../../../core/widgets/competency_radar.dart';
 import '../../../auth/domain/auth_repository.dart';
 import '../../../auth/presentation/cubit/auth_cubit.dart';
 import '../../../challenges/domain/challenge_repository.dart';
+import '../../../class/presentation/widgets/my_class_section.dart';
 import '../../../dashboard/domain/dashboard_repository.dart';
 import '../../../lesson/domain/lesson_repository.dart';
 import '../../../lesson/domain/slide_models.dart';
@@ -176,7 +178,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 color: p.primary,
                 borderRadius: BorderRadius.circular(8),
               ),
-              child: const Icon(Icons.terminal, color: Colors.white, size: 18),
+              child: Icon(Icons.terminal, color: p.onPrimary, size: 18),
             ),
             const SizedBox(width: AppSpacing.sm),
             const Text('Profil & Kompetensi'),
@@ -342,7 +344,6 @@ class _ProfileContent extends StatelessWidget {
     final p = context.palette;
     final userName = user?.name ?? 'Siswa Baru';
     final xp = user?.xpPoints ?? 0;
-    final initial = _initialsOf(userName);
     // Minggu 9: bio pribadi tampil pada kartu identitas (siswa maupun guru).
     final bio = (user?.bio ?? '').trim();
     final email = (user?.email ?? '').trim();
@@ -400,15 +401,12 @@ class _ProfileContent extends StatelessWidget {
                   // dan kalimat "Lengkapi identitas di Pengaturan." dihapus.
                   Stack(
                     children: [
-                      CircleAvatar(
-                        radius: 32,
-                        backgroundColor: p.primary,
-                        child: Text(
-                          initial,
-                          style: AppTypography.titleL.copyWith(
-                            color: Colors.white,
-                          ),
-                        ),
+                      // Foto profil dari server bila ada; inisial nama hanya
+                      // fallback saat avatarUrl kosong/gagal dimuat.
+                      UserAvatar(
+                        name: userName,
+                        avatarUrl: user?.avatarUrl,
+                        size: 64,
                       ),
                       Positioned(
                         bottom: 0,
@@ -508,7 +506,13 @@ class _ProfileContent extends StatelessWidget {
             ),
             const SizedBox(height: AppSpacing.lg),
 
-            // 2. Peta Penguasaan Materi (Minggu 9, dinaikkan ke ATAS kartu
+            // 2. Kelas & Rombel — seksi data nyata GET /classes/my:
+            // belum tergabung → tombol Gabung Kelas; sudah → kartu kelas
+            // yang membuka detail, daftar teman, dan aksi keluar.
+            const MyClassSection(),
+            const SizedBox(height: AppSpacing.lg),
+
+            // 3. Peta Penguasaan Materi (Minggu 9, dinaikkan ke ATAS kartu
             // progres per permintaan owner) — radar % bab selesai per
             // materi; sumber data sama (GET /lessons), jadi radar terisi
             // dan tumbuh mengikuti belajar.
@@ -698,18 +702,6 @@ class _ProfileContent extends StatelessWidget {
       (cur, l) => l.orderIndex < cur ? l.orderIndex : cur,
     );
     return min;
-  }
-
-  static String _initialsOf(String name) {
-    final parts = name
-        .trim()
-        .split(RegExp(r'\s+'))
-        .where((w) => w.isNotEmpty)
-        .toList();
-    if (parts.isEmpty) return 'S';
-    if (parts.length == 1) return parts.first.substring(0, 1).toUpperCase();
-    return '${parts.first.substring(0, 1)}${parts.last.substring(0, 1)}'
-        .toUpperCase();
   }
 }
 
@@ -1150,12 +1142,12 @@ class _CompactDownloadButton extends StatelessWidget {
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Icon(Icons.download_rounded, size: 14, color: Colors.white),
+              Icon(Icons.download_rounded, size: 14, color: p.onPrimary),
               const SizedBox(width: 4),
               Text(
                 label,
                 style: AppTypography.caption.copyWith(
-                  color: Colors.white,
+                  color: p.onPrimary,
                   fontWeight: FontWeight.bold,
                   fontSize: 11,
                 ),

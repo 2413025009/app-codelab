@@ -14,6 +14,7 @@ import '../../../../core/widgets/app_refresh.dart';
 import '../../../../core/widgets/app_snack.dart';
 import '../../../../core/widgets/avatars.dart';
 import '../../../auth/presentation/cubit/auth_cubit.dart';
+import '../../../class/presentation/widgets/class_status_card.dart';
 import '../../domain/dashboard_repository.dart';
 import '../cubit/dashboard_cubit.dart';
 import '../widgets/dashboard_widgets.dart';
@@ -222,7 +223,12 @@ class _DashboardView extends StatelessWidget {
                   ),
                   const SizedBox(height: AppSpacing.lg),
 
-                  // 3. Winding Roadmap ("Peta Petualangan Belajar" with blueprint dotted canvas)
+                  // 3. Seksi kecil kelas: kelas yang sedang dimasuki, atau
+                  // ajakan gabung bila siswa belum masuk kelas mana pun.
+                  const ClassStatusCard(),
+                  const SizedBox(height: AppSpacing.lg),
+
+                  // 4. Winding Roadmap ("Peta Petualangan Belajar" with blueprint dotted canvas)
                   if (data.modules.isEmpty)
                     Text(
                       'Belum ada modul. Cek lagi sebentar.',
@@ -243,7 +249,7 @@ class _DashboardView extends StatelessWidget {
                     ),
                   const SizedBox(height: AppSpacing.lg),
 
-                  // 4. Quick Tip Banner ("Trik Cepat Python" from Stitch v2)
+                  // 5. Quick Tip Banner ("Trik Cepat Python" from Stitch v2)
                   _QuickTipCard(onTap: () => _showQuickTip(context)),
                 ],
               ),
@@ -335,7 +341,10 @@ class _Header extends StatelessWidget {
                   width: 48,
                   height: 48,
                   decoration: BoxDecoration(
-                    color: const Color(0xFFE4E8F8), // surface-container-high
+                    // primaryContainer: biru muda di mode terang (paling dekat
+                    // dengan lavender lama), navy di mode gelap supaya inisial
+                    // nama tetap kontras.
+                    color: p.primaryContainer,
                     shape: BoxShape.circle,
                     boxShadow: [
                       BoxShadow(
@@ -367,9 +376,9 @@ class _Header extends StatelessWidget {
                       border: Border.all(color: p.surface, width: 1.5),
                     ),
                     alignment: Alignment.center,
-                    child: const Icon(
+                    child: Icon(
                       Icons.school_rounded,
-                      color: Colors.white,
+                      color: p.onPrimary,
                       size: 10,
                     ),
                   ),
@@ -398,7 +407,9 @@ class _QuickTipCard extends StatelessWidget {
         child: Container(
           padding: const EdgeInsets.all(AppSpacing.lg),
           decoration: BoxDecoration(
-            color: const Color(0xFFDEE2F3), // surface-container-highest
+            // primaryContainer menjaga nuansa biru di mode terang dan tetap
+            // kontras dengan p.text di mode gelap.
+            color: p.primaryContainer,
             borderRadius: BorderRadius.circular(20),
             border: Border.all(color: p.outline.withValues(alpha: 0.5)),
           ),

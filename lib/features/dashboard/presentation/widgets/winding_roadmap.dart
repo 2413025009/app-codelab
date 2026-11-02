@@ -181,18 +181,20 @@ class _WindingRoadmapState extends State<WindingRoadmap>
                       Container(
                         width: 6,
                         height: 6,
-                        decoration: const BoxDecoration(
-                          color: Color(0xFF7C5800),
+                        decoration: BoxDecoration(
+                          // Warna peringatan dari token: di mode gelap teks
+                          // cokelat tua tadi hilang di atas latar gelap.
+                          color: p.warningText,
                           shape: BoxShape.circle,
                         ),
                       ),
                       const SizedBox(width: 5),
                       Text(
                         'Bab $activeStep Aktif',
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 11,
                           fontWeight: FontWeight.w700,
-                          color: Color(0xFF7C5800),
+                          color: p.warningText,
                         ),
                       ),
                     ],
@@ -380,9 +382,9 @@ class _WindingRoadmapState extends State<WindingRoadmap>
                 ],
               ),
               alignment: Alignment.center,
-              child: const Icon(
+              child: Icon(
                 Icons.check_rounded,
-                color: Colors.white,
+                color: p.onPrimary,
                 size: 22,
               ),
             ),
@@ -472,10 +474,12 @@ class _WindingRoadmapState extends State<WindingRoadmap>
                             ),
                           ],
                         ),
-                        child: const Text(
+                        child: Text(
                           'Mulai di sini! 🚀',
                           style: TextStyle(
-                            color: Colors.white,
+                            // p.bg = kebalikan p.text, jadi tetap terbaca
+                            // walau bubble ini memakai latar p.text.
+                            color: p.bg,
                             fontSize: 11,
                             fontWeight: FontWeight.bold,
                           ),
@@ -501,7 +505,9 @@ class _WindingRoadmapState extends State<WindingRoadmap>
                       vertical: 10,
                     ),
                     decoration: BoxDecoration(
-                      color: const Color(0xFFF1F3FF),
+                      // primaryContainer ikut berubah di mode gelap; versi
+                      // hardcoded #F1F3FF membuat judul bab tak terbaca.
+                      color: p.primaryContainer,
                       borderRadius: BorderRadius.circular(20),
                       border: Border.all(
                         color: p.primary.withValues(alpha: 0.35),
@@ -568,10 +574,10 @@ class _WindingRoadmapState extends State<WindingRoadmap>
                                 color: p.primary,
                                 borderRadius: BorderRadius.circular(999),
                               ),
-                              child: const Text(
+                              child: Text(
                                 'Sedang Berjalan',
                                 style: TextStyle(
-                                  color: Colors.white,
+                                  color: p.onPrimary,
                                   fontSize: 10,
                                   fontWeight: FontWeight.bold,
                                 ),
@@ -631,14 +637,17 @@ class _WindingRoadmapState extends State<WindingRoadmap>
             Container(
               width: 44,
               height: 44,
-              decoration: const BoxDecoration(
-                color: Color(0xFFFFDEA8), // secondary-fixed
+              decoration: BoxDecoration(
+                // accent + warningText adalah pasangan token: amber muda
+                // dengan teks cokelat di mode terang, amber tua dengan teks
+                // amber terang di mode gelap.
+                color: p.accent.withValues(alpha: 0.22),
                 shape: BoxShape.circle,
               ),
               alignment: Alignment.center,
-              child: const Icon(
+              child: Icon(
                 Icons.bolt_rounded,
-                color: Color(0xFF7C5800),
+                color: p.warningText,
                 size: 24,
               ),
             ),
@@ -830,7 +839,9 @@ class _WindingRoadmapState extends State<WindingRoadmap>
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 14),
         decoration: BoxDecoration(
-          color: const Color(0xFFE4E8F8), // surface-container-high
+          // primaryContainer menjaga nuansa biru lavender di mode terang dan
+          // tetap terbaca di mode gelap.
+          color: p.primaryContainer,
           borderRadius: BorderRadius.circular(20),
           border: Border.all(color: p.outline.withValues(alpha: 0.5)),
           boxShadow: [
@@ -847,14 +858,14 @@ class _WindingRoadmapState extends State<WindingRoadmap>
             Container(
               width: 52,
               height: 52,
-              decoration: const BoxDecoration(
-                color: Color(0xFFDEE2F3), // surface-container-highest
+              decoration: BoxDecoration(
+                color: p.primaryContainer,
                 shape: BoxShape.circle,
               ),
               alignment: Alignment.center,
-              child: const Icon(
+              child: Icon(
                 Icons.emoji_events_rounded,
-                color: Color(0xFF7C5800),
+                color: p.warningText,
                 size: 28,
               ),
             ),

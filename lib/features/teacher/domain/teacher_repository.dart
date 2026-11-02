@@ -56,6 +56,9 @@ abstract class TeacherRepository {
     required List<Map<String, dynamic>> slides,
   });
 
+  /// Duplikat bab menjadi nomor berikutnya (salinan tepat di bawah sumber).
+  Future<Bab> duplicateBab(String babId);
+
   /// Edit bab (judul, XP, slides → backend serialisasi markdown).
   Future<Bab> updateBab(
     String babId, {

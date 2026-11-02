@@ -56,9 +56,13 @@ Dokumentasi lengkap seluruh fitur per halaman untuk role pengajar pada aplikasi 
 
 ---
 
-## 5. Analisa Kelas & Papan Peringkat (`/analisa-pengajar/:classId`)
+## 5. Analisa Kelas & Papan Peringkat (`/analisa-kelas-pengajar/:classId`)
 - **Proyektor Kode QR / Layar Penuh:** Mode tampilan raksasa kode kelas untuk lab komputer.
 - **Kemajuan Kurikulum Per Track:** Grafik bar persentase ketuntasan rata-rata kelas pada track Python, HTML, CSS, dan JavaScript.
+  - **Dasar Angka:** Persentase = rata-rata `progress_percent` seluruh anggota kelas pada **semua materi kurikulum resmi** di track tersebut. Siswa × materi yang belum pernah dibuka tetap dihitung sebagai 0%, sehingga 100% berarti seluruh siswa sudah menuntaskan seluruh materi track itu.
+  - Hanya kurikulum resmi yang dihitung; materi buatan guru tidak masuk perhitungan.
+  - Angka ini mengukur **ketuntasan materi**, bukan nilai latihan.
+  - Keterangan lengkap tersedia lewat ikon info (tooltip + dialog) di samping judul, plus satu baris takarir di bawah judul.
 - **Bab Tersulit (Diagnostik Gagal):** Deteksi otomatis tantangan koding dengan jumlah siswa gagal terbanyak sebagai bahan evaluasi guru.
 - **Papan Peringkat Siswa Kelas (Dual Panel):**
   - Menampilkan panel bersampingan untuk **Materi** (materi tuntas terbanyak) dan **Latihan** (tantangan lulus terbanyak).
@@ -66,13 +70,12 @@ Dokumentasi lengkap seluruh fitur per halaman untuk role pengajar pada aplikasi 
   - Dilengkapi label penjelasan agar transparan bagi guru.
 - **Daftar Siswa & Filter Roster:**
   - Menampilkan seluruh anggota kelas (tidak dibatasi 10 besar).
-  - **Filter Chips:** *Semua*, *Materi Tuntas*, *Latihan Terbanyak*, dan *Belum Kerjakan Materi* (menggantikan 0 materi tuntas).
+  - **Filter Utama:** *Semua*, *Materi Tuntas*, *Latihan Terbanyak*, dan *Belum Memulai* — masing-masing menampilkan jumlah siswa yang cocok.
+  - **Sub-filter *Latihan Terbanyak*:** *Semua Latihan*, *Latihan Biasa* (bukan mini proyek), dan *Mini Proyek*. Pengurutan mengikuti jenis yang dipilih, dan tiap kartu siswa menampilkan rincian "X latihan biasa • Y mini proyek".
+  - **Sub-filter *Belum Memulai*:** *Materi & Latihan* (belum menuntaskan materi **dan** belum menyelesaikan latihan), *Belum Kerjakan Materi* (0 materi tuntas), dan *Belum Selesaikan Latihan* (0 latihan lulus).
+  - **Filter per Materi:** Satu tombol untuk setiap materi kurikulum resmi, berderet horizontal di bawah filter, diawali *Semua Materi*. Angka di tiap tombol = jumlah siswa yang sudah menuntaskan materi tersebut. Filter materi berlaku untuk **semua** kategori di atas dan dapat dilepas dengan menekan tombol yang sama atau *Reset*.
+  - **Teks Penjelasan Dinamis:** Kalimat di bawah filter selalu menjelaskan secara spesifik kategori dan materi yang sedang aktif, bukan penjelasan umum.
   - **Aksi Kelola Anggota:** Mengeluarkan siswa dari kelas (`Keluarkan dari kelas`) dengan konfirmasi dialog agar siswa tidak muncul lagi di roster kecuali bergabung ulang dengan kode kelas.
-- **Saran Kelompok Tutor Sebaya (Fitur Kolaboratif):**
-  - Menyusun daftar pasangan **Tutor** dan **Siswa Didampingi** secara otomatis berdasarkan data nyata.
-  - **Parameter Pemilihan Tutor:** Sudah menuntaskan minimal 1 materi (`completedCount > 0`), diurutkan dari materi tuntas terbanyak → latihan lulus → XP → nama.
-  - **Parameter Pemilihan Siswa Didampingi:** Belum menuntaskan materi (`completedCount == 0`), diurutkan dari latihan lulus terbanyak (paling aktif berlatih namun tertinggal di materi) → XP → nama.
-  - **Algoritma Pembagian:** Bergiliran (*round-robin*) agar distribusi seimbang dan selisih maksimal satu siswa per tutor.
 
 ---
 

@@ -628,14 +628,20 @@ class _TeacherStudioPageState extends State<TeacherStudioPage> {
                       Row(
                         children: [
                           Icon(
-                            Icons.code_rounded,
+                            Icons.auto_stories_rounded,
                             size: 12,
                             color: p.textMuted,
                           ),
                           const SizedBox(width: 4),
                           Expanded(
                             child: Text(
-                              '${lesson.title.toLowerCase().replaceAll(' ', '_')}.workspace',
+                              // Ringkasan nyata dari server: topik, jumlah
+                              // bab, dan total XP materi ini.
+                              [
+                                lesson.topic,
+                                '${lesson.babCount} bab',
+                                '${lesson.totalXp} XP',
+                              ].where((s) => s.isNotEmpty).join(' • '),
                               style: AppTypography.codeSm.copyWith(
                                 color: p.textMuted,
                                 fontSize: 11,

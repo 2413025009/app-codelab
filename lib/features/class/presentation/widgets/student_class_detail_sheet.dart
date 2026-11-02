@@ -570,14 +570,14 @@ class _DetailContent extends StatelessWidget {
                                               height: 18,
                                               child: CircularProgressIndicator(
                                                 strokeWidth: 2,
-                                                color: Colors.white,
+                                                color: p.onPrimary,
                                               ),
                                             )
                                           : Text(
                                               'Ya, Keluar Kelas',
                                               style: AppTypography.label
                                                   .copyWith(
-                                                    color: Colors.white,
+                                                    color: p.onPrimary,
                                                   ),
                                             ),
                                     ),
@@ -624,7 +624,7 @@ class _AvatarStackState extends State<_AvatarStack> {
               padding: const EdgeInsets.only(bottom: AppSpacing.sm),
               child: Row(
                 children: [
-                  InitialAvatar(name: m.name, size: 30),
+                  UserAvatar(name: m.name, avatarUrl: m.avatarUrl, size: 30),
                   const SizedBox(width: AppSpacing.md),
                   Expanded(
                     child: Text(
@@ -653,52 +653,85 @@ class _AvatarStackState extends State<_AvatarStack> {
 
     final shown = members.take(5).toList();
     final rest = members.length - shown.length;
-    return Row(
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        SizedBox(
-          width: shown.length * 26.0 + 10,
-          height: 36,
-          child: Stack(
-            children: [
-              for (var i = 0; i < shown.length; i++)
-                Positioned(
-                  left: i * 26.0,
-                  child: Container(
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      border: Border.all(color: p.surface, width: 2),
-                    ),
-                    child: InitialAvatar(name: shown[i].name, size: 36),
-                  ),
-                ),
-            ],
-          ),
-        ),
-        if (rest > 0)
-          GestureDetector(
-            onTap: () => setState(() => _expand = true),
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-              decoration: BoxDecoration(
-                color: p.surfaceAlt,
-                borderRadius: AppRadius.pillBorder,
-              ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
+        Row(
+          children: [
+            SizedBox(
+              width: shown.length * 26.0 + 10,
+              height: 36,
+              child: Stack(
                 children: [
-                  Icon(Icons.group_rounded, size: 14, color: p.textMuted),
-                  const SizedBox(width: AppSpacing.xs),
-                  Text(
-                    '+$rest lainnya',
-                    style: AppTypography.label.copyWith(
-                      color: p.textMuted,
-                      fontSize: 12,
+                  for (var i = 0; i < shown.length; i++)
+                    Positioned(
+                      left: i * 26.0,
+                      child: Container(
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          border: Border.all(color: p.surface, width: 2),
+                        ),
+                        child: UserAvatar(
+                          name: shown[i].name,
+                          avatarUrl: shown[i].avatarUrl,
+                          size: 36,
+                        ),
+                      ),
                     ),
-                  ),
                 ],
               ),
             ),
+            if (rest > 0)
+              GestureDetector(
+                onTap: () => setState(() => _expand = true),
+                child: Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 6,
+                  ),
+                  decoration: BoxDecoration(
+                    color: p.surfaceAlt,
+                    borderRadius: AppRadius.pillBorder,
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(Icons.group_rounded, size: 14, color: p.textMuted),
+                      const SizedBox(width: AppSpacing.xs),
+                      Text(
+                        '+$rest lainnya',
+                        style: AppTypography.label.copyWith(
+                          color: p.textMuted,
+                          fontSize: 12,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+          ],
+        ),
+        // Stitch v3 "Lihat Semua": nama seluruh teman sekelas selalu bisa
+        // dibuka — dulu nama tidak pernah tampil saat anggota <= 5 orang.
+        const SizedBox(height: AppSpacing.xs),
+        TextButton.icon(
+          onPressed: () => setState(() => _expand = true),
+          style: TextButton.styleFrom(
+            padding: EdgeInsets.zero,
+            minimumSize: const Size(0, 34),
+            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+            foregroundColor: p.primary,
           ),
+          icon: const Icon(Icons.people_alt_rounded, size: 16),
+          label: Text(
+            'Lihat semua nama (${members.length})',
+            style: AppTypography.label.copyWith(
+              color: p.primary,
+              fontSize: 13,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ),
       ],
     );
   }

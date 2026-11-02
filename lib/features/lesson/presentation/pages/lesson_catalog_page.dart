@@ -431,7 +431,7 @@ class _FilterChip extends StatelessWidget {
             style: TextStyle(
               fontSize: 12.5,
               fontWeight: selected ? FontWeight.bold : FontWeight.w500,
-              color: selected ? Colors.white : p.text,
+              color: selected ? p.onPrimary : p.text,
             ),
           ),
         ),

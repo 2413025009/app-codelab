@@ -171,6 +171,18 @@ class ApiTeacherRepository implements TeacherRepository {
   }
 
   @override
+  Future<Bab> duplicateBab(String babId) async {
+    try {
+      final res = await _dio.post<Map<String, dynamic>>(
+        '/teacher/babs/$babId/duplicate',
+      );
+      return _parseBab(res.data);
+    } on DioException catch (e) {
+      _handleDioError(e);
+    }
+  }
+
+  @override
   Future<Bab> updateBab(
     String babId, {
     required String title,
@@ -334,7 +346,9 @@ class ApiTeacherRepository implements TeacherRepository {
   @override
   Future<void> removeStudentFromClass(String classId, String studentId) async {
     try {
-      await _dio.delete<dynamic>('/teacher/classes/$classId/students/$studentId');
+      await _dio.delete<dynamic>(
+        '/teacher/classes/$classId/students/$studentId',
+      );
     } on DioException catch (e) {
       _handleDioError(e);
     }
@@ -349,6 +363,7 @@ class ApiTeacherRepository implements TeacherRepository {
       final data = res.data ?? {};
       final bars = data['trackBars'] as List? ?? [];
       final hardest = data['hardestChapters'] as List? ?? [];
+      final materials = data['materials'] as List? ?? [];
 
       return ClassAnalytics(
         memberCount: data['memberCount'] is int
@@ -372,6 +387,17 @@ class ApiTeacherRepository implements TeacherRepository {
                   ? h['failCount'] as int
                   : int.tryParse('${h['failCount']}') ?? 0,
               challengeSlug: h['challengeSlug'] as String? ?? '',
+            ),
+        ],
+        materials: [
+          for (final m in materials)
+            MaterialProgress(
+              lessonId: '${m['lessonId'] ?? ''}',
+              title: m['title'] as String? ?? '',
+              topic: m['topic'] as String? ?? '',
+              completedCount: m['completedCount'] is int
+                  ? m['completedCount'] as int
+                  : int.tryParse('${m['completedCount']}') ?? 0,
             ),
         ],
       );
@@ -492,6 +518,16 @@ class ApiTeacherRepository implements TeacherRepository {
       practiceCompletedCount: data['practiceCompletedCount'] is int
           ? data['practiceCompletedCount'] as int
           : int.tryParse('${data['practiceCompletedCount']}') ?? 0,
+      completedLessonIds: [
+        for (final id in (data['completedLessonIds'] as List? ?? const []))
+          '$id',
+      ],
+      regularPracticeCount: data['regularPracticeCount'] is int
+          ? data['regularPracticeCount'] as int
+          : int.tryParse('${data['regularPracticeCount']}') ?? 0,
+      miniProjectCount: data['miniProjectCount'] is int
+          ? data['miniProjectCount'] as int
+          : int.tryParse('${data['miniProjectCount']}') ?? 0,
     );
   }
 

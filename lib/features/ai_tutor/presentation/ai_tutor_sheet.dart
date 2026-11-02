@@ -19,14 +19,18 @@ import '../domain/tutor_repository.dart';
 ///
 /// [challengeId] + [getCode] mengaktifkan backend nyata (P0-6): tiap buka hint
 /// memanggil POST /tutor/hint dengan kuota 5x/hari dari server. Saat tanpa
-/// backend (offline/demo), sheet jatuh ke script statis [script].
+/// backend (offline/demo), sheet jatuh ke [TutorScript.forTopic] yang memakai
+/// [topic] (judul soal/materi aktif) — bukan lagi script soal KKM yang sama
+/// untuk semua tantangan.
 Future<void> showAiTutorSheet(
   BuildContext context, {
-  TutorScript script = TutorScript.kkm,
+  String? topic,
+  TutorScript? script,
   String? challengeId,
   String Function()? getCode,
   String? errorMessage,
 }) {
+  final resolved = script ?? TutorScript.forTopic(topic);
   final quota = context.read<TutorQuota>();
   final tutorRepo = context.read<TutorRepository?>();
   return showAppSheet<void>(
@@ -35,7 +39,7 @@ Future<void> showAiTutorSheet(
     subtitle: 'Scaffolding & Pendamping Belajar',
     leadingIcon: Icons.smart_toy_outlined,
     builder: (_) => AiTutorBody(
-      script: script,
+      script: resolved,
       quota: quota,
       tutorRepo: challengeId != null ? tutorRepo : null,
       challengeId: challengeId,

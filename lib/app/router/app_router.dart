@@ -54,8 +54,11 @@ GoRouter appRouter(AuthCubit authCubit) {
       // Minggu 9: guru paruh UTS belum punya dashboard penuh → placeholder.
       final isTeacher = (authCubit.state.user?.role ?? 'student') == 'teacher';
       final rawPath = state.uri.path;
-      // Kompatibilitas tautan lama: /studio-pengajar/... → /materi-pengajar/...
-      final legacyPath = _legacyTeacherPath(rawPath);
+      // Kompatibilitas tautan lama: /materi-pengajar/..., /studio-pengajar/...,
+      // /catalog, /challenge/:id, dan sejenisnya dialihkan ke nama URL baru
+      // yang mengikuti judul layar + akhiran peran.
+      final legacyPath =
+          _legacyTeacherPath(rawPath) ?? _legacyStudentPath(rawPath);
       if (legacyPath != null) return legacyPath;
       final path = rawPath;
       final isLogin = path == AppRoutes.login;
@@ -79,9 +82,14 @@ GoRouter appRouter(AuthCubit authCubit) {
           path == AppRoutes.teacherProfile ||
           path == AppRoutes.teacherSettings ||
           path == AppRoutes.teacherStudio ||
-          path.startsWith('/materi-pengajar/') ||
+          path == AppRoutes.teacherMaterialCreate ||
+          path.startsWith('/edit-materi-pengajar/') ||
+          path.startsWith('/silabus-bab-pengajar/') ||
+          path.startsWith('/bab-builder-pengajar/') ||
+          path.startsWith('/edit-bab-pengajar/') ||
+          path.startsWith('/editor-slide-pengajar/') ||
           path == AppRoutes.teacherAnalytics ||
-          path.startsWith('/analisa-pengajar/');
+          path.startsWith('/analisa-kelas-pengajar/');
       if (isAuthenticated && isTeacher && !isTeacherArea) {
         return AppRoutes.teacherHome;
       }
@@ -301,52 +309,168 @@ GoRouter appRouter(AuthCubit authCubit) {
   );
 }
 
-/// Menerjemahkan URL Studio versi lama ke URL baru yang lebih terbaca.
-/// Contoh: /studio-pengajar/materi/12/babs/3/edit
-///      → /materi-pengajar/12/silabus/3/edit
+/// Menerjemahkan URL Studio versi lama ke URL baru yang mengikuti judul layar
+/// plus akhiran peran (konvensi NAMALAYAR-ROLE).
+/// Contoh: /studio-pengajar/materi/12/babs/3/edit → /edit-bab-pengajar/12/3
+///         /materi-pengajar/12/silabus/3/edit    → /edit-bab-pengajar/12/3
+///         /edit-bab/12/3                        → /edit-bab-pengajar/12/3
 String? _legacyTeacherPath(String path) {
-  // Tautan lama "/analitik-pengajar" diarahkan ke nama baru "/analisa-pengajar".
-  const legacyAnalytics = '/analitik-pengajar';
-  if (path == legacyAnalytics) return AppRoutes.teacherAnalytics;
-  if (path.startsWith('$legacyAnalytics/')) {
-    return AppRoutes.teacherAnalyticsRoute(
-      path.substring(legacyAnalytics.length + 1),
+  // Analisa kelas: nama paling lama "/analitik-pengajar", lalu
+  // "/analisa-pengajar" sebelum akhiran peran ditambahkan.
+  const legacyAnalytics = ['/analitik-pengajar', '/analisa-pengajar'];
+  for (final legacy in legacyAnalytics) {
+    if (path == legacy) return AppRoutes.teacherAnalytics;
+    if (path.startsWith('$legacy/')) {
+      return AppRoutes.teacherAnalyticsRoute(path.substring(legacy.length + 1));
+    }
+  }
+
+  // Nama judul tanpa akhiran peran (versi sebelum konvensi ini).
+  final fromTitle = _legacyTitlePath(path);
+  if (fromTitle != null) return fromTitle;
+
+  // Format Minggu 11: /materi-pengajar/...
+  final fromMateri = _legacyMaterialPath(
+    path,
+    base: '/materi-pengajar',
+    babSegment: 'silabus',
+  );
+  if (fromMateri != null) return fromMateri;
+
+  // Format paling lama: /studio-pengajar/materi/...
+  final fromStudio = _legacyMaterialPath(
+    path,
+    base: '/studio-pengajar/materi',
+    babSegment: 'babs',
+  );
+  if (fromStudio != null) return fromStudio;
+
+  if (path.startsWith('/studio-pengajar')) return AppRoutes.teacherStudio;
+  return null;
+}
+
+/// Menerjemahkan URL yang memakai judul layar saja (tanpa `-pengajar`).
+String? _legacyTitlePath(String path) {
+  if (path == '/studio-materi') return AppRoutes.teacherStudio;
+  if (path == '/tambah-materi') return AppRoutes.teacherMaterialCreate;
+
+  final materialEdit = RegExp(r'^/edit-materi/([^/]+)$').firstMatch(path);
+  if (materialEdit != null) {
+    return AppRoutes.teacherMaterialEdit(materialEdit.group(1)!);
+  }
+
+  final slide = RegExp(
+    r'^/editor-slide/([^/]+)/([^/]+)/([^/]+)/(\d+)$',
+  ).firstMatch(path);
+  if (slide != null) {
+    return AppRoutes.teacherSlideEditor(
+      lessonId: slide.group(1)!,
+      babId: slide.group(2)!,
+      type: slide.group(3)!,
+      index: int.parse(slide.group(4)!),
     );
   }
 
-  if (!path.startsWith('/studio-pengajar')) return null;
+  final babEdit = RegExp(r'^/edit-bab/([^/]+)/([^/]+)$').firstMatch(path);
+  if (babEdit != null) {
+    return AppRoutes.teacherBabEdit(babEdit.group(1)!, babEdit.group(2)!);
+  }
+
+  final babCreate = RegExp(r'^/bab-builder/([^/]+)$').firstMatch(path);
+  if (babCreate != null) {
+    return AppRoutes.teacherBabCreate(babCreate.group(1)!);
+  }
+
+  final babList = RegExp(r'^/silabus-bab/([^/]+)$').firstMatch(path);
+  if (babList != null) {
+    return AppRoutes.teacherBabList(babList.group(1)!);
+  }
+
+  return null;
+}
+
+/// Menerjemahkan URL lama area siswa & auth (termasuk nama tanpa akhiran
+/// peran: /catalog, /challenge/:id, /settings) ke konvensi NAMALAYAR-ROLE.
+String? _legacyStudentPath(String path) {
+  // Auth.
+  if (path == '/login') return AppRoutes.login;
+  if (path == '/register') return AppRoutes.register;
+  if (path == '/register-teacher') return AppRoutes.registerTeacher;
+
+  // Pengaturan guru sebelum judulnya "Pengaturan Profil".
+  if (path == '/pengaturan-pengajar') return AppRoutes.teacherSettings;
+  if (path == '/dashboard-pengajar/arsip') {
+    return AppRoutes.teacherArchivedClasses;
+  }
+
+  // Tab siswa sebelum memakai nama judul layarnya.
+  if (path == '/challenges-siswa') return AppRoutes.challenges;
+  if (path == '/playground-siswa') return AppRoutes.playground;
+  if (path == '/profile-siswa') return AppRoutes.profile;
+  if (path == '/settings') return AppRoutes.settings;
+  if (path == '/catalog') return AppRoutes.catalog;
+  if (path == '/lab') return AppRoutes.lab;
+
+  // Halaman pushed siswa.
+  final history = RegExp(r'^/challenge/([^/]+)/history$').firstMatch(path);
+  if (history != null) return AppRoutes.history(history.group(1)!);
+
+  final challenge = RegExp(r'^/challenge/([^/]+)$').firstMatch(path);
+  if (challenge != null) return AppRoutes.challenge(challenge.group(1)!);
+
+  final lesson = RegExp(r'^/lesson/([^/]+)$').firstMatch(path);
+  if (lesson != null) return AppRoutes.lesson(lesson.group(1)!);
+
+  return null;
+}
+
+/// Menerjemahkan satu keluarga URL Studio lama (materi, bab, dan slide).
+///
+/// [base] adalah awalan sebelum segmen materi, [babSegment] adalah nama segmen
+/// daftar bab pada versi tersebut (`silabus` atau `babs`).
+String? _legacyMaterialPath(
+  String path, {
+  required String base,
+  required String babSegment,
+}) {
+  if (path == base) return AppRoutes.teacherStudio;
+  if (path == '$base/baru') return AppRoutes.teacherMaterialCreate;
+
+  final materialEdit = RegExp('^$base/([^/]+)/edit\$').firstMatch(path);
+  if (materialEdit != null) {
+    return AppRoutes.teacherMaterialEdit(materialEdit.group(1)!);
+  }
+
+  final slide = RegExp(
+    '^$base/([^/]+)/$babSegment/([^/]+)/slide/([^/]+)/(\\d+)\$',
+  ).firstMatch(path);
+  if (slide != null) {
+    return AppRoutes.teacherSlideEditor(
+      lessonId: slide.group(1)!,
+      babId: slide.group(2)!,
+      type: slide.group(3)!,
+      index: int.parse(slide.group(4)!),
+    );
+  }
 
   final babEdit = RegExp(
-    r'^/studio-pengajar/materi/([^/]+)/babs/([^/]+)/edit$',
+    '^$base/([^/]+)/$babSegment/([^/]+)/edit\$',
   ).firstMatch(path);
   if (babEdit != null) {
-    return '/materi-pengajar/${babEdit.group(1)}/silabus/${babEdit.group(2)}/edit';
+    return AppRoutes.teacherBabEdit(babEdit.group(1)!, babEdit.group(2)!);
   }
 
   final babCreate = RegExp(
-    r'^/studio-pengajar/materi/([^/]+)/babs/baru$',
+    '^$base/([^/]+)/$babSegment/baru\$',
   ).firstMatch(path);
   if (babCreate != null) {
-    return '/materi-pengajar/${babCreate.group(1)}/silabus/baru';
+    return AppRoutes.teacherBabCreate(babCreate.group(1)!);
   }
 
-  final babList = RegExp(
-    r'^/studio-pengajar/materi/([^/]+)/babs$',
-  ).firstMatch(path);
+  final babList = RegExp('^$base/([^/]+)/$babSegment\$').firstMatch(path);
   if (babList != null) {
-    return '/materi-pengajar/${babList.group(1)}/silabus';
+    return AppRoutes.teacherBabList(babList.group(1)!);
   }
 
-  final materialEdit = RegExp(
-    r'^/studio-pengajar/materi/([^/]+)/edit$',
-  ).firstMatch(path);
-  if (materialEdit != null) {
-    return '/materi-pengajar/${materialEdit.group(1)}/edit';
-  }
-
-  if (path == '/studio-pengajar/materi/baru') {
-    return '/materi-pengajar/baru';
-  }
-
-  return AppRoutes.teacherStudio;
+  return null;
 }

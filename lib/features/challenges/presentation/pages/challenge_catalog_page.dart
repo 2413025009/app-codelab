@@ -509,7 +509,7 @@ class _TopBar extends StatelessWidget {
             color: p.primary,
             borderRadius: BorderRadius.circular(10),
           ),
-          child: const Icon(Icons.code_rounded, color: Colors.white, size: 20),
+          child: Icon(Icons.code_rounded, color: p.onPrimary, size: 20),
         ),
         const SizedBox(width: AppSpacing.md),
         Expanded(
@@ -599,7 +599,7 @@ class _ChoiceChip extends StatelessWidget {
             style: TextStyle(
               fontSize: 12.5,
               fontWeight: selected ? FontWeight.bold : FontWeight.w500,
-              color: selected ? Colors.white : p.text,
+              color: selected ? p.onPrimary : p.text,
             ),
           ),
         ),
@@ -640,7 +640,9 @@ class _ProgressSummary extends StatelessWidget {
                 decoration: BoxDecoration(
                   color: p.warningContainer,
                   borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: const Color(0xFFFDE68A)),
+                  border: Border.all(
+                    color: p.warningText.withValues(alpha: 0.35),
+                  ),
                 ),
                 child: Icon(
                   Icons.emoji_events_rounded,
@@ -726,14 +728,14 @@ class _ChallengeTile extends StatelessWidget {
       String statusText,
     ) = switch (c.status) {
       ChallengeStatus.completed => (
-        const Color(0xFFECFDF5),
+        p.successContainer,
         p.success,
         Icons.check_rounded,
         'Selesai',
       ),
       ChallengeStatus.inProgress => (
-        const Color(0xFFFFFBEB),
-        const Color(0xFFD97706),
+        p.warningContainer,
+        p.warningText,
         Icons.more_horiz_rounded,
         'Sedang Dicoba',
       ),
@@ -787,7 +789,7 @@ class _ChallengeTile extends StatelessWidget {
                         ),
                         decoration: BoxDecoration(
                           color: c.level == ChallengeLevel.intermediate
-                              ? const Color(0xFFE4EDFF)
+                              ? p.primaryContainer
                               : p.surfaceAlt,
                           borderRadius: BorderRadius.circular(6),
                         ),
@@ -822,25 +824,27 @@ class _ChallengeTile extends StatelessWidget {
                           vertical: 2,
                         ),
                         decoration: BoxDecoration(
-                          color: const Color(0xFFFEF3C7),
+                          color: p.warningContainer,
                           borderRadius: BorderRadius.circular(6),
-                          border: Border.all(color: const Color(0xFFFDE68A)),
+                          border: Border.all(
+                            color: p.warningText.withValues(alpha: 0.35),
+                          ),
                         ),
                         child: Text(
                           '+${c.xp} XP',
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 10.5,
                             fontWeight: FontWeight.bold,
-                            color: Color(0xFF92400E),
+                            color: p.warningText,
                           ),
                         ),
                       ),
                       if (c.isLocked)
                         Text(
                           'Butuh ${c.minXpRequired} XP',
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 10.5,
-                            color: Color(0xFFD97706),
+                            color: p.warningText,
                             fontWeight: FontWeight.bold,
                           ),
                         )
@@ -904,7 +908,7 @@ class _MiniProjectHeader extends StatelessWidget {
                       vertical: 2,
                     ),
                     decoration: BoxDecoration(
-                      color: const Color(0xFFE4EDFF),
+                      color: p.primaryContainer,
                       borderRadius: BorderRadius.circular(4),
                     ),
                     child: Text(
@@ -929,7 +933,7 @@ class _MiniProjectHeader extends StatelessWidget {
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
           decoration: BoxDecoration(
-            color: const Color(0xFFE4EDFF),
+            color: p.primaryContainer,
             borderRadius: BorderRadius.circular(6),
           ),
           child: Text(
@@ -1004,7 +1008,7 @@ class _MiniProjectCard extends StatelessWidget {
                         decoration: BoxDecoration(
                           color: c.isLocked
                               ? p.surfaceAlt
-                              : const Color(0xFFE4EDFF),
+                              : p.primaryContainer,
                           borderRadius: BorderRadius.circular(12),
                           border: Border.all(
                             color: c.isLocked
@@ -1046,22 +1050,22 @@ class _MiniProjectCard extends StatelessWidget {
                                   decoration: BoxDecoration(
                                     color: c.isLocked
                                         ? p.surfaceAlt
-                                        : const Color(0xFFECFDF5),
+                                        : p.successContainer,
                                     borderRadius: BorderRadius.circular(10),
                                     border: Border.all(
                                       color: c.isLocked
                                           ? p.outline
-                                          : const Color(0xFFA7F3D0),
+                                          : p.success.withValues(alpha: 0.4),
                                     ),
                                   ),
                                   child: Row(
                                     mainAxisSize: MainAxisSize.min,
                                     children: [
                                       if (c.isLocked) ...[
-                                        const Icon(
+                                        Icon(
                                           Icons.lock_rounded,
                                           size: 10,
-                                          color: Color(0xFF5B6475),
+                                          color: p.textMuted,
                                         ),
                                         const SizedBox(width: 3),
                                       ],
@@ -1117,7 +1121,7 @@ class _MiniProjectCard extends StatelessWidget {
                         ),
                         decoration: BoxDecoration(
                           color: c.level == ChallengeLevel.intermediate
-                              ? const Color(0xFFE4EDFF)
+                              ? p.primaryContainer
                               : p.surfaceAlt,
                           borderRadius: BorderRadius.circular(6),
                         ),
@@ -1168,16 +1172,18 @@ class _MiniProjectCard extends StatelessWidget {
                           vertical: 2,
                         ),
                         decoration: BoxDecoration(
-                          color: const Color(0xFFFEF3C7),
+                          color: p.warningContainer,
                           borderRadius: BorderRadius.circular(6),
-                          border: Border.all(color: const Color(0xFFFDE68A)),
+                          border: Border.all(
+                            color: p.warningText.withValues(alpha: 0.35),
+                          ),
                         ),
                         child: Text(
                           '+${c.xp} XP',
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 11,
                             fontWeight: FontWeight.bold,
-                            color: Color(0xFF92400E),
+                            color: p.warningText,
                           ),
                         ),
                       ),
@@ -1186,17 +1192,17 @@ class _MiniProjectCard extends StatelessWidget {
                         Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            const Icon(
+                            Icon(
                               Icons.lock_rounded,
                               size: 12,
-                              color: Color(0xFFD97706),
+                              color: p.warningText,
                             ),
                             const SizedBox(width: 4),
                             Text(
                               'Syarat: Butuh ${c.minXpRequired} XP',
-                              style: const TextStyle(
+                              style: TextStyle(
                                 fontSize: 11,
-                                color: Color(0xFFD97706),
+                                color: p.warningText,
                                 fontWeight: FontWeight.w600,
                               ),
                             ),

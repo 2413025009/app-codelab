@@ -254,7 +254,7 @@ class _SettingsPageState extends State<SettingsPage> {
           ElevatedButton(
             style: ElevatedButton.styleFrom(
               backgroundColor: p.error,
-              foregroundColor: Colors.white,
+              foregroundColor: p.onPrimary,
             ),
             onPressed: () => Navigator.of(ctx).pop(true),
             child: const Text('Hapus'),
@@ -342,7 +342,7 @@ class _SettingsPageState extends State<SettingsPage> {
           FilledButton(
             style: FilledButton.styleFrom(
               backgroundColor: context.palette.error,
-              foregroundColor: Colors.white,
+              foregroundColor: context.palette.onPrimary,
             ),
             onPressed: () => Navigator.of(dialogCtx).pop(true),
             child: const Text('Ya, Keluar'),
@@ -447,10 +447,10 @@ class _SettingsPageState extends State<SettingsPage> {
                                     width: 2,
                                   ),
                                 ),
-                                child: const Icon(
+                                child: Icon(
                                   Icons.camera_alt,
                                   size: 16,
-                                  color: Colors.white,
+                                  color: p.onPrimary,
                                 ),
                               ),
                             ),

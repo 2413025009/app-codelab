@@ -547,7 +547,7 @@ class _RoleCard extends StatelessWidget {
                     ),
                     child: Icon(
                       icon,
-                      color: selected ? Colors.white : p.textMuted,
+                      color: selected ? p.onPrimary : p.textMuted,
                       size: 22,
                     ),
                   ),
@@ -560,10 +560,10 @@ class _RoleCard extends StatelessWidget {
                         color: p.primary,
                         shape: BoxShape.circle,
                       ),
-                      child: const Icon(
+                      child: Icon(
                         Icons.check_rounded,
                         size: 13,
-                        color: Colors.white,
+                        color: p.onPrimary,
                       ),
                     ),
                 ],
@@ -580,7 +580,7 @@ class _RoleCard extends StatelessWidget {
                 child: Text(
                   chip,
                   style: AppTypography.caption.copyWith(
-                    color: selected ? Colors.white : p.textMuted,
+                    color: selected ? p.onPrimary : p.textMuted,
                     fontWeight: FontWeight.w700,
                   ),
                 ),

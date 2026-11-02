@@ -296,14 +296,14 @@ print("Jumlah 1-3 =", total)''';
               label: Text(
                 _isRunning ? 'Menjalankan…' : 'Jalankan',
                 style: AppTypography.label.copyWith(
-                  color: Colors.white,
+                  color: palette.onPrimary,
                   fontSize: 13,
                   fontWeight: FontWeight.w600,
                 ),
               ),
               style: FilledButton.styleFrom(
                 backgroundColor: palette.primary,
-                foregroundColor: Colors.white,
+                foregroundColor: palette.onPrimary,
                 minimumSize: const Size(0, 34),
                 padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 0),
                 shape: RoundedRectangleBorder(

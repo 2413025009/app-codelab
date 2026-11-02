@@ -253,6 +253,28 @@ class FakeTeacherRepository implements TeacherRepository {
   }
 
   @override
+  Future<Bab> duplicateBab(String babId) async {
+    for (final list in babs.values) {
+      final idx = list.indexWhere((b) => b.id == babId);
+      if (idx >= 0) {
+        final src = list[idx];
+        final dup = Bab(
+          id: '${babId}dup',
+          lessonId: src.lessonId,
+          title: '${src.title} (Salinan)',
+          orderIndex: src.orderIndex + 1,
+          xpReward: src.xpReward,
+          slides: src.slides,
+          contentMarkdown: src.contentMarkdown,
+        );
+        list.insert(idx + 1, dup);
+        return dup;
+      }
+    }
+    throw Exception('Bab not found');
+  }
+
+  @override
   Future<Bab> updateBab(
     String babId, {
     required String title,

@@ -15,7 +15,7 @@ abstract final class AppTheme {
       brightness: brightness,
     ).copyWith(
       primary: p.primary,
-      onPrimary: Colors.white,
+      onPrimary: p.onPrimary,
       primaryContainer: p.primaryContainer,
       onPrimaryContainer: p.text,
       surface: p.surface,

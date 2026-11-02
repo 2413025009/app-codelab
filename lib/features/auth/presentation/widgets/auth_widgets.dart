@@ -131,7 +131,7 @@ class _CheckRow extends StatelessWidget {
               border: ok ? null : Border.all(color: p.textMuted, width: 1.5),
             ),
             child: ok
-                ? const Icon(Icons.check_rounded, size: 16, color: Colors.white)
+                ? Icon(Icons.check_rounded, size: 16, color: p.onPrimary)
                 : null,
           ),
           const SizedBox(width: 12),
@@ -240,10 +240,10 @@ class VerifiedSchoolCard extends StatelessWidget {
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      const Icon(
+                      Icon(
                         Icons.verified_rounded,
                         size: 14,
-                        color: Colors.white,
+                        color: p.onPrimary,
                       ),
                       const SizedBox(width: 6),
                       Flexible(
@@ -251,7 +251,7 @@ class VerifiedSchoolCard extends StatelessWidget {
                           'Sekolah Terdaftar Resmi',
                           overflow: TextOverflow.ellipsis,
                           style: AppTypography.caption.copyWith(
-                            color: Colors.white,
+                            color: p.onPrimary,
                             fontWeight: FontWeight.w700,
                           ),
                         ),

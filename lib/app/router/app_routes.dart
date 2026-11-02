@@ -1,91 +1,94 @@
 /// Route paths. Use these constants instead of string literals.
+///
+/// Konvensi NAMALAYAR-ROLE (lihat AGENTS.md): URL diambil dari judul yang
+/// tampil di app bar / `h1` layar, huruf kecil, spasi jadi tanda hubung, lalu
+/// ditutup akhiran peran pemakai layar (`-pengajar` / `-siswa`). Bila judul
+/// layar sudah memuat kata perannya sendiri (mis. "Profil Pengajar"), akhiran
+/// tidak diulang.
 abstract final class AppRoutes {
-  // Auth
-  static const login = '/login';
-  static const register = '/register';
+  // ── Auth ──────────────────────────────────────────────────────────────────
+  // Layar masuk tidak punya judul app bar (h1-nya sapaan "Selamat datang
+  // kembali"), jadi URL memakai nama tindakannya.
+  static const login = '/masuk';
 
   /// Minggu 9: pendaftaran akun guru berpagar kode sekolah (Stitch v3).
-  static const registerTeacher = '/register-teacher';
+  static const register = '/daftar-akun';
+  static const registerTeacher = '/registrasi-akun-pendidik';
 
-  /// Minggu 9: URL area guru dibedakan dengan akhiran `-pengajar`
-  /// (dashboard guru penuh menyusul di Minggu 11).
+  // ── Area pengajar ─────────────────────────────────────────────────────────
   static const teacherHome = '/dashboard-pengajar';
 
-  /// Minggu 9: profil pengajar (folder features/teacher) — data guru, bukan siswa.
+  /// Judul layar "Profil Pengajar" sudah memuat kata peran → tanpa akhiran.
   static const teacherProfile = '/profile-pengajar';
-  static const teacherSettings = '/pengaturan-pengajar';
+  static const teacherSettings = '/pengaturan-profil-pengajar';
 
   /// Kelas yang sudah diarsipkan (punya layar sendiri, bukan tersembunyi).
-  static const teacherArchivedClasses = '/dashboard-pengajar/arsip';
+  static const teacherArchivedClasses = '/arsip-kelas-pengajar';
 
   // ── Studio Materi Pengajar (Minggu 11-12) ──────────────────────────────────
-  // Tiap layar punya URL sendiri agar mudah dibaca dan di-bookmark:
-  //   /materi-pengajar                     → daftar materi
-  //   /materi-pengajar/baru                → tambah materi
-  //   /materi-pengajar/:id/edit            → edit info materi
-  //   /materi-pengajar/:lessonId/silabus   → daftar bab (silabus)
-  //   .../silabus/baru                     → bab builder baru
-  //   .../silabus/:babId/edit              → bab builder edit
-  //   .../silabus/:babId/slide/:type/:index → editor slide per tipe
-  static const teacherStudio = '/materi-pengajar';
+  //   /studio-materi-pengajar              → "Studio Materi" (daftar materi)
+  //   /tambah-materi-pengajar              → "Tambah Materi Baru"
+  //   /edit-materi-pengajar/:id            → "Edit Materi"
+  //   /silabus-bab-pengajar/:lessonId      → "Silabus & Bab"
+  //   /bab-builder-pengajar/:lessonId      → "Bab Builder"
+  //   /edit-bab-pengajar/:lessonId/:babId  → "Edit Bab"
+  //   /editor-slide-pengajar/:lessonId/:babId/:type/:index → "Editor Slide"
+  //   /analisa-kelas-pengajar              → pilih kelas (daftar kelas guru)
+  //   /analisa-kelas-pengajar/:classId     → analisa satu kelas
+  static const teacherStudio = '/studio-materi-pengajar';
 
-  // Analisa kelas punya dua layar berbeda:
-  //   /analisa-pengajar            → pilih kelas (daftar kelas guru)
-  //   /analisa-pengajar/:classId   → analisa satu kelas
-  static const teacherAnalytics = '/analisa-pengajar';
+  static const teacherAnalytics = '/analisa-kelas-pengajar';
   static String teacherAnalyticsRoute(String classId) =>
-      '/analisa-pengajar/$classId';
+      '/analisa-kelas-pengajar/$classId';
 
-  static const teacherMaterialCreate = '/materi-pengajar/baru';
-  static const teacherMaterialEditPattern = '/materi-pengajar/:id/edit';
-  static String teacherMaterialEdit(String id) => '/materi-pengajar/$id/edit';
+  static const teacherMaterialCreate = '/tambah-materi-pengajar';
+  static const teacherMaterialEditPattern = '/edit-materi-pengajar/:id';
+  static String teacherMaterialEdit(String id) => '/edit-materi-pengajar/$id';
 
-  static const teacherBabListPattern = '/materi-pengajar/:lessonId/silabus';
+  static const teacherBabListPattern = '/silabus-bab-pengajar/:lessonId';
   static String teacherBabList(String lessonId) =>
-      '/materi-pengajar/$lessonId/silabus';
+      '/silabus-bab-pengajar/$lessonId';
 
-  static const teacherBabCreatePattern =
-      '/materi-pengajar/:lessonId/silabus/baru';
+  static const teacherBabCreatePattern = '/bab-builder-pengajar/:lessonId';
   static String teacherBabCreate(String lessonId) =>
-      '/materi-pengajar/$lessonId/silabus/baru';
+      '/bab-builder-pengajar/$lessonId';
 
-  static const teacherBabEditPattern =
-      '/materi-pengajar/:lessonId/silabus/:babId/edit';
+  static const teacherBabEditPattern = '/edit-bab-pengajar/:lessonId/:babId';
   static String teacherBabEdit(String lessonId, String babId) =>
-      '/materi-pengajar/$lessonId/silabus/$babId/edit';
+      '/edit-bab-pengajar/$lessonId/$babId';
 
   /// Editor slide khusus per tipe (THEORY, TAP_TO_FILL, TYPE_CODE, dst).
   /// `index` adalah posisi slide di dalam bab; bab baru memakai `baru`.
   static const teacherSlideEditorPattern =
-      '/materi-pengajar/:lessonId/silabus/:babId/slide/:type/:index';
+      '/editor-slide-pengajar/:lessonId/:babId/:type/:index';
   static String teacherSlideEditor({
     required String lessonId,
     required String babId,
     required String type,
     required int index,
-  }) =>
-      '/materi-pengajar/$lessonId/silabus/$babId/slide/${type.toLowerCase()}/$index';
+  }) => '/editor-slide-pengajar/$lessonId/$babId/${type.toLowerCase()}/$index';
 
-  // Bottom-navigation tabs (inside the shell) — area siswa memakai akhiran
-  // `-siswa` agar URL siswa dan pengajar terlihat berbeda (permintaan owner).
+  // ── Area siswa (bottom-navigation tabs + halaman pushed) ──────────────────
   static const dashboard = '/dashboard-siswa';
-  static const challenges = '/challenges-siswa';
-  static const playground = '/playground-siswa';
-  static const profile = '/profile-siswa';
-  static const settings = '/settings';
+  static const challenges = '/katalog-tantangan-siswa';
+  static const playground = '/python-sandbox-siswa';
+  static const profile = '/profil-kompetensi-siswa';
+  static const settings = '/pengaturan-siswa';
 
-  // Pushed on top of the shell
-  static const catalog = '/catalog';
+  /// Katalog seluruh materi kurikulum + materi guru kelas.
+  static const catalog = '/katalog-materi-siswa';
 
-  static const lessonPattern = '/lesson/:id';
-  static String lesson(String id) => '/lesson/$id';
+  /// Pembaca materi. Layarnya hanya menampilkan bar progres di app bar, jadi
+  /// nama URL memakai sebutan layarnya sendiri.
+  static const lessonPattern = '/baca-materi-siswa/:id';
+  static String lesson(String id) => '/baca-materi-siswa/$id';
 
-  static const challengePattern = '/challenge/:id';
-  static String challenge(String id) => '/challenge/$id';
+  static const challengePattern = '/tantangan-koding-siswa/:id';
+  static String challenge(String id) => '/tantangan-koding-siswa/$id';
 
-  static const historyPattern = '/challenge/:id/history';
-  static String history(String id) => '/challenge/$id/history';
+  static const historyPattern = '/riwayat-submisi-siswa/:id';
+  static String history(String id) => '/riwayat-submisi-siswa/$id';
 
-  /// Full-screen playground with a back button (opened from history / project).
-  static const lab = '/lab';
+  /// Playground layar penuh (dibuka dari riwayat / proyek).
+  static const lab = '/python-sandbox-siswa/lab';
 }

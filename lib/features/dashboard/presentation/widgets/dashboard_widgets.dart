@@ -409,7 +409,7 @@ class _Node extends StatelessWidget {
           width: 40,
           height: 40,
           decoration: BoxDecoration(color: p.success, shape: BoxShape.circle),
-          child: const Icon(Icons.check_rounded, color: Colors.white),
+          child: Icon(Icons.check_rounded, color: p.onPrimary),
         );
       case ModuleStatus.active:
         return Container(
@@ -424,9 +424,9 @@ class _Node extends StatelessWidget {
             width: 36,
             height: 36,
             decoration: BoxDecoration(color: p.primary, shape: BoxShape.circle),
-            child: const Icon(
+            child: Icon(
               Icons.auto_stories_rounded,
-              color: Colors.white,
+              color: p.onPrimary,
               size: 20,
             ),
           ),
