@@ -5,6 +5,7 @@ import '../../../../../core/theme/app_spacing.dart';
 import '../../../../../core/theme/app_typography.dart';
 import '../../../../../core/widgets/app_card.dart';
 import '../../../../../core/widgets/app_tag.dart';
+import '../../../../../l10n/app_localizations.dart';
 import '../../../domain/slide_models.dart';
 
 class QuizSlideWidget extends StatefulWidget {
@@ -40,6 +41,7 @@ class QuizSlideWidgetState extends State<QuizSlideWidget> {
   @override
   Widget build(BuildContext context) {
     final p = context.palette;
+    final l10n = AppLocalizations.of(context);
     const letters = ['A', 'B', 'C', 'D'];
 
     return SingleChildScrollView(
@@ -50,7 +52,7 @@ class QuizSlideWidgetState extends State<QuizSlideWidget> {
           Row(
             children: [
               AppTag(
-                'Kuis Konsep',
+                l10n.slideBadgeConceptQuiz,
                 background: p.primaryContainer,
                 foreground: p.primary,
                 icon: Icons.quiz_rounded,

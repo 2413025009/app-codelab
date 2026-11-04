@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../config/app_config.dart';
 import '../theme/app_palette.dart';
 import '../theme/app_typography.dart';
+import '../../l10n/app_localizations.dart';
 
 /// Circle with the user's initials.
 class InitialAvatar extends StatelessWidget {
@@ -50,7 +51,7 @@ class InitialAvatar extends StatelessWidget {
     if (onTap == null) return avatar;
     return Semantics(
       button: true,
-      label: 'Buka profil',
+      label: AppLocalizations.of(context).a11yOpenProfile,
       child: InkResponse(onTap: onTap, radius: size, child: avatar),
     );
   }
@@ -108,7 +109,7 @@ class UserAvatar extends StatelessWidget {
     if (onTap == null) return avatar;
     return Semantics(
       button: true,
-      label: 'Buka profil',
+      label: AppLocalizations.of(context).a11yOpenProfile,
       child: InkResponse(onTap: onTap, radius: size, child: avatar),
     );
   }
@@ -127,7 +128,7 @@ class ProfileActionButton extends StatelessWidget {
       padding: const EdgeInsets.only(right: 16),
       child: Semantics(
         button: true,
-        label: 'Buka profil',
+        label: AppLocalizations.of(context).a11yOpenProfile,
         child: InkResponse(
           onTap: onTap,
           radius: 28,

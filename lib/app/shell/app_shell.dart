@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../l10n/app_localizations.dart';
+
 /// Sinyal global "tab bottom-nav baru saja diaktifkan" (nilai = index tab;
 /// -1 artinya belum ada aktivitas). IndexedStack dari StatefulShellRoute
 /// menjaga halaman tiap tab tetap hidup di memori sehingga initState TIDAK
@@ -22,6 +24,7 @@ class AppShell extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Scaffold(
       body: navigationShell,
       bottomNavigationBar: NavigationBar(
@@ -35,26 +38,26 @@ class AppShell extends StatelessWidget {
             initialLocation: index == navigationShell.currentIndex,
           );
         },
-        destinations: const [
+        destinations: [
           NavigationDestination(
-            icon: Icon(Icons.school_outlined),
-            selectedIcon: Icon(Icons.school_rounded),
-            label: 'Belajar',
+            icon: const Icon(Icons.school_outlined),
+            selectedIcon: const Icon(Icons.school_rounded),
+            label: l10n.navLearn,
           ),
           NavigationDestination(
-            icon: Icon(Icons.emoji_events_outlined),
-            selectedIcon: Icon(Icons.emoji_events_rounded),
-            label: 'Tantangan',
+            icon: const Icon(Icons.emoji_events_outlined),
+            selectedIcon: const Icon(Icons.emoji_events_rounded),
+            label: l10n.navChallenges,
           ),
           NavigationDestination(
-            icon: Icon(Icons.terminal_outlined),
-            selectedIcon: Icon(Icons.terminal_rounded),
-            label: 'Playground',
+            icon: const Icon(Icons.terminal_outlined),
+            selectedIcon: const Icon(Icons.terminal_rounded),
+            label: l10n.navPlayground,
           ),
           NavigationDestination(
-            icon: Icon(Icons.account_circle_outlined),
-            selectedIcon: Icon(Icons.account_circle_rounded),
-            label: 'Profil',
+            icon: const Icon(Icons.account_circle_outlined),
+            selectedIcon: const Icon(Icons.account_circle_rounded),
+            label: l10n.navProfile,
           ),
         ],
       ),

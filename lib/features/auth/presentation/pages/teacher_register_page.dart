@@ -36,6 +36,8 @@ import '../../../../core/theme/app_typography.dart';
 import '../../../../core/utils/validators.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_text_field.dart';
+import '../../../../l10n/app_localizations.dart';
+import '../../../../l10n/l10n_ext.dart';
 import '../../domain/auth_repository.dart';
 import '../cubit/auth_cubit.dart';
 import '../widgets/auth_widgets.dart';
@@ -85,16 +87,20 @@ class _TeacherRegisterPageState extends State<TeacherRegisterPage> {
   bool get _codeMatchesVerified =>
       _school != null && _school!.schoolCode == _schoolCode.text;
 
-  bool get _formReady =>
-      Validators.name(_name.text) == null &&
-      Validators.email(_email.text) == null &&
-      Validators.newPassword(_password.text) == null &&
-      Validators.confirmPassword(_confirm.text, _password.text) == null &&
-      _codeMatchesVerified;
+  bool get _formReady {
+    final l10n = AppLocalizations.of(context);
+    return Validators.name(_name.text, l10n) == null &&
+        Validators.email(_email.text, l10n) == null &&
+        Validators.newPassword(_password.text, l10n) == null &&
+        Validators.confirmPassword(_confirm.text, _password.text, l10n) ==
+            null &&
+        _codeMatchesVerified;
+  }
 
   /// Minggu 9: popup sukses pendaftaran pendidik + imbauan masuk.
   Future<void> _showRegisteredSuccess() {
     final p = context.palette;
+    final l10n = AppLocalizations.of(context);
     return showDialog<void>(
       context: context,
       barrierDismissible: false,
@@ -111,18 +117,18 @@ class _TeacherRegisterPageState extends State<TeacherRegisterPage> {
           child: Icon(Icons.celebration_rounded, size: 30, color: p.success),
         ),
         title: Text(
-          'Pendaftaran Berhasil! 🎉',
+          l10n.registerSuccessTitle,
           style: AppTypography.titleM.copyWith(color: p.text),
         ),
         content: Text(
-          'Akun pengajarmu sudah dibuat untuk ${_school?.name ?? 'sekolahmu'}.\n\nSilakan masuk (login) menggunakan email dan kata sandi yang baru saja kamu buat.',
+          l10n.teacherRegSuccessBody(_school?.name ?? l10n.teacherRegYourSchool),
           style: AppTypography.bodyM.copyWith(color: p.textMuted),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(dialogContext).pop(),
             child: Text(
-              'Masuk Sekarang',
+              l10n.loginSubmit,
               style: AppTypography.label.copyWith(color: p.primary),
             ),
           ),
@@ -144,6 +150,7 @@ class _TeacherRegisterPageState extends State<TeacherRegisterPage> {
   Future<void> _verifySchoolCode() async {
     final code = _schoolCode.text;
     if (code.trim().length < 6) return; // masih mengetik — jangan galat dini
+    final l10n = AppLocalizations.of(context);
     setState(() => _verifying = true);
     try {
       final school = await context.read<AuthRepository>().verifySchool(
@@ -160,13 +167,15 @@ class _TeacherRegisterPageState extends State<TeacherRegisterPage> {
       if (!mounted) return;
       setState(() {
         _school = null;
-        _verifyError = e.message;
+        _verifyError = e.messageL10n(l10n);
       });
     } catch (_) {
       if (!mounted) return;
       setState(() {
         _school = null;
-        _verifyError = const AuthFailure(AuthFailureType.network).message;
+        _verifyError = const AuthFailure(
+          AuthFailureType.network,
+        ).messageL10n(l10n);
       });
     } finally {
       if (mounted) setState(() => _verifying = false);
@@ -176,10 +185,10 @@ class _TeacherRegisterPageState extends State<TeacherRegisterPage> {
   Future<void> _submit() async {
     FocusScope.of(context).unfocus();
     if (!_formKey.currentState!.validate()) return;
+    final l10n = AppLocalizations.of(context);
     if (!_codeMatchesVerified) {
       setState(() {
-        _error =
-            'Verifikasi sekolah dulu — ketik kode resmi lalu tunggu kartu hijau muncul.';
+        _error = l10n.teacherRegVerifyFirst;
       });
       return;
     }
@@ -206,7 +215,7 @@ class _TeacherRegisterPageState extends State<TeacherRegisterPage> {
         ).toString(),
       );
     } on AuthFailure catch (e) {
-      if (mounted) setState(() => _error = e.message);
+      if (mounted) setState(() => _error = e.messageL10n(l10n));
     } finally {
       if (mounted) setState(() => _loading = false);
     }
@@ -215,14 +224,15 @@ class _TeacherRegisterPageState extends State<TeacherRegisterPage> {
   @override
   Widget build(BuildContext context) {
     final p = context.palette;
+    final l10n = AppLocalizations.of(context);
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
-          tooltip: 'Kembali',
+          tooltip: l10n.authBackTooltip,
           icon: const Icon(Icons.arrow_back_rounded),
           onPressed: () => context.go(AppRoutes.register),
         ),
-        title: const Text('Registrasi Akun Pendidik'),
+        title: Text(l10n.teacherRegTitle),
       ),
       body: SafeArea(
         child: SingleChildScrollView(
@@ -241,13 +251,13 @@ class _TeacherRegisterPageState extends State<TeacherRegisterPage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Align(
+                    Align(
                       alignment: Alignment.centerLeft,
-                      child: AppTagBanner(label: 'Kemitraan Instansi'),
+                      child: AppTagBanner(label: l10n.teacherRegTagBanner),
                     ),
                     const SizedBox(height: AppSpacing.lg),
                     Text(
-                      'Pilih Peran Akunmu',
+                      l10n.teacherRegHeading,
                       style: AppTypography.titleL.copyWith(
                         color: p.text,
                         fontSize: 28,
@@ -255,7 +265,7 @@ class _TeacherRegisterPageState extends State<TeacherRegisterPage> {
                     ),
                     const SizedBox(height: AppSpacing.sm),
                     Text(
-                      'Sesuaikan pengalaman belajar atau manajemen lab komputer sekolahmu.',
+                      l10n.teacherRegSubheading,
                       style: AppTypography.bodyL.copyWith(color: p.textMuted),
                     ),
                     const SizedBox(height: AppSpacing.lg),
@@ -263,7 +273,7 @@ class _TeacherRegisterPageState extends State<TeacherRegisterPage> {
                     const SizedBox(height: AppSpacing.xl),
                     _SectionHeader(
                       icon: Icons.verified_outlined,
-                      title: 'Verifikasi Sekolah & Lab',
+                      title: l10n.teacherRegVerifySectionTitle,
                       trailing: Text.rich(
                         TextSpan(
                           children: [
@@ -283,8 +293,8 @@ class _TeacherRegisterPageState extends State<TeacherRegisterPage> {
                             const WidgetSpan(child: SizedBox(width: 6)),
                             TextSpan(
                               text: _codeMatchesVerified
-                                  ? 'Terkoneksi'
-                                  : 'Menunggu kode',
+                                  ? l10n.teacherRegStatusConnected
+                                  : l10n.teacherRegStatusWaiting,
                             ),
                           ],
                         ),
@@ -296,17 +306,17 @@ class _TeacherRegisterPageState extends State<TeacherRegisterPage> {
                     ),
                     const SizedBox(height: AppSpacing.md),
                     AppTextField(
-                      label: 'Kode Registrasi Sekolah / Lab',
-                      hintAside: 'Dari dinas/sekolah',
+                      label: l10n.teacherRegSchoolCodeLabel,
+                      hintAside: l10n.teacherRegSchoolCodeHintAside,
                       controller: _schoolCode,
-                      hint: 'Contoh: SWADHIPA2-NTR',
+                      hint: l10n.teacherRegSchoolCodeHint,
                       prefixIcon: Icons.apartment_rounded,
                       textInputAction: TextInputAction.next,
                       inputFormatters: [LengthLimitingTextInputFormatter(30)],
                       onChanged: _onSchoolCodeChanged,
                       validator: (v) => _codeMatchesVerified
                           ? null
-                          : 'Ketik kode sekolah resmi hingga kartu hijau muncul.',
+                          : l10n.teacherRegSchoolCodeInvalid,
                       suffixWidget: _verifying
                           ? const SizedBox(
                               width: 18,
@@ -322,7 +332,7 @@ class _TeacherRegisterPageState extends State<TeacherRegisterPage> {
                     ),
                     const SizedBox(height: AppSpacing.sm),
                     Text(
-                      'Guru wajib memasukkan kode sekolah resmi agar terafiliasi dengan laboratorium sekolah.',
+                      l10n.teacherRegSchoolCodeNote,
                       style: AppTypography.bodyM.copyWith(color: p.textMuted),
                     ),
                     const SizedBox(height: AppSpacing.lg),
@@ -344,11 +354,11 @@ class _TeacherRegisterPageState extends State<TeacherRegisterPage> {
                     const SizedBox(height: AppSpacing.xl),
                     _SectionHeader(
                       icon: Icons.badge_rounded,
-                      title: 'Data Pendidik Terdaftar',
+                      title: l10n.teacherRegDataSectionTitle,
                     ),
                     const SizedBox(height: AppSpacing.md),
                     Text(
-                      'Lengkapi identitas pendidik untuk verifikasi sertifikat lab.',
+                      l10n.teacherRegDataSectionNote,
                       style: AppTypography.bodyM.copyWith(color: p.textMuted),
                     ),
                     const SizedBox(height: AppSpacing.lg),
@@ -357,56 +367,56 @@ class _TeacherRegisterPageState extends State<TeacherRegisterPage> {
                       const SizedBox(height: AppSpacing.lg),
                     ],
                     AppTextField(
-                      label: 'Nama Lengkap & Gelar',
-                      hintAside: 'Contoh: Budi Santoso, S.Kom',
+                      label: l10n.teacherRegNameLabel,
+                      hintAside: l10n.teacherRegNameHintAside,
                       controller: _name,
                       hint: 'Budi Santoso, S.Kom',
                       prefixIcon: Icons.person_outline_rounded,
                       textInputAction: TextInputAction.next,
                       autofillHints: const [AutofillHints.name],
-                      validator: Validators.name,
+                      validator: (v) => Validators.name(v, l10n),
                     ),
                     const SizedBox(height: AppSpacing.lg),
                     AppTextField(
-                      label: 'Email Pendidik / Instansi',
-                      hintAside: 'Email kantor',
+                      label: l10n.teacherRegEmailLabel,
+                      hintAside: l10n.teacherRegEmailHintAside,
                       controller: _email,
                       hint: 'budi.guru@smk.belajar.id',
                       prefixIcon: Icons.alternate_email_rounded,
                       keyboardType: TextInputType.emailAddress,
                       textInputAction: TextInputAction.next,
                       autofillHints: const [AutofillHints.newUsername],
-                      validator: Validators.email,
+                      validator: (v) => Validators.email(v, l10n),
                     ),
                     const SizedBox(height: AppSpacing.lg),
                     AppTextField(
-                      label: 'Kata Sandi',
+                      label: l10n.authPasswordLabel,
                       controller: _password,
-                      hint: 'Kombinasi sandi kuat',
+                      hint: l10n.authPasswordStrengthHint,
                       obscure: true,
                       textInputAction: TextInputAction.next,
                       autofillHints: const [AutofillHints.newPassword],
-                      validator: Validators.newPassword,
+                      validator: (v) => Validators.newPassword(v, l10n),
                     ),
                     const SizedBox(height: AppSpacing.lg),
                     // Minggu 9: konfirmasi sandi wajib sama persis.
                     AppTextField(
-                      label: 'Konfirmasi Kata Sandi',
-                      hintAside: 'Sama persis',
+                      label: l10n.registerConfirmLabel,
+                      hintAside: l10n.authSameExactlyHintAside,
                       controller: _confirm,
-                      hint: 'Ketik ulang kata sandimu',
+                      hint: l10n.authRetypePasswordHint,
                       obscure: true,
                       textInputAction: TextInputAction.done,
                       autofillHints: const [AutofillHints.newPassword],
                       validator: (v) =>
-                          Validators.confirmPassword(v, _password.text),
+                          Validators.confirmPassword(v, _password.text, l10n),
                       onSubmitted: (_) => _formReady ? _submit() : null,
                     ),
                     const SizedBox(height: AppSpacing.md),
                     PasswordChecklist(password: _password.text),
                     const SizedBox(height: AppSpacing.xl),
                     AppButton(
-                      label: 'Lanjutkan Pendaftaran Akun',
+                      label: l10n.teacherRegSubmit,
                       trailingIcon: Icons.arrow_forward_rounded,
                       loading: _loading,
                       onPressed: _formReady ? _submit : null,
@@ -416,7 +426,7 @@ class _TeacherRegisterPageState extends State<TeacherRegisterPage> {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Text(
-                          'Sudah punya akun?',
+                          l10n.authAlreadyHaveAccount,
                           style: AppTypography.bodyL.copyWith(
                             color: p.textMuted,
                           ),
@@ -430,7 +440,7 @@ class _TeacherRegisterPageState extends State<TeacherRegisterPage> {
                           ),
                           onPressed: () => context.go(AppRoutes.login),
                           child: Text(
-                            'Masuk',
+                            l10n.authLoginLink,
                             style: AppTypography.label.copyWith(
                               color: p.primary,
                               fontSize: 16,
@@ -461,6 +471,7 @@ class _RoleSwitcher extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return IntrinsicHeight(
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -468,9 +479,9 @@ class _RoleSwitcher extends StatelessWidget {
           Expanded(
             child: _RoleCard(
               icon: Icons.school_outlined,
-              chip: 'Belajar Mandiri',
-              title: 'Siswa Belajar',
-              description: 'Akses modul koding praktis & AI tutor 24/7',
+              chip: l10n.roleStudentChip,
+              title: l10n.roleStudentTitle,
+              description: l10n.roleStudentDesc,
               selected: !isTeacher,
               onTap: () {
                 SoundService.playButtonClick();
@@ -482,9 +493,9 @@ class _RoleSwitcher extends StatelessWidget {
           Expanded(
             child: _RoleCard(
               icon: Icons.cast_for_education_rounded,
-              chip: 'Akses Pendidik',
-              title: 'Guru / Instruktur',
-              description: 'Kelola lab kelas, kurikulum & pantau siswa',
+              chip: l10n.roleTeacherChip,
+              title: l10n.roleTeacherTitle,
+              description: l10n.roleTeacherDesc,
               selected: isTeacher,
               onTap: () => SoundService.playButtonClick(),
             ),

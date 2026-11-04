@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import '../theme/app_palette.dart';
 import '../theme/app_spacing.dart';
 import '../theme/app_typography.dart';
+import '../../l10n/app_localizations.dart';
 
 /// Text field with the label fixed above the box (DESIGN.md §3.1).
 class AppTextField extends StatefulWidget {
@@ -56,11 +57,12 @@ class _AppTextFieldState extends State<AppTextField> {
   @override
   Widget build(BuildContext context) {
     final p = context.palette;
+    final l10n = AppLocalizations.of(context);
 
     Widget? suffix;
     if (widget.obscure) {
       suffix = IconButton(
-        tooltip: _hidden ? 'Tampilkan kata sandi' : 'Sembunyikan kata sandi',
+        tooltip: _hidden ? l10n.a11yShowPassword : l10n.a11yHidePassword,
         constraints: const BoxConstraints(minWidth: AppSizes.minTouch, minHeight: AppSizes.minTouch),
         icon: Icon(_hidden ? Icons.visibility_off_rounded : Icons.visibility_rounded, color: p.textMuted),
         onPressed: () => setState(() => _hidden = !_hidden),

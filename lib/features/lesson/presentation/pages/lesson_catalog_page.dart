@@ -14,6 +14,7 @@ import '../../../../core/widgets/app_progress_bar.dart';
 import '../../../../core/widgets/app_refresh.dart';
 import '../../../../core/widgets/app_tag.dart';
 import '../../../../core/widgets/skeleton.dart';
+import '../../../../l10n/app_localizations.dart';
 import '../../domain/lesson_repository.dart';
 import '../../domain/slide_models.dart';
 
@@ -24,13 +25,18 @@ import '../../domain/slide_models.dart';
 /// → dashboard memetakan SEMUA bab lesson itu (selesai maupun belum) lewat
 /// [appShellFocusTopic].
 enum _MaterialFilter {
-  all('Semua'),
-  selesai('Selesai'),
-  sedangAktif('Sedang Aktif'),
-  belumMulai('Belum Dimulai');
+  all,
+  selesai,
+  sedangAktif,
+  belumMulai;
 
-  const _MaterialFilter(this.label);
-  final String label;
+  /// Label chip mengikuti bahasa aktif (nilai enum tidak menyimpan teks).
+  String label(AppLocalizations l10n) => switch (this) {
+    _MaterialFilter.all => l10n.filterAll,
+    _MaterialFilter.selesai => l10n.filterDone,
+    _MaterialFilter.sedangAktif => l10n.materialFilterActive,
+    _MaterialFilter.belumMulai => l10n.materialFilterNotStarted,
+  };
 }
 
 /// Deskripsi topik = kolom description bab dengan orderIndex terkecil
@@ -101,17 +107,18 @@ class _LessonCatalogPageState extends State<LessonCatalogPage> {
   @override
   Widget build(BuildContext context) {
     final p = context.palette;
+    final l10n = AppLocalizations.of(context);
 
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_rounded),
-          tooltip: 'Kembali',
+          tooltip: l10n.actionBack,
           onPressed: () => context.canPop()
               ? context.pop()
               : context.go(AppRoutes.dashboard),
         ),
-        title: const Text('Katalog Materi'),
+        title: Text(l10n.materialCatalogTitle),
       ),
       body: FutureBuilder<List<LessonDetailData>>(
         future: _future,
@@ -137,12 +144,12 @@ class _LessonCatalogPageState extends State<LessonCatalogPage> {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Text(
-                    'Gagal memuat katalog materi.',
+                    l10n.materialLoadFailed,
                     style: AppTypography.bodyM.copyWith(color: p.textMuted),
                   ),
                   const SizedBox(height: AppSpacing.md),
                   AppButton(
-                    label: 'Coba lagi',
+                    label: l10n.dashRetryButton,
                     expand: false,
                     onPressed: () => setState(_loadLessons),
                   ),
@@ -182,12 +189,12 @@ class _LessonCatalogPageState extends State<LessonCatalogPage> {
                   onChanged: (_) => setState(() {}),
                   textInputAction: TextInputAction.search,
                   decoration: InputDecoration(
-                    hintText: 'Cari materi atau deskripsinya…',
+                    hintText: l10n.materialSearchHint,
                     prefixIcon: const Icon(Icons.search_rounded, size: 20),
                     suffixIcon: _search.text.isEmpty
                         ? null
                         : IconButton(
-                            tooltip: 'Hapus pencarian',
+                            tooltip: l10n.materialClearSearch,
                             icon: const Icon(Icons.close_rounded, size: 18),
                             onPressed: () {
                               _search.clear();
@@ -223,7 +230,7 @@ class _LessonCatalogPageState extends State<LessonCatalogPage> {
                     itemBuilder: (context, i) {
                       final f = _MaterialFilter.values[i];
                       return _FilterChip(
-                        label: f.label,
+                        label: f.label(l10n),
                         selected: _filter == f,
                         onTap: () => setState(() => _filter = f),
                       );
@@ -243,8 +250,7 @@ class _LessonCatalogPageState extends State<LessonCatalogPage> {
                         ),
                         const SizedBox(height: AppSpacing.sm),
                         Text(
-                          'Tidak ada materi yang cocok dengan pencarian '
-                          'atau filter.',
+                          l10n.materialNoMatch,
                           textAlign: TextAlign.center,
                           style: AppTypography.bodyM.copyWith(
                             color: p.textMuted,
@@ -289,6 +295,7 @@ class _LessonTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final p = context.palette;
+    final l10n = AppLocalizations.of(context);
     final done = lessons.where((l) => l.status == 'completed').length;
     final pct = lessons.isEmpty ? 0.0 : done / lessons.length;
     final hasActive = lessons.any((l) => l.status == 'active');
@@ -356,7 +363,7 @@ class _LessonTile extends StatelessWidget {
                       AppProgressBar(value: pct, height: 6),
                       const SizedBox(height: AppSpacing.xs),
                       Text(
-                        '$done/${lessons.length} bab tuntas',
+                        l10n.materialChaptersDone(done, lessons.length),
                         style: AppTypography.caption.copyWith(
                           color: p.textMuted,
                         ),
@@ -367,12 +374,12 @@ class _LessonTile extends StatelessWidget {
                 const SizedBox(width: AppSpacing.md),
                 AppTag(
                   hasActive
-                      ? 'Sedang Aktif'
+                      ? l10n.materialFilterActive
                       : allDone
-                      ? 'Selesai'
+                      ? l10n.filterDone
                       : done > 0
-                      ? 'Berjalan'
-                      : 'Belum Dimulai',
+                      ? l10n.materialStatusRunning
+                      : l10n.materialFilterNotStarted,
                   background: hasActive
                       ? p.primaryContainer
                       : allDone

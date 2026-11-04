@@ -6,6 +6,7 @@ import '../../../../../core/theme/app_typography.dart';
 import '../../../../../core/widgets/app_card.dart';
 import '../../../../../core/widgets/app_tag.dart';
 import '../../../../../core/widgets/code_card.dart';
+import '../../../../../l10n/app_localizations.dart';
 import '../../../domain/slide_models.dart';
 
 class TheorySlideWidget extends StatelessWidget {
@@ -16,6 +17,7 @@ class TheorySlideWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final p = context.palette;
+    final l10n = AppLocalizations.of(context);
 
     return SingleChildScrollView(
       padding: const EdgeInsets.fromLTRB(AppSpacing.screen, AppSpacing.md, AppSpacing.screen, AppSpacing.xxl),
@@ -25,7 +27,7 @@ class TheorySlideWidget extends StatelessWidget {
           Row(
             children: [
               AppTag(
-                'Teori & Konsep',
+                l10n.slideBadgeTheory,
                 background: p.primaryContainer,
                 foreground: p.primary,
                 icon: Icons.menu_book_rounded,
@@ -57,7 +59,7 @@ class TheorySlideWidget extends StatelessWidget {
                 const SizedBox(width: AppSpacing.md),
                 Expanded(
                   child: Text(
-                    'Pahami konsep di atas dengan seksama sebelum melanjutkan ke latihan interaktif.',
+                    l10n.slideTheoryTip,
                     style: AppTypography.bodyM.copyWith(color: p.textMuted),
                   ),
                 ),

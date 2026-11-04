@@ -15,16 +15,22 @@ import '../../../../core/widgets/app_sheet.dart';
 import '../../../../core/widgets/avatars.dart';
 import '../../../../core/widgets/skeleton.dart';
 import '../../../auth/presentation/cubit/auth_cubit.dart';
+import '../../../../l10n/app_localizations.dart';
+import '../../../../l10n/l10n_ext.dart';
 import '../../domain/challenge_repository.dart';
 
 enum _StatusFilter {
-  all('Semua'),
-  todo('Belum Selesai'),
-  done('Selesai'),
-  miniProject('Mini Proyek');
+  all,
+  todo,
+  done,
+  miniProject;
 
-  const _StatusFilter(this.label);
-  final String label;
+  String label(AppLocalizations l10n) => switch (this) {
+    _StatusFilter.all => l10n.filterAll,
+    _StatusFilter.todo => l10n.filterTodo,
+    _StatusFilter.done => l10n.filterDone,
+    _StatusFilter.miniProject => l10n.filterMiniProject,
+  };
 }
 
 class ChallengeCatalogPage extends StatefulWidget {
@@ -109,9 +115,10 @@ class _ChallengeCatalogPageState extends State<ChallengeCatalogPage> {
   }
 
   void _openFilterSheet() {
+    final l10n = AppLocalizations.of(context);
     showAppSheet<void>(
       context,
-      title: 'Filter Tantangan',
+      title: l10n.challengeFilterTitle,
       builder: (ctx) => StatefulBuilder(
         builder: (ctx, setSheet) => Padding(
           padding: const EdgeInsets.all(AppSpacing.screen),
@@ -120,7 +127,7 @@ class _ChallengeCatalogPageState extends State<ChallengeCatalogPage> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'Tingkat kesulitan',
+                l10n.challengeLevelSection,
                 style: AppTypography.label.copyWith(
                   color: ctx.palette.textMuted,
                 ),
@@ -130,7 +137,7 @@ class _ChallengeCatalogPageState extends State<ChallengeCatalogPage> {
                 spacing: AppSpacing.sm,
                 children: [
                   _ChoiceChip(
-                    label: 'Semua',
+                    label: l10n.filterAll,
                     selected: _level == null,
                     onTap: () {
                       setState(() => _level = null);
@@ -139,7 +146,7 @@ class _ChallengeCatalogPageState extends State<ChallengeCatalogPage> {
                   ),
                   for (final l in ChallengeLevel.values)
                     _ChoiceChip(
-                      label: l.label,
+                      label: l.labelL10n(l10n),
                       selected: _level == l,
                       onTap: () {
                         setState(() => _level = l);
@@ -150,7 +157,7 @@ class _ChallengeCatalogPageState extends State<ChallengeCatalogPage> {
               ),
               const SizedBox(height: AppSpacing.xl),
               AppButton(
-                label: 'Terapkan',
+                label: l10n.actionApply,
                 onPressed: () => Navigator.of(ctx).pop(),
               ),
             ],
@@ -161,10 +168,11 @@ class _ChallengeCatalogPageState extends State<ChallengeCatalogPage> {
   }
 
   void _onChallengeTap(ChallengeSummary c, int userXp) {
+    final l10n = AppLocalizations.of(context);
     if (c.isLocked) {
       showAppSheet<void>(
         context,
-        title: 'Tantangan Terkunci',
+        title: l10n.challengeLockedTitle,
         builder: (ctx) => Padding(
           padding: const EdgeInsets.all(AppSpacing.screen),
           child: Column(
@@ -191,7 +199,7 @@ class _ChallengeCatalogPageState extends State<ChallengeCatalogPage> {
               ),
               const SizedBox(height: AppSpacing.xs),
               Text(
-                'Syarat: Butuh minimal ${c.minXpRequired} XP untuk membuka tantangan ini. Saat ini kamu memiliki $userXp XP.',
+                l10n.challengeLockedBody(c.minXpRequired, userXp),
                 style: AppTypography.bodyM.copyWith(
                   color: ctx.palette.textMuted,
                   height: 1.5,
@@ -202,7 +210,7 @@ class _ChallengeCatalogPageState extends State<ChallengeCatalogPage> {
                 children: [
                   Expanded(
                     child: AppButton(
-                      label: 'Jalur Belajar',
+                      label: l10n.challengeLearningPath,
                       onPressed: () {
                         Navigator.of(ctx).pop();
                         context.go(AppRoutes.dashboard);
@@ -212,7 +220,7 @@ class _ChallengeCatalogPageState extends State<ChallengeCatalogPage> {
                   const SizedBox(width: AppSpacing.md),
                   Expanded(
                     child: AppButton(
-                      label: 'Tutup',
+                      label: l10n.actionClose,
                       kind: AppButtonKind.secondary,
                       onPressed: () => Navigator.of(ctx).pop(),
                     ),
@@ -231,8 +239,9 @@ class _ChallengeCatalogPageState extends State<ChallengeCatalogPage> {
   @override
   Widget build(BuildContext context) {
     final p = context.palette;
+    final l10n = AppLocalizations.of(context);
     final user = context.watch<AuthCubit>().state.user;
-    final userName = user?.name ?? 'Siswa SMK';
+    final userName = user?.name ?? l10n.appDefaultStudentName;
     final userXp = user?.xpPoints ?? 0;
 
     return Scaffold(
@@ -267,7 +276,7 @@ class _ChallengeCatalogPageState extends State<ChallengeCatalogPage> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              'Katalog Tantangan',
+                              l10n.challengeCatalogTitle,
                               style: AppTypography.titleL.copyWith(
                                 color: p.text,
                                 fontSize: 26,
@@ -276,7 +285,7 @@ class _ChallengeCatalogPageState extends State<ChallengeCatalogPage> {
                             ),
                             const SizedBox(height: 2),
                             Text(
-                              'Asah logika algoritma & koding bertahap',
+                              l10n.challengeCatalogSubtitle,
                               style: AppTypography.bodyM.copyWith(
                                 color: p.textMuted,
                               ),
@@ -296,7 +305,9 @@ class _ChallengeCatalogPageState extends State<ChallengeCatalogPage> {
                         onPressed: _openFilterSheet,
                         icon: const Icon(Icons.tune_rounded, size: 16),
                         label: Text(
-                          _level == null ? 'Filter' : 'Filter • 1',
+                          _level == null
+                              ? l10n.challengeFilter
+                              : l10n.challengeFilterActive,
                           style: const TextStyle(
                             fontSize: 13,
                             fontWeight: FontWeight.w600,
@@ -312,7 +323,7 @@ class _ChallengeCatalogPageState extends State<ChallengeCatalogPage> {
                     onChanged: (_) => setState(() {}),
                     style: AppTypography.bodyL.copyWith(color: p.text),
                     decoration: InputDecoration(
-                      hintText: 'Cari topik, fungsi, atau algoritma...',
+                      hintText: l10n.challengeSearchHint,
                       prefixIcon: Icon(
                         Icons.search_rounded,
                         color: p.textMuted,
@@ -321,7 +332,7 @@ class _ChallengeCatalogPageState extends State<ChallengeCatalogPage> {
                       suffixIcon: _search.text.isEmpty
                           ? null
                           : IconButton(
-                              tooltip: 'Hapus pencarian',
+                              tooltip: l10n.challengeClearSearch,
                               icon: const Icon(Icons.close_rounded, size: 18),
                               onPressed: () => setState(_search.clear),
                             ),
@@ -352,14 +363,14 @@ class _ChallengeCatalogPageState extends State<ChallengeCatalogPage> {
                       child: Column(
                         children: [
                           Text(
-                            'Ada kendala di sisi kami. Coba lagi sebentar.',
+                            l10n.dashErrorTitle,
                             style: AppTypography.bodyM.copyWith(
                               color: p.textMuted,
                             ),
                           ),
                           const SizedBox(height: AppSpacing.lg),
                           AppButton(
-                            label: 'Coba lagi',
+                            label: l10n.dashRetryButton,
                             expand: false,
                             onPressed: _refresh,
                           ),
@@ -383,6 +394,7 @@ class _ChallengeCatalogPageState extends State<ChallengeCatalogPage> {
     int userXp,
   ) {
     final p = context.palette;
+    final l10n = AppLocalizations.of(context);
     final groups = [
       for (final g in catalog.groups)
         (g, g.challenges.where(_matches).toList()),
@@ -399,8 +411,8 @@ class _ChallengeCatalogPageState extends State<ChallengeCatalogPage> {
             final f = _StatusFilter.values[i];
             return _ChoiceChip(
               label: f == _StatusFilter.all
-                  ? '${f.label} (${catalog.total})'
-                  : f.label,
+                  ? l10n.challengeFilterCount(f.label(l10n), catalog.total)
+                  : f.label(l10n),
               selected: _status == f,
               onTap: () => setState(() => _status = f),
             );
@@ -418,7 +430,7 @@ class _ChallengeCatalogPageState extends State<ChallengeCatalogPage> {
               Icon(Icons.search_off_rounded, size: 40, color: p.textMuted),
               const SizedBox(height: AppSpacing.md),
               Text(
-                'Tidak ada tantangan yang cocok. Coba ubah kata kunci atau filter.',
+                l10n.challengeNoMatch,
                 textAlign: TextAlign.center,
                 style: AppTypography.bodyM.copyWith(color: p.textMuted),
               ),
@@ -460,7 +472,10 @@ class _ChallengeCatalogPageState extends State<ChallengeCatalogPage> {
                   borderRadius: BorderRadius.circular(6),
                 ),
                 child: Text(
-                  '${group.completed} / ${group.challenges.length} Selesai',
+                  l10n.challengeGroupDone(
+                    group.completed,
+                    group.challenges.length,
+                  ),
                   style: TextStyle(
                     fontSize: 11,
                     fontWeight: FontWeight.w600,
@@ -500,6 +515,7 @@ class _TopBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final p = context.palette;
+    final l10n = AppLocalizations.of(context);
     return Row(
       children: [
         Container(
@@ -534,7 +550,7 @@ class _TopBar extends StatelessWidget {
           ),
         ),
         IconButton(
-          tooltip: 'Cari tantangan',
+          tooltip: l10n.challengeSearchTooltip,
           style: IconButton.styleFrom(
             side: BorderSide(color: p.outline),
             minimumSize: const Size(36, 36),
@@ -615,6 +631,7 @@ class _ProgressSummary extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final p = context.palette;
+    final l10n = AppLocalizations.of(context);
     return Container(
       decoration: BoxDecoration(
         color: p.surface,
@@ -656,7 +673,10 @@ class _ProgressSummary extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      '${catalog.completed} dari ${catalog.total} Selesai',
+                      l10n.challengeSummaryDone(
+                        catalog.completed,
+                        catalog.total,
+                      ),
                       style: AppTypography.titleM.copyWith(
                         color: p.text,
                         fontSize: 16,
@@ -664,7 +684,7 @@ class _ProgressSummary extends StatelessWidget {
                     ),
                     const SizedBox(height: 2),
                     Text(
-                      'Kemahiran Kurikulum Algoritma RPL',
+                      l10n.challengeSummarySubtitle,
                       style: AppTypography.bodyM.copyWith(
                         color: p.textMuted,
                         fontSize: 12,
@@ -685,7 +705,7 @@ class _ProgressSummary extends StatelessWidget {
                     ),
                   ),
                   Text(
-                    '+${catalog.xpEarned} XP Didapat',
+                    l10n.challengeXpEarned(catalog.xpEarned),
                     textAlign: TextAlign.right,
                     style: TextStyle(
                       fontSize: 11,
@@ -719,6 +739,7 @@ class _ChallengeTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final p = context.palette;
+    final l10n = AppLocalizations.of(context);
     final c = challenge;
 
     final (
@@ -731,13 +752,13 @@ class _ChallengeTile extends StatelessWidget {
         p.successContainer,
         p.success,
         Icons.check_rounded,
-        'Selesai',
+        l10n.moduleStatusCompleted,
       ),
       ChallengeStatus.inProgress => (
         p.warningContainer,
         p.warningText,
         Icons.more_horiz_rounded,
-        'Sedang Dicoba',
+        l10n.challengeStatusInProgress,
       ),
       ChallengeStatus.notStarted => (
         p.surfaceAlt,
@@ -794,7 +815,7 @@ class _ChallengeTile extends StatelessWidget {
                           borderRadius: BorderRadius.circular(6),
                         ),
                         child: Text(
-                          c.level.label,
+                          c.level.labelL10n(l10n),
                           style: TextStyle(
                             fontSize: 10.5,
                             fontWeight: FontWeight.w600,
@@ -841,7 +862,7 @@ class _ChallengeTile extends StatelessWidget {
                       ),
                       if (c.isLocked)
                         Text(
-                          'Butuh ${c.minXpRequired} XP',
+                          l10n.challengeXpRequired(c.minXpRequired),
                           style: TextStyle(
                             fontSize: 10.5,
                             color: p.warningText,
@@ -883,6 +904,7 @@ class _MiniProjectHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final p = context.palette;
+    final l10n = AppLocalizations.of(context);
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -893,7 +915,7 @@ class _MiniProjectHeader extends StatelessWidget {
               Row(
                 children: [
                   Text(
-                    'MINI-PROYEK TERAPAN',
+                    l10n.challengeMiniProjectHeader,
                     style: AppTypography.label.copyWith(
                       color: p.textMuted,
                       letterSpacing: 0.8,
@@ -924,7 +946,7 @@ class _MiniProjectHeader extends StatelessWidget {
               ),
               const SizedBox(height: 2),
               Text(
-                'Praktik implementasi logika komprehensif khas SMK RPL',
+                l10n.challengeMiniProjectSubtitle,
                 style: TextStyle(fontSize: 11.5, color: p.textMuted),
               ),
             ],
@@ -937,7 +959,10 @@ class _MiniProjectHeader extends StatelessWidget {
             borderRadius: BorderRadius.circular(6),
           ),
           child: Text(
-            '${group.unlockedCount} / ${group.challenges.length} Dibuka',
+            l10n.challengeGroupUnlocked(
+              group.unlockedCount,
+              group.challenges.length,
+            ),
             style: TextStyle(
               fontSize: 11,
               fontWeight: FontWeight.w600,
@@ -964,6 +989,7 @@ class _MiniProjectCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final p = context.palette;
+    final l10n = AppLocalizations.of(context);
     final c = challenge;
 
     IconData projectIcon = Icons.point_of_sale_rounded;
@@ -1070,7 +1096,9 @@ class _MiniProjectCard extends StatelessWidget {
                                         const SizedBox(width: 3),
                                       ],
                                       Text(
-                                        c.isLocked ? 'Terkunci' : 'Terbuka',
+                                        c.isLocked
+                                            ? l10n.moduleStatusLocked
+                                            : l10n.challengeOpen,
                                         style: TextStyle(
                                           fontSize: 10,
                                           fontWeight: FontWeight.bold,
@@ -1126,7 +1154,7 @@ class _MiniProjectCard extends StatelessWidget {
                           borderRadius: BorderRadius.circular(6),
                         ),
                         child: Text(
-                          c.level.label,
+                          c.level.labelL10n(l10n),
                           style: TextStyle(
                             fontSize: 11,
                             fontWeight: FontWeight.w600,
@@ -1156,7 +1184,7 @@ class _MiniProjectCard extends StatelessWidget {
                             ),
                             const SizedBox(width: 3),
                             Text(
-                              '${c.estimatedMinutes} Menit',
+                              l10n.challengeMinutes(c.estimatedMinutes),
                               style: TextStyle(
                                 fontSize: 11,
                                 color: p.textMuted,
@@ -1199,7 +1227,7 @@ class _MiniProjectCard extends StatelessWidget {
                             ),
                             const SizedBox(width: 4),
                             Text(
-                              'Syarat: Butuh ${c.minXpRequired} XP',
+                              l10n.challengeXpRequirement(c.minXpRequired),
                               style: TextStyle(
                                 fontSize: 11,
                                 color: p.warningText,
@@ -1219,7 +1247,7 @@ class _MiniProjectCard extends StatelessWidget {
                             ),
                             const SizedBox(width: 4),
                             Text(
-                              '${c.testCount} Unit Test',
+                              l10n.challengeTestCount(c.testCount),
                               style: TextStyle(
                                 fontSize: 11,
                                 color: p.success,

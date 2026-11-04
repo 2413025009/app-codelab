@@ -15,6 +15,9 @@ class AppPreferences extends ChangeNotifier {
   static const _keyThemeMode = 'codelab_theme_mode';
   static const _keyLocale = 'codelab_app_locale';
 
+  /// Bahasa antarmuka yang resmi didukung (Minggu 11). Kode lain jatuh ke id.
+  static const supportedLocaleCodes = <String>{'id', 'en', 'ar'};
+
   ThemeMode _themeMode = ThemeMode.system;
   Locale _locale = const Locale('id');
 
@@ -27,8 +30,16 @@ class AppPreferences extends ChangeNotifier {
     ThemeMode.system => 'Ikuti Sistem',
   };
 
-  String get languageLabel =>
-      _locale.languageCode == 'en' ? 'English' : 'Indonesia';
+  /// Nama bahasa ditulis dalam bahasa aslinya agar tetap dikenali siswa
+  /// ketika antarmuka sedang memakai bahasa lain.
+  String get languageLabel => switch (_locale.languageCode) {
+    'en' => 'English',
+    'ar' => 'العربية',
+    _ => 'Bahasa Indonesia',
+  };
+
+  static String _normalizeLocaleCode(String? code) =>
+      supportedLocaleCodes.contains(code) ? code! : 'id';
 
   /// Dipanggil sekali saat aplikasi dibuka (main.dart).
   Future<void> init() async {
@@ -40,7 +51,7 @@ class AppPreferences extends ChangeNotifier {
         _ => ThemeMode.system,
       };
       final locale = await _storage.read(key: _keyLocale);
-      _locale = Locale(locale == 'en' ? 'en' : 'id');
+      _locale = Locale(_normalizeLocaleCode(locale));
       notifyListeners();
     } catch (_) {
       // Penyimpanan lokal tidak tersedia: tetap pakai default aman.
@@ -66,7 +77,7 @@ class AppPreferences extends ChangeNotifier {
   }
 
   Future<void> setLocale(Locale locale) async {
-    final code = locale.languageCode == 'en' ? 'en' : 'id';
+    final code = _normalizeLocaleCode(locale.languageCode);
     if (_locale.languageCode == code) return;
     _locale = Locale(code);
     notifyListeners();

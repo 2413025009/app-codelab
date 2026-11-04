@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import '../../../../core/theme/app_palette.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_typography.dart';
+import '../../../../l10n/app_localizations.dart';
 import '../../domain/dashboard_repository.dart';
 
 class WindingRoadmap extends StatefulWidget {
@@ -49,6 +50,7 @@ class _WindingRoadmapState extends State<WindingRoadmap>
   @override
   Widget build(BuildContext context) {
     final p = context.palette;
+    final l10n = AppLocalizations.of(context);
     final modules = widget.modules;
 
     // Anchor GLOBAL = bab aktif siswa sekarang (fallback bab pertama) —
@@ -144,7 +146,7 @@ class _WindingRoadmapState extends State<WindingRoadmap>
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Peta Petualangan Belajar',
+                      l10n.roadmapTitle,
                       style: AppTypography.titleM.copyWith(
                         color: p.text,
                         fontWeight: FontWeight.w700,
@@ -153,7 +155,7 @@ class _WindingRoadmapState extends State<WindingRoadmap>
                     ),
                     const SizedBox(height: 2),
                     Text(
-                      '$totalPositions Pos Menuju Sertifikat',
+                      l10n.roadmapStopsToCertificate(totalPositions),
                       style: AppTypography.caption.copyWith(
                         color: p.textMuted,
                         fontSize: 13,
@@ -190,7 +192,7 @@ class _WindingRoadmapState extends State<WindingRoadmap>
                       ),
                       const SizedBox(width: 5),
                       Text(
-                        'Bab $activeStep Aktif',
+                        l10n.roadmapActiveBab(activeStep),
                         style: TextStyle(
                           fontSize: 11,
                           fontWeight: FontWeight.w700,
@@ -280,7 +282,7 @@ class _WindingRoadmapState extends State<WindingRoadmap>
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Katalog Materi',
+                          l10n.roadmapCatalogTitle,
                           style: AppTypography.label.copyWith(
                             color: p.primary,
                             fontWeight: FontWeight.bold,
@@ -288,7 +290,7 @@ class _WindingRoadmapState extends State<WindingRoadmap>
                           ),
                         ),
                         Text(
-                          'Telusuri bab dari seluruh materi',
+                          l10n.roadmapCatalogSubtitle,
                           style: AppTypography.caption.copyWith(
                             color: p.textMuted,
                             fontSize: 11,
@@ -437,6 +439,7 @@ class _WindingRoadmapState extends State<WindingRoadmap>
 
   Widget _buildActiveNode(BuildContext context, LearningModule module) {
     final p = context.palette;
+    final l10n = AppLocalizations.of(context);
 
     return AnimatedBuilder(
       animation: _pulseController,
@@ -475,7 +478,7 @@ class _WindingRoadmapState extends State<WindingRoadmap>
                           ],
                         ),
                         child: Text(
-                          'Mulai di sini! 🚀',
+                          l10n.roadmapStartHere,
                           style: TextStyle(
                             // p.bg = kebalikan p.text, jadi tetap terbaca
                             // walau bubble ini memakai latar p.text.
@@ -575,7 +578,7 @@ class _WindingRoadmapState extends State<WindingRoadmap>
                                 borderRadius: BorderRadius.circular(999),
                               ),
                               child: Text(
-                                'Sedang Berjalan',
+                                l10n.roadmapInProgress,
                                 style: TextStyle(
                                   color: p.onPrimary,
                                   fontSize: 10,
@@ -593,7 +596,12 @@ class _WindingRoadmapState extends State<WindingRoadmap>
                               ),
                             ),
                             Text(
-                              'Bab ${module.order} • ${module.description.contains('Slide') ? module.description : '6 Latihan'}',
+                              l10n.roadmapBabLine(
+                                module.order,
+                                module.description.contains('Slide')
+                                    ? module.description
+                                    : l10n.roadmapPracticeCount,
+                              ),
                               style: AppTypography.caption.copyWith(
                                 color: p.textMuted,
                                 fontSize: 11,
@@ -620,6 +628,7 @@ class _WindingRoadmapState extends State<WindingRoadmap>
     bool isEven,
   ) {
     final p = context.palette;
+    final l10n = AppLocalizations.of(context);
     final pill = InkWell(
       onTap: () => widget.onModuleTap(module),
       borderRadius: BorderRadius.circular(999),
@@ -667,7 +676,7 @@ class _WindingRoadmapState extends State<WindingRoadmap>
                   ),
                 ),
                 Text(
-                  'Uji Pemahaman',
+                  l10n.roadmapQuizNode,
                   style: AppTypography.caption.copyWith(
                     color: p.textMuted,
                     fontSize: 11,
@@ -698,6 +707,7 @@ class _WindingRoadmapState extends State<WindingRoadmap>
     bool isEven,
   ) {
     final p = context.palette;
+    final l10n = AppLocalizations.of(context);
     final pill = InkWell(
       onTap: () => widget.onModuleTap(module),
       borderRadius: BorderRadius.circular(999),
@@ -738,7 +748,7 @@ class _WindingRoadmapState extends State<WindingRoadmap>
                   ),
                 ),
                 Text(
-                  'Bisa langsung dikerjakan',
+                  l10n.roadmapAvailableNow,
                   style: AppTypography.caption.copyWith(
                     color: p.textMuted,
                     fontSize: 11,
@@ -767,6 +777,7 @@ class _WindingRoadmapState extends State<WindingRoadmap>
     bool isEven,
   ) {
     final p = context.palette;
+    final l10n = AppLocalizations.of(context);
     final pill = Opacity(
       opacity: 0.72,
       child: InkWell(
@@ -809,7 +820,7 @@ class _WindingRoadmapState extends State<WindingRoadmap>
                     ),
                   ),
                   Text(
-                    'Terkunci',
+                    l10n.moduleStatusLocked,
                     style: AppTypography.caption.copyWith(
                       color: p.textMuted,
                       fontSize: 11,
@@ -835,6 +846,7 @@ class _WindingRoadmapState extends State<WindingRoadmap>
 
   Widget _buildCertificateGoal(BuildContext context) {
     final p = context.palette;
+    final l10n = AppLocalizations.of(context);
     return Center(
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 14),
@@ -871,7 +883,7 @@ class _WindingRoadmapState extends State<WindingRoadmap>
             ),
             const SizedBox(height: 6),
             Text(
-              'Sertifikat Modul',
+              l10n.roadmapCertificate,
               style: AppTypography.label.copyWith(
                 fontWeight: FontWeight.bold,
                 color: p.text,
@@ -879,7 +891,7 @@ class _WindingRoadmapState extends State<WindingRoadmap>
               ),
             ),
             Text(
-              'Target Kelulusan',
+              l10n.roadmapGraduationTarget,
               style: AppTypography.caption.copyWith(
                 color: p.textMuted,
                 fontSize: 11,

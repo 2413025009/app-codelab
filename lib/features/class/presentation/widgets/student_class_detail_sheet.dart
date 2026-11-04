@@ -20,6 +20,7 @@ import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../core/widgets/app_snack.dart';
 import '../../../../core/widgets/avatars.dart';
+import '../../../../l10n/app_localizations.dart';
 import '../../domain/class_exceptions.dart';
 import '../../domain/class_repository.dart';
 import 'class_sheet_shell.dart';
@@ -90,8 +91,7 @@ class _StudentClassDetailSheetState extends State<_StudentClassDetailSheet> {
     } catch (_) {
       if (!mounted) return;
       setState(() {
-        _errorMessage =
-            'Server belum terjangkau. Periksa koneksi lab, lalu coba lagi.';
+        _errorMessage = AppLocalizations.of(context).classServerUnreachable;
         _phase = _DetailPhase.error;
       });
     }
@@ -100,10 +100,12 @@ class _StudentClassDetailSheetState extends State<_StudentClassDetailSheet> {
   /// Salin info rombel ke clipboard + label "Info Tersalin!" dua detik.
   void _copyInfo() {
     final d = _detail!;
+    final l10n = AppLocalizations.of(context);
     Clipboard.setData(
       ClipboardData(
         text:
-            '${d.info.name} | ${d.info.schoolName} (Guru: ${d.info.teacherName})',
+            '${d.info.name} | ${d.info.schoolName} '
+            '(${l10n.classTeacherRoleBadge}: ${d.info.teacherName})',
       ),
     );
     _copiedTimer?.cancel();
@@ -138,7 +140,7 @@ class _StudentClassDetailSheetState extends State<_StudentClassDetailSheet> {
       setState(() => _leaving = false);
       showAppSnack(
         context,
-        'Server belum terjangkau. Coba beberapa saat lagi, ya.',
+        AppLocalizations.of(context).classServerUnreachableShort,
       );
     }
   }
@@ -146,6 +148,7 @@ class _StudentClassDetailSheetState extends State<_StudentClassDetailSheet> {
   @override
   Widget build(BuildContext context) {
     final p = context.palette;
+    final l10n = AppLocalizations.of(context);
     return switch (_phase) {
       _DetailPhase.loading => const Padding(
         padding: EdgeInsets.symmetric(vertical: AppSpacing.huge),
@@ -158,7 +161,7 @@ class _StudentClassDetailSheetState extends State<_StudentClassDetailSheet> {
             Icon(Icons.cloud_off_outlined, size: 40, color: p.textMuted),
             const SizedBox(height: AppSpacing.md),
             Text(
-              'Detail kelas gagal dimuat',
+              l10n.classDetailLoadFailed,
               style: AppTypography.titleM.copyWith(color: p.text),
             ),
             const SizedBox(height: AppSpacing.xs),
@@ -171,7 +174,7 @@ class _StudentClassDetailSheetState extends State<_StudentClassDetailSheet> {
             OutlinedButton.icon(
               onPressed: _load,
               icon: const Icon(Icons.refresh_rounded, size: 18),
-              label: const Text('Coba lagi'),
+              label: Text(l10n.dashRetryButton),
             ),
           ],
         ),
@@ -211,6 +214,7 @@ class _DetailContent extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final p = context.palette;
+    final l10n = AppLocalizations.of(context);
     final info = detail.info;
     final members = detail.members;
 
@@ -241,7 +245,7 @@ class _DetailContent extends StatelessWidget {
                   ),
                   const SizedBox(width: AppSpacing.xs),
                   Text(
-                    'Terdaftar Aktif',
+                    l10n.classRegisteredBadge,
                     style: AppTypography.caption.copyWith(
                       color: p.success,
                       fontWeight: FontWeight.bold,
@@ -354,7 +358,7 @@ class _DetailContent extends StatelessWidget {
                             borderRadius: AppRadius.pillBorder,
                           ),
                           child: Text(
-                            'Guru',
+                            l10n.classTeacherRoleBadge,
                             style: AppTypography.code.copyWith(
                               color: p.primary,
                               fontSize: 10,
@@ -366,7 +370,7 @@ class _DetailContent extends StatelessWidget {
                     ),
                     const SizedBox(height: 2),
                     Text(
-                      'Guru pembimbing kelas ini',
+                      l10n.classTeacherAdvisor,
                       style: AppTypography.caption.copyWith(color: p.textMuted),
                     ),
                   ],
@@ -382,14 +386,14 @@ class _DetailContent extends StatelessWidget {
           TextSpan(
             children: [
               TextSpan(
-                text: 'Teman Sekelas ',
+                text: '${l10n.classClassmatesTitle} ',
                 style: AppTypography.label.copyWith(
                   color: p.text,
                   fontWeight: FontWeight.bold,
                 ),
               ),
               TextSpan(
-                text: '(${members.length} Siswa)',
+                text: l10n.classClassmatesCount(members.length),
                 style: AppTypography.label.copyWith(color: p.textMuted),
               ),
             ],
@@ -398,7 +402,7 @@ class _DetailContent extends StatelessWidget {
         const SizedBox(height: AppSpacing.md),
         if (members.isEmpty)
           Text(
-            'Belum ada teman sekelas yang terdaftar.',
+            l10n.classNoClassmates,
             style: AppTypography.bodyM.copyWith(color: p.textMuted),
           )
         else
@@ -417,7 +421,7 @@ class _DetailContent extends StatelessWidget {
               const SizedBox(width: AppSpacing.sm),
               Expanded(
                 child: Text(
-                  'Progres koding dan nilai tantanganmu dapat dipantau langsung oleh guru kelas ini di lab komputer.',
+                  l10n.classMonitoringNote,
                   style: AppTypography.bodyM.copyWith(
                     color: p.primary,
                     height: 1.45,
@@ -456,7 +460,7 @@ class _DetailContent extends StatelessWidget {
               const SizedBox(width: AppSpacing.md),
               Expanded(
                 child: Text(
-                  'Poin XP dan progres belajarmu tetap aman di akunmu jika kamu keluar kelas.',
+                  l10n.classXpSafeNote,
                   style: AppTypography.bodyM.copyWith(
                     color: p.textMuted,
                     height: 1.45,
@@ -470,7 +474,7 @@ class _DetailContent extends StatelessWidget {
 
         // ---- Aksi: salin info & keluar ----
         _PillButton(
-          label: copied ? 'Info Tersalin!' : 'Salin Info Kelas',
+          label: copied ? l10n.classInfoCopied : l10n.classCopyInfo,
           icon: copied ? Icons.done_rounded : Icons.copy_rounded,
           iconColor: copied ? p.success : p.textMuted,
           labelColor: p.text,
@@ -480,7 +484,7 @@ class _DetailContent extends StatelessWidget {
         ),
         const SizedBox(height: AppSpacing.sm),
         _PillButton(
-          label: 'Keluar dari Kelas',
+          label: l10n.classLeaveButton,
           icon: Icons.logout_rounded,
           iconColor: p.error,
           labelColor: p.error,
@@ -515,7 +519,7 @@ class _DetailContent extends StatelessWidget {
                             const SizedBox(width: AppSpacing.sm),
                             Expanded(
                               child: Text(
-                                'Yakin Ingin Keluar dari Kelas?',
+                                l10n.classLeaveConfirmTitle,
                                 style: AppTypography.label.copyWith(
                                   color: p.error,
                                   fontWeight: FontWeight.bold,
@@ -526,8 +530,7 @@ class _DetailContent extends StatelessWidget {
                         ),
                         const SizedBox(height: AppSpacing.sm),
                         Text(
-                          'Poin XP dan progres belajarmu tetap aman di akunmu, '
-                          'namun gurumu tidak dapat lagi memantau kemajuan belajarmu di lab.',
+                          l10n.classLeaveConfirmBody,
                           style: AppTypography.bodyM.copyWith(
                             color: p.textMuted,
                           ),
@@ -547,7 +550,7 @@ class _DetailContent extends StatelessWidget {
                                     side: BorderSide(color: p.outline),
                                     shape: const StadiumBorder(),
                                   ),
-                                  child: const Text('Batal'),
+                                  child: Text(l10n.actionCancel),
                                 ),
                               ),
                             ),
@@ -574,7 +577,7 @@ class _DetailContent extends StatelessWidget {
                                               ),
                                             )
                                           : Text(
-                                              'Ya, Keluar Kelas',
+                                              l10n.classLeaveConfirmYes,
                                               style: AppTypography.label
                                                   .copyWith(
                                                     color: p.onPrimary,
@@ -615,6 +618,7 @@ class _AvatarStackState extends State<_AvatarStack> {
   @override
   Widget build(BuildContext context) {
     final p = context.palette;
+    final l10n = AppLocalizations.of(context);
     final members = widget.members;
     if (_expand) {
       return Column(
@@ -640,7 +644,7 @@ class _AvatarStackState extends State<_AvatarStack> {
           TextButton(
             onPressed: () => setState(() => _expand = false),
             child: Text(
-              'Sembunyikan',
+              l10n.classHideNames,
               style: AppTypography.label.copyWith(
                 color: p.primary,
                 fontSize: 13,
@@ -699,7 +703,7 @@ class _AvatarStackState extends State<_AvatarStack> {
                       Icon(Icons.group_rounded, size: 14, color: p.textMuted),
                       const SizedBox(width: AppSpacing.xs),
                       Text(
-                        '+$rest lainnya',
+                        l10n.classMoreCount(rest),
                         style: AppTypography.label.copyWith(
                           color: p.textMuted,
                           fontSize: 12,
@@ -724,7 +728,7 @@ class _AvatarStackState extends State<_AvatarStack> {
           ),
           icon: const Icon(Icons.people_alt_rounded, size: 16),
           label: Text(
-            'Lihat semua nama (${members.length})',
+            l10n.classSeeAllNames(members.length),
             style: AppTypography.label.copyWith(
               color: p.primary,
               fontSize: 13,

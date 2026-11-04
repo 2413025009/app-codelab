@@ -9,6 +9,8 @@ import '../../../../core/theme/app_typography.dart';
 import '../../../../core/utils/validators.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_text_field.dart';
+import '../../../../l10n/app_localizations.dart';
+import '../../../../l10n/l10n_ext.dart';
 import '../../domain/auth_repository.dart';
 import '../cubit/auth_cubit.dart';
 import '../widgets/auth_widgets.dart';
@@ -48,15 +50,19 @@ class _RegisterPageState extends State<RegisterPage> {
 
   void _onChanged() => setState(() {});
 
-  bool get _formReady =>
-      Validators.name(_name.text) == null &&
-      Validators.email(_email.text) == null &&
-      Validators.newPassword(_password.text) == null &&
-      Validators.confirmPassword(_confirm.text, _password.text) == null;
+  bool get _formReady {
+    final l10n = AppLocalizations.of(context);
+    return Validators.name(_name.text, l10n) == null &&
+        Validators.email(_email.text, l10n) == null &&
+        Validators.newPassword(_password.text, l10n) == null &&
+        Validators.confirmPassword(_confirm.text, _password.text, l10n) ==
+            null;
+  }
 
   /// Minggu 9: popup konfirmasi bahwa pendaftaran sukses + imbauan login.
   Future<void> _showRegisteredSuccess() {
     final p = context.palette;
+    final l10n = AppLocalizations.of(context);
     return showDialog<void>(
       context: context,
       barrierDismissible: false,
@@ -73,18 +79,18 @@ class _RegisterPageState extends State<RegisterPage> {
           child: Icon(Icons.celebration_rounded, size: 30, color: p.success),
         ),
         title: Text(
-          'Pendaftaran Berhasil! 🎉',
+          l10n.registerSuccessTitle,
           style: AppTypography.titleM.copyWith(color: p.text),
         ),
         content: Text(
-          'Akunmu sudah dibuat dan siap dipakai.\n\nSilakan masuk (login) menggunakan email dan kata sandi yang baru saja kamu buat.',
+          l10n.registerSuccessBody,
           style: AppTypography.bodyM.copyWith(color: p.textMuted),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(dialogContext).pop(),
             child: Text(
-              'Masuk Sekarang',
+              l10n.loginSubmit,
               style: AppTypography.label.copyWith(color: p.primary),
             ),
           ),
@@ -118,7 +124,9 @@ class _RegisterPageState extends State<RegisterPage> {
         ).toString(),
       );
     } on AuthFailure catch (e) {
-      if (mounted) setState(() => _error = e.message);
+      if (mounted) {
+        setState(() => _error = e.messageL10n(AppLocalizations.of(context)));
+      }
     } finally {
       if (mounted) setState(() => _loading = false);
     }
@@ -127,14 +135,15 @@ class _RegisterPageState extends State<RegisterPage> {
   @override
   Widget build(BuildContext context) {
     final p = context.palette;
+    final l10n = AppLocalizations.of(context);
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
-          tooltip: 'Kembali',
+          tooltip: l10n.authBackTooltip,
           icon: const Icon(Icons.arrow_back_rounded),
           onPressed: () => context.go(AppRoutes.login),
         ),
-        title: const Text('Daftar Akun'),
+        title: Text(l10n.registerTitle),
       ),
       body: SafeArea(
         child: SingleChildScrollView(
@@ -155,11 +164,11 @@ class _RegisterPageState extends State<RegisterPage> {
                   children: [
                     Align(
                       alignment: Alignment.centerLeft,
-                      child: AppTagBanner(label: 'Platform Belajar Coding RPL'),
+                      child: AppTagBanner(label: l10n.registerTagBanner),
                     ),
                     const SizedBox(height: AppSpacing.lg),
                     Text(
-                      'Yuk, buat akunmu',
+                      l10n.registerHeading,
                       style: AppTypography.titleL.copyWith(
                         color: p.text,
                         fontSize: 28,
@@ -167,7 +176,7 @@ class _RegisterPageState extends State<RegisterPage> {
                     ),
                     const SizedBox(height: AppSpacing.sm),
                     Text(
-                      'Untuk siswa SMK/SMA jurusan RPL.',
+                      l10n.registerSubheading,
                       style: AppTypography.bodyL.copyWith(color: p.textMuted),
                     ),
                     const SizedBox(height: AppSpacing.xl),
@@ -176,49 +185,49 @@ class _RegisterPageState extends State<RegisterPage> {
                       const SizedBox(height: AppSpacing.lg),
                     ],
                     AppTextField(
-                      label: 'Nama Lengkap',
-                      hintAside: 'Sesuai absen kelas',
+                      label: l10n.registerNameLabel,
+                      hintAside: l10n.registerNameHintAside,
                       controller: _name,
                       hint: 'Muhammad Farhan',
                       prefixIcon: Icons.badge_outlined,
                       textInputAction: TextInputAction.next,
                       autofillHints: const [AutofillHints.name],
-                      validator: Validators.name,
+                      validator: (v) => Validators.name(v, l10n),
                     ),
                     const SizedBox(height: AppSpacing.lg),
                     AppTextField(
-                      label: 'Email Pelajar / Pribadi',
-                      hintAside: '.belajar.id',
+                      label: l10n.registerEmailLabel,
+                      hintAside: l10n.registerEmailHintAside,
                       controller: _email,
                       hint: 'farhan@smk.belajar.id',
                       prefixIcon: Icons.alternate_email_rounded,
                       keyboardType: TextInputType.emailAddress,
                       textInputAction: TextInputAction.next,
                       autofillHints: const [AutofillHints.newUsername],
-                      validator: Validators.email,
+                      validator: (v) => Validators.email(v, l10n),
                     ),
                     const SizedBox(height: AppSpacing.lg),
                     AppTextField(
-                      label: 'Kata Sandi',
+                      label: l10n.authPasswordLabel,
                       controller: _password,
-                      hint: 'Kombinasi sandi kuat',
+                      hint: l10n.authPasswordStrengthHint,
                       obscure: true,
                       textInputAction: TextInputAction.next,
                       autofillHints: const [AutofillHints.newPassword],
-                      validator: Validators.newPassword,
+                      validator: (v) => Validators.newPassword(v, l10n),
                     ),
                     const SizedBox(height: AppSpacing.lg),
                     // Minggu 9: konfirmasi sandi wajib sama persis.
                     AppTextField(
-                      label: 'Konfirmasi Kata Sandi',
-                      hintAside: 'Sama persis',
+                      label: l10n.registerConfirmLabel,
+                      hintAside: l10n.authSameExactlyHintAside,
                       controller: _confirm,
-                      hint: 'Ketik ulang kata sandimu',
+                      hint: l10n.authRetypePasswordHint,
                       obscure: true,
                       textInputAction: TextInputAction.done,
                       autofillHints: const [AutofillHints.newPassword],
                       validator: (v) =>
-                          Validators.confirmPassword(v, _password.text),
+                          Validators.confirmPassword(v, _password.text, l10n),
                       onSubmitted: (_) => _formReady ? _submit() : null,
                     ),
                     const SizedBox(height: AppSpacing.md),
@@ -227,7 +236,7 @@ class _RegisterPageState extends State<RegisterPage> {
                     const _CommunityNote(),
                     const SizedBox(height: AppSpacing.xl),
                     AppButton(
-                      label: 'Buat Akun',
+                      label: l10n.registerSubmit,
                       trailingIcon: Icons.arrow_forward_rounded,
                       loading: _loading,
                       onPressed: _formReady ? _submit : null,
@@ -237,7 +246,7 @@ class _RegisterPageState extends State<RegisterPage> {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Text(
-                          'Sudah punya akun?',
+                          l10n.authAlreadyHaveAccount,
                           style: AppTypography.bodyL.copyWith(
                             color: p.textMuted,
                           ),
@@ -251,7 +260,7 @@ class _RegisterPageState extends State<RegisterPage> {
                           ),
                           onPressed: () => context.go(AppRoutes.login),
                           child: Text(
-                            'Masuk',
+                            l10n.authLoginLink,
                             style: AppTypography.label.copyWith(
                               color: p.primary,
                               fontSize: 16,
@@ -272,7 +281,7 @@ class _RegisterPageState extends State<RegisterPage> {
                         ),
                         onPressed: () => context.go(AppRoutes.registerTeacher),
                         child: Text(
-                          'Anda Guru / Pengajar? Daftar akun pendidik di sini →',
+                          l10n.registerTeacherLink,
                           style: AppTypography.label.copyWith(
                             color: p.primary,
                             fontSize: 15,
@@ -330,6 +339,7 @@ class _CommunityNote extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final p = context.palette;
+    final l10n = AppLocalizations.of(context);
     return Container(
       padding: const EdgeInsets.all(AppSpacing.lg),
       decoration: BoxDecoration(
@@ -354,7 +364,7 @@ class _CommunityNote extends StatelessWidget {
               TextSpan(
                 style: AppTypography.bodyM.copyWith(color: p.textMuted),
                 children: [
-                  const TextSpan(text: 'Gabung bersama '),
+                  TextSpan(text: '${l10n.registerCommunityPrefix} '),
                   TextSpan(
                     text: '12.400+',
                     style: TextStyle(
@@ -362,9 +372,8 @@ class _CommunityNote extends StatelessWidget {
                       color: p.text,
                     ),
                   ),
-                  const TextSpan(
-                    text:
-                        ' rekan RPL yang mulai belajar logika algoritma, Git, dan web dev hari ini.',
+                  TextSpan(
+                    text: ' ${l10n.registerCommunitySuffix}',
                   ),
                 ],
               ),

@@ -5,6 +5,7 @@ import '../../../../../core/theme/app_spacing.dart';
 import '../../../../../core/theme/app_typography.dart';
 import '../../../../../core/widgets/app_tag.dart';
 import '../../../../../core/widgets/code_window_shell.dart';
+import '../../../../../l10n/app_localizations.dart';
 import '../../../domain/slide_models.dart';
 
 class BugHunterSlideWidget extends StatefulWidget {
@@ -38,6 +39,7 @@ class BugHunterSlideWidgetState extends State<BugHunterSlideWidget> {
   @override
   Widget build(BuildContext context) {
     final p = context.palette;
+    final l10n = AppLocalizations.of(context);
 
     return SingleChildScrollView(
       padding: const EdgeInsets.fromLTRB(AppSpacing.screen, AppSpacing.md, AppSpacing.screen, AppSpacing.xxl),
@@ -47,7 +49,7 @@ class BugHunterSlideWidgetState extends State<BugHunterSlideWidget> {
           Row(
             children: [
               AppTag(
-                'Bug Hunter',
+                l10n.slideBadgeBugHunter,
                 // errorContainer/error adalah pasangan token; versi hardcoded
                 // merah muda muda membuat teks error tak terbaca di mode gelap.
                 background: p.errorContainer,
@@ -137,7 +139,7 @@ class BugHunterSlideWidgetState extends State<BugHunterSlideWidget> {
           ),
           const SizedBox(height: AppSpacing.md),
           Text(
-            'Ketuk baris yang menurutmu mengandung galat penulisan di atas.',
+            l10n.slideBugHunterInstruction,
             style: AppTypography.caption.copyWith(color: p.textMuted),
           ),
         ],

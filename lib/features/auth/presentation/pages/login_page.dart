@@ -10,6 +10,8 @@ import '../../../../core/utils/validators.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_card.dart';
 import '../../../../core/widgets/app_text_field.dart';
+import '../../../../l10n/app_localizations.dart';
+import '../../../../l10n/l10n_ext.dart';
 import '../../domain/auth_repository.dart';
 import '../cubit/auth_cubit.dart';
 import '../widgets/auth_widgets.dart';
@@ -49,7 +51,9 @@ class _LoginPageState extends State<LoginPage> {
       await context.read<AuthCubit>().login(email: _email.text, password: _password.text);
       // Router redirect moves us to the dashboard once authenticated.
     } on AuthFailure catch (e) {
-      if (mounted) setState(() => _error = e.message);
+      if (mounted) {
+        setState(() => _error = e.messageL10n(AppLocalizations.of(context)));
+      }
     } finally {
       if (mounted) setState(() => _loading = false);
     }
@@ -58,6 +62,7 @@ class _LoginPageState extends State<LoginPage> {
   @override
   Widget build(BuildContext context) {
     final p = context.palette;
+    final l10n = AppLocalizations.of(context);
     return Scaffold(
       body: SafeArea(
         child: Center(
@@ -71,13 +76,13 @@ class _LoginPageState extends State<LoginPage> {
                   const WelcomeIllustration(),
                   const SizedBox(height: AppSpacing.xl),
                   Text(
-                    'Selamat datang kembali',
+                    l10n.loginWelcomeTitle,
                     textAlign: TextAlign.center,
                     style: AppTypography.display.copyWith(color: p.text),
                   ),
                   const SizedBox(height: AppSpacing.md),
                   Text(
-                    'Lanjutkan belajar koding dari mana kamu berhenti.',
+                    l10n.loginWelcomeSubtitle,
                     textAlign: TextAlign.center,
                     style: AppTypography.bodyL.copyWith(color: p.textMuted),
                   ),
@@ -90,9 +95,9 @@ class _LoginPageState extends State<LoginPage> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           if (widget.justRegistered && _error == null) ...[
-                            const FormBanner(
+                            FormBanner(
                               isError: false,
-                              message: 'Akunmu sudah dibuat. Silakan masuk untuk mulai belajar.',
+                              message: l10n.loginJustRegisteredBanner,
                             ),
                             const SizedBox(height: AppSpacing.lg),
                           ],
@@ -101,28 +106,29 @@ class _LoginPageState extends State<LoginPage> {
                             const SizedBox(height: AppSpacing.lg),
                           ],
                           AppTextField(
-                            label: 'Email',
+                            label: l10n.authEmailLabel,
                             controller: _email,
                             hint: 'nama@smk.belajar.id',
                             keyboardType: TextInputType.emailAddress,
                             textInputAction: TextInputAction.next,
                             autofillHints: const [AutofillHints.email],
-                            validator: Validators.email,
+                            validator: (v) => Validators.email(v, l10n),
                           ),
                           const SizedBox(height: AppSpacing.lg),
                           AppTextField(
-                            label: 'Kata Sandi',
+                            label: l10n.authPasswordLabel,
                             controller: _password,
-                            hint: 'Masukkan kata sandi',
+                            hint: l10n.authPasswordHint,
                             obscure: true,
                             textInputAction: TextInputAction.done,
                             autofillHints: const [AutofillHints.password],
-                            validator: Validators.loginPassword,
+                            validator: (v) =>
+                                Validators.loginPassword(v, l10n),
                             onSubmitted: (_) => _submit(),
                           ),
                           // "Lupa kata sandi?" stays hidden until a reset endpoint exists (DESIGN.md §5.1).
                           const SizedBox(height: AppSpacing.xl),
-                          AppButton(label: 'Masuk Sekarang', loading: _loading, onPressed: _submit),
+                          AppButton(label: l10n.loginSubmit, loading: _loading, onPressed: _submit),
                         ],
                       ),
                     ),
@@ -131,11 +137,11 @@ class _LoginPageState extends State<LoginPage> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Text('Belum punya akun?', style: AppTypography.bodyL.copyWith(color: p.textMuted)),
+                      Text(l10n.loginNoAccount, style: AppTypography.bodyL.copyWith(color: p.textMuted)),
                       TextButton(
                         style: TextButton.styleFrom(minimumSize: const Size(AppSizes.minTouch, AppSizes.minTouch)),
                         onPressed: () => context.go(AppRoutes.register),
-                        child: Text('Daftar', style: AppTypography.label.copyWith(color: p.primary, fontSize: 16)),
+                        child: Text(l10n.authRegisterLink, style: AppTypography.label.copyWith(color: p.primary, fontSize: 16)),
                       ),
                     ],
                   ),

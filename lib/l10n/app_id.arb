@@ -1,0 +1,817 @@
+{
+  "@@locale": "id",
+
+  "navLearn": "Belajar",
+  "@navLearn": { "description": "Label tab bawah untuk beranda materi siswa." },
+  "navChallenges": "Tantangan",
+  "navPlayground": "Playground",
+  "navProfile": "Profil",
+
+  "actionCancel": "Batal",
+  "actionClose": "Tutup",
+  "actionRetry": "Coba Lagi",
+  "actionDelete": "Hapus",
+  "actionBack": "Kembali",
+  "actionSend": "Kirim",
+
+  "settingsTitle": "Pengaturan",
+  "settingsAccountTag": "PENGATURAN AKUN",
+  "settingsRoleTeacher": "Guru / Pengajar",
+  "settingsRoleStudent": "Siswa RPL • Tingkat Pemula",
+  "settingsChangePhoto": "Ganti Foto",
+  "settingsEditModeHint": "Mode edit aktif — ubah datamu, lalu tekan \"Simpan Perubahan\".",
+  "settingsFieldFullName": "Nama Lengkap",
+  "settingsFieldFullNameAside": "Maks 40 karakter",
+  "settingsFullNameEmpty": "Nama tidak boleh kosong",
+  "settingsFieldNisn": "NISN / ID Siswa",
+  "settingsBadgeVerifiedDapodik": "Terverifikasi Dapodik",
+  "settingsFieldSchool": "Nama Sekolah / Institusi",
+  "settingsFieldClass": "Kelas & Jurusan",
+  "settingsFieldAddress": "Alamat",
+  "settingsFieldStaffCode": "Kode Kepegawaian (NIP/NIK)",
+  "settingsFieldAffiliatedSchool": "Sekolah Terafiliasi",
+  "settingsBadgeVerified": "Terverifikasi",
+  "settingsFieldPhone": "Nomor Handphone / WhatsApp",
+  "settingsPhoneIncomplete": "Nomor belum lengkap. Contoh: 81234567890",
+  "settingsPhoneHelper": "Tulis tanpa 0 di depan, contoh: 81234567890",
+  "settingsFieldTeacherEmail": "Email Pengajar",
+  "settingsFieldStudentEmail": "Email Akun Belajar",
+  "settingsEmailAside": "Wajib @smk.belajar.id",
+  "settingsFieldTeacherBio": "Bio / Catatan Pengajar",
+  "settingsFieldStudentBio": "Bio / Catatan Belajar",
+  "settingsFieldBioAside": "Maks 120 karakter",
+  "settingsSaveChanges": "Simpan Perubahan",
+  "settingsCancelEdit": "Batalkan",
+  "settingsEditData": "Edit Data",
+  "settingsPreferencesHeader": "PREFERENSI APLIKASI",
+  "settingsLanguage": "Bahasa Aplikasi",
+  "settingsLanguageSubtitle": "Indonesia, English, atau العربية",
+  "settingsDarkMode": "Mode Gelap",
+  "settingsDarkModeSubtitle": "Tema gelap untuk mata yang lebih nyaman",
+  "settingsSfx": "Efek Suara Aplikasi",
+  "settingsSfxSubtitle": "Suara popup, notifikasi, dan kuis",
+  "settingsLabSfx": "Efek Suara Lab",
+  "settingsLabSfxSubtitle": "Audio saat eksekusi kode & terminal",
+  "settingsAccountLabHeader": "PENGATURAN AKUN & LAB",
+  "settingsCurriculum": "Kurikulum Merdeka",
+  "settingsCurriculumSubtitle": "Sinkron • Pak Budi (Guru Pembimbing)",
+  "settingsActive": "Aktif",
+  "settingsHelpCenter": "Pusat Bantuan Lab",
+  "settingsHelpCenterSubtitle": "FAQ Compiler AI & Panduan Guru",
+  "settingsChangePassword": "Ubah Password",
+  "settingsChangePasswordSubtitle": "Kata sandi lama & baru dengan checklist keamanan",
+  "settingsChangePasswordSheetSubtitle": "Aturan sandi sama seperti saat kamu mendaftar akun.",
+  "settingsLogout": "Keluar Akun (Log Out)",
+  "settingsLogoutTitle": "Keluar dari Akun?",
+  "settingsLogoutBody": "Apakah kamu yakin ingin keluar dari sesi latihan lab saat ini?",
+  "settingsLogoutConfirm": "Ya, Keluar",
+  "settingsAvatarDeleteTitle": "Hapus Foto Profil?",
+  "settingsAvatarDeleteBody": "Foto akan dihapus dari akunmu. Kamu bisa mengunggah foto baru kapan saja.",
+  "settingsAvatarMaxSize": "Ukuran foto maksimal 2 MB.",
+  "settingsAvatarUpdated": "Foto profil berhasil diperbarui.",
+  "settingsAvatarDeleted": "Foto profil dihapus.",
+  "settingsAvatarProcessFailed": "Foto profil gagal diproses. Periksa izin galeri dan koneksi, lalu coba lagi.",
+  "settingsAvatarDeleteFailed": "Foto profil gagal dihapus. Periksa koneksi lalu coba lagi.",
+  "settingsProfileSaved": "Perubahan profil berhasil disimpan!",
+  "settingsProfileSaveFailed": "Gagal menyimpan profil. Coba lagi.",
+  "settingsLanguageSheetTitle": "Bahasa Aplikasi",
+  "settingsLanguageSheetSubtitle": "Berlaku untuk seluruh layar CodeLab AI",
+
+  "languageIndonesian": "Bahasa Indonesia",
+  "languageEnglish": "English",
+  "languageArabic": "العربية",
+
+  "playgroundReset": "Reset",
+  "playgroundRun": "Jalankan",
+  "playgroundRunning": "Menjalankan…",
+  "playgroundTerminal": "Terminal",
+  "playgroundClearTerminal": "Bersihkan terminal",
+  "playgroundOpenTerminal": "Buka terminal",
+  "playgroundCloseTerminal": "Tutup terminal",
+  "playgroundEmptyDone": "(Program selesai tanpa output)",
+  "playgroundEmptyIdle": "Tekan 'Jalankan' untuk melihat output",
+  "playgroundInputHint": "ketik jawaban…",
+  "playgroundStatusDone": "Selesai ({ms}ms)",
+  "playgroundStatusError": "Error ({ms}ms)",
+  "sandboxTooltip": "Apa yang belum bisa dilakukan di sandbox?",
+  "sandboxSheetTitle": "Batas Python Sandbox",
+  "sandboxSheetSubtitle": "Pesan guru sebelum kamu mulai",
+  "sandboxIntro": "Anak-anak, sebelum mulai mencoba, dengarkan pesan gurumu dulu. Python Sandbox ini ruang latihan yang sengaja dibatasi, bukan Python penuh. Supaya kamu tidak bingung ketika ada yang gagal, ini hal yang belum bisa dilakukan di sini:",
+  "sandboxLimitImportTitle": "Memanggil modul dengan import",
+  "sandboxLimitImportBody": "Perintah import belum ada di sandbox ini. Jadi library seperti random, math, datetime, atau paket dari internet belum bisa dipakai.",
+  "sandboxLimitFileTitle": "Membuka file dan menyambung ke luar",
+  "sandboxLimitFileBody": "Membuka atau menyimpan file, mengakses internet, dan memerintah sistem operasi belum diizinkan. Semua yang kamu tulis berjalan di dalam aplikasi saja.",
+  "sandboxLimitGuiTitle": "Membuat tampilan grafis, gambar, atau suara",
+  "sandboxLimitGuiBody": "tkinter, pygame, dan sejenisnya belum tersedia. Di sini kita berlatih logika program, bukan membuat jendela atau permainan yang bergerak sendiri.",
+  "sandboxLimitOopTitle": "Memakai class, dict, dan try/except",
+  "sandboxLimitOopBody": "Tiga materi itu belum ada di mesin latihan ini. Untuk sekarang, fokus dulu ke variabel, percabangan, perulangan, list, dan fungsi.",
+  "sandboxLimitLimitsTitle": "Menjalankan program yang terlalu berat",
+  "sandboxLimitLimitsBody": "Program otomatis dihentikan setelah 100.000 langkah atau 5 detik, dan rekursi dibatasi 200 tingkat. Kalau kena batas ini, periksa lagi perulanganmu — biasanya ada yang tidak pernah berhenti.",
+  "sandboxClosing": "Kalau ada error padahal kodemu terasa benar, cek dulu apakah yang kamu pakai termasuk daftar di atas. Kalau masih bingung, tanyakan ke gurumu di kelas — kamu tidak perlu menyelesaikannya sendirian.",
+
+  "dashTitle": "Dashboard",
+  "dashLoadingTitle": "Menyiapkan dashboard",
+  "dashLoadingSubtitle": "Menarik data belajar dari server",
+  "dashNoModules": "Belum ada modul. Cek lagi sebentar.",
+  "dashQuickTipTitle": "Trik Cepat Python",
+  "dashQuickTipSubtitle": "Gunakan elif untuk evaluasi multi-kondisi",
+  "dashQuickTipBody": "Gunakan konstruksi elif untuk mengevaluasi beberapa kondisi berurutan secara bersih:\n\nif skor >= 90:\n    hasil = \"A\"\nelif skor >= 75:\n    hasil = \"B\"\nelse:\n    hasil = \"C\"\n\nDengan elif, evaluasi berhenti begitu kondisi pertama terpenuhi tanpa if bertingkat.",
+  "dashQuickTipButton": "Paham, Lanjutkan Belajar!",
+  "dashErrorTitle": "Ada kendala di sisi kami. Coba lagi sebentar.",
+  "dashRetryButton": "Coba lagi",
+  "dashChallengesCompleted": "{count} tantangan selesai",
+  "@dashChallengesCompleted": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "dashModuleLocked": "Modul ini masih terkunci.",
+
+  "dashDefaultTopic": "Python Dasar & Logika",
+  "dashDefaultChapter": "1. Pengenalan Logika Koding",
+  "dashBabOf": "Bab {current} dari {total}",
+  "@dashBabOf": {
+    "placeholders": {
+      "current": { "type": "int" },
+      "total": { "type": "int" }
+    }
+  },
+  "dashPercentDone": "{percent}% Selesai",
+  "@dashPercentDone": {
+    "placeholders": {
+      "percent": { "type": "int" }
+    }
+  },
+  "dashCompetencyTitle": "Kompetensimu",
+  "dashCompetencyEmpty": "Selesaikan satu tantangan, nanti kompetensimu muncul di sini.",
+  "actionSeeDetail": "Lihat detail",
+  "moduleStatusCompleted": "Selesai",
+  "moduleStatusActive": "Sedang dipelajari",
+  "moduleStatusAvailable": "Bisa dikerjakan",
+  "moduleStatusLocked": "Terkunci",
+
+  "roadmapTitle": "Peta Petualangan Belajar",
+  "roadmapStopsToCertificate": "{count} Pos Menuju Sertifikat",
+  "@roadmapStopsToCertificate": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "roadmapActiveBab": "Bab {step} Aktif",
+  "@roadmapActiveBab": {
+    "placeholders": {
+      "step": { "type": "int" }
+    }
+  },
+  "roadmapCatalogTitle": "Katalog Materi",
+  "roadmapCatalogSubtitle": "Telusuri bab dari seluruh materi",
+  "roadmapStartHere": "Mulai di sini! 🚀",
+  "roadmapInProgress": "Sedang Berjalan",
+  "roadmapPracticeCount": "6 Latihan",
+  "roadmapBabLine": "Bab {order} • {label}",
+  "@roadmapBabLine": {
+    "placeholders": {
+      "order": { "type": "int" },
+      "label": { "type": "String" }
+    }
+  },
+  "roadmapQuizNode": "Uji Pemahaman",
+  "roadmapAvailableNow": "Bisa langsung dikerjakan",
+  "roadmapCertificate": "Sertifikat Modul",
+  "roadmapGraduationTarget": "Target Kelulusan",
+
+  "levelBeginner": "Pemula",
+  "levelIntermediate": "Menengah",
+  "levelAdvanced": "Mahir",
+  "filterAll": "Semua",
+  "filterTodo": "Belum Selesai",
+  "filterDone": "Selesai",
+  "filterMiniProject": "Mini Proyek",
+  "actionApply": "Terapkan",
+  "appDefaultStudentName": "Siswa SMK",
+  "challengeFilterTitle": "Filter Tantangan",
+  "challengeLevelSection": "Tingkat kesulitan",
+  "challengeLockedTitle": "Tantangan Terkunci",
+  "challengeLockedBody": "Syarat: Butuh minimal {xp} XP untuk membuka tantangan ini. Saat ini kamu memiliki {userXp} XP.",
+  "@challengeLockedBody": {
+    "placeholders": {
+      "xp": { "type": "int" },
+      "userXp": { "type": "int" }
+    }
+  },
+  "challengeLearningPath": "Jalur Belajar",
+  "challengeCatalogTitle": "Katalog Tantangan",
+  "challengeCatalogSubtitle": "Asah logika algoritma & koding bertahap",
+  "challengeFilter": "Filter",
+  "challengeFilterActive": "Filter • 1",
+  "challengeFilterCount": "{label} ({count})",
+  "@challengeFilterCount": {
+    "placeholders": {
+      "label": { "type": "String" },
+      "count": { "type": "int" }
+    }
+  },
+  "challengeSearchHint": "Cari topik, fungsi, atau algoritma...",
+  "challengeClearSearch": "Hapus pencarian",
+  "challengeSearchTooltip": "Cari tantangan",
+  "challengeNoMatch": "Tidak ada tantangan yang cocok. Coba ubah kata kunci atau filter.",
+  "challengeGroupDone": "{done} / {total} Selesai",
+  "@challengeGroupDone": {
+    "placeholders": {
+      "done": { "type": "int" },
+      "total": { "type": "int" }
+    }
+  },
+  "challengeGroupUnlocked": "{unlocked} / {total} Dibuka",
+  "@challengeGroupUnlocked": {
+    "placeholders": {
+      "unlocked": { "type": "int" },
+      "total": { "type": "int" }
+    }
+  },
+  "challengeSummaryDone": "{done} dari {total} Selesai",
+  "@challengeSummaryDone": {
+    "placeholders": {
+      "done": { "type": "int" },
+      "total": { "type": "int" }
+    }
+  },
+  "challengeSummarySubtitle": "Kemahiran Kurikulum Algoritma RPL",
+  "challengeXpEarned": "+{xp} XP Didapat",
+  "@challengeXpEarned": {
+    "placeholders": {
+      "xp": { "type": "int" }
+    }
+  },
+  "challengeStatusInProgress": "Sedang Dicoba",
+  "challengeMiniProjectHeader": "MINI-PROYEK TERAPAN",
+  "challengeMiniProjectSubtitle": "Praktik implementasi logika komprehensif khas SMK RPL",
+  "challengeOpen": "Terbuka",
+  "challengeMinutes": "{count} Menit",
+  "@challengeMinutes": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "challengeXpRequired": "Butuh {xp} XP",
+  "@challengeXpRequired": {
+    "placeholders": {
+      "xp": { "type": "int" }
+    }
+  },
+  "challengeXpRequirement": "Syarat: Butuh {xp} XP",
+  "@challengeXpRequirement": {
+    "placeholders": {
+      "xp": { "type": "int" }
+    }
+  },
+  "challengeTestCount": "{count} Unit Test",
+  "@challengeTestCount": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "challengeDetailTitle": "Tantangan Koding",
+  "challengeHistoryTooltip": "Riwayat submisi",
+  "challengeLevelLine": "Tingkat: {level}",
+  "@challengeLevelLine": {
+    "placeholders": {
+      "level": { "type": "String" }
+    }
+  },
+  "challengeXpPlus": "+{xp} XP",
+  "@challengeXpPlus": {
+    "placeholders": {
+      "xp": { "type": "int" }
+    }
+  },
+  "challengeMinutesShort": "~{count} mnt",
+  "@challengeMinutesShort": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "challengeTaskInstruction": "Instruksi Tugas",
+  "challengeSampleCalls": "CONTOH PEMANGGILAN",
+  "challengeTabInstruction": "Instruksi & Uji",
+  "challengeTabSolution": "Solusi Kodemu",
+  "challengeFormatPep8": "Format PEP8",
+  "challengeFormatDone": "Format PEP8 berhasil dirapikan",
+  "challengeResetCode": "Reset Kode",
+  "challengeAiHelpTitle": "Butuh Bantuan AI?",
+  "challengeAiHelpSubtitle": "Dapatkan petunjuk bertahap tanpa spoiler kode",
+  "challengeQuotaLabel": "{used}/{total} Kuota",
+  "@challengeQuotaLabel": {
+    "placeholders": {
+      "used": { "type": "int" },
+      "total": { "type": "int" }
+    }
+  },
+  "challengeAskHint": "Minta Hint",
+  "challengeRunFailed": "Ada kendala saat eksekusi kode. Coba lagi sebentar.",
+  "challengeSubmitFailed": "Gagal mengirim submisi. Coba lagi sebentar.",
+  "challengeTestResultTitle": "Hasil Pengujian Otomatis",
+  "challengeTestResultCompletedTitle": "Hasil Pengujian Otomatis — Selesai",
+  "challengePassedCount": "{passed}/{total} Lolos",
+  "@challengePassedCount": {
+    "placeholders": {
+      "passed": { "type": "int" },
+      "total": { "type": "int" }
+    }
+  },
+  "challengeExecutionTime": "Eksekusi: {ms}ms",
+  "@challengeExecutionTime": {
+    "placeholders": {
+      "ms": { "type": "int" }
+    }
+  },
+  "challengePassed": "Lolos",
+  "challengeFailed": "Gagal",
+  "challengeCaseDetail": "Input: {input} • Ekspektasi: {expected} • Output: {output}",
+  "@challengeCaseDetail": {
+    "placeholders": {
+      "input": { "type": "String" },
+      "expected": { "type": "String" },
+      "output": { "type": "String" }
+    }
+  },
+  "challengeScaffoldingLevels": "Scaffolding 3 Level",
+  "challengeLogicHintLabel": "Petunjuk Logika: ",
+  "challengeAllTestsPassed": "Mantap! Seluruh uji coba lolos. Tekan tombol Kirim Solusi di bawah untuk klaim XP-mu!",
+  "challengeCasesNotPassed": "{count} kasus belum lolos dari pengujian otomatis. Minta arahan AI Tutor di bawah — petunjuknya memandu kodemu, bukan jawaban jadi.",
+  "@challengeCasesNotPassed": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "challengeAskAiTutor": "Tanya AI Tutor",
+  "challengeCompletedBody": "Tantangan ini sudah kamu tuntaskan. Detail per-kasus hanya tampil di sesi bersama submisi berjalan; skor terbaik tercatat resmi di server:",
+  "challengeBestScore": "Skor terbaik: {score}%",
+  "@challengeBestScore": {
+    "placeholders": {
+      "score": { "type": "int" }
+    }
+  },
+  "challengeViewHistory": "Lihat riwayat submisi",
+  "challengeTryRun": "Uji Coba",
+  "challengeSubmitSolution": "Kirim Solusi",
+  "challengeEvaluationTitle": "Evaluasi Proyek",
+  "evalSolutionAccepted": "Solusi Diterima!",
+  "evalSolutionNotYet": "Solusi Belum Berhasil",
+  "evalAllPassedBody": "Seluruh pengujian publik dan tersembunyi berhasil dilewati tanpa kendala.",
+  "evalSomeFailedBody": "Jangan patah semangat! {passed} dari {total} pengujian berhasil. Mari kita telaah kesalahan dan perbaiki bersama AI Tutor.",
+  "@evalSomeFailedBody": {
+    "placeholders": {
+      "passed": { "type": "int" },
+      "total": { "type": "int" }
+    }
+  },
+  "evalMetricFinalScore": "NILAI AKHIR",
+  "evalBadgePerfect": "Sempurna",
+  "evalBadgeNeedsImprovement": "Perlu Perbaikan",
+  "evalMetricExecution": "EKSEKUSI",
+  "evalSecondsSuffix": " dtk",
+  "evalBadgeFast": "Cepat",
+  "evalTestResultsHeader": "HASIL PENGUJIAN OTOMATIS",
+  "evalCompetencyTitle": "Kompetensi Logika & Algoritma",
+  "evalPointsPlus": "+5 Poin",
+  "evalCompetencySubtitle": "Bukti empiris tercatat otomatis pada portofolio SMK-mu.",
+  "evalCooldownTitle": "Cooldown Submisi Compiler",
+  "evalCooldownPrefix": "Tunggu ",
+  "evalCooldownSuffix": " detik sebelum dapat mengirim submisi berikutnya untuk stabilitas sandbox container.",
+  "evalCooldownReady": "Compiler siap menerima submisi kode baru.",
+  "evalNextChallenge": "Lanjut ke Tantangan Berikutnya",
+  "evalFixSolution": "Perbaiki Solusi Koding",
+  "evalHiddenBadge": "Hidden",
+  "historyTitle": "Riwayat Submisi",
+  "historyStatusPassed": "Lulus",
+  "historyStatusError": "Error",
+  "historyBestScore": "Skor Tertinggi",
+  "historyAttemptsCount": "{count} Percobaan Dikirim",
+  "@historyAttemptsCount": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "historySubmissionsHeader": "Riwayat Pengiriman",
+  "historySortedByTime": "Terurut Waktu",
+  "historyOpenPlayground": "Buka di Playground",
+  "historyBackToChallenge": "Kembali ke Soal",
+  "historySubmissionNumber": "Submisi #{number}",
+  "@historySubmissionNumber": {
+    "placeholders": {
+      "number": { "type": "int" }
+    }
+  },
+  "historyScoreInline": "  •  Skor {score}/100",
+  "@historyScoreInline": {
+    "placeholders": {
+      "score": { "type": "int" }
+    }
+  },
+  "historyHintsUsed": "{count} Hint AI digunakan",
+  "@historyHintsUsed": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "historySubmissionCode": "Kode Submisi #{number} (Python)",
+  "@historySubmissionCode": {
+    "placeholders": {
+      "number": { "type": "int" }
+    }
+  },
+  "historyAiReview": "Ulasan AI Tutor",
+  "tutorSubtitle": "Scaffolding & Pendamping Belajar",
+  "tutorQuotaToastExhausted": "Kuota hint hari ini habis. Coba lagi besok.",
+  "tutorQuotaToastExhaustedDetail": "Kuota petunjuk hari ini sudah habis. Coba lagi besok untuk berlatih mandiri.",
+  "tutorHintFailed": "Petunjuk gagal disiapkan. Coba lagi sebentar.",
+  "tutorHintOffline": "Server petunjuk sedang tidak dapat dihubungi — menampilkan petunjuk bawaan.",
+  "tutorConceptLabel": "Konsep: {concept}",
+  "@tutorConceptLabel": {
+    "placeholders": {
+      "concept": { "type": "String" }
+    }
+  },
+  "tutorLevelLabel": "Level {unlocked}/{total}",
+  "@tutorLevelLabel": {
+    "placeholders": {
+      "unlocked": { "type": "int" },
+      "total": { "type": "int" }
+    }
+  },
+  "tutorQuotaRemaining": "Sisa kuota",
+  "tutorScaffoldingTitle": "Scaffolding Bertahap",
+  "tutorSocraticMethod": "Metode Sokratik",
+  "tutorPromptQuestion": "PERTANYAAN PEMANTIK:",
+  "tutorPreparingHint": "Menyiapkan petunjuk untuk tantangan ini…",
+  "tutorQuotaBlockedBody": "Kuota hint hari ini sudah habis (5x per hari). Petunjuk spesifik untuk tantangan ini terbuka lagi besok — sementara ini, tuntaskan di kodemu dulu.",
+  "tutorThinkingFlow": "REKOMENDASI ALUR BERPIKIR",
+  "tutorPreparingShort": "Menyiapkan petunjuk…",
+  "tutorUnlockNext": "Buka Hint Berikutnya ({level})",
+  "@tutorUnlockNext": {
+    "placeholders": {
+      "level": { "type": "String" }
+    }
+  },
+  "tutorQuotaExhaustedBody": "Kuota petunjuk harian sudah habis (maksimal 5x per hari sesuai PRD). Setiap beristirahat akan reset besok — sementara ini, tuntaskan di kodemu dulu.",
+  "tutorAllHintsUnlocked": "Semua hint sudah terbuka. Sekarang coba terapkan di kodemu.",
+  "tutorLockedSuffix": ", terkunci",
+  "materialCatalogTitle": "Katalog Materi",
+  "materialFilterActive": "Sedang Aktif",
+  "materialFilterNotStarted": "Belum Dimulai",
+  "materialStatusRunning": "Berjalan",
+  "materialLoadFailed": "Gagal memuat katalog materi.",
+  "materialSearchHint": "Cari materi atau deskripsinya…",
+  "materialClearSearch": "Hapus pencarian",
+  "materialNoMatch": "Tidak ada materi yang cocok dengan pencarian atau filter.",
+  "materialChaptersDone": "{done}/{total} bab tuntas",
+  "@materialChaptersDone": {
+    "placeholders": {
+      "done": { "type": "int" },
+      "total": { "type": "int" }
+    }
+  },
+
+  "readerPreviewDone": "Pratinjau Siswa Selesai! Semua slide berhasil dievaluasi.",
+  "readerXpEarned": "Selamat! Kamu memperoleh +{xp} XP! 🎉",
+  "@readerXpEarned": {
+    "placeholders": {
+      "xp": { "type": "int" }
+    }
+  },
+  "readerXpAlreadyDone": "Bab sudah pernah dituntaskan — XP tidak dihitung dua kali.",
+  "readerExitTitle": "Keluar dari Latihan?",
+  "readerExitBody": "Progres slide terakhirmu akan tersimpan secara otomatis.",
+  "readerExitStay": "Lanjut Belajar",
+  "readerExitConfirm": "Keluar",
+  "readerLoadFailed": "Gagal memuat materi bab.",
+  "readerTeacherPreviewBanner": "MODE PRATINJAU GURU (Data tidak disimpan)",
+  "readerContinue": "Paham, Lanjutkan",
+  "readerFinishSave": "Selesai & Simpan Progres",
+  "readerCheckAnswer": "Periksa Jawaban",
+
+  "slideBadgeValidated": "Langkah Tervalidasi",
+  "slideProgressSaved": "Progres Tersimpan",
+  "slideWhyCorrect": "Mengapa Jawabanmu Benar?",
+  "slideNextSlide": "Lanjut ke Slide Berikutnya",
+  "slideSyntaxEvaluation": "Evaluasi Sintaksis",
+  "slideZeroXpTryAgain": "0 XP • Semangat Coba Lagi",
+  "slideErrorEncouragement": "Jangan khawatir, kesalahan kecil adalah bagian alami dari proses belajar koding.",
+  "slideSkipArrow": "Lewati Slide →",
+  "slideWhereIsMistake": "Di Mana Letak Kesalahannya?",
+  "slideBadgeTheory": "Teori & Konsep",
+  "slideTheoryTip": "Pahami konsep di atas dengan seksama sebelum melanjutkan ke latihan interaktif.",
+  "slideBadgeArrangeSyntax": "Susun Sintaks",
+  "slideTapToFillInstruction": "Ketuk balok kode di bawah untuk mengisi slot kosong yang sesuai:",
+  "slideWordBank": "Bank Balok Kata:",
+  "slideBadgeTypeCode": "Ketik Kode",
+  "slideHint": "Petunjuk",
+  "slideTypeHere": "ketik di sini...",
+  "slideBadgeGuessOutput": "Tebak Output",
+  "slideBadgeBugHunter": "Bug Hunter",
+  "slideBugHunterInstruction": "Ketuk baris yang menurutmu mengandung galat penulisan di atas.",
+  "slideBadgeConceptQuiz": "Kuis Konsep",
+  "slideOutroXpReward": "Hadiah XP",
+  "slideOutroAccuracy": "Akurasi",
+  "slideOutroLearningTime": "Waktu Belajar",
+  "slideOutroMasteredConcepts": "Konsep yang Kamu Kuasai",
+
+  "profileTitle": "Profil & Kompetensi",
+  "profileSettingsTooltip": "Pengaturan Profil",
+  "profileLoading": "Memuat profil…",
+  "profileLoadFailedTitle": "Data profil gagal dimuat",
+  "profileLoadFailedBody": "Pastikan server koding lab menyala, lalu coba lagi.",
+  "profileNewStudent": "Siswa Baru",
+  "profileAddBio": "+ Tambah Bio",
+  "profileStatChallenges": "Tantangan",
+  "profileStatXpPoints": "Poin XP",
+  "profileStatMaterialsDone": "Materi Selesai",
+  "profileMasteryMapTitle": "Peta Penguasaan Materi",
+  "profileMaterialsUnavailable": "Daftar materi belum tersedia dari server. Coba lagi.",
+  "profileMaterialProgressTitle": "Progres Materi",
+  "profileChaptersInline": "{done}/{total} bab",
+  "@profileChaptersInline": {
+    "placeholders": {
+      "done": { "type": "int" },
+      "total": { "type": "int" }
+    }
+  },
+  "profileCurriculumUnavailable": "Kurikulum belum tersedia dari server. Coba lagi.",
+  "profileCertificatesTitle": "Sertifikat",
+  "profileTracksDoneBadge": "{done}/{total} Tuntas",
+  "@profileTracksDoneBadge": {
+    "placeholders": {
+      "done": { "type": "int" },
+      "total": { "type": "int" }
+    }
+  },
+  "profileChallengeCertsTitle": "Sertifikat Tantangan",
+  "profileNoChallenges": "Belum ada tantangan di katalog — coba lagi.",
+  "profileBabCountInline": "{done}/{total} Bab",
+  "@profileBabCountInline": {
+    "placeholders": {
+      "done": { "type": "int" },
+      "total": { "type": "int" }
+    }
+  },
+  "profileCertReady": "Sertifikat siap diunduh",
+  "profileCertLearning": "Sedang belajar",
+  "profileDownload": "Unduh",
+  "profileCertChallengeDone": "Selesai — sertifikat siap",
+  "profileCertChallengeLocked": "Terkunci — kurang XP",
+  "profileCertChallengeInProgress": "Sedang dikerjakan",
+  "profileDownloadSoon": "Fitur unduh sertifikat segera hadir, ya!",
+
+  "changePassOldLabel": "Kata Sandi Lama",
+  "changePassNewLabel": "Kata Sandi Baru",
+  "changePassConfirmLabel": "Konfirmasi Kata Sandi Baru",
+  "changePassShowPassword": "Tampilkan sandi",
+  "changePassHidePassword": "Sembunyikan sandi",
+  "changePassOldRequired": "Isi kata sandi lama dulu.",
+  "changePassSuccess": "Kata sandi berhasil diubah!",
+  "changePassFailed": "Gagal mengubah kata sandi. Coba lagi.",
+  "changePassConfirmHint": "Ketik ulang kata sandi baru untuk konfirmasi.",
+  "changePassConfirmMatch": "Konfirmasi cocok dengan kata sandi baru.",
+  "changePassConfirmMismatch": "Konfirmasi belum sama dengan kata sandi baru.",
+  "changePassSaving": "Menyimpan…",
+  "changePassSave": "Simpan Kata Sandi",
+
+  "joinClassTitle": "Gabung ke Kelas Gurumu",
+  "joinClassSubtitle": "Masukkan 6 karakter kode kelas yang dibagikan gurumu.",
+  "joinClassClearCode": "Hapus kode",
+  "joinClassExample": "Contoh: K7M-8Q2 atau 4NB-9XT",
+  "joinClassNotFound": "Kode kelas tidak ditemukan.",
+  "joinClassSuccess": "Berhasil bergabung ke {name}!",
+  "@joinClassSuccess": {
+    "placeholders": {
+      "name": { "type": "String" }
+    }
+  },
+  "joinClassCtaButton": "Gabung Kelas Sekarang",
+  "joinClassFoundBadge": "Kelas Ditemukan",
+  "joinClassMemberCount": "{count} Teman Sekelas",
+  "@joinClassMemberCount": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+
+  "classServerUnreachable": "Server belum terjangkau. Periksa koneksi lab, lalu coba lagi.",
+  "classServerUnreachableShort": "Server belum terjangkau. Coba beberapa saat lagi, ya.",
+  "classJoinedSnack": "Berhasil bergabung ke kelas {name}!",
+  "@classJoinedSnack": {
+    "placeholders": {
+      "name": { "type": "String" }
+    }
+  },
+  "classLeftSnack": "Kamu keluar dari kelas {name}.",
+  "@classLeftSnack": {
+    "placeholders": {
+      "name": { "type": "String" }
+    }
+  },
+  "classSectionTitle": "Kelas Belajar",
+  "classSeeAll": "Lihat Semua",
+  "classLoadFailedFromServer": "Kelas gagal dimuat dari server",
+  "classLoadFailedTitle": "Kelas gagal dimuat",
+  "classCheckLabConnection": "Cek koneksi lab sekolahmu, lalu coba lagi.",
+  "classLoadingInline": "Memuat kelas…",
+  "classNotJoinedTitle": "Belum tergabung ke kelas",
+  "classJoinHintInline": "Masukkan kode kelas 6 karakter yang dibagikan gurumu.",
+  "classJoinButton": "Gabung Kelas",
+  "classNotInClassTitle": "Belum masuk kelas",
+  "classJoinHintShort": "Gabung pakai kode 6 karakter dari gurumu.",
+  "classJoinShort": "Gabung",
+  "classActiveBadge": "Aktif",
+  "classSeeAllTooltip": "Lihat semua kelas",
+  "classMemberCountInline": "{count} teman sekelas",
+  "@classMemberCountInline": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+
+  "myClassesTitle": "Kelas Saya",
+  "myClassesActiveCount": "{count} kelas aktif",
+  "@myClassesActiveCount": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "myClassesSubtitle": "Rombel tempat kamu belajar",
+  "myClassesOneActiveNote": "Satu siswa hanya dapat tergabung dalam satu kelas aktif. Keluar dari kelas bila ingin bergabung ke kelas lain.",
+  "myClassesEmptyTitle": "Belum tergabung ke kelas mana pun",
+  "myClassesEmptyBody": "Minta kode kelas 6 karakter kepada gurumu, lalu gabung dari sini.",
+
+  "classDetailLoadFailed": "Detail kelas gagal dimuat",
+  "classRegisteredBadge": "Terdaftar Aktif",
+  "classTeacherRoleBadge": "Guru",
+  "classTeacherAdvisor": "Guru pembimbing kelas ini",
+  "classClassmatesTitle": "Teman Sekelas",
+  "classClassmatesCount": "({count} Siswa)",
+  "@classClassmatesCount": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "classNoClassmates": "Belum ada teman sekelas yang terdaftar.",
+  "classMonitoringNote": "Progres koding dan nilai tantanganmu dapat dipantau langsung oleh guru kelas ini di lab komputer.",
+  "classXpSafeNote": "Poin XP dan progres belajarmu tetap aman di akunmu jika kamu keluar kelas.",
+  "classCopyInfo": "Salin Info Kelas",
+  "classInfoCopied": "Info Tersalin!",
+  "classLeaveButton": "Keluar dari Kelas",
+  "classLeaveConfirmTitle": "Yakin Ingin Keluar dari Kelas?",
+  "classLeaveConfirmBody": "Poin XP dan progres belajarmu tetap aman di akunmu, namun gurumu tidak dapat lagi memantau kemajuan belajarmu di lab.",
+  "classLeaveConfirmYes": "Ya, Keluar Kelas",
+  "classHideNames": "Sembunyikan",
+  "classMoreCount": "+{rest} lainnya",
+  "@classMoreCount": {
+    "placeholders": {
+      "rest": { "type": "int" }
+    }
+  },
+  "classSeeAllNames": "Lihat semua nama ({count})",
+  "@classSeeAllNames": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+
+  "authPassNotFilled": "Belum diisi",
+  "authPassVeryGood": "Sangat Bagus!",
+  "authPassNeedsWork": "Perlu ditingkatkan",
+  "authPassSecurityTitle": "KEAMANAN SANDI",
+  "authPassMinLength": "Minimal 8 karakter",
+  "authPassDigitOrSymbol": "Ada angka atau simbol",
+  "authCheckMet": "terpenuhi",
+  "authCheckNotMet": "belum terpenuhi",
+  "authSchoolVerifiedBadge": "Sekolah Terdaftar Resmi",
+  "authSchoolCodePrefix": "Kode: {code}",
+  "@authSchoolCodePrefix": {
+    "placeholders": {
+      "code": { "type": "String" }
+    }
+  },
+  "authSchoolReadOnlyNote": "Data sekolah ini bersifat read-only dan terverifikasi otomatis; tidak dapat diubah oleh instruktur.",
+
+  "validNameRequired": "Isi nama lengkapmu dulu.",
+  "validEmailRequired": "Isi email kamu dulu.",
+  "validEmailFormat": "Format email belum benar. Contoh: nama@smk.belajar.id",
+  "validSchoolEmailDomain": "Email harus memakai domain {domain}.",
+  "@validSchoolEmailDomain": {
+    "placeholders": {
+      "domain": { "type": "String" }
+    }
+  },
+  "validPasswordRequired": "Isi kata sandi kamu dulu.",
+  "validNewPasswordRequired": "Buat kata sandi dulu.",
+  "validPasswordPolicy": "Minimal 8 karakter dan ada angka atau simbol.",
+  "validConfirmRequired": "Ketik ulang kata sandi untuk konfirmasi.",
+  "validPasswordMismatch": "Kata sandi belum sama dengan isian pertama.",
+
+  "authErrInvalidCredentials": "Email atau kata sandi belum cocok. Coba periksa lagi.",
+  "authErrEmailTaken": "Email ini sudah punya akun. Mau masuk saja?",
+  "authErrNetwork": "Belum tersambung ke internet. Coba lagi sebentar.",
+  "authErrSchoolCodeNotFound": "Kode sekolah tidak ditemukan. Silakan hubungi admin sekolahmu.",
+  "authErrWrongOldPassword": "Kata sandi lama belum cocok. Coba periksa lagi.",
+  "authErrPasswordPolicy": "Kata sandi baru belum memenuhi aturan (minimal 8 karakter, ada angka atau simbol).",
+  "authErrAvatarUpload": "Foto profil belum bisa diunggah. Gunakan JPG atau PNG maksimal 2 MB.",
+  "authErrEmailDomain": "Email harus memakai domain @smk.belajar.id.",
+  "authErrInvalidInput": "Ada isian yang belum sesuai. Periksa kembali lalu simpan lagi.",
+  "authErrServer": "Server sedang bermasalah. Coba lagi beberapa saat lagi.",
+
+  "loginWelcomeTitle": "Selamat datang kembali",
+  "loginWelcomeSubtitle": "Lanjutkan belajar koding dari mana kamu berhenti.",
+  "loginJustRegisteredBanner": "Akunmu sudah dibuat. Silakan masuk untuk mulai belajar.",
+  "authEmailLabel": "Email",
+  "authPasswordLabel": "Kata Sandi",
+  "authPasswordHint": "Masukkan kata sandi",
+  "loginSubmit": "Masuk Sekarang",
+  "loginNoAccount": "Belum punya akun?",
+  "authRegisterLink": "Daftar",
+
+  "authBackTooltip": "Kembali",
+  "registerTitle": "Daftar Akun",
+  "registerTagBanner": "Platform Belajar Coding RPL",
+  "registerHeading": "Yuk, buat akunmu",
+  "registerSubheading": "Untuk siswa SMK/SMA jurusan RPL.",
+  "registerNameLabel": "Nama Lengkap",
+  "registerNameHintAside": "Sesuai absen kelas",
+  "registerEmailLabel": "Email Pelajar / Pribadi",
+  "registerEmailHintAside": ".belajar.id",
+  "authPasswordStrengthHint": "Kombinasi sandi kuat",
+  "registerConfirmLabel": "Konfirmasi Kata Sandi",
+  "authSameExactlyHintAside": "Sama persis",
+  "authRetypePasswordHint": "Ketik ulang kata sandimu",
+  "registerSubmit": "Buat Akun",
+  "authAlreadyHaveAccount": "Sudah punya akun?",
+  "authLoginLink": "Masuk",
+  "registerTeacherLink": "Anda Guru / Pengajar? Daftar akun pendidik di sini →",
+  "registerSuccessTitle": "Pendaftaran Berhasil! 🎉",
+  "registerSuccessBody": "Akunmu sudah dibuat dan siap dipakai.\n\nSilakan masuk (login) menggunakan email dan kata sandi yang baru saja kamu buat.",
+  "registerCommunityPrefix": "Gabung bersama",
+  "registerCommunitySuffix": "rekan RPL yang mulai belajar logika algoritma, Git, dan web dev hari ini.",
+
+  "teacherRegTitle": "Registrasi Akun Pendidik",
+  "teacherRegTagBanner": "Kemitraan Instansi",
+  "teacherRegHeading": "Pilih Peran Akunmu",
+  "teacherRegSubheading": "Sesuaikan pengalaman belajar atau manajemen lab komputer sekolahmu.",
+  "teacherRegVerifySectionTitle": "Verifikasi Sekolah & Lab",
+  "teacherRegStatusConnected": "Terkoneksi",
+  "teacherRegStatusWaiting": "Menunggu kode",
+  "teacherRegSchoolCodeLabel": "Kode Registrasi Sekolah / Lab",
+  "teacherRegSchoolCodeHintAside": "Dari dinas/sekolah",
+  "teacherRegSchoolCodeHint": "Contoh: SWADHIPA2-NTR",
+  "teacherRegSchoolCodeInvalid": "Ketik kode sekolah resmi hingga kartu hijau muncul.",
+  "teacherRegVerifyFirst": "Verifikasi sekolah dulu — ketik kode resmi lalu tunggu kartu hijau muncul.",
+  "teacherRegSchoolCodeNote": "Guru wajib memasukkan kode sekolah resmi agar terafiliasi dengan laboratorium sekolah.",
+  "teacherRegDataSectionTitle": "Data Pendidik Terdaftar",
+  "teacherRegDataSectionNote": "Lengkapi identitas pendidik untuk verifikasi sertifikat lab.",
+  "teacherRegNameLabel": "Nama Lengkap & Gelar",
+  "teacherRegNameHintAside": "Contoh: Budi Santoso, S.Kom",
+  "teacherRegEmailLabel": "Email Pendidik / Instansi",
+  "teacherRegEmailHintAside": "Email kantor",
+  "teacherRegSubmit": "Lanjutkan Pendaftaran Akun",
+  "teacherRegSuccessBody": "Akun pengajarmu sudah dibuat untuk {school}.\n\nSilakan masuk (login) menggunakan email dan kata sandi yang baru saja kamu buat.",
+  "@teacherRegSuccessBody": {
+    "placeholders": {
+      "school": { "type": "String" }
+    }
+  },
+  "teacherRegYourSchool": "sekolahmu",
+  "roleStudentChip": "Belajar Mandiri",
+  "roleStudentTitle": "Siswa Belajar",
+  "roleStudentDesc": "Akses modul koding praktis & AI tutor 24/7",
+  "roleTeacherChip": "Akses Pendidik",
+  "roleTeacherTitle": "Guru / Instruktur",
+  "roleTeacherDesc": "Kelola lab kelas, kurikulum & pantau siswa",
+
+  "actionCopy": "Salin",
+  "codeCopied": "Kode disalin.",
+  "a11yShowPassword": "Tampilkan kata sandi",
+  "a11yHidePassword": "Sembunyikan kata sandi",
+  "a11yOpenProfile": "Buka profil",
+  "a11yMasteryRadar": "Radar penguasaan: {detail}",
+  "@a11yMasteryRadar": {
+    "placeholders": {
+      "detail": { "type": "String" }
+    }
+  },
+  "loadingTipSubmitQuota": "Tekan \"{run}\" dulu sebelum \"{submit}\" — biar kuota harianmu aman.",
+  "@loadingTipSubmitQuota": {
+    "placeholders": {
+      "run": { "type": "String" },
+      "submit": { "type": "String" }
+    }
+  },
+  "loadingTipAiHint": "Bantuan AI hanya memberi petunjuk, bukan kode jadi. Jawabnya tetap kerjamu.",
+  "loadingTipPlayground": "Playground menjalankan Python langsung di perangkat — tetap aktif walau offline.",
+  "loadingTipHiddenTests": "Kasus uji rahasia tinggal di server, tidak ikut terkirim ke HP siswa.",
+  "loadingVersionFooter": "Versi 2.1 · Kurikulum Merdeka RPL",
+  "settingsLanguageTeacherLocked": "Pilihan bahasa dikunci sementara untuk akun pengajar.",
+
+  "tNavDashboard": "Dashboard",
+  "tNavMaterials": "Materi",
+  "tNavAnalytics": "Analisa"
+}

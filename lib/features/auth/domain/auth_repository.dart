@@ -99,31 +99,9 @@ class AuthFailure implements Exception {
 
   final AuthFailureType type;
 
-  /// Pesan tambahan dari server (mis. nama kolom yang belum sesuai).
+  /// Pesan tambahan dari server (mis. nama kolom yang belum sesuai) — dipakai
+  /// apa adanya; teks dari server tidak diterjemahkan.
   final String? detail;
-
-  /// User-facing copy from DESIGN.md §4 (no blame, always a next step).
-  String get message => detail ?? switch (type) {
-    AuthFailureType.invalidCredentials =>
-      'Email atau kata sandi belum cocok. Coba periksa lagi.',
-    AuthFailureType.emailTaken => 'Email ini sudah punya akun. Mau masuk saja?',
-    AuthFailureType.network =>
-      'Belum tersambung ke internet. Coba lagi sebentar.',
-    AuthFailureType.schoolCodeNotFound =>
-      'Kode sekolah tidak ditemukan. Silakan hubungi admin sekolahmu.',
-    AuthFailureType.wrongOldPassword =>
-      'Kata sandi lama belum cocok. Coba periksa lagi.',
-    AuthFailureType.passwordPolicy =>
-      'Kata sandi baru belum memenuhi aturan (minimal 8 karakter, ada angka atau simbol).',
-    AuthFailureType.avatarUpload =>
-      'Foto profil belum bisa diunggah. Gunakan JPG atau PNG maksimal 2 MB.',
-    AuthFailureType.emailDomain =>
-      'Email harus memakai domain @smk.belajar.id.',
-    AuthFailureType.invalidInput =>
-      'Ada isian yang belum sesuai. Periksa kembali lalu simpan lagi.',
-    AuthFailureType.server =>
-      'Server sedang bermasalah. Coba lagi beberapa saat lagi.',
-  };
 }
 
 /// Kartu verifikasi sekolah read-only hasil pencocokan kode resmi

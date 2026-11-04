@@ -20,7 +20,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart' show ChangeNotifierProvider;
 
@@ -48,6 +47,7 @@ import 'features/lesson/domain/lesson_repository.dart';
 import 'features/teacher/data/api_teacher_repository.dart';
 import 'features/teacher/domain/teacher_repository.dart';
 import 'features/teacher/presentation/cubit/teacher_cubit.dart';
+import 'l10n/app_localizations.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -144,10 +144,24 @@ class _CodelabAppState extends State<CodelabApp> {
               darkTheme: AppTheme.dark,
               // Pilihan pengguna dari Pengaturan (Terang/Gelap/Ikuti Sistem).
               themeMode: AppPreferences.instance.themeMode,
+              // Minggu 11: id (default) / en / ar. Arab otomatis RTL karena
+              // MaterialApp membungkus aplikasi dengan Directionality dari
+              // locale aktif. Teks konten dari database tidak diterjemahkan.
               locale: AppPreferences.instance.locale,
-              supportedLocales: const [Locale('id'), Locale('en')],
-              localizationsDelegates:
-                  GlobalMaterialLocalizations.delegates,
+              supportedLocales: AppLocalizations.supportedLocales,
+              localizationsDelegates: AppLocalizations.localizationsDelegates,
+              // Bahasa perangkat yang tidak didukung jatuh ke Indonesia —
+              // aplikasi tidak pernah tampil dengan locale acak.
+              localeListResolutionCallback: (locales, supported) {
+                for (final device in locales ?? const <Locale>[]) {
+                  for (final locale in supported) {
+                    if (locale.languageCode == device.languageCode) {
+                      return locale;
+                    }
+                  }
+                }
+                return const Locale('id');
+              },
               routerConfig: _router,
               // Boot gate: layar memuat nyata selagi TokenStore dibaca.
               builder: (context, child) => AnimatedSwitcher(

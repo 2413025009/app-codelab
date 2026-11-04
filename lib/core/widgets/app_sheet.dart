@@ -4,6 +4,7 @@ import '../services/sound_service.dart';
 import '../theme/app_palette.dart';
 import '../theme/app_spacing.dart';
 import '../theme/app_typography.dart';
+import '../../l10n/app_localizations.dart';
 
 /// Opens a rounded bottom sheet with a drag handle, title and close button.
 Future<T?> showAppSheet<T>(

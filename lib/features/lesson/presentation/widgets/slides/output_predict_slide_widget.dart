@@ -6,6 +6,7 @@ import '../../../../../core/theme/app_typography.dart';
 import '../../../../../core/widgets/app_card.dart';
 import '../../../../../core/widgets/app_tag.dart';
 import '../../../../../core/widgets/code_card.dart';
+import '../../../../../l10n/app_localizations.dart';
 import '../../../domain/slide_models.dart';
 
 class OutputPredictSlideWidget extends StatefulWidget {
@@ -41,6 +42,7 @@ class OutputPredictSlideWidgetState extends State<OutputPredictSlideWidget> {
   @override
   Widget build(BuildContext context) {
     final p = context.palette;
+    final l10n = AppLocalizations.of(context);
 
     return SingleChildScrollView(
       padding: const EdgeInsets.fromLTRB(AppSpacing.screen, AppSpacing.md, AppSpacing.screen, AppSpacing.xxl),
@@ -50,7 +52,7 @@ class OutputPredictSlideWidgetState extends State<OutputPredictSlideWidget> {
           Row(
             children: [
               AppTag(
-                'Tebak Output',
+                l10n.slideBadgeGuessOutput,
                 background: p.primaryContainer,
                 foreground: p.primary,
                 icon: Icons.psychology_rounded,

@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import '../theme/app_palette.dart';
 import '../theme/app_spacing.dart';
 import '../theme/app_typography.dart';
+import '../../l10n/app_localizations.dart';
 import 'app_snack.dart';
 
 /// Light code card with window dots, filename and a copy button (lesson reader).
@@ -86,6 +87,7 @@ class CopyChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final p = context.palette;
+    final l10n = AppLocalizations.of(context);
     return Material(
       color: tinted ? p.primaryContainer : p.surface,
       shape: const StadiumBorder(),
@@ -93,7 +95,7 @@ class CopyChip extends StatelessWidget {
         customBorder: const StadiumBorder(),
         onTap: () async {
           await Clipboard.setData(ClipboardData(text: textToCopy));
-          if (context.mounted) showAppSnack(context, 'Kode disalin.');
+          if (context.mounted) showAppSnack(context, l10n.codeCopied);
         },
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
@@ -102,7 +104,7 @@ class CopyChip extends StatelessWidget {
             children: [
               Icon(Icons.copy_rounded, size: 14, color: p.primary),
               const SizedBox(width: 6),
-              Text('Salin', style: AppTypography.caption.copyWith(color: p.primary, fontWeight: FontWeight.w600)),
+              Text(l10n.actionCopy, style: AppTypography.caption.copyWith(color: p.primary, fontWeight: FontWeight.w600)),
             ],
           ),
         ),

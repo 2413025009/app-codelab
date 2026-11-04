@@ -11,6 +11,7 @@ import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_card.dart';
 import '../../../../core/widgets/app_sheet.dart';
 import '../../../../core/widgets/app_snack.dart';
+import '../../../../l10n/app_localizations.dart';
 import '../../challenges/domain/challenge_exceptions.dart';
 import '../domain/tutor_models.dart';
 import '../domain/tutor_repository.dart';
@@ -36,7 +37,7 @@ Future<void> showAiTutorSheet(
   return showAppSheet<void>(
     context,
     title: 'CodeLab AI Tutor',
-    subtitle: 'Scaffolding & Pendamping Belajar',
+    subtitle: AppLocalizations.of(context).tutorSubtitle,
     leadingIcon: Icons.smart_toy_outlined,
     builder: (_) => AiTutorBody(
       script: resolved,
@@ -74,6 +75,9 @@ class AiTutorBody extends StatefulWidget {
 }
 
 class _AiTutorBodyState extends State<AiTutorBody> {
+  /// Pintasan kamus UI supaya semua pembangun layar ini konsisten.
+  AppLocalizations get l10n => AppLocalizations.of(context);
+
   int _unlocked = 1; // number of hints available
   int _selected = 0;
   // Ini bukan daftar yang diganti-referensinya — isi slot diganti inplace
@@ -138,7 +142,7 @@ class _AiTutorBodyState extends State<AiTutorBody> {
   /// Slot demo offline: konsumsi kuota lokal lalu buka hint statis.
   bool _unlockOfflineSlot() {
     if (!widget.quota.consume()) {
-      showAppSnack(context, 'Kuota hint hari ini habis. Coba lagi besok.');
+      showAppSnack(context, l10n.tutorQuotaToastExhausted);
       return false;
     }
     SoundService.playAiHintUnlock();
@@ -188,18 +192,18 @@ class _AiTutorBodyState extends State<AiTutorBody> {
       if (e.statusCode == 429 || e.isCooldown) {
         widget.quota.exhaust();
         setState(() => _quotaBlocked = true);
-        showAppSnack(context, 'Kuota petunjuk hari ini sudah habis. Coba lagi besok untuk berlatih mandiri.');
+        showAppSnack(context, l10n.tutorQuotaToastExhaustedDetail);
       } else if (slotIndex > 0) {
         showAppSnack(context, e.message);
       } else {
-        showAppSnack(context, 'Petunjuk gagal disiapkan. Coba lagi sebentar.');
+        showAppSnack(context, l10n.tutorHintFailed);
       }
     } on DioException catch (e) {
       if (!mounted) return;
       if (!ApiClient.isNetworkError(e)) {
         // Kegagalan selain jaringan (payload dsb.) → jujur: tanpa fallback,
         // tanpa konsumsi kuota — penyelundupan tidak boleh jadi siluman data.
-        showAppSnack(context, 'Petunjuk gagal disiapkan. Coba lagi sebentar.');
+        showAppSnack(context, l10n.tutorHintFailed);
         return;
       }
       // Server sungguh tak terjangkau → demo statis dengan slot lokal. Untuk
@@ -207,16 +211,16 @@ class _AiTutorBodyState extends State<AiTutorBody> {
       // pertama sudah terbuka gratis, cukup tampilkan konten bawaan.
       if (slotIndex > 0) {
         if (_unlockOfflineSlot()) {
-          showAppSnack(context, 'Server petunjuk sedang tidak dapat dihubungi — menampilkan petunjuk bawaan.');
+          showAppSnack(context, l10n.tutorHintOffline);
         }
       } else {
-        showAppSnack(context, 'Server petunjuk sedang tidak dapat dihubungi — menampilkan petunjuk bawaan.');
+        showAppSnack(context, l10n.tutorHintOffline);
       }
     } catch (_) {
       if (!mounted) return;
       // Error tak terduga: jujur dan jangan buka hint — tidak boleh
       // menyusup melakukan konsumsi kuota palsu.
-      showAppSnack(context, 'Petunjuk gagal disiapkan. Coba lagi sebentar.');
+      showAppSnack(context, l10n.tutorHintFailed);
     } finally {
       if (mounted) {
         setState(() {
@@ -230,6 +234,7 @@ class _AiTutorBodyState extends State<AiTutorBody> {
   @override
   Widget build(BuildContext context) {
     final p = context.palette;
+    final l10n = AppLocalizations.of(context);
     final hints = _hints;
     final hint = hints[_selected.clamp(0, hints.length - 1)];
     final hasNext = _unlocked < hints.length;
@@ -252,7 +257,7 @@ class _AiTutorBodyState extends State<AiTutorBody> {
                       Icon(Icons.psychology_alt_outlined, size: 18, color: p.primary),
                       const SizedBox(width: 8),
                       Expanded(
-                        child: Text('Konsep: $_concept',
+                        child: Text(l10n.tutorConceptLabel(_concept),
                             style: AppTypography.label.copyWith(color: p.primary, fontSize: 13)),
                       ),
                     ],
@@ -263,14 +268,14 @@ class _AiTutorBodyState extends State<AiTutorBody> {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
                 decoration: BoxDecoration(color: p.successContainer, borderRadius: AppRadius.pillBorder),
-                child: Text('Level $_unlocked/${hints.length}',
+                child: Text(l10n.tutorLevelLabel(_unlocked, hints.length),
                     style: AppTypography.caption.copyWith(color: p.success, fontWeight: FontWeight.w700)),
               ),
               const SizedBox(width: AppSpacing.sm),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
-                  Text('Sisa kuota', style: AppTypography.caption.copyWith(color: p.textMuted)),
+                  Text(l10n.tutorQuotaRemaining, style: AppTypography.caption.copyWith(color: p.textMuted)),
                   Text('${widget.quota.remaining}/${widget.quota.total}',
                       style: AppTypography.label.copyWith(color: p.text)),
                 ],
@@ -293,8 +298,8 @@ class _AiTutorBodyState extends State<AiTutorBody> {
                     child: Icon(Icons.lightbulb_outline_rounded, color: p.primary),
                   ),
                   const SizedBox(width: 12),
-                  Expanded(child: Text('Scaffolding Bertahap', style: AppTypography.titleM.copyWith(color: p.text, fontSize: 18))),
-                  AppTagLabel(text: 'Metode Sokratik', color: p.surfaceAlt, fg: p.textMuted),
+                  Expanded(child: Text(l10n.tutorScaffoldingTitle, style: AppTypography.titleM.copyWith(color: p.text, fontSize: 18))),
+                  AppTagLabel(text: l10n.tutorSocraticMethod, color: p.surfaceAlt, fg: p.textMuted),
                 ],
               ),
               const SizedBox(height: AppSpacing.lg),
@@ -319,7 +324,7 @@ class _AiTutorBodyState extends State<AiTutorBody> {
                       children: [
                         Icon(Icons.tips_and_updates_outlined, size: 20, color: p.warningText),
                         const SizedBox(width: 8),
-                        Text('PERTANYAAN PEMANTIK:',
+                        Text(l10n.tutorPromptQuestion,
                             style: AppTypography.caption.copyWith(color: p.text, fontWeight: FontWeight.w800, letterSpacing: 0.4)),
                       ],
                     ),
@@ -335,7 +340,7 @@ class _AiTutorBodyState extends State<AiTutorBody> {
                           const SizedBox(width: 12),
                           Expanded(
                             child: Text(
-                              'Menyiapkan petunjuk untuk tantangan ini…',
+                              l10n.tutorPreparingHint,
                               style: AppTypography.bodyM.copyWith(color: p.textMuted),
                             ),
                           ),
@@ -343,9 +348,7 @@ class _AiTutorBodyState extends State<AiTutorBody> {
                       )
                     else if (_quotaBlocked)
                       Text(
-                        'Kuota hint hari ini sudah habis (5x per hari). Petunjuk '
-                        'spesifik untuk tantangan ini terbuka lagi besok — '
-                        'sementara ini, tuntaskan di kodemu dulu.',
+                        l10n.tutorQuotaBlockedBody,
                         style: AppTypography.bodyM.copyWith(color: p.text),
                       )
                     else
@@ -365,7 +368,7 @@ class _AiTutorBodyState extends State<AiTutorBody> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('REKOMENDASI ALUR BERPIKIR',
+                      Text(l10n.tutorThinkingFlow,
                           style: AppTypography.caption.copyWith(color: p.textMuted, fontWeight: FontWeight.w700, letterSpacing: 0.5)),
                       const SizedBox(height: AppSpacing.md),
                       for (var i = 0; i < hint.steps.length; i++) ...[
@@ -396,23 +399,22 @@ class _AiTutorBodyState extends State<AiTutorBody> {
         if (hasNext) ...[
           AppButton(
             label: _fetching
-                ? 'Menyiapkan petunjuk…'
-                : 'Buka Hint Berikutnya (${hints[_unlocked].tabLabel.split(': ').last})',
+                ? l10n.tutorPreparingShort
+                : l10n.tutorUnlockNext(hints[_unlocked].tabLabel.split(': ').last),
             trailingIcon: _fetching ? null : Icons.arrow_forward_rounded,
             onPressed: _fetching ? null : (widget.quota.hasQuota ? _unlockNext : null),
           ),
           if (!_fetching && !widget.quota.hasQuota) ...[
             const SizedBox(height: AppSpacing.md),
             Text(
-              'Kuota petunjuk harian sudah habis (maksimal 5x per hari sesuai PRD). '
-              'Setiap beristirahat akan reset besok — sementara ini, tuntaskan di kodemu dulu.',
+              l10n.tutorQuotaExhaustedBody,
               textAlign: TextAlign.center,
               style: AppTypography.bodyM.copyWith(color: p.error),
             ),
           ],
         ] else
           Text(
-            'Semua hint sudah terbuka. Sekarang coba terapkan di kodemu.',
+            l10n.tutorAllHintsUnlocked,
             textAlign: TextAlign.center,
             style: AppTypography.bodyM.copyWith(color: p.textMuted),
           ),
@@ -447,6 +449,7 @@ class _HintTabs extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final p = context.palette;
+    final l10n = AppLocalizations.of(context);
     return Container(
       padding: const EdgeInsets.all(4),
       decoration: BoxDecoration(color: p.surfaceAlt, borderRadius: BorderRadius.circular(16)),
@@ -457,7 +460,7 @@ class _HintTabs extends StatelessWidget {
               child: Semantics(
                 button: true,
                 selected: i == selected,
-                label: labels[i] + (i >= unlocked ? ', terkunci' : ''),
+                label: labels[i] + (i >= unlocked ? l10n.tutorLockedSuffix : ''),
                 child: GestureDetector(
                   onTap: i < unlocked ? () => onSelect(i) : null,
                   child: AnimatedContainer(

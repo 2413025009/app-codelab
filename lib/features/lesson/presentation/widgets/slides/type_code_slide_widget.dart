@@ -6,6 +6,7 @@ import '../../../../../core/theme/app_typography.dart';
 import '../../../../../core/widgets/app_card.dart';
 import '../../../../../core/widgets/app_tag.dart';
 import '../../../../../core/widgets/code_window_shell.dart';
+import '../../../../../l10n/app_localizations.dart';
 import '../../../domain/slide_models.dart';
 
 class TypeCodeSlideWidget extends StatefulWidget {
@@ -58,6 +59,7 @@ class TypeCodeSlideWidgetState extends State<TypeCodeSlideWidget> {
   @override
   Widget build(BuildContext context) {
     final p = context.palette;
+    final l10n = AppLocalizations.of(context);
     final parts = widget.slide.codeTemplate.split('[input]');
 
     return SingleChildScrollView(
@@ -68,7 +70,7 @@ class TypeCodeSlideWidgetState extends State<TypeCodeSlideWidget> {
           Row(
             children: [
               AppTag(
-                'Ketik Kode',
+                l10n.slideBadgeTypeCode,
                 background: p.primaryContainer,
                 foreground: p.primary,
                 icon: Icons.keyboard_rounded,
@@ -78,7 +80,7 @@ class TypeCodeSlideWidgetState extends State<TypeCodeSlideWidget> {
                 TextButton.icon(
                   onPressed: () => setState(() => _showHint = !_showHint),
                   icon: Icon(Icons.lightbulb_outline_rounded, size: 18, color: p.accent),
-                  label: Text('Petunjuk', style: AppTypography.label.copyWith(color: p.accent)),
+                  label: Text(l10n.slideHint, style: AppTypography.label.copyWith(color: p.accent)),
                 ),
             ],
           ),
@@ -154,7 +156,7 @@ class TypeCodeSlideWidgetState extends State<TypeCodeSlideWidget> {
                         isDense: true,
                         contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
                         border: InputBorder.none,
-                        hintText: 'ketik di sini...',
+                        hintText: l10n.slideTypeHere,
                         hintStyle: TextStyle(
                           fontFamily: 'JetBrains Mono',
                           color: p.textMuted.withValues(alpha: 0.6),

@@ -4,6 +4,7 @@ import 'package:mobile_codelab_ai/core/theme/app_theme.dart';
 import 'package:mobile_codelab_ai/features/dashboard/domain/dashboard_repository.dart';
 import 'package:mobile_codelab_ai/features/dashboard/presentation/widgets/dashboard_widgets.dart';
 import 'package:mobile_codelab_ai/features/dashboard/presentation/widgets/winding_roadmap.dart';
+import 'package:mobile_codelab_ai/l10n/app_localizations.dart';
 
 void main() {
   group('Dashboard Stitch v2 Widgets Tests', () {
@@ -21,6 +22,9 @@ void main() {
       await tester.pumpWidget(
         MaterialApp(
           theme: AppTheme.light,
+          locale: const Locale('id'),
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
           home: Scaffold(
             body: ResumeCard(
               resume: resume,
@@ -93,6 +97,9 @@ void main() {
       await tester.pumpWidget(
         MaterialApp(
           theme: AppTheme.light,
+          locale: const Locale('id'),
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
           home: Scaffold(
             body: SingleChildScrollView(
               child: WindingRoadmap(

@@ -10,7 +10,7 @@ import '../../../../core/theme/app_typography.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_snack.dart';
 import '../../../../core/widgets/skeleton.dart';
-import '../../../ai_tutor/presentation/ai_tutor_sheet.dart';
+import '../../../../l10n/app_localizations.dart';
 import '../../domain/lesson_repository.dart';
 import '../../domain/slide_models.dart';
 import '../widgets/slides/bug_hunter_slide_widget.dart';
@@ -39,6 +39,9 @@ class LessonReaderPage extends StatefulWidget {
 }
 
 class _LessonReaderPageState extends State<LessonReaderPage> {
+  /// Pintasan kamus UI supaya semua pembangun layar ini konsisten.
+  AppLocalizations get l10n => AppLocalizations.of(context);
+
   late Future<LessonDetailData> _future;
   final PageController _pageController = PageController();
 
@@ -165,7 +168,6 @@ class _LessonReaderPageState extends State<LessonReaderPage> {
       message: message,
       onContinue: () => _nextSlide(data),
       onRetry: onRetry,
-      onAskTutor: () => showAiTutorSheet(context, topic: data.title),
     );
   }
 
@@ -214,10 +216,7 @@ class _LessonReaderPageState extends State<LessonReaderPage> {
     if (widget.isTeacherPreview) {
       if (mounted) {
         SoundService.playChapterClear();
-        showAppSnack(
-          context,
-          'Pratinjau Siswa Selesai! Semua slide berhasil dievaluasi.',
-        );
+        showAppSnack(context, l10n.readerPreviewDone);
         Navigator.of(context).pop();
       }
       return;
@@ -235,12 +234,9 @@ class _LessonReaderPageState extends State<LessonReaderPage> {
     if (mounted) {
       SoundService.playChapterClear();
       if (claimed > 0) {
-        showAppSnack(context, 'Selamat! Kamu memperoleh +$claimed XP! 🎉');
+        showAppSnack(context, l10n.readerXpEarned(claimed));
       } else {
-        showAppSnack(
-          context,
-          'Bab sudah pernah dituntaskan — XP tidak dihitung dua kali.',
-        );
+        showAppSnack(context, l10n.readerXpAlreadyDone);
       }
       context.go(AppRoutes.dashboard);
     }
@@ -252,18 +248,16 @@ class _LessonReaderPageState extends State<LessonReaderPage> {
     final result = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Keluar dari Latihan?'),
-        content: const Text(
-          'Progres slide terakhirmu akan tersimpan secara otomatis.',
-        ),
+        title: Text(l10n.readerExitTitle),
+        content: Text(l10n.readerExitBody),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(false),
-            child: const Text('Lanjut Belajar'),
+            child: Text(l10n.readerExitStay),
           ),
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(true),
-            child: const Text('Keluar'),
+            child: Text(l10n.readerExitConfirm),
           ),
         ],
       ),
@@ -291,7 +285,7 @@ class _LessonReaderPageState extends State<LessonReaderPage> {
       child: Scaffold(
         appBar: AppBar(
           leading: IconButton(
-            tooltip: 'Tutup',
+            tooltip: l10n.actionClose,
             icon: const Icon(Icons.close_rounded),
             onPressed: () async {
               if (widget.isTeacherPreview) {
@@ -337,7 +331,7 @@ class _LessonReaderPageState extends State<LessonReaderPage> {
                           Icon(Icons.star_rounded, color: p.accent, size: 16),
                           const SizedBox(width: 4),
                           Text(
-                            '+$xp XP',
+                            l10n.challengeXpPlus(xp),
                             style: AppTypography.label.copyWith(
                               color: p.text,
                               fontWeight: FontWeight.bold,
@@ -378,12 +372,12 @@ class _LessonReaderPageState extends State<LessonReaderPage> {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Text(
-                      'Gagal memuat materi bab.',
+                      l10n.readerLoadFailed,
                       style: AppTypography.bodyM.copyWith(color: p.textMuted),
                     ),
                     const SizedBox(height: AppSpacing.md),
                     AppButton(
-                      label: 'Coba lagi',
+                      label: l10n.dashRetryButton,
                       expand: false,
                       onPressed: () => setState(_loadLesson),
                     ),
@@ -415,7 +409,7 @@ class _LessonReaderPageState extends State<LessonReaderPage> {
                         ),
                         const SizedBox(width: 8),
                         Text(
-                          'MODE PRATINJAU GURU (Data tidak disimpan)',
+                          l10n.readerTeacherPreviewBanner,
                           style: AppTypography.labelSm.copyWith(
                             color: Colors.white,
                             fontWeight: FontWeight.bold,
@@ -506,16 +500,16 @@ class _LessonReaderPageState extends State<LessonReaderPage> {
                       Expanded(
                         child: switch (currentSlide.type) {
                           SlideType.theory => AppButton(
-                            label: 'Paham, Lanjutkan',
+                            label: l10n.readerContinue,
                             onPressed: () => _nextSlide(data),
                           ),
                           SlideType.outro => AppButton(
-                            label: 'Selesai & Simpan Progres',
+                            label: l10n.readerFinishSave,
                             leadingIcon: Icons.check_circle_rounded,
                             onPressed: () => _finishLesson(data),
                           ),
                           _ => AppButton(
-                            label: 'Periksa Jawaban',
+                            label: l10n.readerCheckAnswer,
                             onPressed: _canCheckAnswer
                                 ? () => _checkCurrentAnswer(data)
                                 : null,

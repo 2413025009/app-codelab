@@ -4,6 +4,7 @@ import '../../../../core/theme/app_palette.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../core/utils/validators.dart';
+import '../../../../l10n/app_localizations.dart';
 import '../../domain/auth_repository.dart';
 
 /// Inline error / info banner for forms.
@@ -61,11 +62,12 @@ class PasswordChecklist extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final p = context.palette;
+    final l10n = AppLocalizations.of(context);
     final okLength = Validators.hasMinLength(password);
     final okChar = Validators.hasDigitOrSymbol(password);
     final status = password.isEmpty
-        ? 'Belum diisi'
-        : (okLength && okChar ? 'Sangat Bagus!' : 'Perlu ditingkatkan');
+        ? l10n.authPassNotFilled
+        : (okLength && okChar ? l10n.authPassVeryGood : l10n.authPassNeedsWork);
 
     return Container(
       padding: const EdgeInsets.all(AppSpacing.lg),
@@ -81,7 +83,7 @@ class PasswordChecklist extends StatelessWidget {
             children: [
               Expanded(
                 child: Text(
-                  'KEAMANAN SANDI',
+                  l10n.authPassSecurityTitle,
                   style: AppTypography.caption.copyWith(
                     color: p.textMuted,
                     fontWeight: FontWeight.w700,
@@ -99,9 +101,9 @@ class PasswordChecklist extends StatelessWidget {
             ],
           ),
           const SizedBox(height: AppSpacing.md),
-          _CheckRow(ok: okLength, label: 'Minimal 8 karakter'),
+          _CheckRow(ok: okLength, label: l10n.authPassMinLength),
           const SizedBox(height: AppSpacing.sm),
-          _CheckRow(ok: okChar, label: 'Ada angka atau simbol'),
+          _CheckRow(ok: okChar, label: l10n.authPassDigitOrSymbol),
         ],
       ),
     );
@@ -117,8 +119,9 @@ class _CheckRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final p = context.palette;
+    final l10n = AppLocalizations.of(context);
     return Semantics(
-      label: '$label, ${ok ? 'terpenuhi' : 'belum terpenuhi'}',
+      label: '$label, ${ok ? l10n.authCheckMet : l10n.authCheckNotMet}',
       child: Row(
         children: [
           AnimatedContainer(
@@ -216,6 +219,7 @@ class VerifiedSchoolCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final p = context.palette;
+    final l10n = AppLocalizations.of(context);
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(AppSpacing.lg),
@@ -248,7 +252,7 @@ class VerifiedSchoolCard extends StatelessWidget {
                       const SizedBox(width: 6),
                       Flexible(
                         child: Text(
-                          'Sekolah Terdaftar Resmi',
+                          l10n.authSchoolVerifiedBadge,
                           overflow: TextOverflow.ellipsis,
                           style: AppTypography.caption.copyWith(
                             color: p.onPrimary,
@@ -263,7 +267,7 @@ class VerifiedSchoolCard extends StatelessWidget {
               const SizedBox(width: AppSpacing.md),
               Flexible(
                 child: Text(
-                  'Kode: ${school.schoolCode}',
+                  l10n.authSchoolCodePrefix(school.schoolCode),
                   overflow: TextOverflow.ellipsis,
                   style: AppTypography.code.copyWith(color: p.success),
                 ),
@@ -322,7 +326,7 @@ class VerifiedSchoolCard extends StatelessWidget {
               const SizedBox(width: AppSpacing.sm),
               Expanded(
                 child: Text(
-                  'Data sekolah ini bersifat read-only dan terverifikasi otomatis; tidak dapat diubah oleh instruktur.',
+                  l10n.authSchoolReadOnlyNote,
                   style: AppTypography.caption.copyWith(
                     color: p.success,
                     fontStyle: FontStyle.italic,

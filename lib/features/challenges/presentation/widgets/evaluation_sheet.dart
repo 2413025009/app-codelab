@@ -7,6 +7,7 @@ import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_sheet.dart';
+import '../../../../l10n/app_localizations.dart';
 import '../../domain/challenge_repository.dart';
 
 /// Result sheet shown after "Kirim Solusi" (stitch: Hasil Evaluasi Akhir v2).
@@ -24,7 +25,7 @@ Future<void> showEvaluationSheet(
   }
   return showAppSheet<void>(
     context,
-    title: 'Evaluasi Proyek',
+    title: AppLocalizations.of(context).challengeEvaluationTitle,
     fullHeight: true,
     builder: (ctx) => _EvaluationBody(
       report: report,
@@ -84,6 +85,7 @@ class _EvaluationBodyState extends State<_EvaluationBody> {
   @override
   Widget build(BuildContext context) {
     final p = context.palette;
+    final l10n = AppLocalizations.of(context);
     final ok = widget.report.allPassed;
     final accent = ok ? p.success : p.error;
 
@@ -116,15 +118,18 @@ class _EvaluationBodyState extends State<_EvaluationBody> {
         ),
         const SizedBox(height: AppSpacing.md),
         Text(
-          ok ? 'Solusi Diterima!' : 'Solusi Belum Berhasil',
+          ok ? l10n.evalSolutionAccepted : l10n.evalSolutionNotYet,
           textAlign: TextAlign.center,
           style: AppTypography.titleL.copyWith(color: p.text, fontSize: 24, fontWeight: FontWeight.w800),
         ),
         const SizedBox(height: 6),
         Text(
           ok
-              ? 'Seluruh pengujian publik dan tersembunyi berhasil dilewati tanpa kendala.'
-              : 'Jangan patah semangat! ${widget.report.passedCount} dari ${widget.report.results.length} pengujian berhasil. Mari kita telaah kesalahan dan perbaiki bersama AI Tutor.',
+              ? l10n.evalAllPassedBody
+              : l10n.evalSomeFailedBody(
+                  widget.report.passedCount,
+                  widget.report.results.length,
+                ),
           textAlign: TextAlign.center,
           style: AppTypography.bodyM.copyWith(color: p.textMuted, height: 1.45),
         ),
@@ -146,19 +151,19 @@ class _EvaluationBodyState extends State<_EvaluationBody> {
             child: Row(
               children: [
                 _Metric(
-                  label: 'NILAI AKHIR',
+                  label: l10n.evalMetricFinalScore,
                   value: '${widget.report.score}',
                   suffix: '/100',
                   color: accent,
-                  badge: ok ? 'Sempurna' : 'Perlu Perbaikan',
+                  badge: ok ? l10n.evalBadgePerfect : l10n.evalBadgeNeedsImprovement,
                   badgeColor: accent,
                 ),
                 VerticalDivider(color: p.outline, width: 1),
                 _Metric(
-                  label: 'EKSEKUSI',
+                  label: l10n.evalMetricExecution,
                   value: (widget.report.millis / 1000).toStringAsFixed(2),
-                  suffix: ' dtk',
-                  badge: 'Cepat',
+                  suffix: l10n.evalSecondsSuffix,
+                  badge: l10n.evalBadgeFast,
                   badgeColor: p.success,
                   badgeIcon: Icons.bolt_rounded,
                 ),
@@ -173,7 +178,7 @@ class _EvaluationBodyState extends State<_EvaluationBody> {
           children: [
             Expanded(
               child: Text(
-                'HASIL PENGUJIAN OTOMATIS',
+                l10n.evalTestResultsHeader,
                 style: AppTypography.label.copyWith(color: p.textMuted, letterSpacing: 0.6, fontSize: 11.5, fontWeight: FontWeight.bold),
               ),
             ),
@@ -185,7 +190,7 @@ class _EvaluationBodyState extends State<_EvaluationBody> {
                 border: Border.all(color: accent.withValues(alpha: 0.2)),
               ),
               child: Text(
-                '${widget.report.passedCount}/${widget.report.results.length} Lolos',
+                l10n.challengePassedCount(widget.report.passedCount, widget.report.results.length),
                 style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: accent),
               ),
             ),
@@ -236,7 +241,7 @@ class _EvaluationBodyState extends State<_EvaluationBody> {
                       Row(
                         children: [
                           Flexible(
-                            child: Text('Kompetensi Logika & Algoritma',
+                            child: Text(l10n.evalCompetencyTitle,
                                 style: AppTypography.label.copyWith(color: p.text, fontSize: 13, fontWeight: FontWeight.bold)),
                           ),
                           const SizedBox(width: 6),
@@ -244,14 +249,14 @@ class _EvaluationBodyState extends State<_EvaluationBody> {
                             padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1.5),
                             decoration: BoxDecoration(color: p.surface, borderRadius: BorderRadius.circular(10)),
                             child: Text(
-                              widget.xpEarned > 0 ? '+${widget.xpEarned} XP' : '+5 Poin',
+                              widget.xpEarned > 0 ? l10n.challengeXpPlus(widget.xpEarned) : l10n.evalPointsPlus,
                               style: TextStyle(fontSize: 10.5, fontWeight: FontWeight.w800, color: p.primary),
                             ),
                           ),
                         ],
                       ),
                       const SizedBox(height: 2),
-                      Text('Bukti empiris tercatat otomatis pada portofolio SMK-mu.',
+                      Text(l10n.evalCompetencySubtitle,
                           style: TextStyle(fontSize: 11, color: p.textMuted)),
                     ],
                   ),
@@ -280,7 +285,7 @@ class _EvaluationBodyState extends State<_EvaluationBody> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('Cooldown Submisi Compiler',
+                    Text(l10n.evalCooldownTitle,
                         style: TextStyle(fontSize: 11.5, fontWeight: FontWeight.bold, color: p.warningText)),
                     const SizedBox(height: 2),
                     Text.rich(
@@ -288,14 +293,14 @@ class _EvaluationBodyState extends State<_EvaluationBody> {
                         style: TextStyle(fontSize: 11, color: p.warningText),
                         children: [
                           if (_cooldown > 0) ...[
-                            const TextSpan(text: 'Tunggu '),
+                            TextSpan(text: l10n.evalCooldownPrefix),
                             TextSpan(
                               text: '$_cooldown',
                               style: const TextStyle(fontWeight: FontWeight.bold, fontFamily: AppFonts.mono),
                             ),
-                            const TextSpan(text: ' detik sebelum dapat mengirim submisi berikutnya untuk stabilitas sandbox container.'),
+                            TextSpan(text: l10n.evalCooldownSuffix),
                           ] else
-                            const TextSpan(text: 'Compiler siap menerima submisi kode baru.'),
+                            TextSpan(text: l10n.evalCooldownReady),
                         ],
                       ),
                     ),
@@ -309,13 +314,13 @@ class _EvaluationBodyState extends State<_EvaluationBody> {
 
         // Action Buttons
         AppButton(
-          label: ok ? 'Lanjut ke Tantangan Berikutnya' : 'Perbaiki Solusi Koding',
+          label: ok ? l10n.evalNextChallenge : l10n.evalFixSolution,
           trailingIcon: Icons.arrow_forward_rounded,
           onPressed: ok ? widget.onBack : () => Navigator.of(context).pop(),
         ),
         const SizedBox(height: AppSpacing.xs),
         AppButton(
-          label: 'Lihat Riwayat Submisi',
+          label: l10n.challengeViewHistory,
           kind: AppButtonKind.text,
           trailingIcon: Icons.history_rounded,
           onPressed: widget.onHistory,
@@ -381,6 +386,7 @@ class _ResultRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final p = context.palette;
+    final l10n = AppLocalizations.of(context);
     final r = result;
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
@@ -415,7 +421,7 @@ class _ResultRow extends StatelessWidget {
                           borderRadius: BorderRadius.circular(4),
                         ),
                         child: Text(
-                          'Hidden',
+                          l10n.evalHiddenBadge,
                           style: TextStyle(fontSize: 9.5, fontWeight: FontWeight.bold, color: p.primary),
                         ),
                       ),
@@ -440,7 +446,7 @@ class _ResultRow extends StatelessWidget {
               borderRadius: BorderRadius.circular(6),
             ),
             child: Text(
-              r.passed ? 'Lolos' : 'Gagal',
+              r.passed ? l10n.challengePassed : l10n.challengeFailed,
               style: TextStyle(
                 color: r.passed ? p.success : p.error,
                 fontWeight: FontWeight.bold,

@@ -4,6 +4,7 @@ import '../../../../../core/theme/app_palette.dart';
 import '../../../../../core/theme/app_spacing.dart';
 import '../../../../../core/theme/app_typography.dart';
 import '../../../../../core/widgets/app_card.dart';
+import '../../../../../l10n/app_localizations.dart';
 import '../../../domain/slide_models.dart';
 
 class OutroSlideWidget extends StatelessWidget {
@@ -25,6 +26,7 @@ class OutroSlideWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final p = context.palette;
+    final l10n = AppLocalizations.of(context);
 
     return SingleChildScrollView(
       padding: const EdgeInsets.fromLTRB(AppSpacing.screen, AppSpacing.lg, AppSpacing.screen, AppSpacing.xxl),
@@ -76,14 +78,14 @@ class OutroSlideWidget extends StatelessWidget {
                       Icon(Icons.star_rounded, color: p.accent, size: 24),
                       const SizedBox(height: 4),
                       Text(
-                        '+$_xp XP',
+                        l10n.challengeXpPlus(_xp),
                         style: AppTypography.titleM.copyWith(
                           fontWeight: FontWeight.bold,
                           color: p.text,
                         ),
                       ),
                       Text(
-                        'Hadiah XP',
+                        l10n.slideOutroXpReward,
                         style: AppTypography.caption.copyWith(color: p.textMuted),
                       ),
                     ],
@@ -107,7 +109,7 @@ class OutroSlideWidget extends StatelessWidget {
                         ),
                       ),
                       Text(
-                        'Akurasi',
+                        l10n.slideOutroAccuracy,
                         style: AppTypography.caption.copyWith(color: p.textMuted),
                       ),
                     ],
@@ -131,7 +133,7 @@ class OutroSlideWidget extends StatelessWidget {
                         ),
                       ),
                       Text(
-                        'Waktu Belajar',
+                        l10n.slideOutroLearningTime,
                         style: AppTypography.caption.copyWith(color: p.textMuted),
                       ),
                     ],
@@ -152,7 +154,7 @@ class OutroSlideWidget extends StatelessWidget {
                     Icon(Icons.verified_rounded, color: p.success, size: 22),
                     const SizedBox(width: 8),
                     Text(
-                      'Konsep yang Kamu Kuasai',
+                      l10n.slideOutroMasteredConcepts,
                       style: AppTypography.titleM.copyWith(
                         color: p.text,
                         fontWeight: FontWeight.bold,

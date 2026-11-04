@@ -6,6 +6,7 @@ import '../../../../../core/theme/app_typography.dart';
 import '../../../../../core/widgets/app_card.dart';
 import '../../../../../core/widgets/app_tag.dart';
 import '../../../../../core/widgets/code_window_shell.dart';
+import '../../../../../l10n/app_localizations.dart';
 import '../../../domain/slide_models.dart';
 
 class TapToFillSlideWidget extends StatefulWidget {
@@ -98,6 +99,7 @@ class TapToFillSlideWidgetState extends State<TapToFillSlideWidget> {
   @override
   Widget build(BuildContext context) {
     final p = context.palette;
+    final l10n = AppLocalizations.of(context);
     var slotCounter = 0;
 
     return SingleChildScrollView(
@@ -108,7 +110,7 @@ class TapToFillSlideWidgetState extends State<TapToFillSlideWidget> {
           Row(
             children: [
               AppTag(
-                'Susun Sintaks',
+                l10n.slideBadgeArrangeSyntax,
                 background: p.primaryContainer,
                 foreground: p.primary,
                 icon: Icons.dashboard_customize_rounded,
@@ -122,7 +124,7 @@ class TapToFillSlideWidgetState extends State<TapToFillSlideWidget> {
           ),
           const SizedBox(height: AppSpacing.sm),
           Text(
-            'Ketuk balok kode di bawah untuk mengisi slot kosong yang sesuai:',
+            l10n.slideTapToFillInstruction,
             style: AppTypography.bodyM.copyWith(color: p.textMuted),
           ),
           const SizedBox(height: AppSpacing.lg),
@@ -211,7 +213,7 @@ class TapToFillSlideWidgetState extends State<TapToFillSlideWidget> {
           ),
           const SizedBox(height: AppSpacing.xl),
           Text(
-            'Bank Balok Kata:',
+            l10n.slideWordBank,
             style: AppTypography.label.copyWith(color: p.textMuted, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: AppSpacing.sm),

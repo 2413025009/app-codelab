@@ -28,6 +28,8 @@ import '../../../../core/widgets/avatars.dart';
 import '../../../auth/domain/auth_repository.dart';
 import '../../../auth/presentation/cubit/auth_cubit.dart';
 import '../../../profile/presentation/widgets/change_password_sheet.dart';
+import '../../../../l10n/app_localizations.dart';
+import '../../../../l10n/l10n_ext.dart';
 
 class TeacherSettingsPage extends StatefulWidget {
   const TeacherSettingsPage({super.key});
@@ -37,6 +39,9 @@ class TeacherSettingsPage extends StatefulWidget {
 }
 
 class _TeacherSettingsPageState extends State<TeacherSettingsPage> {
+  /// Pintasan kamus UI supaya semua pembangun layar ini konsisten.
+  AppLocalizations get l10n => AppLocalizations.of(context);
+
   final _formKey = GlobalKey<FormState>();
 
   late final TextEditingController _nameController;
@@ -139,15 +144,15 @@ class _TeacherSettingsPageState extends State<TeacherSettingsPage> {
         fileName: picked.name.trim().isEmpty ? 'avatar.jpg' : picked.name,
       );
       if (mounted) {
-        showAppSnack(context, 'Foto profil berhasil diperbarui.');
+        showAppSnack(context, l10n.settingsAvatarUpdated);
       }
     } on AuthFailure catch (e) {
-      if (mounted) showAppSnack(context, e.message);
+      if (mounted) showAppSnack(context, e.messageL10n(l10n));
     } catch (_) {
       if (mounted) {
         showAppSnack(
           context,
-          'Foto profil gagal diproses. Periksa izin galeri dan koneksi, lalu coba lagi.',
+          l10n.settingsAvatarProcessFailed,
         );
       }
     } finally {
@@ -164,17 +169,17 @@ class _TeacherSettingsPageState extends State<TeacherSettingsPage> {
       builder: (ctx) => AlertDialog(
         backgroundColor: p.surface,
         title: Text(
-          'Hapus Foto Profil?',
+          l10n.settingsAvatarDeleteTitle,
           style: AppTypography.titleM.copyWith(color: p.text),
         ),
         content: Text(
-          'Foto akan dihapus dari akunmu. Kamu bisa mengunggah foto baru kapan saja.',
+          l10n.settingsAvatarDeleteBody,
           style: AppTypography.bodyM.copyWith(color: p.textMuted),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(false),
-            child: Text('Batal', style: TextStyle(color: p.textMuted)),
+            child: Text(l10n.actionCancel, style: TextStyle(color: p.textMuted)),
           ),
           ElevatedButton(
             style: ElevatedButton.styleFrom(
@@ -182,7 +187,7 @@ class _TeacherSettingsPageState extends State<TeacherSettingsPage> {
               foregroundColor: Colors.white,
             ),
             onPressed: () => Navigator.of(ctx).pop(true),
-            child: const Text('Hapus'),
+            child: Text(l10n.actionDelete),
           ),
         ],
       ),
@@ -192,14 +197,14 @@ class _TeacherSettingsPageState extends State<TeacherSettingsPage> {
     setState(() => _isUploadingAvatar = true);
     try {
       await cubit.deleteAvatar();
-      if (mounted) showAppSnack(context, 'Foto profil dihapus.');
+      if (mounted) showAppSnack(context, l10n.settingsAvatarDeleted);
     } on AuthFailure catch (e) {
-      if (mounted) showAppSnack(context, e.message);
+      if (mounted) showAppSnack(context, e.messageL10n(l10n));
     } catch (_) {
       if (mounted) {
         showAppSnack(
           context,
-          'Foto profil gagal dihapus. Periksa koneksi lalu coba lagi.',
+          l10n.settingsAvatarDeleteFailed,
         );
       }
     } finally {
@@ -222,19 +227,19 @@ class _TeacherSettingsPageState extends State<TeacherSettingsPage> {
       );
       if (mounted) {
         SoundService.playProfileSaved();
-        showAppSnack(context, 'Data profil pengajar berhasil diperbarui.');
+        showAppSnack(context, l10n.settingsProfileSaved);
         setState(() {
           _isEditing = false;
           _syncFieldsToUser();
         });
       }
     } on AuthFailure catch (e) {
-      if (mounted) showAppSnack(context, e.message);
+      if (mounted) showAppSnack(context, e.messageL10n(l10n));
     } catch (_) {
       if (mounted) {
         showAppSnack(
           context,
-          'Gagal memperbarui profil. Periksa koneksi dan coba lagi.',
+          l10n.settingsProfileSaveFailed,
         );
       }
     } finally {
@@ -245,54 +250,10 @@ class _TeacherSettingsPageState extends State<TeacherSettingsPage> {
   void _openChangePassword() {
     showAppSheet<void>(
       context,
-      title: 'Ubah Kata Sandi',
-      subtitle: 'Aturan sandi sama seperti saat mendaftar akun.',
+      title: l10n.settingsChangePassword,
+      subtitle: l10n.settingsChangePasswordSheetSubtitle,
       builder: (_) => const ChangePasswordSheet(),
     );
-  }
-
-  /// Pilih bahasa antarmuka (Indonesia / English).
-  Future<void> _pickLanguage() async {
-    final selected = await showModalBottomSheet<Locale>(
-      context: context,
-      builder: (ctx) => SafeArea(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            ListTile(
-              title: const Text('Bahasa Aplikasi'),
-              subtitle: const Text('Berlaku untuk seluruh layar CodeLab AI'),
-              titleTextStyle: AppTypography.titleM.copyWith(
-                color: context.palette.text,
-              ),
-            ),
-            RadioGroup<String>(
-              groupValue: AppPreferences.instance.locale.languageCode,
-              onChanged: (value) {
-                if (value != null) Navigator.of(ctx).pop(Locale(value));
-              },
-              child: const Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  RadioListTile<String>(
-                    value: 'id',
-                    title: Text('Indonesia'),
-                  ),
-                  RadioListTile<String>(
-                    value: 'en',
-                    title: Text('English'),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-    if (selected != null) {
-      await AppPreferences.instance.setLocale(selected);
-      if (mounted) setState(() {});
-    }
   }
 
   /// Dekorasi kolom profil: mode baca tampil datar tanpa border, mode edit
@@ -379,6 +340,7 @@ class _TeacherSettingsPageState extends State<TeacherSettingsPage> {
   @override
   Widget build(BuildContext context) {
     final p = context.palette;
+    final l10n = AppLocalizations.of(context);
     final user = context.watch<AuthCubit>().state.user;
     final schoolName = user?.schoolName?.trim() ?? '';
     final hasAvatar = user?.avatarUrl?.trim().isNotEmpty ?? false;
@@ -389,14 +351,14 @@ class _TeacherSettingsPageState extends State<TeacherSettingsPage> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Pengaturan Profil',
+              l10n.settingsTitle,
               style: AppTypography.titleM.copyWith(
                 color: p.text,
                 fontWeight: FontWeight.bold,
               ),
             ),
             Text(
-              'Kelola data pribadi & preferensi akun gurumu',
+              l10n.settingsChangePasswordSheetSubtitle,
               style: AppTypography.caption.copyWith(
                 color: p.textMuted,
                 fontSize: 11,
@@ -469,7 +431,7 @@ class _TeacherSettingsPageState extends State<TeacherSettingsPage> {
                               ),
                               const SizedBox(height: 8),
                               Text(
-                                'Foto Profil',
+                                l10n.settingsChangePhoto,
                                 style: AppTypography.labelL.copyWith(
                                   color: p.text,
                                   fontWeight: FontWeight.bold,
@@ -477,7 +439,7 @@ class _TeacherSettingsPageState extends State<TeacherSettingsPage> {
                               ),
                               const SizedBox(height: 2),
                               Text(
-                                'JPG atau PNG, maksimal 2 MB.',
+                                l10n.settingsAvatarMaxSize,
                                 style: AppTypography.caption.copyWith(
                                   color: p.textMuted,
                                 ),
@@ -498,7 +460,7 @@ class _TeacherSettingsPageState extends State<TeacherSettingsPage> {
                                       size: 18,
                                     ),
                                     label: Text(
-                                      hasAvatar ? 'Ganti Foto' : 'Unggah Foto',
+                                      hasAvatar ? l10n.settingsChangePhoto : l10n.settingsChangePhoto,
                                     ),
                                   ),
                                   if (hasAvatar)
@@ -510,7 +472,7 @@ class _TeacherSettingsPageState extends State<TeacherSettingsPage> {
                                         Icons.delete_outline_rounded,
                                         size: 18,
                                       ),
-                                      label: const Text('Hapus Foto'),
+                                      label: Text(l10n.actionDelete),
                                       style: TextButton.styleFrom(
                                         foregroundColor: p.error,
                                       ),
@@ -573,7 +535,7 @@ class _TeacherSettingsPageState extends State<TeacherSettingsPage> {
                                       const SizedBox(width: AppSpacing.sm),
                                       Expanded(
                                         child: Text(
-                                          'Mode edit aktif — ubah datamu, lalu tekan "Simpan Perubahan".',
+                                          l10n.settingsEditModeHint,
                                           style: AppTypography.caption.copyWith(
                                             color: p.primary,
                                             fontWeight: FontWeight.bold,
@@ -586,16 +548,16 @@ class _TeacherSettingsPageState extends State<TeacherSettingsPage> {
                                 ),
                               _buildLabeledInput(
                                 context: context,
-                                label: 'Nama Lengkap & Gelar *',
+                                label: '${l10n.settingsFieldFullName} & Gelar *',
                                 controller: _nameController,
                                 hintText:
                                     'Contoh: Drs. Bambang Sutrisno, M.Kom',
-                                validator: Validators.name,
+                                validator: (v) => Validators.name(v, l10n),
                               ),
                               const SizedBox(height: AppSpacing.md),
                               _buildLabeledInput(
                                 context: context,
-                                label: 'NIP / NUPTK',
+                                label: l10n.settingsFieldStaffCode,
                                 controller: _staffCodeController,
                                 hintText: 'Contoh: 19850723 201001 1 008',
                               ),
@@ -603,7 +565,7 @@ class _TeacherSettingsPageState extends State<TeacherSettingsPage> {
 
                               // Asal Sekolah (Dapodik Verified)
                               Text(
-                                'Unit Satuan Pendidikan',
+                                l10n.settingsFieldAffiliatedSchool,
                                 style: AppTypography.labelSm.copyWith(
                                   color: p.text,
                                   fontWeight: FontWeight.w600,
@@ -639,7 +601,7 @@ class _TeacherSettingsPageState extends State<TeacherSettingsPage> {
                                         children: [
                                           Text(
                                             schoolName.isEmpty
-                                                ? 'Sekolah belum terhubung'
+                                                ? l10n.settingsFieldAffiliatedSchool
                                                 : schoolName,
                                             style: AppTypography.labelL
                                                 .copyWith(
@@ -658,7 +620,7 @@ class _TeacherSettingsPageState extends State<TeacherSettingsPage> {
                                                 ),
                                                 const SizedBox(width: 4),
                                                 Text(
-                                                  'Terhubung lewat kode sekolah',
+                                                  l10n.settingsBadgeVerified,
                                                   style: AppTypography.caption
                                                       .copyWith(
                                                         color: p.primary,
@@ -706,7 +668,7 @@ class _TeacherSettingsPageState extends State<TeacherSettingsPage> {
                                     MainAxisAlignment.spaceBetween,
                                 children: [
                                   Text(
-                                    'Bio Singkat Pengajar',
+                                    l10n.settingsFieldTeacherBio,
                                     style: AppTypography.labelSm.copyWith(
                                       color: p.text,
                                       fontWeight: FontWeight.w600,
@@ -738,7 +700,7 @@ class _TeacherSettingsPageState extends State<TeacherSettingsPage> {
 
                               _buildLabeledInput(
                                 context: context,
-                                label: 'Alamat',
+                                label: l10n.settingsFieldAddress,
                                 controller: _addressController,
                                 hintText: 'Alamat domisili pengajar',
                                 maxLines: 2,
@@ -747,7 +709,7 @@ class _TeacherSettingsPageState extends State<TeacherSettingsPage> {
 
                               // WhatsApp dengan prefix bendera +62
                               Text(
-                                'Nomor WhatsApp / Telepon',
+                                l10n.settingsFieldPhone,
                                 style: AppTypography.labelSm.copyWith(
                                   color: p.text,
                                   fontWeight: FontWeight.w600,
@@ -797,7 +759,7 @@ class _TeacherSettingsPageState extends State<TeacherSettingsPage> {
                                         if (digits.isEmpty) return null;
                                         if (digits.length < 8 ||
                                             digits.length > 15) {
-                                          return 'Nomor belum lengkap.';
+                                          return l10n.settingsPhoneIncomplete;
                                         }
                                         return null;
                                       },
@@ -813,11 +775,12 @@ class _TeacherSettingsPageState extends State<TeacherSettingsPage> {
                               // Email akun bisa diubah, wajib @smk.belajar.id.
                               _buildLabeledInput(
                                 context: context,
-                                label: 'Email Akun (wajib @smk.belajar.id)',
+                                label: '${l10n.settingsFieldTeacherEmail} (${l10n.settingsEmailAside})',
                                 controller: _emailController,
                                 hintText: 'nama@smk.belajar.id',
                                 keyboardType: TextInputType.emailAddress,
-                                validator: Validators.schoolEmail,
+                                validator: (v) =>
+                                    Validators.schoolEmail(v, l10n),
                               ),
                               const SizedBox(height: AppSpacing.lg),
                               if (_isEditing) ...[
@@ -825,7 +788,7 @@ class _TeacherSettingsPageState extends State<TeacherSettingsPage> {
                                   children: [
                                     Expanded(
                                       child: AppButton(
-                                        label: 'Simpan Perubahan',
+                                        label: l10n.settingsSaveChanges,
                                         loading: _isSaving,
                                         onPressed: _handleSave,
                                       ),
@@ -833,7 +796,7 @@ class _TeacherSettingsPageState extends State<TeacherSettingsPage> {
                                     const SizedBox(width: AppSpacing.sm),
                                     Expanded(
                                       child: AppButton(
-                                        label: 'Batalkan',
+                                        label: l10n.settingsCancelEdit,
                                         kind: AppButtonKind.secondary,
                                         leadingIcon: Icons.close_rounded,
                                         onPressed: _isSaving
@@ -845,7 +808,7 @@ class _TeacherSettingsPageState extends State<TeacherSettingsPage> {
                                 ),
                               ] else
                                 AppButton(
-                                  label: 'Edit Data',
+                                  label: l10n.settingsEditData,
                                   kind: AppButtonKind.secondary,
                                   leadingIcon: Icons.edit_outlined,
                                   onPressed: _startEditing,
@@ -901,7 +864,7 @@ class _TeacherSettingsPageState extends State<TeacherSettingsPage> {
                                   ),
                                 ),
                                 subtitle: Text(
-                                  'Ganti kata sandi akun pengajar',
+                                  l10n.settingsChangePasswordSubtitle,
                                   style: AppTypography.caption.copyWith(
                                     color: p.textMuted,
                                   ),
@@ -919,7 +882,7 @@ class _TeacherSettingsPageState extends State<TeacherSettingsPage> {
 
                         // Section 4: Preferensi Aplikasi (disimpan lokal).
                         Text(
-                          'PREFERENSI APLIKASI',
+                          l10n.settingsPreferencesHeader,
                           style: AppTypography.caption.copyWith(
                             color: p.textMuted,
                             letterSpacing: 1.1,
@@ -931,14 +894,33 @@ class _TeacherSettingsPageState extends State<TeacherSettingsPage> {
                           padding: EdgeInsets.zero,
                           child: Column(
                             children: [
+                              // Pilihan bahasa untuk pengajar dibuat
+                              // readonly: nilai aktif tetap terlihat, tetapi
+                              // tidak dapat diubah dari halaman ini.
                               ListTile(
-                                leading: Icon(Icons.translate, color: p.primary),
-                                title: const Text('Bahasa Aplikasi'),
-                                subtitle: Text(
-                                  'Indonesia atau English',
-                                  style: AppTypography.caption.copyWith(
-                                    color: p.textMuted,
-                                  ),
+                                enabled: false,
+                                leading: Icon(
+                                  Icons.translate,
+                                  color: p.textMuted,
+                                ),
+                                title: Text(l10n.settingsLanguage),
+                                subtitle: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Text(
+                                      l10n.settingsLanguageSubtitle,
+                                      style: AppTypography.caption.copyWith(
+                                        color: p.textMuted,
+                                      ),
+                                    ),
+                                    Text(
+                                      l10n.settingsLanguageTeacherLocked,
+                                      style: AppTypography.caption.copyWith(
+                                        color: p.textMuted,
+                                      ),
+                                    ),
+                                  ],
                                 ),
                                 trailing: Row(
                                   mainAxisSize: MainAxisSize.min,
@@ -949,10 +931,14 @@ class _TeacherSettingsPageState extends State<TeacherSettingsPage> {
                                         color: p.textMuted,
                                       ),
                                     ),
-                                    const Icon(Icons.chevron_right),
+                                    const SizedBox(width: 6),
+                                    Icon(
+                                      Icons.lock_outline_rounded,
+                                      size: 18,
+                                      color: p.textMuted,
+                                    ),
                                   ],
                                 ),
-                                onTap: _pickLanguage,
                               ),
                               Divider(
                                 height: 1,
@@ -963,9 +949,9 @@ class _TeacherSettingsPageState extends State<TeacherSettingsPage> {
                                   Icons.dark_mode_outlined,
                                   color: p.primary,
                                 ),
-                                title: const Text('Mode Gelap'),
+                                title: Text(l10n.settingsDarkMode),
                                 subtitle: Text(
-                                  'Tema gelap untuk mata yang lebih nyaman',
+                                  l10n.settingsDarkModeSubtitle,
                                   style: AppTypography.caption.copyWith(
                                     color: p.textMuted,
                                   ),
@@ -996,7 +982,7 @@ class _TeacherSettingsPageState extends State<TeacherSettingsPage> {
                                   'Notifikasi Pengumpulan Tugas',
                                 ),
                                 subtitle: Text(
-                                  'Simpan pilihan notifikasi di perangkat ini',
+                                  l10n.settingsCurriculumSubtitle,
                                   style: AppTypography.caption.copyWith(
                                     color: p.textMuted,
                                   ),
@@ -1021,9 +1007,9 @@ class _TeacherSettingsPageState extends State<TeacherSettingsPage> {
                                   Icons.volume_up_outlined,
                                   color: p.primary,
                                 ),
-                                title: const Text('Efek Suara Aplikasi'),
+                                title: Text(l10n.settingsSfx),
                                 subtitle: Text(
-                                  'Suara popup, notifikasi, dan kuis',
+                                  l10n.settingsSfxSubtitle,
                                   style: AppTypography.caption.copyWith(
                                     color: p.textMuted,
                                   ),
@@ -1044,9 +1030,9 @@ class _TeacherSettingsPageState extends State<TeacherSettingsPage> {
                                   Icons.terminal_outlined,
                                   color: p.primary,
                                 ),
-                                title: const Text('Efek Suara Lab'),
+                                title: Text(l10n.settingsLabSfx),
                                 subtitle: Text(
-                                  'Audio saat eksekusi kode & terminal',
+                                  l10n.settingsLabSfxSubtitle,
                                   style: AppTypography.caption.copyWith(
                                     color: p.textMuted,
                                   ),

@@ -6,6 +6,7 @@ import '../../../../core/theme/app_typography.dart';
 import '../../../../core/widgets/app_card.dart';
 import '../../../../core/widgets/app_tag.dart';
 import '../../../../core/widgets/competency_radar.dart';
+import '../../../../l10n/app_localizations.dart';
 import '../../domain/dashboard_repository.dart';
 
 /// "Lanjutkan Belajar" card matching Stitch v2 (20px rounded, clean progress bar, topic & bab indicator).
@@ -26,6 +27,7 @@ class ResumeCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final p = context.palette;
+    final l10n = AppLocalizations.of(context);
     final r = resume;
     final progress = r?.progress ?? 0.0;
     final percent = (progress * 100).round();
@@ -57,7 +59,7 @@ class ResumeCard extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    (r?.topic ?? 'Python Dasar & Logika').toUpperCase(),
+                    (r?.topic ?? l10n.dashDefaultTopic).toUpperCase(),
                     style: AppTypography.caption.copyWith(
                       letterSpacing: 0.8,
                       fontWeight: FontWeight.w600,
@@ -66,7 +68,7 @@ class ResumeCard extends StatelessWidget {
                     ),
                   ),
                   Text(
-                    'Bab $currentChapter dari $totalChapters',
+                    l10n.dashBabOf(currentChapter, totalChapters),
                     style: AppTypography.caption.copyWith(
                       fontWeight: FontWeight.w600,
                       color: p.primary,
@@ -82,7 +84,7 @@ class ResumeCard extends StatelessWidget {
                 children: [
                   Expanded(
                     child: Text(
-                      r?.title ?? '1. Pengenalan Logika Koding',
+                      r?.title ?? l10n.dashDefaultChapter,
                       style: AppTypography.bodyL.copyWith(
                         fontWeight: FontWeight.w600,
                         color: p.text,
@@ -94,7 +96,7 @@ class ResumeCard extends StatelessWidget {
                   ),
                   const SizedBox(width: AppSpacing.sm),
                   Text(
-                    '$percent% Selesai',
+                    l10n.dashPercentDone(percent),
                     style: AppTypography.caption.copyWith(
                       fontWeight: FontWeight.w600,
                       color: p.textMuted,
@@ -147,6 +149,7 @@ class CompetencyCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final p = context.palette;
+    final l10n = AppLocalizations.of(context);
     return AppCard(
       padding: const EdgeInsets.all(AppSpacing.xl),
       child: Column(
@@ -156,7 +159,7 @@ class CompetencyCard extends StatelessWidget {
             children: [
               Expanded(
                 child: Text(
-                  'Kompetensimu',
+                  l10n.dashCompetencyTitle,
                   style: AppTypography.titleM.copyWith(color: p.text),
                 ),
               ),
@@ -166,7 +169,7 @@ class CompetencyCard extends StatelessWidget {
                 ),
                 onPressed: onDetail,
                 child: Text(
-                  'Lihat detail',
+                  l10n.actionSeeDetail,
                   style: AppTypography.label.copyWith(color: p.primary),
                 ),
               ),
@@ -209,7 +212,7 @@ class CompetencyCard extends StatelessWidget {
                   const SizedBox(width: AppSpacing.lg),
                   Expanded(
                     child: Text(
-                      'Selesaikan satu tantangan, nanti kompetensimu muncul di sini.',
+                      l10n.dashCompetencyEmpty,
                       style: AppTypography.bodyM.copyWith(color: p.textMuted),
                     ),
                   ),
@@ -309,16 +312,17 @@ class _PathItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final p = context.palette;
+    final l10n = AppLocalizations.of(context);
     final m = module;
     final locked = m.status == ModuleStatus.locked;
     final active = m.status == ModuleStatus.active;
 
     final statusLabel = switch (m.status) {
-      ModuleStatus.completed => 'Selesai',
-      ModuleStatus.active => 'Sedang dipelajari',
+      ModuleStatus.completed => l10n.moduleStatusCompleted,
+      ModuleStatus.active => l10n.moduleStatusActive,
       // Minggu 9: bab tidak lagi berantai terkunci — 'available' = terbuka.
-      ModuleStatus.available => 'Bisa dikerjakan',
-      ModuleStatus.locked => 'Terkunci',
+      ModuleStatus.available => l10n.moduleStatusAvailable,
+      ModuleStatus.locked => l10n.moduleStatusLocked,
     };
 
     return Semantics(
@@ -363,7 +367,7 @@ class _PathItem extends StatelessWidget {
                           ),
                           if (m.status == ModuleStatus.completed)
                             Text(
-                              'Selesai',
+                              l10n.moduleStatusCompleted,
                               style: AppTypography.caption.copyWith(
                                 color: p.success,
                                 fontWeight: FontWeight.w700,
@@ -374,7 +378,7 @@ class _PathItem extends StatelessWidget {
                       if (active) ...[
                         const SizedBox(height: 6),
                         AppTag(
-                          'Sedang dipelajari',
+                          l10n.moduleStatusActive,
                           background: p.primaryContainer,
                           foreground: p.primary,
                         ),

@@ -4,11 +4,16 @@ import '../../../../../core/theme/app_palette.dart';
 import '../../../../../core/theme/app_spacing.dart';
 import '../../../../../core/theme/app_typography.dart';
 import '../../../../../core/widgets/app_button.dart';
+import '../../../../../l10n/app_localizations.dart';
 
 /// Sheet feedback jawaban slide — mengikuti Stitch v2
 /// modal_feedback_evaluasi_benar_salah / jawaban_salah:
 /// sheet putih dengan handle, badge pedagogis, kartu konsep/petunjuk,
-/// dan aksi [Tanya AI Tutor | Coba Lagi] atau CTA lanjut tunggal.
+/// dan aksi [Coba Lagi] atau CTA lanjut tunggal.
+///
+/// Catatan Minggu 11: AI Tutor sengaja TIDAK lagi tampil di layar materi.
+/// Pendampingan AI hanya untuk latihan koding (halaman tantangan), agar
+/// membaca materi tetap tenang dan tidak memecah fokus.
 class SlideFeedbackSheet extends StatelessWidget {
   const SlideFeedbackSheet({
     super.key,
@@ -17,7 +22,6 @@ class SlideFeedbackSheet extends StatelessWidget {
     required this.message,
     required this.onContinue,
     this.onRetry,
-    this.onAskTutor,
   });
 
   final bool isCorrect;
@@ -25,7 +29,6 @@ class SlideFeedbackSheet extends StatelessWidget {
   final String message;
   final VoidCallback onContinue;
   final VoidCallback? onRetry;
-  final VoidCallback? onAskTutor;
 
   static Future<void> show(
     BuildContext context, {
@@ -34,7 +37,6 @@ class SlideFeedbackSheet extends StatelessWidget {
     required String message,
     required VoidCallback onContinue,
     VoidCallback? onRetry,
-    VoidCallback? onAskTutor,
   }) {
     return showModalBottomSheet(
       context: context,
@@ -47,7 +49,6 @@ class SlideFeedbackSheet extends StatelessWidget {
         message: message,
         onContinue: onContinue,
         onRetry: onRetry,
-        onAskTutor: onAskTutor,
       ),
     );
   }
@@ -95,6 +96,7 @@ class SlideFeedbackSheet extends StatelessWidget {
 
   // --- STATE 1: Sukses ("Langkah Tervalidasi") ---
   List<Widget> _successBody(BuildContext context, AppPalette p) {
+    final l10n = AppLocalizations.of(context);
     return [
       Row(
         children: [
@@ -109,7 +111,7 @@ class SlideFeedbackSheet extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
             decoration: BoxDecoration(color: p.successContainer, borderRadius: BorderRadius.circular(999)),
             child: Text(
-              'Langkah Tervalidasi',
+              l10n.slideBadgeValidated,
               style: AppTypography.label.copyWith(color: p.success, fontSize: 13, fontWeight: FontWeight.bold),
             ),
           ),
@@ -122,7 +124,7 @@ class SlideFeedbackSheet extends StatelessWidget {
               children: [
                 Icon(Icons.save_rounded, size: 14, color: p.textMuted),
                 const SizedBox(width: 6),
-                Text('Progres Tersimpan', style: AppTypography.label.copyWith(color: p.textMuted, fontSize: 11)),
+                Text(l10n.slideProgressSaved, style: AppTypography.label.copyWith(color: p.textMuted, fontSize: 11)),
               ],
             ),
           ),
@@ -137,10 +139,10 @@ class SlideFeedbackSheet extends StatelessWidget {
         style: AppTypography.titleM.copyWith(color: p.text, fontWeight: FontWeight.bold),
       ),
       const SizedBox(height: AppSpacing.md),
-      _ConceptCard(icon: Icons.menu_book_rounded, title: 'Mengapa Jawabanmu Benar?', body: message, palette: p),
+      _ConceptCard(icon: Icons.menu_book_rounded, title: l10n.slideWhyCorrect, body: message, palette: p),
       const SizedBox(height: AppSpacing.lg),
       AppButton(
-        label: 'Lanjut ke Slide Berikutnya',
+        label: l10n.slideNextSlide,
         trailingIcon: Icons.arrow_forward_rounded,
         onPressed: () {
           Navigator.of(context).pop();
@@ -152,6 +154,7 @@ class SlideFeedbackSheet extends StatelessWidget {
 
   // --- STATE 2: Salah ("Evaluasi Sintaksis") ---
   List<Widget> _errorBody(BuildContext context, AppPalette p) {
+    final l10n = AppLocalizations.of(context);
     return [
       Row(
         children: [
@@ -159,14 +162,14 @@ class SlideFeedbackSheet extends StatelessWidget {
             width: 40,
             height: 40,
             decoration: BoxDecoration(color: p.warningContainer, shape: BoxShape.circle),
-            child: Icon(Icons.smart_toy_rounded, color: p.warningText, size: 24),
+            child: Icon(Icons.rule_rounded, color: p.warningText, size: 24),
           ),
           const SizedBox(width: AppSpacing.sm),
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
             decoration: BoxDecoration(color: p.warningContainer, borderRadius: BorderRadius.circular(999)),
             child: Text(
-              'Evaluasi Sintaksis',
+              l10n.slideSyntaxEvaluation,
               style: AppTypography.label.copyWith(color: p.warningText, fontSize: 13, fontWeight: FontWeight.bold),
             ),
           ),
@@ -180,7 +183,7 @@ class SlideFeedbackSheet extends StatelessWidget {
                 Icon(Icons.refresh_rounded, size: 14, color: p.textMuted),
                 const SizedBox(width: 6),
                 Text(
-                  '0 XP • Semangat Coba Lagi',
+                  l10n.slideZeroXpTryAgain,
                   style: AppTypography.label.copyWith(color: p.textMuted, fontSize: 11),
                 ),
               ],
@@ -198,39 +201,19 @@ class SlideFeedbackSheet extends StatelessWidget {
       ),
       const SizedBox(height: AppSpacing.xs),
       Text(
-        'Jangan khawatir, kesalahan kecil adalah bagian alami dari proses belajar koding.',
+        l10n.slideErrorEncouragement,
         style: AppTypography.bodyM.copyWith(color: p.textMuted),
       ),
       const SizedBox(height: AppSpacing.md),
       _HintCard(body: message, palette: p),
       const SizedBox(height: AppSpacing.lg),
-      Row(
-        children: [
-          Expanded(
-            child: AppButton(
-              label: 'Tanya AI Tutor',
-              kind: AppButtonKind.secondary,
-              leadingIcon: Icons.help_outline_rounded,
-              onPressed: onAskTutor != null
-                  ? () {
-                      Navigator.of(context).pop();
-                      onAskTutor?.call();
-                    }
-                  : null,
-            ),
-          ),
-          const SizedBox(width: AppSpacing.md),
-          Expanded(
-            child: AppButton(
-              label: 'Coba Lagi',
-              leadingIcon: Icons.restart_alt_rounded,
-              onPressed: () {
-                Navigator.of(context).pop();
-                onRetry?.call();
-              },
-            ),
-          ),
-        ],
+      AppButton(
+        label: l10n.actionRetry,
+        leadingIcon: Icons.restart_alt_rounded,
+        onPressed: () {
+          Navigator.of(context).pop();
+          onRetry?.call();
+        },
       ),
       const SizedBox(height: AppSpacing.xs),
       TextButton(
@@ -238,7 +221,7 @@ class SlideFeedbackSheet extends StatelessWidget {
           Navigator.of(context).pop();
           onContinue();
         },
-        child: Text('Lewati Slide →', style: AppTypography.label.copyWith(color: p.textMuted)),
+        child: Text(l10n.slideSkipArrow, style: AppTypography.label.copyWith(color: p.textMuted)),
       ),
     ];
   }
@@ -290,6 +273,7 @@ class _HintCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final p = palette;
+    final l10n = AppLocalizations.of(context);
     return Container(
       padding: const EdgeInsets.all(AppSpacing.md),
       decoration: BoxDecoration(
@@ -305,7 +289,7 @@ class _HintCard extends StatelessWidget {
               Icon(Icons.tips_and_updates_rounded, size: 20, color: p.warningText),
               const SizedBox(width: AppSpacing.sm),
               Text(
-                'Di Mana Letak Kesalahannya?',
+                l10n.slideWhereIsMistake,
                 style: AppTypography.label.copyWith(color: p.warningText, fontWeight: FontWeight.bold),
               ),
             ],

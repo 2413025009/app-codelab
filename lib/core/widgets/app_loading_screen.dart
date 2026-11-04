@@ -20,6 +20,7 @@ import 'package:flutter/material.dart';
 
 import '../theme/app_palette.dart';
 import '../theme/app_typography.dart';
+import '../../l10n/app_localizations.dart';
 
 class AppLoadingScreen extends StatefulWidget {
   const AppLoadingScreen({
@@ -31,12 +32,7 @@ class AppLoadingScreen extends StatefulWidget {
     this.stageLabel = '',
     this.showTips = true,
     this.compact = false,
-    this.tips = const [
-      'Tekan tombol "Uji Coba" dulu sebelum "Kumpulkan" — biar kuota harianmu aman.',
-      'Bantuan AI hanya memberi petunjuk, bukan kode jadi. Jawabnya tetap kerjamu.',
-      'Playground menjalankan Python langsung di perangkat — tetap aktif walau offline.',
-      'Kasus uji rahasia tinggal di server, tidak ikut terkirim ke HP siswa.',
-    ],
+    this.tips,
   });
 
   final String title;
@@ -46,7 +42,10 @@ class AppLoadingScreen extends StatefulWidget {
   final String stageLabel;
   final bool showTips;
   final bool compact;
-  final List<String> tips;
+
+  /// Tips belajar kustom. Bila `null`, widget memakai tips bawaan dalam
+  /// bahasa aplikasi aktif (lihat `build`).
+  final List<String>? tips;
 
   @override
   State<AppLoadingScreen> createState() => _AppLoadingScreenState();
@@ -60,18 +59,22 @@ class _AppLoadingScreenState extends State<AppLoadingScreen>
   )..repeat(reverse: true);
 
   static const _tipInterval = Duration(seconds: 6);
+
+  /// Jumlah tips bawaan (dipakai saat `tips` null).
+  static const _defaultTipCount = 4;
   int _tipIndex = 0;
   Timer? _tipTimer;
 
   @override
   void initState() {
     super.initState();
-    if (widget.tips.length > 1) {
-      _tipTimer = Timer.periodic(_tipInterval, (_) {
-        if (!mounted) return;
-        setState(() => _tipIndex = (_tipIndex + 1) % widget.tips.length);
-      });
-    }
+    if (!widget.showTips) return;
+    _tipTimer = Timer.periodic(_tipInterval, (_) {
+      if (!mounted) return;
+      final count = widget.tips?.length ?? _defaultTipCount;
+      if (count <= 1) return;
+      setState(() => _tipIndex = (_tipIndex + 1) % count);
+    });
   }
 
   @override
@@ -89,6 +92,17 @@ class _AppLoadingScreenState extends State<AppLoadingScreen>
   @override
   Widget build(BuildContext context) {
     final p = context.palette;
+    final l10n = AppLocalizations.of(context);
+    final tips = widget.tips ??
+        <String>[
+          l10n.loadingTipSubmitQuota(
+            l10n.challengeTryRun,
+            l10n.challengeSubmitSolution,
+          ),
+          l10n.loadingTipAiHint,
+          l10n.loadingTipPlayground,
+          l10n.loadingTipHiddenTests,
+        ];
     final titleStyle = AppTypography.titleL.copyWith(
       fontWeight: FontWeight.w800,
       color: p.text,
@@ -102,7 +116,7 @@ class _AppLoadingScreenState extends State<AppLoadingScreen>
             pulse: _pulse,
             progress: _progress,
             stageLabel: widget.stageLabel,
-            tips: widget.showTips ? widget.tips : const [],
+            tips: widget.showTips ? tips : const [],
             tipIndex: _tipIndex,
             title: widget.title,
           ),
@@ -150,13 +164,13 @@ class _AppLoadingScreenState extends State<AppLoadingScreen>
                 pulse: _pulse,
                 progress: _progress,
                 stageLabel: widget.stageLabel,
-                tips: widget.showTips ? widget.tips : const [],
+                tips: widget.showTips ? tips : const [],
                 tipIndex: _tipIndex,
                 title: widget.title,
               ),
               const SizedBox(height: AppSpacingDefaults.gapXl),
               Text(
-                'Versi 2.1 · Kurikulum Merdeka RPL',
+                l10n.loadingVersionFooter,
                 style: AppTypography.caption.copyWith(color: p.textMuted),
               ),
             ],

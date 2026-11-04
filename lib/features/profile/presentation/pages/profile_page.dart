@@ -15,6 +15,7 @@ import '../../../../core/widgets/app_refresh.dart';
 import '../../../../core/widgets/app_snack.dart';
 import '../../../../core/widgets/avatars.dart';
 import '../../../../core/widgets/competency_radar.dart';
+import '../../../../l10n/app_localizations.dart';
 import '../../../auth/domain/auth_repository.dart';
 import '../../../auth/presentation/cubit/auth_cubit.dart';
 import '../../../challenges/domain/challenge_repository.dart';
@@ -165,6 +166,7 @@ class _ProfilePageState extends State<ProfilePage> {
   @override
   Widget build(BuildContext context) {
     final p = context.palette;
+    final l10n = AppLocalizations.of(context);
     final user = context.watch<AuthCubit>().state.user;
 
     return Scaffold(
@@ -181,13 +183,13 @@ class _ProfilePageState extends State<ProfilePage> {
               child: Icon(Icons.terminal, color: p.onPrimary, size: 18),
             ),
             const SizedBox(width: AppSpacing.sm),
-            const Text('Profil & Kompetensi'),
+            Text(l10n.profileTitle),
           ],
         ),
         actions: [
           IconButton(
             icon: const Icon(Icons.settings_outlined),
-            tooltip: 'Pengaturan Profil',
+            tooltip: l10n.profileSettingsTooltip,
             onPressed: () => context.push(AppRoutes.settings),
           ),
           const SizedBox(width: AppSpacing.xs),
@@ -269,6 +271,7 @@ class _ProfileLoading extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final p = context.palette;
+    final l10n = AppLocalizations.of(context);
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -276,7 +279,7 @@ class _ProfileLoading extends StatelessWidget {
           const CircularProgressIndicator(),
           const SizedBox(height: AppSpacing.md),
           Text(
-            'Memuat profil…',
+            l10n.profileLoading,
             style: AppTypography.bodyM.copyWith(color: p.textMuted),
           ),
         ],
@@ -294,6 +297,7 @@ class _ProfileError extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final p = context.palette;
+    final l10n = AppLocalizations.of(context);
     return Center(
       child: SingleChildScrollView(
         padding: const EdgeInsets.all(AppSpacing.screen),
@@ -302,18 +306,18 @@ class _ProfileError extends StatelessWidget {
             Icon(Icons.cloud_off_outlined, size: 44, color: p.textMuted),
             const SizedBox(height: AppSpacing.md),
             Text(
-              'Data profil gagal dimuat',
+              l10n.profileLoadFailedTitle,
               style: AppTypography.titleM.copyWith(color: p.text),
             ),
             const SizedBox(height: AppSpacing.xs),
             Text(
-              'Pastikan server koding lab menyala, lalu coba lagi.',
+              l10n.profileLoadFailedBody,
               textAlign: TextAlign.center,
               style: AppTypography.bodyM.copyWith(color: p.textMuted),
             ),
             const SizedBox(height: AppSpacing.lg),
             AppButton(
-              label: 'Coba lagi',
+              label: l10n.dashRetryButton,
               leadingIcon: Icons.refresh,
               onPressed: onRetry,
             ),
@@ -342,7 +346,8 @@ class _ProfileContent extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final p = context.palette;
-    final userName = user?.name ?? 'Siswa Baru';
+    final l10n = AppLocalizations.of(context);
+    final userName = user?.name ?? l10n.profileNewStudent;
     final xp = user?.xpPoints ?? 0;
     // Minggu 9: bio pribadi tampil pada kartu identitas (siswa maupun guru).
     final bio = (user?.bio ?? '').trim();
@@ -457,7 +462,7 @@ class _ProfileContent extends StatelessWidget {
                         Icons.add_circle_outline_rounded,
                         size: 18,
                       ),
-                      label: const Text('+ Tambah Bio'),
+                      label: Text(l10n.profileAddBio),
                       style: TextButton.styleFrom(
                         foregroundColor: p.primary,
                         textStyle: AppTypography.label.copyWith(
@@ -477,7 +482,7 @@ class _ProfileContent extends StatelessWidget {
                                   data.totalChallenges! > 0
                               ? '${data.completedChallenges} / ${data.totalChallenges}'
                               : '${data.completedChallenges}',
-                          label: 'Tantangan',
+                          label: l10n.profileStatChallenges,
                           iconColor: p.primary,
                         ),
                       ),
@@ -486,7 +491,7 @@ class _ProfileContent extends StatelessWidget {
                         child: _StatCard(
                           icon: Icons.bolt,
                           value: '$xp',
-                          label: 'Poin XP',
+                          label: l10n.profileStatXpPoints,
                           iconColor: p.accent,
                         ),
                       ),
@@ -495,7 +500,7 @@ class _ProfileContent extends StatelessWidget {
                         child: _StatCard(
                           icon: Icons.school,
                           value: '$tracksDone / ${allTracks.length}',
-                          label: 'Materi Selesai',
+                          label: l10n.profileStatMaterialsDone,
                           iconColor: p.success,
                         ),
                       ),
@@ -517,7 +522,7 @@ class _ProfileContent extends StatelessWidget {
             // materi; sumber data sama (GET /lessons), jadi radar terisi
             // dan tumbuh mengikuti belajar.
             Text(
-              'Peta Penguasaan Materi',
+              l10n.profileMasteryMapTitle,
               style: AppTypography.titleM.copyWith(color: p.text),
             ),
             const SizedBox(height: AppSpacing.sm),
@@ -532,7 +537,7 @@ class _ProfileContent extends StatelessWidget {
                         vertical: AppSpacing.lg,
                       ),
                       child: Text(
-                        'Daftar materi belum tersedia dari server. Coba lagi.',
+                        l10n.profileMaterialsUnavailable,
                         textAlign: TextAlign.center,
                         style: AppTypography.bodyM.copyWith(color: p.textMuted),
                       ),
@@ -557,14 +562,17 @@ class _ProfileContent extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        'Progres Materi',
+                        l10n.profileMaterialProgressTitle,
                         style: AppTypography.label.copyWith(
                           color: p.text,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
                       Text(
-                        '$completedLessons/${lessons.length} bab',
+                        l10n.profileChaptersInline(
+                          completedLessons,
+                          lessons.length,
+                        ),
                         style: AppTypography.caption.copyWith(
                           color: p.textMuted,
                         ),
@@ -574,7 +582,7 @@ class _ProfileContent extends StatelessWidget {
                   const SizedBox(height: AppSpacing.lg),
                   if (allTracks.isEmpty)
                     Text(
-                      'Kurikulum belum tersedia dari server. Coba lagi.',
+                      l10n.profileCurriculumUnavailable,
                       style: AppTypography.bodyM.copyWith(color: p.textMuted),
                     )
                   else
@@ -601,7 +609,7 @@ class _ProfileContent extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Sertifikat',
+                        l10n.profileCertificatesTitle,
                         style: AppTypography.titleM.copyWith(color: p.text),
                       ),
                     ],
@@ -619,7 +627,7 @@ class _ProfileContent extends StatelessWidget {
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Text(
-                      '$tracksDone/${allTracks.length} Tuntas',
+                      l10n.profileTracksDoneBadge(tracksDone, allTracks.length),
                       style: AppTypography.caption.copyWith(
                         color: p.primary,
                         fontWeight: FontWeight.bold,
@@ -639,7 +647,7 @@ class _ProfileContent extends StatelessWidget {
                     Padding(
                       padding: const EdgeInsets.all(AppSpacing.md),
                       child: Text(
-                        'Daftar materi belum tersedia dari server. Coba lagi.',
+                        l10n.profileMaterialsUnavailable,
                         style: AppTypography.bodyM.copyWith(color: p.textMuted),
                       ),
                     )
@@ -661,7 +669,7 @@ class _ProfileContent extends StatelessWidget {
             // SEMUANYA (selesai maupun belum), status per siswa dari GET
             // /challenges.
             Text(
-              'Sertifikat Tantangan',
+              l10n.profileChallengeCertsTitle,
               style: AppTypography.titleM.copyWith(color: p.text),
             ),
             const SizedBox(height: AppSpacing.sm),
@@ -669,7 +677,7 @@ class _ProfileContent extends StatelessWidget {
               Padding(
                 padding: const EdgeInsets.only(bottom: AppSpacing.sm),
                 child: Text(
-                  'Belum ada tantangan di katalog — coba lagi.',
+                  l10n.profileNoChallenges,
                   style: AppTypography.bodyM.copyWith(color: p.textMuted),
                 ),
               )
@@ -815,6 +823,7 @@ class _TrackRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final p = context.palette;
+    final l10n = AppLocalizations.of(context);
     final total = lessons.length;
     final done = lessons.where((l) => l.status == 'completed').length;
     final pct = total == 0 ? 0.0 : done / total;
@@ -859,7 +868,7 @@ class _TrackRow extends StatelessWidget {
               ),
             ),
             Text(
-              '$done/$total Bab',
+              l10n.profileBabCountInline(done, total),
               style: AppTypography.caption.copyWith(
                 color: p.textMuted,
                 fontWeight: FontWeight.bold,
@@ -898,6 +907,7 @@ class _CertificateItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final p = context.palette;
+    final l10n = AppLocalizations.of(context);
     final total = lessons.length;
     final done = lessons.where((l) => l.status == 'completed').length;
     final pct = total == 0 ? 0 : (done * 100 ~/ total);
@@ -951,8 +961,10 @@ class _CertificateItem extends StatelessWidget {
                     const SizedBox(width: 4),
                     Text(
                       isComplete
-                          ? 'Sertifikat siap diunduh'
-                          : (done > 0 ? 'Sedang belajar' : 'Belum dimulai'),
+                          ? l10n.profileCertReady
+                          : (done > 0
+                                ? l10n.profileCertLearning
+                                : l10n.materialFilterNotStarted),
                       style: AppTypography.caption.copyWith(
                         color: isComplete ? p.success : p.textMuted,
                         fontWeight: isComplete
@@ -969,7 +981,7 @@ class _CertificateItem extends StatelessWidget {
           if (isComplete)
             // Minggu 9 (owner): tombol unduh RINGKAS berlabel "Unduh"
             // saja — aksi asli menyusul bersama generator PDF sertifikat.
-            const _CompactDownloadButton(label: 'Unduh')
+            _CompactDownloadButton(label: l10n.profileDownload)
           else
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
@@ -1010,6 +1022,7 @@ class _ChallengeCertItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final p = context.palette;
+    final l10n = AppLocalizations.of(context);
     final isDone = challenge.status == ChallengeStatus.completed;
     final isLocked = challenge.isLocked;
 
@@ -1067,12 +1080,12 @@ class _ChallengeCertItem extends StatelessWidget {
                     const SizedBox(width: 4),
                     Text(
                       isDone
-                          ? 'Selesai — sertifikat siap'
+                          ? l10n.profileCertChallengeDone
                           : isLocked
-                          ? 'Terkunci — kurang XP'
+                          ? l10n.profileCertChallengeLocked
                           : challenge.status == ChallengeStatus.inProgress
-                          ? 'Sedang dikerjakan'
-                          : 'Belum dimulai',
+                          ? l10n.profileCertChallengeInProgress
+                          : l10n.materialFilterNotStarted,
                       style: AppTypography.caption.copyWith(
                         color: isDone ? p.success : p.textMuted,
                         fontWeight: isDone
@@ -1087,7 +1100,7 @@ class _ChallengeCertItem extends StatelessWidget {
             ),
           ),
           if (isDone)
-            const _CompactDownloadButton(label: 'Unduh')
+            _CompactDownloadButton(label: l10n.profileDownload)
           else
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
@@ -1104,7 +1117,7 @@ class _ChallengeCertItem extends StatelessWidget {
                     Icon(Icons.bolt_rounded, size: 13, color: p.primary),
                   const SizedBox(width: 4),
                   Text(
-                    '+${challenge.xp} XP',
+                    l10n.challengeXpPlus(challenge.xp),
                     style: AppTypography.caption.copyWith(
                       color: p.primary,
                       fontWeight: FontWeight.bold,
@@ -1130,13 +1143,13 @@ class _CompactDownloadButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final p = context.palette;
+    final l10n = AppLocalizations.of(context);
     return Material(
       color: p.primary,
       borderRadius: BorderRadius.circular(10),
       child: InkWell(
         borderRadius: BorderRadius.circular(10),
-        onTap: () =>
-            showAppSnack(context, 'Fitur unduh sertifikat segera hadir, ya!'),
+        onTap: () => showAppSnack(context, l10n.profileDownloadSoon),
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
           child: Row(

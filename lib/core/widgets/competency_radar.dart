@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 
 import '../theme/app_palette.dart';
 import '../theme/app_typography.dart';
+import '../../l10n/app_localizations.dart';
 
 /// Radar penguasaan generik: satu spoke per kunci [scores], nilai 0..100.
 /// Dipakai profile-siswa untuk PENGUASAAN per track (% bab selesai tiap
@@ -28,7 +29,7 @@ class CompetencyRadar extends StatelessWidget {
         .join(', ');
 
     return Semantics(
-      label: 'Radar penguasaan: $semantic',
+      label: AppLocalizations.of(context).a11yMasteryRadar(semantic),
       // Minggu 9 (owner): label "100/100" pada spoke teratas sempat
       // terpotong tepi card — beri RUANG KEPALA vertikal di dalam widget
       // agar judul dua baris di ujung spoke muat tanpa terpangkas.

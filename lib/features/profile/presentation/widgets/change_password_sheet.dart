@@ -13,6 +13,8 @@ import '../../../../core/theme/app_typography.dart';
 import '../../../../core/utils/validators.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_snack.dart';
+import '../../../../l10n/app_localizations.dart';
+import '../../../../l10n/l10n_ext.dart';
 import '../../../auth/domain/auth_repository.dart';
 import '../../../auth/presentation/cubit/auth_cubit.dart';
 import '../../../auth/presentation/widgets/auth_widgets.dart';
@@ -43,7 +45,8 @@ class _ChangePasswordSheetState extends State<ChangePasswordSheet> {
 
   bool get _canSubmit =>
       _old.text.isNotEmpty &&
-      Validators.newPassword(_new.text) == null &&
+      Validators.newPassword(_new.text, AppLocalizations.of(context)) ==
+          null &&
       _confirm.text == _new.text &&
       !_saving;
 
@@ -60,6 +63,7 @@ class _ChangePasswordSheetState extends State<ChangePasswordSheet> {
 
   Future<void> _submit() async {
     if (!_formKey.currentState!.validate() || !_canSubmit) return;
+    final l10n = AppLocalizations.of(context);
     setState(() => _saving = true);
     try {
       await context.read<AuthCubit>().changePassword(
@@ -70,12 +74,12 @@ class _ChangePasswordSheetState extends State<ChangePasswordSheet> {
       // Simpan konteks Navigator dulu: sheet ditutup sebelum snack tampil.
       final navigator = Navigator.of(context);
       navigator.pop();
-      showAppSnack(navigator.context, 'Kata sandi berhasil diubah!');
+      showAppSnack(navigator.context, l10n.changePassSuccess);
     } on AuthFailure catch (e) {
-      if (mounted) setState(() => _submitError = e.message);
+      if (mounted) setState(() => _submitError = e.messageL10n(l10n));
     } catch (_) {
       if (mounted) {
-        setState(() => _submitError = 'Gagal mengubah kata sandi. Coba lagi.');
+        setState(() => _submitError = l10n.changePassFailed);
       }
     } finally {
       if (mounted) setState(() => _saving = false);
@@ -89,6 +93,7 @@ class _ChangePasswordSheetState extends State<ChangePasswordSheet> {
     required ValueChanged<bool> toggle,
   }) {
     final p = context.palette;
+    final l10n = AppLocalizations.of(context);
     return InputDecoration(
       labelText: label,
       prefixIcon: Icon(icon, color: p.primary),
@@ -106,7 +111,7 @@ class _ChangePasswordSheetState extends State<ChangePasswordSheet> {
         borderSide: BorderSide(color: p.primary, width: 2),
       ),
       suffixIcon: IconButton(
-        tooltip: obscure ? 'Tampilkan sandi' : 'Sembunyikan sandi',
+        tooltip: obscure ? l10n.changePassShowPassword : l10n.changePassHidePassword,
         icon: Icon(
           obscure ? Icons.visibility_off_outlined : Icons.visibility_outlined,
           size: 20,
@@ -120,6 +125,7 @@ class _ChangePasswordSheetState extends State<ChangePasswordSheet> {
   @override
   Widget build(BuildContext context) {
     final p = context.palette;
+    final l10n = AppLocalizations.of(context);
     return Padding(
       padding: EdgeInsets.only(
         left: AppSpacing.screen,
@@ -138,10 +144,11 @@ class _ChangePasswordSheetState extends State<ChangePasswordSheet> {
                 obscureText: _obscureOld,
                 onChanged: (_) => _onChanged(),
                 maxLength: 72,
-                validator: (v) =>
-                    (v == null || v.isEmpty) ? 'Isi kata sandi lama dulu.' : null,
+                validator: (v) => (v == null || v.isEmpty)
+                    ? l10n.changePassOldRequired
+                    : null,
                 decoration: _passwordDecoration(
-                  label: 'Kata Sandi Lama',
+                  label: l10n.changePassOldLabel,
                   icon: Icons.lock_outline_rounded,
                   obscure: _obscureOld,
                   toggle: (v) => setState(() => _obscureOld = v),
@@ -154,9 +161,9 @@ class _ChangePasswordSheetState extends State<ChangePasswordSheet> {
                 onChanged: (_) => _onChanged(),
                 maxLength: 72,
                 autofillHints: const [AutofillHints.newPassword],
-                validator: Validators.newPassword,
+                validator: (v) => Validators.newPassword(v, l10n),
                 decoration: _passwordDecoration(
-                  label: 'Kata Sandi Baru',
+                  label: l10n.changePassNewLabel,
                   icon: Icons.key_outlined,
                   obscure: _obscureNew,
                   toggle: (v) => setState(() => _obscureNew = v),
@@ -172,9 +179,10 @@ class _ChangePasswordSheetState extends State<ChangePasswordSheet> {
                 onChanged: (_) => _onChanged(),
                 maxLength: 72,
                 autofillHints: const [AutofillHints.newPassword],
-                validator: (v) => Validators.confirmPassword(v, _new.text),
+                validator: (v) =>
+                    Validators.confirmPassword(v, _new.text, l10n),
                 decoration: _passwordDecoration(
-                  label: 'Konfirmasi Kata Sandi Baru',
+                  label: l10n.changePassConfirmLabel,
                   icon: Icons.repeat_rounded,
                   obscure: _obscureConfirm,
                   toggle: (v) => setState(() => _obscureConfirm = v),
@@ -195,10 +203,10 @@ class _ChangePasswordSheetState extends State<ChangePasswordSheet> {
                   Expanded(
                     child: Text(
                       _confirm.text.isEmpty
-                          ? 'Ketik ulang kata sandi baru untuk konfirmasi.'
+                          ? l10n.changePassConfirmHint
                           : _confirmMatch
-                          ? 'Konfirmasi cocok dengan kata sandi baru.'
-                          : 'Konfirmasi belum sama dengan kata sandi baru.',
+                          ? l10n.changePassConfirmMatch
+                          : l10n.changePassConfirmMismatch,
                       style: AppTypography.caption.copyWith(
                         color: _confirmMatch ? p.success : p.textMuted,
                       ),
@@ -212,7 +220,7 @@ class _ChangePasswordSheetState extends State<ChangePasswordSheet> {
               ],
               const SizedBox(height: AppSpacing.lg),
               AppButton(
-                label: _saving ? 'Menyimpan…' : 'Simpan Kata Sandi',
+                label: _saving ? l10n.changePassSaving : l10n.changePassSave,
                 onPressed: _canSubmit ? _submit : null,
               ),
               const SizedBox(height: AppSpacing.md),

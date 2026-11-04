@@ -14,6 +14,8 @@ import '../../../../core/widgets/app_snack.dart';
 import '../../../../core/widgets/avatars.dart';
 import '../../../../core/widgets/code_editor.dart';
 import '../../../../core/widgets/skeleton.dart';
+import '../../../../l10n/app_localizations.dart';
+import '../../../../l10n/l10n_ext.dart';
 import '../../../ai_tutor/domain/tutor_models.dart';
 import '../../../ai_tutor/domain/tutor_repository.dart';
 import '../../../ai_tutor/presentation/ai_tutor_sheet.dart';
@@ -32,6 +34,9 @@ class ChallengeDetailPage extends StatefulWidget {
 }
 
 class _ChallengeDetailPageState extends State<ChallengeDetailPage> {
+  /// Pintasan kamus UI supaya semua pembangun layar ini konsisten.
+  AppLocalizations get l10n => AppLocalizations.of(context);
+
   late final ChallengeRepository _repo = context.read<ChallengeRepository>();
   late Future<ChallengeDetail> _future;
   final _code = TextEditingController();
@@ -130,7 +135,7 @@ class _ChallengeDetailPageState extends State<ChallengeDetailPage> {
       return trimmed;
     }).join('\n');
     _code.text = formatted;
-    showAppSnack(context, 'Format PEP8 berhasil dirapikan');
+    showAppSnack(context, l10n.challengeFormatDone);
   }
 
   /// Riwayat dibungkus SAFE: kegagalan jaringan jangan dipanikan —
@@ -178,7 +183,7 @@ class _ChallengeDetailPageState extends State<ChallengeDetailPage> {
       if (mounted) showAppSnack(context, e.message);
       return null;
     } catch (_) {
-      if (mounted) showAppSnack(context, 'Ada kendala saat eksekusi kode. Coba lagi sebentar.');
+      if (mounted) showAppSnack(context, l10n.challengeRunFailed);
       return null;
     } finally {
       if (mounted) setState(() => _running = false);
@@ -223,7 +228,7 @@ class _ChallengeDetailPageState extends State<ChallengeDetailPage> {
     } catch (_) {
       if (mounted) {
         setState(() => _submitting = false);
-        showAppSnack(context, 'Gagal mengirim submisi. Coba lagi sebentar.');
+        showAppSnack(context, l10n.challengeSubmitFailed);
       }
     }
   }
@@ -234,14 +239,14 @@ class _ChallengeDetailPageState extends State<ChallengeDetailPage> {
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
-          tooltip: 'Kembali',
+          tooltip: l10n.actionBack,
           icon: const Icon(Icons.arrow_back_rounded),
           onPressed: () => context.canPop() ? context.pop() : context.go(AppRoutes.challenges),
         ),
-        title: const Text('Tantangan Koding'),
+        title: Text(l10n.challengeDetailTitle),
         actions: [
           IconButton(
-            tooltip: 'Riwayat submisi',
+            tooltip: l10n.challengeHistoryTooltip,
             icon: Icon(Icons.history_rounded, color: p.textMuted),
             onPressed: () => context.push(AppRoutes.history(widget.challengeId)),
           ),
@@ -266,7 +271,7 @@ class _ChallengeDetailPageState extends State<ChallengeDetailPage> {
           if (snap.hasError) {
             return Center(
               child: AppButton(
-                label: 'Coba lagi',
+                label: l10n.dashRetryButton,
                 expand: false,
                 onPressed: () => setState(() => _future = _repo.getDetail(widget.challengeId)),
               ),
@@ -294,7 +299,7 @@ class _ChallengeDetailPageState extends State<ChallengeDetailPage> {
 
           final testCountBadge = shownReport != null
               ? '${shownReport.passedCount}/${shownReport.results.length}'
-              : (completed ? 'Selesai' : (d.testCases.isNotEmpty ? '${d.testCases.length}' : ''));
+              : (completed ? l10n.moduleStatusCompleted : (d.testCases.isNotEmpty ? '${d.testCases.length}' : ''));
 
           return Column(
             children: [
@@ -317,7 +322,7 @@ class _ChallengeDetailPageState extends State<ChallengeDetailPage> {
                                 decoration: BoxDecoration(color: p.success, shape: BoxShape.circle),
                               ),
                               const SizedBox(width: 6),
-                              Text('Tingkat: ${d.levelLabel}',
+                              Text(l10n.challengeLevelLine(localizeLevelLabel(l10n, d.levelLabel)),
                                   style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: p.text)),
                             ],
                           ),
@@ -337,7 +342,7 @@ class _ChallengeDetailPageState extends State<ChallengeDetailPage> {
                             children: [
                               Icon(Icons.bolt_rounded, size: 14, color: p.warningText),
                               const SizedBox(width: 3),
-                              Text('+${d.xp} XP',
+                              Text(l10n.challengeXpPlus(d.xp),
                                   style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: p.warningText)),
                             ],
                           ),
@@ -354,7 +359,7 @@ class _ChallengeDetailPageState extends State<ChallengeDetailPage> {
                               children: [
                                 Icon(Icons.check_circle_rounded, size: 14, color: p.success),
                                 const SizedBox(width: 5),
-                                Text('Selesai',
+                                Text(l10n.moduleStatusCompleted,
                                     style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: p.success)),
                               ],
                             ),
@@ -369,7 +374,7 @@ class _ChallengeDetailPageState extends State<ChallengeDetailPage> {
                             children: [
                               Icon(Icons.schedule_rounded, size: 14, color: p.textMuted),
                               const SizedBox(width: 4),
-                              Text('~${d.minutes} mnt', style: TextStyle(fontSize: 11, color: p.textMuted)),
+                              Text(l10n.challengeMinutesShort(d.minutes), style: TextStyle(fontSize: 11, color: p.textMuted)),
                             ],
                           ),
                         ),
@@ -416,6 +421,7 @@ class _ChallengeDetailPageState extends State<ChallengeDetailPage> {
 
   List<Widget> _instructionTab(BuildContext context, ChallengeDetail d, RunReport? shownReport, bool completed) {
     final p = context.palette;
+    final l10n = AppLocalizations.of(context);
     return [
       AppCard(
         padding: const EdgeInsets.all(AppSpacing.lg),
@@ -430,7 +436,7 @@ class _ChallengeDetailPageState extends State<ChallengeDetailPage> {
                 child: Icon(Icons.menu_book_rounded, color: p.primary, size: 20),
               ),
               const SizedBox(width: 10),
-              Text('Instruksi Tugas', style: AppTypography.titleM.copyWith(color: p.text, fontSize: 16, fontWeight: FontWeight.bold)),
+              Text(l10n.challengeTaskInstruction, style: AppTypography.titleM.copyWith(color: p.text, fontSize: 16, fontWeight: FontWeight.bold)),
             ]),
             const SizedBox(height: AppSpacing.md),
             Text(d.instruction, style: AppTypography.bodyL.copyWith(color: p.text, height: 1.5, fontSize: 14)),
@@ -467,7 +473,7 @@ class _ChallengeDetailPageState extends State<ChallengeDetailPage> {
       if (!completed && d.samples.isNotEmpty) ...[
         const SizedBox(height: AppSpacing.md),
         Text(
-          'CONTOH PEMANGGILAN',
+          l10n.challengeSampleCalls,
           style: TextStyle(color: p.textMuted, fontWeight: FontWeight.bold, letterSpacing: 0.6, fontSize: 11),
         ),
         const SizedBox(height: 6),
@@ -507,6 +513,7 @@ class _ChallengeDetailPageState extends State<ChallengeDetailPage> {
 
   Widget _solutionTab(BuildContext context, String challengeTitle) {
     final p = context.palette;
+    final l10n = AppLocalizations.of(context);
     const accessorySymbols = ['>=', '>', '<=', '<', '==', ':', '(', ')', '"', 'tab', 'indent'];
 
     return Column(
@@ -552,13 +559,13 @@ class _ChallengeDetailPageState extends State<ChallengeDetailPage> {
                     ),
                     const Spacer(),
                     IconButton(
-                      tooltip: 'Format PEP8',
+                      tooltip: l10n.challengeFormatPep8,
                       icon: const Icon(Icons.auto_fix_high_rounded, size: 18),
                       onPressed: _formatCode,
                       visualDensity: VisualDensity.compact,
                     ),
                     IconButton(
-                      tooltip: 'Reset Kode',
+                      tooltip: l10n.challengeResetCode,
                       icon: const Icon(Icons.restart_alt_rounded, size: 18),
                       onPressed: () => setState(() => _code.text = _starterCode),
                       visualDensity: VisualDensity.compact,
@@ -638,7 +645,7 @@ class _ChallengeDetailPageState extends State<ChallengeDetailPage> {
                   children: [
                     Row(
                       children: [
-                        Text('Butuh Bantuan AI?', style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: p.text)),
+                        Text(l10n.challengeAiHelpTitle, style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: p.text)),
                         const SizedBox(width: 6),
                         Container(
                           padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1.5),
@@ -649,7 +656,7 @@ class _ChallengeDetailPageState extends State<ChallengeDetailPage> {
                               // disinronkan TutorQuota tiap kali hint diambil.
                               final q = pillContext.watch<TutorQuota>();
                               return Text(
-                                '${q.total - q.remaining}/${q.total} Kuota',
+                                l10n.challengeQuotaLabel(q.total - q.remaining, q.total),
                                 style: TextStyle(
                                   fontSize: 10,
                                   fontWeight: FontWeight.bold,
@@ -662,7 +669,7 @@ class _ChallengeDetailPageState extends State<ChallengeDetailPage> {
                       ],
                     ),
                     const SizedBox(height: 1),
-                    Text('Dapatkan petunjuk bertahap tanpa spoiler kode', style: TextStyle(fontSize: 11, color: p.textMuted)),
+                    Text(l10n.challengeAiHelpSubtitle, style: TextStyle(fontSize: 11, color: p.textMuted)),
                   ],
                 ),
               ),
@@ -682,7 +689,7 @@ class _ChallengeDetailPageState extends State<ChallengeDetailPage> {
                   getCode: () => _code.text,
                 ),
                 icon: const Icon(Icons.lightbulb_outline_rounded, size: 15),
-                label: const Text('Minta Hint', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+                label: Text(l10n.challengeAskHint, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
               ),
             ],
           ),
@@ -718,6 +725,7 @@ class _SegmentedTabs extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final p = context.palette;
+    final l10n = AppLocalizations.of(context);
 
     Widget item(int i, IconData icon, String label, {Widget? badge, bool dot = false}) {
       final selected = index == i;
@@ -786,8 +794,8 @@ class _SegmentedTabs extends StatelessWidget {
       decoration: BoxDecoration(color: p.surfaceAlt, borderRadius: BorderRadius.circular(24)),
       child: Row(
         children: [
-          item(0, Icons.description_rounded, 'Instruksi & Uji', badge: testBadge),
-          item(1, Icons.terminal_rounded, 'Solusi Kodemu', dot: showDot),
+          item(0, Icons.description_rounded, l10n.challengeTabInstruction, badge: testBadge),
+          item(1, Icons.terminal_rounded, l10n.challengeTabSolution, dot: showDot),
         ],
       ),
     );
@@ -846,6 +854,7 @@ class _ResultsCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final p = context.palette;
+    final l10n = AppLocalizations.of(context);
     final ok = report.allPassed;
     final c = ok ? p.success : p.error;
 
@@ -873,13 +882,13 @@ class _ResultsCard extends StatelessWidget {
                   ),
                   const SizedBox(width: 10),
                   Expanded(
-                    child: Text('Hasil Pengujian Otomatis',
+                    child: Text(l10n.challengeTestResultTitle,
                         style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: p.text)),
                   ),
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                     decoration: BoxDecoration(color: p.surface, borderRadius: BorderRadius.circular(10)),
-                    child: Text('${report.passedCount}/${report.results.length} Lolos',
+                    child: Text(l10n.challengePassedCount(report.passedCount, report.results.length),
                         style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: c)),
                   ),
                 ]),
@@ -890,7 +899,7 @@ class _ResultsCard extends StatelessWidget {
                   Row(children: [
                     Icon(Icons.speed_rounded, size: 14, color: p.textMuted),
                     const SizedBox(width: 3),
-                    Text('Eksekusi: ${report.millis}ms',
+                    Text(l10n.challengeExecutionTime(report.millis),
                         style: TextStyle(fontFamily: AppFonts.mono, color: p.textMuted, fontSize: 11)),
                   ]),
               ],
@@ -920,6 +929,7 @@ class _CaseTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final p = context.palette;
+    final l10n = AppLocalizations.of(context);
     final r = result;
     final c = r.passed ? p.success : p.error;
 
@@ -938,11 +948,11 @@ class _CaseTile extends StatelessWidget {
               Icon(Icons.lock_outline_rounded, size: 12, color: p.textMuted),
             ],
             const Spacer(),
-            Text(r.passed ? 'Lolos' : 'Gagal', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: c)),
+            Text(r.passed ? l10n.challengePassed : l10n.challengeFailed, style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: c)),
           ]),
           const SizedBox(height: 4),
           Text(
-            'Input: ${r.input} • Ekspektasi: ${r.expected} • Output: ${r.output}',
+            l10n.challengeCaseDetail(r.input, r.expected, r.output),
             style: TextStyle(fontFamily: AppFonts.mono, color: p.textMuted, fontSize: 11),
           ),
         ],
@@ -959,6 +969,7 @@ class _HintCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final p = context.palette;
+    final l10n = AppLocalizations.of(context);
     final ok = report.allPassed;
     return Container(
       padding: const EdgeInsets.all(AppSpacing.md),
@@ -990,7 +1001,7 @@ class _HintCard extends StatelessWidget {
               child: Text('CodeLab AI Scaffolding',
                   style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: p.text)),
             ),
-            Text('Scaffolding 3 Level',
+            Text(l10n.challengeScaffoldingLevels,
                 style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: p.warningText)),
           ]),
           const SizedBox(height: 8),
@@ -998,12 +1009,13 @@ class _HintCard extends StatelessWidget {
             TextSpan(
               style: TextStyle(fontSize: 12, color: p.text, height: 1.45),
               children: [
-                const TextSpan(text: 'Petunjuk Logika: ', style: TextStyle(fontWeight: FontWeight.bold)),
+                TextSpan(text: l10n.challengeLogicHintLabel, style: const TextStyle(fontWeight: FontWeight.bold)),
                 TextSpan(
                   text: ok
-                      ? 'Mantap! Seluruh uji coba lolos. Tekan tombol Kirim Solusi di bawah untuk klaim XP-mu!'
-                      : '${report.results.where((r) => !r.passed).length} kasus belum lolos dari pengujian otomatis. '
-                          'Minta arahan AI Tutor di bawah — petunjuknya memandu kodemu, bukan jawaban jadi.',
+                      ? l10n.challengeAllTestsPassed
+                      : l10n.challengeCasesNotPassed(
+                          report.results.where((r) => !r.passed).length,
+                        ),
                 ),
               ],
             ),
@@ -1018,7 +1030,7 @@ class _HintCard extends StatelessWidget {
               ),
               onPressed: onAsk,
               icon: const Icon(Icons.smart_toy_outlined, size: 16),
-              label: const Text('Tanya AI Tutor', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+              label: Text(l10n.challengeAskAiTutor, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
             ),
           ),
         ],
@@ -1036,6 +1048,7 @@ class _CompletedSummaryCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final p = context.palette;
+    final l10n = AppLocalizations.of(context);
     return Container(
       padding: const EdgeInsets.all(AppSpacing.md),
       decoration: BoxDecoration(
@@ -1055,14 +1068,13 @@ class _CompletedSummaryCard extends StatelessWidget {
             ),
             const SizedBox(width: 10),
             Expanded(
-              child: Text('Hasil Pengujian Otomatis — Selesai',
+              child: Text(l10n.challengeTestResultCompletedTitle,
                   style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: p.text)),
             ),
           ]),
           const SizedBox(height: 8),
           Text(
-            'Tantangan ini sudah kamu tuntaskan. Detail per-kasus hanya tampil '
-            'di sesi bersama submisi berjalan; skor terbaik tercatat resmi di server:',
+            l10n.challengeCompletedBody,
             style: AppTypography.bodyM.copyWith(color: p.textMuted, height: 1.45),
           ),
           if (historyFuture != null) ...[
@@ -1080,7 +1092,7 @@ class _CompletedSummaryCard extends StatelessWidget {
                 }
                 if (best == null) return const SizedBox.shrink();
                 return Text(
-                  'Skor terbaik: $best%',
+                  l10n.challengeBestScore(best),
                   style: TextStyle(fontSize: 12.5, fontWeight: FontWeight.bold, color: p.success),
                 );
               },
@@ -1093,7 +1105,7 @@ class _CompletedSummaryCard extends StatelessWidget {
               style: TextButton.styleFrom(foregroundColor: p.primary, visualDensity: VisualDensity.compact),
               onPressed: onHistory,
               icon: const Icon(Icons.history_rounded, size: 16),
-              label: const Text('Lihat riwayat submisi', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+              label: Text(l10n.challengeViewHistory, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
             ),
           ),
         ],
@@ -1118,6 +1130,7 @@ class _BottomActions extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final p = context.palette;
+    final l10n = AppLocalizations.of(context);
     return Container(
       decoration: BoxDecoration(
         color: p.surface,
@@ -1140,7 +1153,7 @@ class _BottomActions extends StatelessWidget {
                 icon: running
                     ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2))
                     : const Icon(Icons.play_arrow_rounded, size: 20),
-                label: const Text('Uji Coba', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
+                label: Text(l10n.challengeTryRun, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
               ),
             ),
             const SizedBox(width: 12),
@@ -1164,7 +1177,7 @@ class _BottomActions extends StatelessWidget {
                         ),
                       )
                     : const Icon(Icons.send_rounded, size: 18),
-                label: const Text('Kirim Solusi', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
+                label: Text(l10n.challengeSubmitSolution, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
               ),
             ),
           ],

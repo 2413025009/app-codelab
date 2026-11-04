@@ -12,6 +12,7 @@ import '../../../../core/widgets/app_tag.dart';
 import '../../../../core/widgets/avatars.dart';
 import '../../../../core/widgets/code_card.dart';
 import '../../../../core/widgets/skeleton.dart';
+import '../../../../l10n/app_localizations.dart';
 import '../../../auth/presentation/cubit/auth_cubit.dart';
 import '../../domain/challenge_repository.dart';
 
@@ -25,6 +26,9 @@ class SubmissionHistoryPage extends StatefulWidget {
 }
 
 class _SubmissionHistoryPageState extends State<SubmissionHistoryPage> {
+  /// Pintasan kamus UI supaya semua pembangun layar ini konsisten.
+  AppLocalizations get l10n => AppLocalizations.of(context);
+
   late final ChallengeRepository _repo = context.read<ChallengeRepository>();
   late Future<SubmissionHistory> _future = _repo.getHistory(widget.challengeId);
   int? _expanded = 0;
@@ -35,12 +39,12 @@ class _SubmissionHistoryPageState extends State<SubmissionHistoryPage> {
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
-          tooltip: 'Kembali',
+          tooltip: l10n.actionBack,
           icon: const Icon(Icons.arrow_back_rounded),
           onPressed: () => context.canPop() ? context.pop() : context.go(AppRoutes.challenges),
         ),
         centerTitle: true,
-        title: const Text('Riwayat Submisi'),
+        title: Text(l10n.historyTitle),
         actions: [
           Padding(
             padding: const EdgeInsets.only(right: 16),
@@ -64,7 +68,7 @@ class _SubmissionHistoryPageState extends State<SubmissionHistoryPage> {
           if (snap.hasError) {
             return Center(
               child: AppButton(
-                label: 'Coba lagi',
+                label: l10n.dashRetryButton,
                 expand: false,
                 onPressed: () => setState(() => _future = _repo.getHistory(widget.challengeId)),
               ),
@@ -78,6 +82,7 @@ class _SubmissionHistoryPageState extends State<SubmissionHistoryPage> {
 
   Widget _content(BuildContext context, SubmissionHistory h) {
     final p = context.palette;
+    final l10n = AppLocalizations.of(context);
     return ListView(
       padding: const EdgeInsets.fromLTRB(AppSpacing.screen, AppSpacing.sm, AppSpacing.screen, AppSpacing.xxl),
       children: [
@@ -103,7 +108,7 @@ class _SubmissionHistoryPageState extends State<SubmissionHistoryPage> {
                     ],
                   ),
                 ),
-                AppTag.success(context, 'Lulus', icon: Icons.check_circle_outline_rounded),
+                AppTag.success(context, l10n.historyStatusPassed, icon: Icons.check_circle_outline_rounded),
               ]),
               const SizedBox(height: AppSpacing.lg),
               Divider(color: p.outline),
@@ -113,7 +118,7 @@ class _SubmissionHistoryPageState extends State<SubmissionHistoryPage> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('Skor Tertinggi', style: AppTypography.bodyM.copyWith(color: p.textMuted)),
+                      Text(l10n.historyBestScore, style: AppTypography.bodyM.copyWith(color: p.textMuted)),
                       Text.rich(TextSpan(children: [
                         TextSpan(text: '${h.bestScore}', style: AppTypography.display.copyWith(color: p.text, fontFamily: AppFonts.mono, fontSize: 40)),
                         TextSpan(text: ' /100', style: AppTypography.bodyL.copyWith(color: p.textMuted)),
@@ -121,15 +126,15 @@ class _SubmissionHistoryPageState extends State<SubmissionHistoryPage> {
                     ],
                   ),
                 ),
-                AppTag('${h.submissions.length} Percobaan Dikirim', icon: Icons.history_rounded),
+                AppTag(l10n.historyAttemptsCount(h.submissions.length), icon: Icons.history_rounded),
               ]),
             ],
           ),
         ),
         const SizedBox(height: AppSpacing.xl),
         Row(children: [
-          Expanded(child: Text('Riwayat Pengiriman', style: AppTypography.titleM.copyWith(color: p.text, fontSize: 18))),
-          Text('Terurut Waktu', style: AppTypography.caption.copyWith(color: p.textMuted)),
+          Expanded(child: Text(l10n.historySubmissionsHeader, style: AppTypography.titleM.copyWith(color: p.text, fontSize: 18))),
+          Text(l10n.historySortedByTime, style: AppTypography.caption.copyWith(color: p.textMuted)),
         ]),
         const SizedBox(height: AppSpacing.md),
         for (var i = 0; i < h.submissions.length; i++) ...[
@@ -142,7 +147,7 @@ class _SubmissionHistoryPageState extends State<SubmissionHistoryPage> {
         ],
         const SizedBox(height: AppSpacing.sm),
         AppButton(
-          label: 'Buka di Playground',
+          label: l10n.historyOpenPlayground,
           kind: AppButtonKind.secondary,
           leadingIcon: Icons.play_circle_outline_rounded,
           onPressed: () => context.push(AppRoutes.lab, extra: h.submissions.first.code),
@@ -152,7 +157,7 @@ class _SubmissionHistoryPageState extends State<SubmissionHistoryPage> {
           child: TextButton(
             style: TextButton.styleFrom(minimumSize: const Size(AppSizes.minTouch, AppSizes.minTouch)),
             onPressed: () => context.canPop() ? context.pop() : context.go(AppRoutes.challenges),
-            child: Text('Kembali ke Soal', style: AppTypography.label.copyWith(color: p.primary, fontSize: 16)),
+            child: Text(l10n.historyBackToChallenge, style: AppTypography.label.copyWith(color: p.primary, fontSize: 16)),
           ),
         ),
       ],
@@ -170,11 +175,12 @@ class _SubmissionCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final p = context.palette;
+    final l10n = AppLocalizations.of(context);
     final s = submission;
     final (Color c, Color bg, IconData icon, String label) = switch (s.status) {
-      SubmissionStatus.passed => (p.success, p.successContainer, Icons.check_circle_outline_rounded, 'Lulus'),
-      SubmissionStatus.failed => (p.error, p.errorContainer, Icons.cancel_outlined, 'Gagal'),
-      SubmissionStatus.error => (p.error, p.errorContainer, Icons.cancel_outlined, 'Error'),
+      SubmissionStatus.passed => (p.success, p.successContainer, Icons.check_circle_outline_rounded, l10n.historyStatusPassed),
+      SubmissionStatus.failed => (p.error, p.errorContainer, Icons.cancel_outlined, l10n.challengeFailed),
+      SubmissionStatus.error => (p.error, p.errorContainer, Icons.cancel_outlined, l10n.historyStatusError),
     };
 
     return AppCard(
@@ -202,13 +208,13 @@ class _SubmissionCard extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Wrap(spacing: 8, crossAxisAlignment: WrapCrossAlignment.center, children: [
-                          Text('Submisi #${s.number}', style: AppTypography.titleM.copyWith(color: p.text, fontSize: 18)),
+                          Text(l10n.historySubmissionNumber(s.number), style: AppTypography.titleM.copyWith(color: p.text, fontSize: 18)),
                           if (s.whenLabel.isNotEmpty) AppTag(s.whenLabel, background: p.primaryContainer, foreground: p.primary),
                         ]),
                         const SizedBox(height: 4),
                         Text.rich(TextSpan(children: [
                           TextSpan(text: label, style: AppTypography.label.copyWith(color: c)),
-                          TextSpan(text: '  •  Skor ${s.score}/100', style: AppTypography.label.copyWith(color: p.text)),
+                          TextSpan(text: l10n.historyScoreInline(s.score), style: AppTypography.label.copyWith(color: p.text)),
                         ])),
                         const SizedBox(height: 2),
                         Text(s.detail, style: AppTypography.bodyM.copyWith(color: p.textMuted, fontSize: 13)),
@@ -222,7 +228,7 @@ class _SubmissionCard extends StatelessWidget {
                         ],
                         if (s.hintsUsed > 0) ...[
                           const SizedBox(height: 8),
-                          AppTag('${s.hintsUsed} Hint AI digunakan', background: p.warningContainer, foreground: p.warningText, icon: Icons.lightbulb_outline_rounded),
+                          AppTag(l10n.historyHintsUsed(s.hintsUsed), background: p.warningContainer, foreground: p.warningText, icon: Icons.lightbulb_outline_rounded),
                         ],
                       ],
                     ),
@@ -242,7 +248,7 @@ class _SubmissionCard extends StatelessWidget {
                   Row(children: [
                     Icon(Icons.code_rounded, size: 18, color: p.primary),
                     const SizedBox(width: 8),
-                    Expanded(child: Text('Kode Submisi #${s.number} (Python)', style: AppTypography.label.copyWith(color: p.text, fontSize: 14))),
+                    Expanded(child: Text(l10n.historySubmissionCode(s.number), style: AppTypography.label.copyWith(color: p.text, fontSize: 14))),
                     CopyChip(textToCopy: s.code, tinted: true),
                   ]),
                   const SizedBox(height: AppSpacing.md),
@@ -271,7 +277,7 @@ class _SubmissionCard extends StatelessWidget {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text('Ulasan AI Tutor', style: AppTypography.label.copyWith(color: p.text, fontSize: 14)),
+                                Text(l10n.historyAiReview, style: AppTypography.label.copyWith(color: p.text, fontSize: 14)),
                                 const SizedBox(height: 4),
                                 Text(s.aiReview!, style: AppTypography.bodyM.copyWith(color: p.textMuted)),
                               ],

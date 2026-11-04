@@ -20,6 +20,7 @@ import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_snack.dart';
+import '../../../../l10n/app_localizations.dart';
 import '../../domain/class_exceptions.dart';
 import '../../domain/class_repository.dart';
 import 'class_sheet_shell.dart';
@@ -139,8 +140,7 @@ class _JoinClassSheetState extends State<_JoinClassSheet> {
       if (!mounted) return;
       setState(() {
         _phase = _PreviewPhase.notFound;
-        _previewMessage =
-            'Server belum terjangkau. Periksa koneksi lab, lalu coba lagi.';
+        _previewMessage = AppLocalizations.of(context).classServerUnreachable;
       });
     }
   }
@@ -173,8 +173,7 @@ class _JoinClassSheetState extends State<_JoinClassSheet> {
       if (!mounted) return;
       setState(() {
         _joining = false;
-        _previewMessage =
-            'Server belum terjangkau. Periksa koneksi lab, lalu coba lagi.';
+        _previewMessage = AppLocalizations.of(context).classServerUnreachable;
       });
     }
   }
@@ -182,6 +181,7 @@ class _JoinClassSheetState extends State<_JoinClassSheet> {
   @override
   Widget build(BuildContext context) {
     final p = context.palette;
+    final l10n = AppLocalizations.of(context);
     final name = _joinedName;
 
     return Column(
@@ -203,7 +203,7 @@ class _JoinClassSheetState extends State<_JoinClassSheet> {
         ),
         const SizedBox(height: AppSpacing.md),
         Text(
-          'Gabung ke Kelas Gurumu',
+          l10n.joinClassTitle,
           textAlign: TextAlign.center,
           style: AppTypography.titleM.copyWith(
             color: p.text,
@@ -212,7 +212,7 @@ class _JoinClassSheetState extends State<_JoinClassSheet> {
         ),
         const SizedBox(height: AppSpacing.xs),
         Text(
-          'Masukkan 6 karakter kode kelas yang dibagikan gurumu.',
+          l10n.joinClassSubtitle,
           textAlign: TextAlign.center,
           style: AppTypography.bodyM.copyWith(color: p.textMuted),
         ),
@@ -253,7 +253,7 @@ class _JoinClassSheetState extends State<_JoinClassSheet> {
             ),
             suffixIcon: !_codeEmpty
                 ? IconButton(
-                    tooltip: 'Hapus kode',
+                    tooltip: l10n.joinClassClearCode,
                     onPressed: _joining || _joined
                         ? null
                         : () {
@@ -278,7 +278,7 @@ class _JoinClassSheetState extends State<_JoinClassSheet> {
         Align(
           alignment: Alignment.centerLeft,
           child: Text(
-            'Contoh: K7M-8Q2 atau 4NB-9XT',
+            l10n.joinClassExample,
             style: AppTypography.caption.copyWith(color: p.textMuted),
           ),
         ),
@@ -313,7 +313,7 @@ class _JoinClassSheetState extends State<_JoinClassSheet> {
                   const SizedBox(width: AppSpacing.sm),
                   Expanded(
                     child: Text(
-                      _previewMessage ?? 'Kode kelas tidak ditemukan.',
+                      _previewMessage ?? l10n.joinClassNotFound,
                       style: AppTypography.bodyM.copyWith(color: p.error),
                     ),
                   ),
@@ -351,7 +351,7 @@ class _JoinClassSheetState extends State<_JoinClassSheet> {
                       const SizedBox(width: AppSpacing.sm),
                       Flexible(
                         child: Text(
-                          'Berhasil bergabung ke $name!',
+                          l10n.joinClassSuccess(name),
                           style: AppTypography.label.copyWith(color: p.success),
                           overflow: TextOverflow.ellipsis,
                         ),
@@ -361,7 +361,7 @@ class _JoinClassSheetState extends State<_JoinClassSheet> {
                 )
               : AppButton(
                   key: const ValueKey('joinBtn'),
-                  label: 'Gabung Kelas Sekarang',
+                  label: l10n.joinClassCtaButton,
                   leadingIcon: Icons.login_rounded,
                   loading: _joining,
                   onPressed: _phase == _PreviewPhase.found ? _join : null,
@@ -370,7 +370,7 @@ class _JoinClassSheetState extends State<_JoinClassSheet> {
         TextButton(
           onPressed: _joining ? null : () => Navigator.of(context).pop(),
           child: Text(
-            'Batalkan',
+            l10n.actionCancel,
             style: AppTypography.label.copyWith(
               color: p.textMuted,
               fontWeight: FontWeight.w500,
@@ -392,6 +392,7 @@ class _PreviewCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final p = context.palette;
+    final l10n = AppLocalizations.of(context);
     return Container(
       padding: const EdgeInsets.all(AppSpacing.lg),
       decoration: BoxDecoration(
@@ -423,7 +424,7 @@ class _PreviewCard extends StatelessWidget {
                     ),
                     const SizedBox(width: AppSpacing.xs),
                     Text(
-                      'Kelas Ditemukan',
+                      l10n.joinClassFoundBadge,
                       style: AppTypography.caption.copyWith(
                         color: p.success,
                         fontWeight: FontWeight.bold,
@@ -504,7 +505,7 @@ class _PreviewCard extends StatelessWidget {
                 Icon(Icons.group_rounded, size: 18, color: p.primary),
                 const SizedBox(width: AppSpacing.sm),
                 Text(
-                  '${info.memberCount} Teman Sekelas',
+                  l10n.joinClassMemberCount(info.memberCount),
                   style: AppTypography.label.copyWith(
                     color: p.primary,
                     fontSize: 14,

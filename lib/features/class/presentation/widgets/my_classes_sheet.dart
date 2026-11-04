@@ -19,6 +19,7 @@ import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_snack.dart';
+import '../../../../l10n/app_localizations.dart';
 import '../../domain/class_exceptions.dart';
 import '../../domain/class_repository.dart';
 import 'class_sheet_shell.dart';
@@ -69,8 +70,7 @@ class _MyClassesSheetState extends State<_MyClassesSheet> {
     } catch (_) {
       if (!mounted) return;
       setState(() {
-        _errorMessage =
-            'Server belum terjangkau. Periksa koneksi lab, lalu coba lagi.';
+        _errorMessage = AppLocalizations.of(context).classServerUnreachable;
         _phase = _SheetPhase.error;
       });
     }
@@ -80,7 +80,7 @@ class _MyClassesSheetState extends State<_MyClassesSheet> {
     final left = await showStudentClassDetailSheet(context, classId: info.id);
     if (!mounted) return;
     if (left == true) {
-      showAppSnack(context, 'Kamu keluar dari kelas ${info.name}.');
+      showAppSnack(context, AppLocalizations.of(context).classLeftSnack(info.name));
       _load();
     }
   }
@@ -88,6 +88,7 @@ class _MyClassesSheetState extends State<_MyClassesSheet> {
   @override
   Widget build(BuildContext context) {
     final p = context.palette;
+    final l10n = AppLocalizations.of(context);
     final count = _classes.length;
 
     return Column(
@@ -115,7 +116,7 @@ class _MyClassesSheetState extends State<_MyClassesSheet> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Kelas Saya',
+                    l10n.myClassesTitle,
                     style: AppTypography.titleM.copyWith(
                       color: p.text,
                       fontWeight: FontWeight.bold,
@@ -123,8 +124,8 @@ class _MyClassesSheetState extends State<_MyClassesSheet> {
                   ),
                   Text(
                     _phase == _SheetPhase.ready && count > 0
-                        ? '$count kelas aktif'
-                        : 'Rombel tempat kamu belajar',
+                        ? l10n.myClassesActiveCount(count)
+                        : l10n.myClassesSubtitle,
                     style: AppTypography.caption.copyWith(color: p.textMuted),
                   ),
                 ],
@@ -153,8 +154,7 @@ class _MyClassesSheetState extends State<_MyClassesSheet> {
                 ),
               const SizedBox(height: AppSpacing.xs),
               Text(
-                'Satu siswa hanya dapat tergabung dalam satu kelas aktif. '
-                'Keluar dari kelas bila ingin bergabung ke kelas lain.',
+                l10n.myClassesOneActiveNote,
                 style: AppTypography.caption.copyWith(color: p.textMuted),
               ),
             ],
@@ -163,8 +163,8 @@ class _MyClassesSheetState extends State<_MyClassesSheet> {
         const SizedBox(height: AppSpacing.lg),
         AppButton(
           label: _phase == _SheetPhase.ready && count == 0
-              ? 'Gabung Kelas'
-              : 'Tutup',
+              ? l10n.classJoinButton
+              : l10n.actionClose,
           leadingIcon: _phase == _SheetPhase.ready && count == 0
               ? Icons.login_rounded
               : null,
@@ -194,6 +194,7 @@ class _ClassRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final p = context.palette;
+    final l10n = AppLocalizations.of(context);
     return Material(
       color: p.surfaceAlt,
       borderRadius: BorderRadius.circular(AppRadius.input),
@@ -256,7 +257,7 @@ class _ClassRow extends StatelessWidget {
                     Text(
                       [
                         if (info.teacherName.isNotEmpty) info.teacherName,
-                        '${info.memberCount} teman sekelas',
+                        l10n.classMemberCountInline(info.memberCount),
                       ].join(' • '),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
@@ -280,6 +281,7 @@ class _EmptyBox extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final p = context.palette;
+    final l10n = AppLocalizations.of(context);
     return Container(
       padding: const EdgeInsets.all(AppSpacing.lg),
       decoration: BoxDecoration(
@@ -291,7 +293,7 @@ class _EmptyBox extends StatelessWidget {
           Icon(Icons.meeting_room_outlined, size: 36, color: p.textMuted),
           const SizedBox(height: AppSpacing.sm),
           Text(
-            'Belum tergabung ke kelas mana pun',
+            l10n.myClassesEmptyTitle,
             textAlign: TextAlign.center,
             style: AppTypography.label.copyWith(
               color: p.text,
@@ -300,7 +302,7 @@ class _EmptyBox extends StatelessWidget {
           ),
           const SizedBox(height: AppSpacing.xs),
           Text(
-            'Minta kode kelas 6 karakter kepada gurumu, lalu gabung dari sini.',
+            l10n.myClassesEmptyBody,
             textAlign: TextAlign.center,
             style: AppTypography.bodyM.copyWith(color: p.textMuted),
           ),
@@ -319,6 +321,7 @@ class _ErrorBox extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final p = context.palette;
+    final l10n = AppLocalizations.of(context);
     return Container(
       padding: const EdgeInsets.all(AppSpacing.lg),
       decoration: BoxDecoration(
@@ -330,7 +333,7 @@ class _ErrorBox extends StatelessWidget {
           Icon(Icons.cloud_off_outlined, size: 32, color: p.error),
           const SizedBox(height: AppSpacing.sm),
           Text(
-            'Kelas gagal dimuat',
+            l10n.classLoadFailedTitle,
             style: AppTypography.label.copyWith(
               color: p.text,
               fontWeight: FontWeight.bold,
@@ -346,7 +349,7 @@ class _ErrorBox extends StatelessWidget {
           TextButton.icon(
             onPressed: onRetry,
             icon: const Icon(Icons.refresh_rounded, size: 18),
-            label: const Text('Coba lagi'),
+            label: Text(l10n.dashRetryButton),
           ),
         ],
       ),

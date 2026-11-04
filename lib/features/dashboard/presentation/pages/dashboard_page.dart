@@ -13,6 +13,7 @@ import '../../../../core/widgets/app_loading_screen.dart';
 import '../../../../core/widgets/app_refresh.dart';
 import '../../../../core/widgets/app_snack.dart';
 import '../../../../core/widgets/avatars.dart';
+import '../../../../l10n/app_localizations.dart';
 import '../../../auth/presentation/cubit/auth_cubit.dart';
 import '../../../class/presentation/widgets/class_status_card.dart';
 import '../../domain/dashboard_repository.dart';
@@ -76,7 +77,10 @@ class _DashboardView extends StatelessWidget {
 
   void _openModule(BuildContext context, LearningModule m) {
     if (m.status == ModuleStatus.locked) {
-      showAppSnack(context, m.requirement ?? 'Modul ini masih terkunci.');
+      showAppSnack(
+        context,
+        m.requirement ?? AppLocalizations.of(context).dashModuleLocked,
+      );
       return;
     }
     context.push(AppRoutes.lesson(m.id));
@@ -84,6 +88,7 @@ class _DashboardView extends StatelessWidget {
 
   void _showQuickTip(BuildContext context) {
     final p = context.palette;
+    final l10n = AppLocalizations.of(context);
     showModalBottomSheet<void>(
       context: context,
       shape: const RoundedRectangleBorder(
@@ -115,7 +120,7 @@ class _DashboardView extends StatelessWidget {
                   ),
                   const SizedBox(width: AppSpacing.sm),
                   Text(
-                    'Trik Cepat Python',
+                    l10n.dashQuickTipTitle,
                     style: AppTypography.titleM.copyWith(
                       fontWeight: FontWeight.bold,
                     ),
@@ -124,19 +129,12 @@ class _DashboardView extends StatelessWidget {
               ),
               const SizedBox(height: AppSpacing.md),
               Text(
-                'Gunakan konstruksi elif untuk mengevaluasi beberapa kondisi berurutan secara bersih:\n\n'
-                'if skor >= 90:\n'
-                '    hasil = "A"\n'
-                'elif skor >= 75:\n'
-                '    hasil = "B"\n'
-                'else:\n'
-                '    hasil = "C"\n\n'
-                'Dengan elif, evaluasi berhenti begitu kondisi pertama terpenuhi tanpa if bertingkat.',
+                l10n.dashQuickTipBody,
                 style: AppTypography.bodyM.copyWith(color: p.text),
               ),
               const SizedBox(height: AppSpacing.xl),
               AppButton(
-                label: 'Paham, Lanjutkan Belajar!',
+                label: l10n.dashQuickTipButton,
                 onPressed: () => Navigator.of(ctx).pop(),
               ),
             ],
@@ -149,11 +147,12 @@ class _DashboardView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final p = context.palette;
+    final l10n = AppLocalizations.of(context);
     return Scaffold(
       backgroundColor: p.bg,
       appBar: AppBar(
         title: Text(
-          'Dashboard',
+          l10n.dashTitle,
           style: AppTypography.titleM.copyWith(
             fontWeight: FontWeight.w700,
             color: p.text,
@@ -168,8 +167,8 @@ class _DashboardView extends StatelessWidget {
           return switch (state) {
             DashboardLoading(:final done, :final total, :final stage) =>
               AppLoadingScreen(
-                title: 'Menyiapkan dashboard',
-                subtitle: 'Menarik data belajar dari server',
+                title: l10n.dashLoadingTitle,
+                subtitle: l10n.dashLoadingSubtitle,
                 completedSteps: done,
                 totalSteps: total,
                 stageLabel: stage,
@@ -231,7 +230,7 @@ class _DashboardView extends StatelessWidget {
                   // 4. Winding Roadmap ("Peta Petualangan Belajar" with blueprint dotted canvas)
                   if (data.modules.isEmpty)
                     Text(
-                      'Belum ada modul. Cek lagi sebentar.',
+                      l10n.dashNoModules,
                       style: AppTypography.bodyM.copyWith(color: p.textMuted),
                     )
                   else
@@ -275,6 +274,7 @@ class _Header extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final p = context.palette;
+    final l10n = AppLocalizations.of(context);
     final initials = InitialAvatar.initialsOf(userName);
 
     return Padding(
@@ -318,7 +318,7 @@ class _Header extends StatelessWidget {
                     ),
                     const SizedBox(width: 5),
                     Text(
-                      '$completed tantangan selesai',
+                      l10n.dashChallengesCompleted(completed),
                       style: AppTypography.bodyM.copyWith(
                         color: p.textMuted,
                         fontSize: 14,
@@ -399,6 +399,7 @@ class _QuickTipCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final p = context.palette;
+    final l10n = AppLocalizations.of(context);
     return Material(
       color: Colors.transparent,
       child: InkWell(
@@ -435,7 +436,7 @@ class _QuickTipCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Trik Cepat Python',
+                      l10n.dashQuickTipTitle,
                       style: AppTypography.bodyM.copyWith(
                         fontWeight: FontWeight.w700,
                         color: p.text,
@@ -444,7 +445,7 @@ class _QuickTipCard extends StatelessWidget {
                     ),
                     const SizedBox(height: 1),
                     Text(
-                      'Gunakan elif untuk evaluasi multi-kondisi',
+                      l10n.dashQuickTipSubtitle,
                       style: AppTypography.caption.copyWith(
                         color: p.textMuted,
                         fontSize: 12,
@@ -469,6 +470,7 @@ class _ErrorView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final p = context.palette;
+    final l10n = AppLocalizations.of(context);
     return Center(
       child: Padding(
         padding: AppSpacing.screenPadding,
@@ -478,12 +480,12 @@ class _ErrorView extends StatelessWidget {
             Icon(Icons.cloud_off_rounded, size: 48, color: p.textMuted),
             const SizedBox(height: AppSpacing.lg),
             Text(
-              'Ada kendala di sisi kami. Coba lagi sebentar.',
+              l10n.dashErrorTitle,
               textAlign: TextAlign.center,
               style: AppTypography.bodyL.copyWith(color: p.textMuted),
             ),
             const SizedBox(height: AppSpacing.xl),
-            AppButton(label: 'Coba lagi', expand: false, onPressed: onRetry),
+            AppButton(label: l10n.dashRetryButton, expand: false, onPressed: onRetry),
           ],
         ),
       ),

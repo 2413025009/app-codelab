@@ -1,0 +1,16 @@
+# Konfigurasi gen-l10n (Minggu 11 — multi-bahasa).
+#
+# Sumber kebenaran teks antarmuka ada di lib/l10n/*.arb:
+#   app_id.arb → template (Bahasa Indonesia, default aplikasi)
+#   app_en.arb → English
+#   app_ar.arb → العربية (tata letak RTL otomatis dari locale)
+#
+# `flutter pub get` / `flutter gen-l10n` menghasilkan AppLocalizations
+# di lib/l10n/ (tanpa paket sintetis), lalu kode memakai
+# `AppLocalizations.of(context)`. Konten materi dari database TIDAK
+# diterjemahkan di sini.
+arb-dir: lib/l10n
+template-arb-file: app_id.arb
+output-localization-file: app_localizations.dart
+output-class: AppLocalizations
+nullable-getter: false

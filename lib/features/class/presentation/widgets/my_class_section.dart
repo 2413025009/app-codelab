@@ -20,6 +20,7 @@ import '../../../../core/theme/app_typography.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_card.dart';
 import '../../../../core/widgets/app_snack.dart';
+import '../../../../l10n/app_localizations.dart';
 import '../../domain/class_repository.dart';
 import 'join_class_sheet.dart';
 import 'my_classes_sheet.dart';
@@ -98,7 +99,7 @@ class _MyClassSectionState extends State<MyClassSection> {
     final name = await showJoinClassSheet(context);
     if (name == null) return;
     if (!mounted) return;
-    showAppSnack(context, 'Berhasil bergabung ke kelas $name!');
+    showAppSnack(context, AppLocalizations.of(context).classJoinedSnack(name));
     _load();
   }
 
@@ -107,7 +108,7 @@ class _MyClassSectionState extends State<MyClassSection> {
     final left = await showStudentClassDetailSheet(context, classId: info.id);
     if (left != true) return;
     if (!mounted) return;
-    showAppSnack(context, 'Kamu keluar dari kelas ${info.name}.');
+    showAppSnack(context, AppLocalizations.of(context).classLeftSnack(info.name));
     _load();
   }
 
@@ -126,6 +127,7 @@ class _MyClassSectionState extends State<MyClassSection> {
   @override
   Widget build(BuildContext context) {
     final p = context.palette;
+    final l10n = AppLocalizations.of(context);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -134,7 +136,7 @@ class _MyClassSectionState extends State<MyClassSection> {
           children: [
             Expanded(
               child: Text(
-                'Kelas Belajar',
+                l10n.classSectionTitle,
                 style: AppTypography.titleM.copyWith(color: p.text),
               ),
             ),
@@ -142,7 +144,7 @@ class _MyClassSectionState extends State<MyClassSection> {
               TextButton(
                 onPressed: _openAllClasses,
                 child: Text(
-                  'Lihat Semua',
+                  l10n.classSeeAll,
                   style: AppTypography.label.copyWith(
                     color: p.primary,
                     fontSize: 13,
@@ -180,12 +182,12 @@ class _MyClassSectionState extends State<MyClassSection> {
                       ),
                       const SizedBox(height: AppSpacing.sm),
                       Text(
-                        'Kelas gagal dimuat dari server',
+                        l10n.classLoadFailedFromServer,
                         style: AppTypography.label.copyWith(color: p.text),
                       ),
                       const SizedBox(height: AppSpacing.xs),
                       Text(
-                        'Cek koneksi lab sekolahmu, lalu coba lagi.',
+                        l10n.classCheckLabConnection,
                         textAlign: TextAlign.center,
                         style: AppTypography.bodyM.copyWith(color: p.textMuted),
                       ),
@@ -193,7 +195,7 @@ class _MyClassSectionState extends State<MyClassSection> {
                       TextButton.icon(
                         onPressed: _load,
                         icon: const Icon(Icons.refresh_rounded, size: 18),
-                        label: const Text('Coba lagi'),
+                        label: Text(l10n.dashRetryButton),
                       ),
                     ],
                   )
@@ -214,7 +216,7 @@ class _MyClassSectionState extends State<MyClassSection> {
                       ),
                       const SizedBox(height: AppSpacing.md),
                       Text(
-                        'Belum tergabung ke kelas',
+                        l10n.classNotJoinedTitle,
                         style: AppTypography.label.copyWith(
                           color: p.text,
                           fontWeight: FontWeight.bold,
@@ -222,13 +224,13 @@ class _MyClassSectionState extends State<MyClassSection> {
                       ),
                       const SizedBox(height: AppSpacing.xs),
                       Text(
-                        'Masukkan kode kelas 6 karakter yang dibagikan gurumu.',
+                        l10n.classJoinHintInline,
                         textAlign: TextAlign.center,
                         style: AppTypography.bodyM.copyWith(color: p.textMuted),
                       ),
                       const SizedBox(height: AppSpacing.md),
                       AppButton(
-                        label: 'Gabung Kelas',
+                        label: l10n.classJoinButton,
                         leadingIcon: Icons.login_rounded,
                         expand: false,
                         onPressed: _openJoin,
@@ -306,7 +308,7 @@ class _MyClassSectionState extends State<MyClassSection> {
                               [
                                 if (info.teacherName.isNotEmpty)
                                   info.teacherName,
-                                '${info.memberCount} teman sekelas',
+                                l10n.classMemberCountInline(info.memberCount),
                               ].join(' • '),
                               style: AppTypography.caption.copyWith(
                                 color: p.textMuted,

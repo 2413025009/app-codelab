@@ -19,6 +19,7 @@ import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../core/widgets/app_card.dart';
 import '../../../../core/widgets/app_snack.dart';
+import '../../../../l10n/app_localizations.dart';
 import '../../domain/class_repository.dart';
 import 'join_class_sheet.dart';
 import 'my_classes_sheet.dart';
@@ -86,14 +87,14 @@ class _ClassStatusCardState extends State<ClassStatusCard> {
   Future<void> _openJoin() async {
     final name = await showJoinClassSheet(context);
     if (name == null || !mounted) return;
-    showAppSnack(context, 'Berhasil bergabung ke kelas $name!');
+    showAppSnack(context, AppLocalizations.of(context).classJoinedSnack(name));
     _load();
   }
 
   Future<void> _openDetail(ClassInfo info) async {
     final left = await showStudentClassDetailSheet(context, classId: info.id);
     if (left != true || !mounted) return;
-    showAppSnack(context, 'Kamu keluar dari kelas ${info.name}.');
+    showAppSnack(context, AppLocalizations.of(context).classLeftSnack(info.name));
     _load();
   }
 
@@ -111,6 +112,7 @@ class _ClassStatusCardState extends State<ClassStatusCard> {
   @override
   Widget build(BuildContext context) {
     final p = context.palette;
+    final l10n = AppLocalizations.of(context);
 
     if (_loading) {
       return AppCard(
@@ -127,7 +129,7 @@ class _ClassStatusCardState extends State<ClassStatusCard> {
             ),
             const SizedBox(width: AppSpacing.md),
             Text(
-              'Memuat kelas…',
+              l10n.classLoadingInline,
               style: AppTypography.bodyM.copyWith(color: p.textMuted),
             ),
           ],
@@ -147,11 +149,11 @@ class _ClassStatusCardState extends State<ClassStatusCard> {
             const SizedBox(width: AppSpacing.md),
             Expanded(
               child: Text(
-                'Kelas gagal dimuat dari server',
+                l10n.classLoadFailedFromServer,
                 style: AppTypography.bodyM.copyWith(color: p.textMuted),
               ),
             ),
-            TextButton(onPressed: _load, child: const Text('Coba lagi')),
+            TextButton(onPressed: _load, child: Text(l10n.dashRetryButton)),
           ],
         ),
       );
@@ -181,7 +183,7 @@ class _ClassStatusCardState extends State<ClassStatusCard> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Belum masuk kelas',
+                    l10n.classNotInClassTitle,
                     style: AppTypography.label.copyWith(
                       color: p.text,
                       fontWeight: FontWeight.bold,
@@ -189,7 +191,7 @@ class _ClassStatusCardState extends State<ClassStatusCard> {
                   ),
                   const SizedBox(height: 2),
                   Text(
-                    'Gabung pakai kode 6 karakter dari gurumu.',
+                    l10n.classJoinHintShort,
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                     style: AppTypography.caption.copyWith(color: p.textMuted),
@@ -200,7 +202,7 @@ class _ClassStatusCardState extends State<ClassStatusCard> {
             TextButton(
               onPressed: _openJoin,
               child: Text(
-                'Gabung',
+                l10n.classJoinShort,
                 style: AppTypography.label.copyWith(
                   color: p.primary,
                   fontWeight: FontWeight.bold,
@@ -258,7 +260,7 @@ class _ClassStatusCardState extends State<ClassStatusCard> {
                         borderRadius: AppRadius.pillBorder,
                       ),
                       child: Text(
-                        'Aktif',
+                        l10n.classActiveBadge,
                         style: AppTypography.caption.copyWith(
                           color: p.success,
                           fontSize: 9,
@@ -272,7 +274,7 @@ class _ClassStatusCardState extends State<ClassStatusCard> {
                 Text(
                   [
                     if (info.teacherName.isNotEmpty) info.teacherName,
-                    '${info.memberCount} teman sekelas',
+                    l10n.classMemberCountInline(info.memberCount),
                   ].join(' • '),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
@@ -283,7 +285,7 @@ class _ClassStatusCardState extends State<ClassStatusCard> {
           ),
           const SizedBox(width: AppSpacing.xs),
           IconButton(
-            tooltip: 'Lihat semua kelas',
+            tooltip: l10n.classSeeAllTooltip,
             onPressed: _openAllClasses,
             icon: Icon(Icons.chevron_right_rounded, color: p.textMuted),
           ),

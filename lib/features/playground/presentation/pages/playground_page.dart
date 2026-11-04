@@ -4,7 +4,9 @@ import '../../../../core/services/sound_service.dart';
 import '../../../../core/theme/app_palette.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_typography.dart';
+import '../../../../core/widgets/app_sheet.dart';
 import '../../../../core/widgets/code_editor.dart';
+import '../../../../l10n/app_localizations.dart';
 import '../../data/mini_python_runner.dart';
 
 class PlaygroundPage extends StatefulWidget {
@@ -140,6 +142,7 @@ print("Jumlah 1-3 =", total)''';
   /// Dialog input() — siswa mengetik jawaban di sini, bukan di terminal.
   Future<String?> _promptInput(String prompt) async {
     if (!mounted) return '';
+    final l10n = AppLocalizations.of(context);
     final controller = TextEditingController();
     final value = await showDialog<String>(
       context: context,
@@ -172,7 +175,7 @@ print("Jumlah 1-3 =", total)''';
                   autofocus: true,
                   style: AppTypography.code.copyWith(color: p.text),
                   decoration: InputDecoration(
-                    hintText: 'ketik jawaban…',
+                    hintText: l10n.playgroundInputHint,
                     border: const OutlineInputBorder(),
                   ),
                   onSubmitted: (v) => Navigator.of(ctx).pop(v),
@@ -184,7 +187,7 @@ print("Jumlah 1-3 =", total)''';
             TextButton(
               onPressed: () => Navigator.of(ctx).pop(controller.text),
               child: Text(
-                'Kirim',
+                l10n.actionSend,
                 style: AppTypography.label.copyWith(color: p.primary),
               ),
             ),
@@ -218,9 +221,25 @@ print("Jumlah 1-3 =", total)''';
     _editorFocusNode.requestFocus();
   }
 
+  /// Tombol info di AppBar: pesan guru tentang APA YANG BELUM BISA
+  /// dilakukan di Python Sandbox. Daftar kemampuan yang sudah ada sengaja
+  /// tidak diulang — siswa cukup tahu batasnya agar tidak bingung saat
+  /// sesuatu gagal. Teks tinggal di kode aplikasi, bukan di database.
+  Future<void> _showSandboxLimits() {
+    final l10n = AppLocalizations.of(context);
+    return showAppSheet<void>(
+      context,
+      title: l10n.sandboxSheetTitle,
+      subtitle: l10n.sandboxSheetSubtitle,
+      leadingIcon: Icons.school_outlined,
+      builder: (_) => const _SandboxLimitsBody(),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final palette = context.palette;
+    final l10n = AppLocalizations.of(context);
 
     return Scaffold(
       backgroundColor: palette.bg,
@@ -233,46 +252,65 @@ print("Jumlah 1-3 =", total)''';
           preferredSize: const Size.fromHeight(1),
           child: Container(color: palette.outline, height: 1),
         ),
-        title: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-          decoration: BoxDecoration(
-            color: palette.surfaceAlt,
-            borderRadius: BorderRadius.circular(10),
-            border: Border.all(color: palette.outline),
-          ),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(Icons.code_rounded, size: 16, color: palette.primary),
-              const SizedBox(width: 6),
-              Text(
-                'main.py',
-                style: AppTypography.label.copyWith(
-                  color: palette.text,
-                  fontSize: 13,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-              const SizedBox(width: 8),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                decoration: BoxDecoration(
-                  color: palette.primaryContainer,
-                  borderRadius: BorderRadius.circular(6),
-                ),
-                child: Text(
-                  'Python Sandbox',
-                  style: AppTypography.caption.copyWith(
-                    color: palette.primary,
-                    fontSize: 10,
-                    fontWeight: FontWeight.w700,
+        // FittedBox menjaga chip judul tetap utuh (mengecil sedikit) saat
+        // layar sempit, sehingga tombol info + Reset + Jalankan tidak
+        // saling mendorong keluar layar.
+        title: FittedBox(
+          fit: BoxFit.scaleDown,
+          alignment: Alignment.centerLeft,
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+            decoration: BoxDecoration(
+              color: palette.surfaceAlt,
+              borderRadius: BorderRadius.circular(10),
+              border: Border.all(color: palette.outline),
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(Icons.code_rounded, size: 16, color: palette.primary),
+                const SizedBox(width: 6),
+                Text(
+                  'main.py',
+                  style: AppTypography.label.copyWith(
+                    color: palette.text,
+                    fontSize: 13,
+                    fontWeight: FontWeight.w600,
                   ),
                 ),
-              ),
-            ],
+                const SizedBox(width: 8),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                  decoration: BoxDecoration(
+                    color: palette.primaryContainer,
+                    borderRadius: BorderRadius.circular(6),
+                  ),
+                  child: Text(
+                    'Python Sandbox',
+                    style: AppTypography.caption.copyWith(
+                      color: palette.primary,
+                      fontSize: 10,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
         actions: [
+          IconButton(
+            tooltip: l10n.sandboxTooltip,
+            icon: Icon(
+              Icons.info_outline_rounded,
+              size: 20,
+              color: palette.textMuted,
+            ),
+            padding: EdgeInsets.zero,
+            visualDensity: VisualDensity.compact,
+            constraints: const BoxConstraints(minWidth: 30, minHeight: 30),
+            onPressed: _showSandboxLimits,
+          ),
           TextButton(
             onPressed: _resetCode,
             style: TextButton.styleFrom(
@@ -281,7 +319,7 @@ print("Jumlah 1-3 =", total)''';
               minimumSize: const Size(0, 36),
             ),
             child: Text(
-              'Reset',
+              l10n.playgroundReset,
               style: AppTypography.label.copyWith(
                 color: palette.textMuted,
                 fontSize: 13,
@@ -294,7 +332,7 @@ print("Jumlah 1-3 =", total)''';
               onPressed: _isRunning ? null : _runCode,
               icon: const Icon(Icons.play_arrow_rounded, size: 16),
               label: Text(
-                _isRunning ? 'Menjalankan…' : 'Jalankan',
+                _isRunning ? l10n.playgroundRunning : l10n.playgroundRun,
                 style: AppTypography.label.copyWith(
                   color: palette.onPrimary,
                   fontSize: 13,
@@ -396,6 +434,7 @@ print("Jumlah 1-3 =", total)''';
   }
 
   Widget _buildTerminalPanel(AppPalette palette) {
+    final l10n = AppLocalizations.of(context);
     return AnimatedContainer(
       duration: const Duration(milliseconds: 250),
       curve: Curves.easeInOut,
@@ -425,7 +464,7 @@ print("Jumlah 1-3 =", total)''';
                     ),
                     const SizedBox(width: AppSpacing.sm),
                     Text(
-                      'Terminal',
+                      l10n.playgroundTerminal,
                       style: AppTypography.label.copyWith(
                         color: palette.text,
                         fontSize: 13,
@@ -443,7 +482,7 @@ print("Jumlah 1-3 =", total)''';
                           size: 18,
                           color: palette.textMuted,
                         ),
-                        tooltip: 'Bersihkan terminal',
+                        tooltip: l10n.playgroundClearTerminal,
                         padding: EdgeInsets.zero,
                         constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
                         onPressed: () {
@@ -462,7 +501,9 @@ print("Jumlah 1-3 =", total)''';
                         size: 20,
                         color: palette.textMuted,
                       ),
-                      tooltip: _isTerminalExpanded ? 'Tutup terminal' : 'Buka terminal',
+                      tooltip: _isTerminalExpanded
+                          ? l10n.playgroundCloseTerminal
+                          : l10n.playgroundOpenTerminal,
                       padding: EdgeInsets.zero,
                       constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
                       onPressed: () => setState(() => _isTerminalExpanded = !_isTerminalExpanded),
@@ -489,10 +530,10 @@ print("Jumlah 1-3 =", total)''';
                     ? Center(
                         child: Text(
                           _isRunning
-                              ? 'Menjalankan kode…'
+                              ? l10n.playgroundRunning
                               : _hasRun
-                                  ? '(Program selesai tanpa output)'
-                                  : "Tekan 'Jalankan' untuk melihat output",
+                                  ? l10n.playgroundEmptyDone
+                                  : l10n.playgroundEmptyIdle,
                           style: AppTypography.code.copyWith(
                             color: palette.textMuted,
                             fontSize: 12,
@@ -554,6 +595,149 @@ print("Jumlah 1-3 =", total)''';
               color: color,
               fontSize: 11,
               fontWeight: FontWeight.w700,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Isi tombol info sandbox — hanya BATASAN, ditulis dengan suara guru.
+class _SandboxLimitsBody extends StatelessWidget {
+  const _SandboxLimitsBody();
+
+  @override
+  Widget build(BuildContext context) {
+    final p = context.palette;
+    final l10n = AppLocalizations.of(context);
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(
+        AppSpacing.screen,
+        AppSpacing.lg,
+        AppSpacing.screen,
+        AppSpacing.xl,
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            l10n.sandboxIntro,
+            style: AppTypography.bodyM.copyWith(
+              color: p.textMuted,
+              height: 1.55,
+            ),
+          ),
+          const SizedBox(height: AppSpacing.lg),
+          _SandboxLimit(
+            icon: Icons.extension_off_rounded,
+            title: l10n.sandboxLimitImportTitle,
+            body: l10n.sandboxLimitImportBody,
+          ),
+          _SandboxLimit(
+            icon: Icons.folder_off_outlined,
+            title: l10n.sandboxLimitFileTitle,
+            body: l10n.sandboxLimitFileBody,
+          ),
+          _SandboxLimit(
+            icon: Icons.image_not_supported_outlined,
+            title: l10n.sandboxLimitGuiTitle,
+            body: l10n.sandboxLimitGuiBody,
+          ),
+          _SandboxLimit(
+            icon: Icons.account_tree_outlined,
+            title: l10n.sandboxLimitOopTitle,
+            body: l10n.sandboxLimitOopBody,
+          ),
+          _SandboxLimit(
+            icon: Icons.timer_off_outlined,
+            title: l10n.sandboxLimitLimitsTitle,
+            body: l10n.sandboxLimitLimitsBody,
+          ),
+          const SizedBox(height: AppSpacing.sm),
+          Container(
+            padding: const EdgeInsets.all(AppSpacing.md),
+            decoration: BoxDecoration(
+              color: p.surfaceAlt,
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Icon(
+                  Icons.tips_and_updates_outlined,
+                  size: 20,
+                  color: p.primary,
+                ),
+                const SizedBox(width: AppSpacing.sm),
+                Expanded(
+                  child: Text(
+                    l10n.sandboxClosing,
+                    style: AppTypography.bodySm.copyWith(
+                      color: p.textMuted,
+                      height: 1.5,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Satu baris batasan: ikon + judul tegas + penjelasan guru.
+class _SandboxLimit extends StatelessWidget {
+  const _SandboxLimit({
+    required this.icon,
+    required this.title,
+    required this.body,
+  });
+
+  final IconData icon;
+  final String title;
+  final String body;
+
+  @override
+  Widget build(BuildContext context) {
+    final p = context.palette;
+    return Padding(
+      padding: const EdgeInsets.only(bottom: AppSpacing.md),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            width: 34,
+            height: 34,
+            decoration: BoxDecoration(
+              color: p.warningContainer,
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Icon(icon, size: 18, color: p.warningText),
+          ),
+          const SizedBox(width: AppSpacing.md),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: AppTypography.label.copyWith(
+                    color: p.text,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  body,
+                  style: AppTypography.bodySm.copyWith(
+                    color: p.textMuted,
+                    height: 1.5,
+                  ),
+                ),
+              ],
             ),
           ),
         ],
