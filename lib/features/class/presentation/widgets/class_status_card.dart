@@ -1,15 +1,16 @@
 // FILE: lib/features/class/presentation/widgets/class_status_card.dart
 //
 // TUGAS: seksi KECIL kelas di Dashboard siswa (Minggu 10 lanjutan):
-// - sedang tergabung  → satu kartu ringkas berisi nama kelas, guru, jumlah
-//   teman, dan kode kelas; diketuk membuka StudentClassDetailSheet.
+// - sedang tergabung  → satu kartu ringkas berisi kelas UTAMA (paling baru
+//   diikuti — backend mengurutkan joined_at DESC), guru, dan jumlah teman;
+//   diketuk membuka StudentClassDetailSheet kelas tersebut.
+// - multi-kelas       → chip "{n} kelas" di kanan membuka MyClassesSheet
+//   (daftar SEMUA kelas + aksi "Gabung Kelas Lain"), supaya dashboard tetap
+//   ringkas dan tidak menumpuk kartu kelas.
 // - belum tergabung   → ajakan "Gabung Kelas" yang membuka JoinClassSheet.
 //
 // Data 100% dari backend (GET /classes/my) dan disegarkan senyap setiap tab
 // Dashboard diaktifkan kembali — tidak ada kelas tiruan.
-//
-// WAJIB DIUBAH BILA: aturan "satu kelas aktif per siswa" dilonggarkan —
-// ganti kartu tunggal ini dengan daftar (lihat MyClassesSheet).
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -214,9 +215,12 @@ class _ClassStatusCardState extends State<ClassStatusCard> {
       );
     }
 
-    // Aturan minggu 10: satu kelas aktif per siswa. Kartu tetap menyediakan
-    // pintu ke lembar daftar agar struktur siap bila aturan itu berubah.
+    // Multi-kelas: kartu menampilkan kelas UTAMA (paling baru diikuti —
+    // urutan GET /classes/my adalah joined_at DESC). Kelas lain tetap
+    // terjangkau lewat chip jumlah di kanan → MyClassesSheet.
     final info = _classes.first;
+    final classCount = _classes.length;
+    final hasMultipleClasses = classCount > 1;
     return AppCard(
       padding: const EdgeInsets.all(AppSpacing.md),
       onTap: () => _openDetail(info),
@@ -249,25 +253,30 @@ class _ClassStatusCardState extends State<ClassStatusCard> {
                         ),
                       ),
                     ),
-                    const SizedBox(width: AppSpacing.xs),
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 6,
-                        vertical: 2,
-                      ),
-                      decoration: BoxDecoration(
-                        color: p.successContainer,
-                        borderRadius: AppRadius.pillBorder,
-                      ),
-                      child: Text(
-                        l10n.classActiveBadge,
-                        style: AppTypography.caption.copyWith(
-                          color: p.success,
-                          fontSize: 9,
-                          fontWeight: FontWeight.bold,
+                    // Badge "Aktif" hanya bermakna saat siswa punya satu
+                    // kelas. Saat multi-kelas, jumlahnya diwakili chip di
+                    // sisi kanan agar tidak ada dua pesan yang bersaing.
+                    if (!hasMultipleClasses) ...[
+                      const SizedBox(width: AppSpacing.xs),
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 6,
+                          vertical: 2,
+                        ),
+                        decoration: BoxDecoration(
+                          color: p.successContainer,
+                          borderRadius: AppRadius.pillBorder,
+                        ),
+                        child: Text(
+                          l10n.classActiveBadge,
+                          style: AppTypography.caption.copyWith(
+                            color: p.success,
+                            fontSize: 9,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                       ),
-                    ),
+                    ],
                   ],
                 ),
                 const SizedBox(height: 2),
@@ -284,11 +293,51 @@ class _ClassStatusCardState extends State<ClassStatusCard> {
             ),
           ),
           const SizedBox(width: AppSpacing.xs),
-          IconButton(
-            tooltip: l10n.classSeeAllTooltip,
-            onPressed: _openAllClasses,
-            icon: Icon(Icons.chevron_right_rounded, color: p.textMuted),
-          ),
+          // Satu elemen untuk dua pesan: "ada berapa kelas" sekaligus pintu
+          // ke daftar lengkap. Saat hanya satu kelas, cukup panah biasa.
+          if (hasMultipleClasses)
+            Tooltip(
+              message: l10n.classSeeAllTooltip,
+              child: TextButton(
+                onPressed: _openAllClasses,
+                style: TextButton.styleFrom(
+                  foregroundColor: p.primary,
+                  backgroundColor: p.primaryContainer,
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 9,
+                    vertical: 4,
+                  ),
+                  minimumSize: const Size(0, 34),
+                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                  shape: const StadiumBorder(),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      l10n.classCountBadge(classCount),
+                      style: AppTypography.caption.copyWith(
+                        color: p.primary,
+                        fontSize: 11,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(width: 2),
+                    Icon(
+                      Icons.chevron_right_rounded,
+                      size: 16,
+                      color: p.primary,
+                    ),
+                  ],
+                ),
+              ),
+            )
+          else
+            IconButton(
+              tooltip: l10n.classSeeAllTooltip,
+              onPressed: _openAllClasses,
+              icon: Icon(Icons.chevron_right_rounded, color: p.textMuted),
+            ),
         ],
       ),
     );

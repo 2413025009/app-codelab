@@ -2,7 +2,8 @@
 // TUGAS: memecah markdown materi bab menjadi slide domain.
 // FUNGSI YANG DIKELOLA: parseSlides — blok dipisah '---' dipetakan ke
 // 7 tipe slide (teori, kuis, tap-to-fill, type-code, bug-hunter, dst.);
-// materi kosong jatuh ke satu TheorySlide 'Materi belum tersedia'.
+// materi kosong jatuh ke satu TheorySlide berkonten kosong (pesan
+// "tidak tersedia" diselesaikan ke l10n di widget teori).
 // DATA YANG DIKELOLA: LessonSlide beserta tiap variannya.
 // WAJIB DIUBAH BILA: kontrak markdown materi berubah (pemisah atau tipe slide baru).
 import 'dart:convert';
@@ -11,11 +12,13 @@ import 'slide_models.dart';
 class LessonParser {
   static List<LessonSlide> parseSlides(String markdown, {required String defaultTitle}) {
     if (markdown.trim().isEmpty) {
+      // Konten kosong: TheorySlide berkonten kosong; widget teori
+      // menampilkan pesan l10n (slideContentUnavailable) di presentation.
       return [
         TheorySlide(
           id: 'slide-1',
           title: defaultTitle,
-          content: 'Materi belum tersedia saat ini.',
+          content: '',
         ),
       ];
     }
@@ -116,10 +119,12 @@ class LessonParser {
     var options = <String>[];
     var correct = <String>[];
     var file = 'main.py';
-    var successTitle = 'Tepat Sekali!';
-    var successMsg = 'Sintaks berhasil disusun.';
-    var errorTitle = 'Coba Periksa Lagi!';
-    var errorMsg = 'Perhatikan slot yang kosong.';
+    // Default feedback null = diselesaikan ke l10n di presentation;
+    // nilai dari markdown dipertahankan apa adanya.
+    String? successTitle;
+    String? successMsg;
+    String? errorTitle;
+    String? errorMsg;
 
     for (final line in block.split('\n')) {
       final trimmed = line.trim();
@@ -165,10 +170,12 @@ class LessonParser {
     var codeTemplate = '[input]';
     var expected = '';
     var hint = '';
-    var successTitle = 'Luar Biasa!';
-    var successMsg = 'Perintah yang kamu ketik tepat.';
-    var errorTitle = 'Kurang Tepat!';
-    var errorMsg = 'Perhatikan penulisan huruf.';
+    // Default feedback null = diselesaikan ke l10n di presentation;
+    // nilai dari markdown dipertahankan apa adanya.
+    String? successTitle;
+    String? successMsg;
+    String? errorTitle;
+    String? errorMsg;
 
     for (final line in block.split('\n')) {
       final trimmed = line.trim();
@@ -222,10 +229,12 @@ class LessonParser {
     var question = 'Berapa output konsol dari kode di atas?';
     var options = <String>[];
     var correct = '';
-    var successTitle = 'Mantap Jiwa!';
-    var successMsg = 'Prediksi logikamu akurat.';
-    var errorTitle = 'Kurang Tepat!';
-    var errorMsg = 'Perhatikan alur eksekusi baris demi baris.';
+    // Default feedback null = diselesaikan ke l10n di presentation;
+    // nilai dari markdown dipertahankan apa adanya.
+    String? successTitle;
+    String? successMsg;
+    String? errorTitle;
+    String? errorMsg;
 
     final lines = block.split('\n');
     var readingOptions = false;
@@ -292,10 +301,12 @@ class LessonParser {
     var correctLine = 1;
     var errorType = 'SyntaxError';
     var explanation = '';
-    var successTitle = 'Hebat, Bug Ditemukan!';
-    var successMsg = 'Kamu berhasil mendeteksi baris error.';
-    var errorTitle = 'Bukan Baris Itu!';
-    var errorMsg = 'Cari baris yang melanggar aturan sintaks.';
+    // Default feedback null = diselesaikan ke l10n di presentation;
+    // nilai dari markdown dipertahankan apa adanya.
+    String? successTitle;
+    String? successMsg;
+    String? errorTitle;
+    String? errorMsg;
 
     var readingLines = false;
 
@@ -363,10 +374,12 @@ class LessonParser {
     var options = <String>[];
     var correct = '';
     var explanation = '';
-    var successTitle = 'Jawaban Sempurna!';
-    var successMsg = 'Pemahaman konsepmu sangat solid.';
-    var errorTitle = 'Kurang Tepat!';
-    var errorMsg = 'Coba ingat kembali prinsip dasar materi ini.';
+    // Default feedback null = diselesaikan ke l10n di presentation;
+    // nilai dari markdown dipertahankan apa adanya.
+    String? successTitle;
+    String? successMsg;
+    String? errorTitle;
+    String? errorMsg;
 
     final lines = block.split('\n');
     var readingOptions = false;

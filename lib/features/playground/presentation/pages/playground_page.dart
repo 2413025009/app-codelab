@@ -111,6 +111,7 @@ print("Jumlah 1-3 =", total)''';
     final result = await _runner.run(
       _codeController.text,
       onInput: _promptInput,
+      l10n: AppLocalizations.of(context),
     );
     stopwatch.stop();
 

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../../../core/theme/app_palette.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_typography.dart';
+import '../../../../l10n/app_localizations.dart';
 
 /// Modal Bottom Sheet untuk mempratinjau jenis slide latihan sebelum ditambahkan ke bab.
 /// Berdasarkan acuan desain Stitch: `modal_pratinjau_tipe_slide_lengkapi_kode`.
@@ -36,7 +37,8 @@ class SlideTypePreviewSheet extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final p = context.palette;
-    final info = _resolveTypeInfo(type);
+    final l10n = AppLocalizations.of(context);
+    final info = _resolveTypeInfo(l10n, type);
 
     return SafeArea(
       child: Padding(
@@ -86,7 +88,7 @@ class SlideTypePreviewSheet extends StatelessWidget {
                         ),
                         const SizedBox(width: 5),
                         Text(
-                          'Pratinjau Format Interaktif',
+                          l10n.tPreviewInteractiveFormat,
                           style: AppTypography.labelSm.copyWith(
                             color: p.primary,
                             fontWeight: FontWeight.bold,
@@ -120,7 +122,7 @@ class SlideTypePreviewSheet extends StatelessWidget {
 
               // Title & Subtitle
               Text(
-                'Pratinjau Tipe Slide: ${info.title}',
+                l10n.tPreviewSheetTitle(info.title),
                 style: AppTypography.titleM.copyWith(
                   color: p.text,
                   fontWeight: FontWeight.bold,
@@ -167,7 +169,7 @@ class SlideTypePreviewSheet extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            'Manfaat Pedagogis',
+                            l10n.tPreviewBenefits,
                             style: AppTypography.labelL.copyWith(
                               color: p.text,
                               fontWeight: FontWeight.bold,
@@ -223,7 +225,7 @@ class SlideTypePreviewSheet extends StatelessWidget {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  'Imbalan Siswa',
+                                  l10n.tPreviewReward,
                                   style: AppTypography.labelSm.copyWith(
                                     color: p.textMuted,
                                   ),
@@ -274,7 +276,7 @@ class SlideTypePreviewSheet extends StatelessWidget {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  'Tipe Modul',
+                                  l10n.tPreviewModuleType,
                                   style: AppTypography.labelSm.copyWith(
                                     color: p.textMuted,
                                   ),
@@ -312,7 +314,7 @@ class SlideTypePreviewSheet extends StatelessWidget {
                       ),
                       onPressed: () => Navigator.of(context).pop(),
                       child: Text(
-                        'Tutup',
+                        l10n.actionClose,
                         style: AppTypography.labelL.copyWith(color: p.text),
                       ),
                     ),
@@ -334,8 +336,8 @@ class SlideTypePreviewSheet extends StatelessWidget {
                         Icons.add_circle_outline_rounded,
                         size: 18,
                       ),
-                      label: const Text(
-                        'Gunakan Tipe Ini',
+                      label: Text(
+                        l10n.tPreviewUseType,
                         style: TextStyle(fontWeight: FontWeight.bold),
                       ),
                       onPressed: () {
@@ -359,6 +361,7 @@ class SlideTypePreviewSheet extends StatelessWidget {
     _SlidePreviewData info,
     AppPalette p,
   ) {
+    final l10n = AppLocalizations.of(context);
     return Container(
       decoration: BoxDecoration(
         color: p.surface,
@@ -407,7 +410,7 @@ class SlideTypePreviewSheet extends StatelessWidget {
                 ),
                 const SizedBox(width: 8),
                 Text(
-                  'Simulasi Siswa Aktif',
+                  l10n.tPreviewSimulation,
                   style: AppTypography.labelSm.copyWith(color: p.textMuted),
                 ),
                 const Spacer(),
@@ -433,7 +436,7 @@ class SlideTypePreviewSheet extends StatelessWidget {
                       ),
                       const SizedBox(width: 5),
                       Text(
-                        'Layar Ponsel',
+                        l10n.tPreviewPhoneScreen,
                         style: AppTypography.labelSm.copyWith(
                           color: p.success,
                           fontSize: 11,
@@ -485,7 +488,7 @@ class SlideTypePreviewSheet extends StatelessWidget {
                 // Choice chips or interactive simulation
                 if (info.sampleChips.isNotEmpty) ...[
                   Text(
-                    'Pilihan jawaban untuk siswa:',
+                    l10n.tPreviewAnswerChoices,
                     style: AppTypography.labelSm.copyWith(color: p.textMuted),
                   ),
                   const SizedBox(height: 6),
@@ -571,78 +574,78 @@ class SlideTypePreviewSheet extends StatelessWidget {
     );
   }
 
-  _SlidePreviewData _resolveTypeInfo(String type) {
+  _SlidePreviewData _resolveTypeInfo(AppLocalizations l10n, String type) {
     switch (type.toUpperCase()) {
       case 'TAP_TO_FILL':
         return _SlidePreviewData(
-          title: 'Lengkapi Kode',
+          title: l10n.tBabTypeTapName,
           subtitle:
-              'Simulasi bagaimana siswa berinteraksi dengan latihan ini di ponsel secara langsung.',
-          techTag: 'HTML • V1.2',
+              l10n.tPreviewSubtitleTapToFill,
+          techTag: l10n.tPreviewTechTapToFill,
           fileName: 'index.html',
-          instructionPrompt: 'Lengkapi tag penutup yang tepat: Baris 4',
+          instructionPrompt: l10n.tPreviewPromptTapToFill,
           codeSnippet:
               '1  <!DOCTYPE html>\n2  <html>\n3    <h1>Halo Dunia!</h1>\n4    <p>Belajar kode seru</ [ p ] >\n5  </html>',
           sampleChips: ['print', 'p', 'console.log'],
           selectedChip: 'p',
           feedbackNote:
-              'Siswa mendapat umpan balik instan saat memilih kepingan kode.',
+              l10n.tPreviewFeedbackTapToFill,
           pedagogicalBenefit:
-              'Melatih penguasaan sintaksis dasar tanpa beban mengetik panjang di papan ketik layar sentuh HP.',
+              l10n.tPreviewBenefitTapToFill,
           xpRecommendation: '+15 XP disarankan',
           moduleCode: 'FILL_BLANK',
         );
 
       case 'THEORY':
         return _SlidePreviewData(
-          title: 'Teori & Konsep',
+          title: l10n.tBabTypeTheoryName,
           subtitle:
-              'Teks bacaan terstruktur, markdown penjelasan, dan cuplikan kode contoh.',
-          techTag: 'Markdown • Teori',
+              l10n.tPreviewSubtitleTheory,
+          techTag: l10n.tPreviewTechTheory,
           fileName: 'konsep_dasar.md',
-          instructionPrompt: 'Materi Pembuka & Pengenalan Logika',
+          instructionPrompt: l10n.tPreviewPromptTheory,
           codeSnippet:
               '# Struktur Dasar HTML5\n\nDokumen HTML selalu diawali dengan deklarasi `<!DOCTYPE html>` agar browser merender dengan standar modern.',
           sampleChips: [],
           selectedChip: '',
           feedbackNote:
-              'Mendukung format Markdown, syntax highlighter, dan kotak callout tips guru.',
+              l10n.tPreviewFeedbackTheory,
           pedagogicalBenefit:
-              'Membangun landasan pemahaman konseptual yang kuat sebelum siswa masuk ke sesi latihan interaktif.',
+              l10n.tPreviewBenefitTheory,
           xpRecommendation: '+10 XP disarankan',
           moduleCode: 'THEORY_READ',
         );
 
       case 'TYPE_CODE':
         return _SlidePreviewData(
-          title: 'Ketik Kata Kunci',
+          title: l10n.tBabTypeTypeName,
           subtitle:
-              'Latihan muscle-memory mengetikkan keyword sintaksis spesifik.',
-          techTag: 'Python • Sintaks',
+              l10n.tPreviewSubtitleTypeCode,
+          techTag: l10n.tPreviewTechTypeCode,
           fileName: 'main.py',
           instructionPrompt:
-              'Ketikkan kata kunci untuk membuat fungsi di Python:',
+              l10n.tPreviewPromptTypeCode,
           codeSnippet:
               '1  # Inisialisasi fungsi\n2  [ def ] hitung_luas(p, l):\n3      return p * l',
           sampleChips: ['def', 'function', 'fn'],
           selectedChip: 'def',
           feedbackNote:
-              'Dilengkapi validasi case-sensitive dan hint otomatis saat siswa keliru.',
+              l10n.tPreviewFeedbackTypeCode,
           pedagogicalBenefit:
-              'Membiasakan siswa dengan penulisan sintaksis yang presisi dan melatih ketelitian pengetikan reserved-words.',
+              l10n.tPreviewBenefitTypeCode,
           xpRecommendation: '+15 XP disarankan',
           moduleCode: 'TYPE_KEYWORD',
         );
 
       case 'OUTPUT_PREDICT':
         return _SlidePreviewData(
-          title: 'Tebak Output Kode',
+          title: l10n.tTemplateLabelOutputPredict,
           subtitle:
-              'Siswa menganalisis baris program dan memprediksi hasil running terminal.',
-          techTag: 'Console • Logika',
+              l10n.tPreviewSubtitleOutputPredict,
+          techTag: l10n.tPreviewTechOutputPredict,
           fileName: 'script.py',
           instructionPrompt:
-              'Apakah output yang dicetak oleh operasi modulus berikut?',
+              l10n.tPreviewPromptOutputPredict,
           codeSnippet:
               '1  x = 17\n2  y = 5\n3  hasil = x % y\n4  print("Sisa bagi:", hasil)',
           sampleChips: [
@@ -652,50 +655,50 @@ class SlideTypePreviewSheet extends StatelessWidget {
           ],
           selectedChip: '\$ Sisa bagi: 2',
           feedbackNote:
-              'Tampilan opsi bergaya konsol terminal gelap untuk simulasi nyata.',
+              l10n.tPreviewFeedbackOutputPredict,
           pedagogicalBenefit:
-              'Melatih kemampuan mental execution algoritma dan tracing variabel tanpa ketergantungan debugger.',
+              l10n.tPreviewBenefitOutputPredict,
           xpRecommendation: '+20 XP disarankan',
           moduleCode: 'PREDICT_OUTPUT',
         );
 
       case 'BUG_HUNTER':
         return _SlidePreviewData(
-          title: 'Bug Hunter (Cari Galat)',
+          title: l10n.tPreviewTitleBugHunter,
           subtitle:
-              'Tantangan menemukan baris kode yang rusak dan memperbaikinya.',
-          techTag: 'Python • Debug',
+              l10n.tPreviewSubtitleBugHunter,
+          techTag: l10n.tPreviewTechBugHunter,
           fileName: 'loop_detector.py',
           instructionPrompt:
-              'Temukan baris yang mengandung kesalahan sintaksis:',
+              l10n.tPreviewPromptBugHunter,
           codeSnippet:
               '1  # Loop angka genap\n2  total = 0\n3  angka = [2, 4, 6]\n4  for i in angka     [🔴 Target Bug: Kurang titik dua (:)]\n5      total += i',
           sampleChips: ['Baris 2', 'Baris 4', 'Baris 5'],
           selectedChip: 'Baris 4',
           feedbackNote:
-              'Siswa mengetuk nomor baris yang bermasalah untuk memicu bimbingan AI.',
+              l10n.tPreviewFeedbackBugHunter,
           pedagogicalBenefit:
-              'Mengasah intuisi problem-solving dan kemampuan membaca kode orang lain yang merupakan inti skill developer.',
+              l10n.tPreviewBenefitBugHunter,
           xpRecommendation: '+25 XP disarankan',
           moduleCode: 'BUG_HUNTER',
         );
 
       case 'QUIZ':
         return _SlidePreviewData(
-          title: 'Kuis Pilihan Ganda',
+          title: l10n.tBabTypeQuizName,
           subtitle:
-              'Pertanyaan evaluasi pemahaman dengan 4 opsi pilihan dan pembahasan.',
-          techTag: 'Evaluasi • Konsep',
+              l10n.tPreviewSubtitleQuiz,
+          techTag: l10n.tPreviewTechQuiz,
           fileName: 'kuis_evaluasi.json',
-          instructionPrompt: 'Apa fungsi utama dari deklarasi <!DOCTYPE html>?',
+          instructionPrompt: l10n.tPreviewPromptQuiz,
           codeSnippet:
               'A. [ ✓ Kunci ] Memberitahu browser standar dokumen\nB. Mengatur warna background default halaman\nC. Menyambungkan dokumen dengan server backend\nD. Mempercepat rendering gambar responsif',
           sampleChips: ['Opsi A', 'Opsi B', 'Opsi C', 'Opsi D'],
           selectedChip: 'Opsi A',
           feedbackNote:
-              'Dilengkapi pembahasan otomatis yang tampil setelah siswa menjawab.',
+              l10n.tPreviewFeedbackQuiz,
           pedagogicalBenefit:
-              'Mengukur daya serap materi secara obyektif dan cepat di akhir sesi pembahasan.',
+              l10n.tPreviewBenefitQuiz,
           xpRecommendation: '+10 XP disarankan',
           moduleCode: 'MULTIPLE_CHOICE',
         );
@@ -703,20 +706,20 @@ class SlideTypePreviewSheet extends StatelessWidget {
       case 'OUTRO':
       default:
         return _SlidePreviewData(
-          title: 'Rangkuman & Klaim XP',
+          title: l10n.tBabTypeOutroName,
           subtitle:
-              'Slide penutup bab dengan rekap materi yang dikuasai dan klaim hadiah.',
-          techTag: 'Pencapaian • Penutup',
+              l10n.tPreviewSubtitleOutro,
+          techTag: l10n.tPreviewTechOutro,
           fileName: 'rekap_bab.summary',
           instructionPrompt:
-              'Selamat! Kamu telah menyelesaikan seluruh latihan di bab ini.',
+              l10n.tPreviewPromptOutro,
           codeSnippet:
               '🏆 Status: 100% Tuntas\n⚡ Total XP Didapat: +50 XP\n✨ Level Up: Pemula -> Menengah',
           sampleChips: [],
           selectedChip: '',
-          feedbackNote: 'Otomatis dibuat di akhir alur pembelajaran bab.',
+          feedbackNote: l10n.tPreviewFeedbackOutro,
           pedagogicalBenefit:
-              'Memberikan kepuasan pencapaian (gamification) dan merangkum poin-poin penting materi.',
+              l10n.tPreviewBenefitOutro,
           xpRecommendation: '+50 XP (Total)',
           moduleCode: 'CHAPTER_OUTRO',
         );

@@ -14,6 +14,8 @@ import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_snack.dart';
+import '../../../../l10n/app_localizations.dart';
+import '../../../../l10n/l10n_ext.dart';
 import 'package:mobile_codelab_ai/features/class/domain/class_repository.dart';
 import 'package:mobile_codelab_ai/features/teacher/domain/teacher_models.dart';
 import '../cubit/teacher_cubit.dart';
@@ -91,36 +93,33 @@ class _TeacherClassAnalyticsPageState extends State<TeacherClassAnalyticsPage> {
 
   void _copyCode(String code) {
     Clipboard.setData(ClipboardData(text: code));
-    showAppSnack(context, 'Kode kelas "$code" disalin ke clipboard!');
+    showAppSnack(context, AppLocalizations.of(context).tAnalyticsCodeCopied(code));
   }
 
   Future<void> _confirmRemoveStudent(StudentRosterRow student) async {
     final p = context.palette;
+    final l10n = AppLocalizations.of(context);
     // `read` (bukan `watch`): method ini dipanggil dari callback, di luar build.
     final classes = context.read<TeacherCubit>().state.classes;
     final room = classes
         .where((item) => item.id == _selectedClassId)
         .firstOrNull;
-    final className = room?.name ?? 'kelas ini';
+    final className = room?.name ?? l10n.tAnalyticsThisClass;
 
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Keluarkan Siswa'),
-        content: Text(
-          'Keluarkan ${student.name} dari $className?\n\n'
-          'Siswa tidak akan muncul lagi di daftar dan peringkat kelas. '
-          'Ia bisa bergabung kembali dengan kode kelas.',
-        ),
+        title: Text(l10n.tAnalyticsRemoveTitle),
+        content: Text(l10n.tAnalyticsRemoveBody(student.name, className)),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(false),
-            child: const Text('Batal'),
+            child: Text(l10n.actionCancel),
           ),
           TextButton(
             style: TextButton.styleFrom(foregroundColor: p.error),
             onPressed: () => Navigator.of(ctx).pop(true),
-            child: const Text('Keluarkan'),
+            child: Text(l10n.tAnalyticsRemoveConfirm),
           ),
         ],
       ),
@@ -135,6 +134,7 @@ class _TeacherClassAnalyticsPageState extends State<TeacherClassAnalyticsPage> {
 
   void _showFullscreenProjector(String code, String className) {
     final p = context.palette;
+    final l10n = AppLocalizations.of(context);
     showDialog(
       context: context,
       barrierDismissible: true,
@@ -182,7 +182,7 @@ class _TeacherClassAnalyticsPageState extends State<TeacherClassAnalyticsPage> {
                             const SizedBox(width: 8),
                             Flexible(
                               child: Text(
-                                'KODE KELAS (LAYAR PENUH)',
+                                l10n.tDashCodeFullscreen,
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
                                 style: AppTypography.labelL.copyWith(
@@ -202,7 +202,7 @@ class _TeacherClassAnalyticsPageState extends State<TeacherClassAnalyticsPage> {
                       ),
                       const SizedBox(height: AppSpacing.sm),
                       Text(
-                        'Buka aplikasi CodeLab AI dan masukkan kode kelas:',
+                        l10n.tDashProjectorHint,
                         textAlign: TextAlign.center,
                         style: AppTypography.bodyL.copyWith(color: p.textMuted),
                       ),
@@ -233,7 +233,7 @@ class _TeacherClassAnalyticsPageState extends State<TeacherClassAnalyticsPage> {
                       const SizedBox(height: AppSpacing.xl),
                       ElevatedButton.icon(
                         icon: const Icon(Icons.copy_rounded),
-                        label: const Text('Salin Kode'),
+                        label: Text(l10n.tDashProjectorCopy),
                         style: ElevatedButton.styleFrom(
                           backgroundColor: p.primary,
                           foregroundColor: p.onPrimary,
@@ -261,6 +261,7 @@ class _TeacherClassAnalyticsPageState extends State<TeacherClassAnalyticsPage> {
 
   void _showClassOptionsMenu(BuildContext context, ClassInfo room) {
     final p = context.palette;
+    final l10n = AppLocalizations.of(context);
     final cubit = context.read<TeacherCubit>();
 
     showModalBottomSheet(
@@ -289,7 +290,7 @@ class _TeacherClassAnalyticsPageState extends State<TeacherClassAnalyticsPage> {
               ),
               const SizedBox(height: AppSpacing.md),
               Text(
-                'Opsi Kelas: ${room.name}',
+                l10n.tAnalyticsClassOptions(room.name),
                 style: AppTypography.titleM.copyWith(color: p.text),
               ),
               const SizedBox(height: AppSpacing.md),
@@ -298,10 +299,10 @@ class _TeacherClassAnalyticsPageState extends State<TeacherClassAnalyticsPage> {
               ListTile(
                 leading: Icon(Icons.refresh_rounded, color: p.primary),
                 title: Text(
-                  'Acak Ulang Kode Kelas',
+                  l10n.tAnalyticsRegenerateCode,
                   style: AppTypography.labelL.copyWith(color: p.text),
                 ),
-                subtitle: const Text('Hasilkan kode kelas baru.'),
+                subtitle: Text(l10n.tAnalyticsRegenerateCodeSub),
                 onTap: () {
                   Navigator.of(ctx).pop();
                   cubit.regenerateClassCode(room.id);
@@ -312,10 +313,10 @@ class _TeacherClassAnalyticsPageState extends State<TeacherClassAnalyticsPage> {
               ListTile(
                 leading: Icon(Icons.archive_outlined, color: p.error),
                 title: Text(
-                  'Arsipkan Kelas',
+                  l10n.tAnalyticsArchiveClass,
                   style: AppTypography.labelL.copyWith(color: p.error),
                 ),
-                subtitle: const Text('Siswa tidak dapat bergabung lagi.'),
+                subtitle: Text(l10n.tAnalyticsArchiveClassSub),
                 onTap: () {
                   Navigator.of(ctx).pop();
                   cubit.archiveClass(room.id);
@@ -383,37 +384,33 @@ class _TeacherClassAnalyticsPageState extends State<TeacherClassAnalyticsPage> {
 
   /// Penjelasan spesifik untuk filter yang sedang aktif, supaya guru tahu
   /// persis siswa mana yang muncul dan bagaimana urutannya.
-  String _rosterFilterHint(List<MaterialProgress> materials) {
+  String _rosterFilterHint(AppLocalizations l10n, List<MaterialProgress> materials) {
     final material = materials
         .where((m) => m.lessonId == _materialFilter)
         .firstOrNull;
     final materi = material == null
         ? ''
-        : ' yang sudah menuntaskan "${material.title}"';
+        : l10n.tAnalyticsHintMaterialSuffix(material.title);
 
     switch (_rosterFilter) {
       case 'TUNTAS':
-        return 'Materi Tuntas = siswa yang sudah menuntaskan minimal satu '
-            'materi$materi, diurutkan dari materi tuntas terbanyak.';
+        return l10n.tAnalyticsHintCompleted(materi);
       case 'LATIHAN':
         final jenis = switch (_practiceFilter) {
-          'BIASA' => 'latihan biasa (bukan mini proyek)',
-          'MINI' => 'mini proyek',
-          _ => 'latihan apa pun (biasa + mini proyek)',
+          'BIASA' => l10n.tAnalyticsPracticeRegular,
+          'MINI' => l10n.tAnalyticsPracticeMini,
+          _ => l10n.tAnalyticsPracticeAny,
         };
-        return 'Latihan Terbanyak = siswa yang sudah lulus minimal satu '
-            '$jenis$materi, diurutkan dari jumlah latihan lulus terbanyak.';
+        return l10n.tAnalyticsHintPractice(jenis, materi);
       case 'BELUM':
         final cakupan = switch (_belumFilter) {
-          'MATERI' => 'belum menuntaskan satu materi pun',
-          'LATIHAN' => 'belum menyelesaikan satu latihan pun',
-          _ => 'belum menuntaskan materi dan belum menyelesaikan latihan',
+          'MATERI' => l10n.tAnalyticsNotStartedMaterial,
+          'LATIHAN' => l10n.tAnalyticsNotStartedPractice,
+          _ => l10n.tAnalyticsNotStartedBoth,
         };
-        return 'Belum Memulai = siswa yang $cakupan$materi, diurutkan dari '
-            'siswa yang paling aktif berlatih.';
+        return l10n.tAnalyticsHintNotStarted(cakupan, materi);
       default:
-        return 'Semua = seluruh anggota kelas$materi, diurutkan dari materi '
-            'tuntas terbanyak lalu latihan lulus.';
+        return l10n.tAnalyticsHintAll(materi);
     }
   }
 
@@ -425,6 +422,7 @@ class _TeacherClassAnalyticsPageState extends State<TeacherClassAnalyticsPage> {
     List<StudentRosterRow> roster,
   ) {
     final p = context.palette;
+    final l10n = AppLocalizations.of(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -434,7 +432,7 @@ class _TeacherClassAnalyticsPageState extends State<TeacherClassAnalyticsPage> {
             const SizedBox(width: 6),
             Expanded(
               child: Text(
-                'Saring Daftar Siswa per Materi',
+                l10n.tAnalyticsFilterByMaterial,
                 style: AppTypography.labelL.copyWith(
                   color: p.text,
                   fontWeight: FontWeight.bold,
@@ -444,12 +442,12 @@ class _TeacherClassAnalyticsPageState extends State<TeacherClassAnalyticsPage> {
             if (_materialFilter != null)
               TextButton(
                 onPressed: () => setState(() => _materialFilter = null),
-                child: const Text('Reset'),
+                child: Text(l10n.tDashFilterReset),
               ),
           ],
         ),
         Text(
-          'Angka di tiap tombol = jumlah siswa yang sudah menuntaskan materi itu.',
+          l10n.tAnalyticsFilterByMaterialHint,
           style: AppTypography.caption.copyWith(
             color: p.textMuted,
             fontSize: 11,
@@ -462,7 +460,7 @@ class _TeacherClassAnalyticsPageState extends State<TeacherClassAnalyticsPage> {
             children: [
               _filterChip(
                 context,
-                label: 'Semua Materi (${roster.length})',
+                label: l10n.tAnalyticsFilterAllMaterials(roster.length),
                 selected: _materialFilter == null,
                 accent: p.primary,
                 onSelected: () => setState(() => _materialFilter = null),
@@ -471,7 +469,7 @@ class _TeacherClassAnalyticsPageState extends State<TeacherClassAnalyticsPage> {
                 const SizedBox(width: 8),
                 _filterChip(
                   context,
-                  label: '${m.title} (${m.completedCount})',
+                  label: l10n.tAnalyticsFilterMaterialCount(m.title, m.completedCount),
                   selected: _materialFilter == m.lessonId,
                   accent: p.success,
                   onSelected: () => setState(() {
@@ -491,27 +489,21 @@ class _TeacherClassAnalyticsPageState extends State<TeacherClassAnalyticsPage> {
   /// Penjelasan rumus bar "Kemajuan Kurikulum Per Track".
   void _showTrackInfo() {
     final p = context.palette;
+    final l10n = AppLocalizations.of(context);
     showDialog<void>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Dasar Nilai Kemajuan Per Track'),
+        title: Text(l10n.tAnalyticsTrackBasisTitle),
         content: SingleChildScrollView(
           child: Text(
-            'Persentase tiap track = rata-rata progress_percent seluruh siswa '
-            'kelas pada SEMUA materi resmi (kurikulum bawaan) di track itu.\n\n'
-            '• Setiap pasangan siswa × materi dihitung satu baris, termasuk '
-            'materi yang belum pernah dibuka (dianggap 0%).\n'
-            '• Nilai 100% berarti seluruh siswa kelas sudah menuntaskan '
-            'seluruh materi di track tersebut.\n'
-            '• Materi buatan guru tidak dihitung (hanya kurikulum resmi).\n'
-            '• Angka ini mengukur ketuntasan materi, bukan nilai latihan.',
+            l10n.tAnalyticsTrackBasisBody,
             style: AppTypography.bodySm.copyWith(color: p.text),
           ),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(),
-            child: const Text('Mengerti'),
+            child: Text(l10n.tAnalyticsGotIt),
           ),
         ],
       ),
@@ -579,6 +571,7 @@ class _TeacherClassAnalyticsPageState extends State<TeacherClassAnalyticsPage> {
     required int Function(StudentRosterRow) valueOf,
   }) {
     final p = context.palette;
+    final l10n = AppLocalizations.of(context);
     final ranked = roster.where((s) => valueOf(s) > 0).toList()
       ..sort((a, b) {
         final byValue = valueOf(b).compareTo(valueOf(a));
@@ -620,7 +613,7 @@ class _TeacherClassAnalyticsPageState extends State<TeacherClassAnalyticsPage> {
             Padding(
               padding: const EdgeInsets.symmetric(vertical: AppSpacing.sm),
               child: Text(
-                'Belum ada siswa.',
+                l10n.tAnalyticsNoStudents,
                 style: AppTypography.bodySm.copyWith(color: p.textMuted),
               ),
             )
@@ -670,14 +663,15 @@ class _TeacherClassAnalyticsPageState extends State<TeacherClassAnalyticsPage> {
   @override
   Widget build(BuildContext context) {
     final p = context.palette;
+    final l10n = AppLocalizations.of(context);
     final room = _findClass(context);
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Analisa Kelas'),
+        title: Text(l10n.tAnalyticsTitle),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_rounded),
-          tooltip: 'Kembali',
+          tooltip: l10n.actionBack,
           onPressed: () {
             if (context.canPop()) {
               context.pop();
@@ -690,7 +684,7 @@ class _TeacherClassAnalyticsPageState extends State<TeacherClassAnalyticsPage> {
           if (room != null)
             IconButton(
               icon: const Icon(Icons.more_vert_rounded),
-              tooltip: 'Opsi Kelas',
+              tooltip: l10n.tAnalyticsClassOptionsLabel,
               onPressed: () => _showClassOptionsMenu(context, room),
             ),
         ],
@@ -698,11 +692,23 @@ class _TeacherClassAnalyticsPageState extends State<TeacherClassAnalyticsPage> {
       body: SafeArea(
         child: BlocConsumer<TeacherCubit, TeacherState>(
           listener: (context, state) {
+            final l10n = AppLocalizations.of(context);
             if (state.errorMessage != null) {
-              showAppSnack(context, state.errorMessage!);
+              showAppSnack(
+                context,
+                teacherErrorText(l10n, state.errorCode, state.errorMessage!),
+              );
               context.read<TeacherCubit>().clearMessages();
             } else if (state.actionSuccessMessage != null) {
-              showAppSnack(context, state.actionSuccessMessage!);
+              showAppSnack(
+                context,
+                teacherSuccessText(
+                  l10n,
+                  state.actionSuccessCode,
+                  state.actionSuccessArg,
+                  state.actionSuccessMessage!,
+                ),
+              );
               context.read<TeacherCubit>().clearMessages();
             }
           },
@@ -712,7 +718,7 @@ class _TeacherClassAnalyticsPageState extends State<TeacherClassAnalyticsPage> {
             final materials =
                 analytics?.materials ?? const <MaterialProgress>[];
             final classCode = room?.classCode ?? 'XXX-XXX';
-            final className = room?.name ?? 'Kelas Laboratorium';
+            final className = room?.name ?? l10n.tAnalyticsLabClass;
 
             if (state.isLoading && analytics == null) {
               return Center(
@@ -724,7 +730,7 @@ class _TeacherClassAnalyticsPageState extends State<TeacherClassAnalyticsPage> {
                       CircularProgressIndicator(color: p.primary),
                       const SizedBox(height: AppSpacing.md),
                       Text(
-                        'Memuat data analisa kelas...',
+                        l10n.tAnalyticsLoading,
                         style: AppTypography.bodyM.copyWith(color: p.textMuted),
                       ),
                     ],
@@ -747,18 +753,18 @@ class _TeacherClassAnalyticsPageState extends State<TeacherClassAnalyticsPage> {
                       ),
                       const SizedBox(height: AppSpacing.md),
                       Text(
-                        'Belum Ada Kelas',
+                        l10n.tPickerEmptyTitle,
                         style: AppTypography.titleL.copyWith(color: p.text),
                       ),
                       const SizedBox(height: AppSpacing.xs),
                       Text(
-                        'Buat kelas pertamamu di Dashboard untuk memantau analisa kurikulum dan progres belajar siswa.',
+                        l10n.tAnalyticsEmptyBody,
                         textAlign: TextAlign.center,
                         style: AppTypography.bodyM.copyWith(color: p.textMuted),
                       ),
                       const SizedBox(height: AppSpacing.lg),
                       AppButton(
-                        label: 'Buka Dashboard',
+                        label: l10n.tPickerOpenDashboard,
                         leadingIcon: Icons.dashboard_rounded,
                         onPressed: () => context.go(AppRoutes.teacherHome),
                       ),
@@ -821,7 +827,7 @@ class _TeacherClassAnalyticsPageState extends State<TeacherClassAnalyticsPage> {
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      "${room?.schoolName ?? 'Sekolah belum diatur'} • Tahun Ajaran ${room?.academicYear ?? '-'}",
+                      "${room?.schoolName ?? l10n.tPickerSchoolUnset} • ${l10n.tAnalyticsAcademicYear(room?.academicYear ?? '-')}",
                       style: AppTypography.bodySm.copyWith(color: p.textMuted),
                     ),
                     const SizedBox(height: AppSpacing.md),
@@ -858,7 +864,7 @@ class _TeacherClassAnalyticsPageState extends State<TeacherClassAnalyticsPage> {
                                     ),
                                     const SizedBox(width: 6),
                                     Text(
-                                      'Kode Kelas',
+                                      l10n.tAnalyticsClassCode,
                                       style: AppTypography.labelSm.copyWith(
                                         color: p.primary,
                                         fontWeight: FontWeight.bold,
@@ -876,7 +882,7 @@ class _TeacherClassAnalyticsPageState extends State<TeacherClassAnalyticsPage> {
                                   ),
                                   const SizedBox(width: 4),
                                   Text(
-                                    'Siap Join',
+                                    l10n.tAnalyticsReadyJoin,
                                     style: AppTypography.labelSm.copyWith(
                                       color: p.textMuted,
                                     ),
@@ -887,7 +893,7 @@ class _TeacherClassAnalyticsPageState extends State<TeacherClassAnalyticsPage> {
                           ),
                           const SizedBox(height: AppSpacing.sm),
                           Text(
-                            'Bagikan kode ini agar siswa dapat bergabung ke kelas:',
+                            l10n.tAnalyticsShareCodeHint,
                             style: AppTypography.bodySm.copyWith(
                               color: p.textMuted,
                             ),
@@ -925,7 +931,7 @@ class _TeacherClassAnalyticsPageState extends State<TeacherClassAnalyticsPage> {
                                     Icons.copy_rounded,
                                     size: 18,
                                   ),
-                                  label: const Text('Salin Kode'),
+                                  label: Text(l10n.tDashProjectorCopy),
                                   style: OutlinedButton.styleFrom(
                                     foregroundColor: p.primary,
                                     side: BorderSide(color: p.primary),
@@ -943,7 +949,7 @@ class _TeacherClassAnalyticsPageState extends State<TeacherClassAnalyticsPage> {
                                     Icons.fullscreen_rounded,
                                     size: 20,
                                   ),
-                                  label: const Text('Perbesar ↗'),
+                                  label: Text(l10n.tAnalyticsEnlarge),
                                   style: ElevatedButton.styleFrom(
                                     backgroundColor: p.primary,
                                     foregroundColor: p.onPrimary,
@@ -969,7 +975,7 @@ class _TeacherClassAnalyticsPageState extends State<TeacherClassAnalyticsPage> {
                       children: [
                         Expanded(
                           child: Text(
-                            'Kemajuan Kurikulum Per Track',
+                            l10n.tAnalyticsTrackTitle,
                             style: AppTypography.titleM.copyWith(color: p.text),
                           ),
                         ),
@@ -977,18 +983,14 @@ class _TeacherClassAnalyticsPageState extends State<TeacherClassAnalyticsPage> {
                           icon: const Icon(Icons.info_outline_rounded),
                           iconSize: 18,
                           color: p.textMuted,
-                          tooltip:
-                              'Rata-rata progress semua siswa kelas pada '
-                              'semua materi resmi di track ini (materi yang '
-                              'belum dibuka = 0%).',
+                          tooltip: l10n.tAnalyticsTrackTooltip,
                           visualDensity: VisualDensity.compact,
                           onPressed: _showTrackInfo,
                         ),
                       ],
                     ),
                     Text(
-                      'Rata-rata ketuntasan seluruh siswa kelas pada semua '
-                      'materi resmi track tersebut.',
+                      l10n.tAnalyticsTrackSubtitle,
                       style: AppTypography.caption.copyWith(
                         color: p.textMuted,
                         fontSize: 11,
@@ -1008,7 +1010,7 @@ class _TeacherClassAnalyticsPageState extends State<TeacherClassAnalyticsPage> {
                             Padding(
                               padding: const EdgeInsets.all(AppSpacing.md),
                               child: Text(
-                                'Data track akan terisi otomatis setelah siswa mulai belajar.',
+                                l10n.tAnalyticsTrackEmpty,
                                 style: AppTypography.bodySm.copyWith(
                                   color: p.textMuted,
                                 ),
@@ -1055,7 +1057,7 @@ class _TeacherClassAnalyticsPageState extends State<TeacherClassAnalyticsPage> {
 
                     // Bab Tersulit / Diagnostik
                     Text(
-                      'Bab Tersulit (Perlu Pendampingan)',
+                      l10n.tAnalyticsHardestTitle,
                       style: AppTypography.titleM.copyWith(color: p.text),
                     ),
                     const SizedBox(height: AppSpacing.sm),
@@ -1069,7 +1071,7 @@ class _TeacherClassAnalyticsPageState extends State<TeacherClassAnalyticsPage> {
                         ),
                         child: Center(
                           child: Text(
-                            'Tidak ada tantangan yang terdeteksi sulit pada kelas ini 🎉',
+                            l10n.tAnalyticsHardestEmpty,
                             style: AppTypography.bodySm.copyWith(
                               color: p.textMuted,
                             ),
@@ -1113,7 +1115,7 @@ class _TeacherClassAnalyticsPageState extends State<TeacherClassAnalyticsPage> {
                                   borderRadius: BorderRadius.circular(10),
                                 ),
                                 child: Text(
-                                  '${h.failCount} siswa gagal',
+                                  l10n.tAnalyticsFailCount(h.failCount),
                                   style: AppTypography.labelSm.copyWith(
                                     color: p.error,
                                   ),
@@ -1129,7 +1131,7 @@ class _TeacherClassAnalyticsPageState extends State<TeacherClassAnalyticsPage> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
-                          'Peringkat Siswa Kelas',
+                          l10n.tAnalyticsRankingTitle,
                           style: AppTypography.titleM.copyWith(
                             color: p.text,
                             fontWeight: FontWeight.bold,
@@ -1137,8 +1139,8 @@ class _TeacherClassAnalyticsPageState extends State<TeacherClassAnalyticsPage> {
                         ),
                         Text(
                           roster.length > _maxRankedStudents
-                              ? '$_maxRankedStudents teratas dari ${roster.length}'
-                              : '${roster.length} Siswa',
+                              ? l10n.tAnalyticsRankingTop(_maxRankedStudents, roster.length)
+                              : l10n.tAnalyticsStudentCount(roster.length),
                           style: AppTypography.codeSm.copyWith(
                             color: p.textMuted,
                           ),
@@ -1147,9 +1149,7 @@ class _TeacherClassAnalyticsPageState extends State<TeacherClassAnalyticsPage> {
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      'Peringkat hanya menampilkan maksimal $_maxRankedStudents '
-                      'siswa dengan materi/latihan terbanyak. Semua siswa tetap '
-                      'tampil lengkap di bagian Daftar Siswa.',
+                      l10n.tAnalyticsRankingHint(_maxRankedStudents),
                       style: AppTypography.caption.copyWith(
                         color: p.textMuted,
                         fontSize: 11,
@@ -1162,8 +1162,8 @@ class _TeacherClassAnalyticsPageState extends State<TeacherClassAnalyticsPage> {
                         Expanded(
                           child: _rankPanel(
                             context,
-                            title: 'Materi',
-                            subtitle: 'Materi tuntas',
+                            title: l10n.tAnalyticsRankMaterial,
+                            subtitle: l10n.tAnalyticsRankMaterialSub,
                             icon: Icons.menu_book_rounded,
                             accent: p.primary,
                             roster: roster,
@@ -1174,8 +1174,8 @@ class _TeacherClassAnalyticsPageState extends State<TeacherClassAnalyticsPage> {
                         Expanded(
                           child: _rankPanel(
                             context,
-                            title: 'Latihan',
-                            subtitle: 'Tantangan lulus',
+                            title: l10n.tAnalyticsRankPractice,
+                            subtitle: l10n.tAnalyticsRankPracticeSub,
                             icon: Icons.code_rounded,
                             accent: p.success,
                             roster: roster,
@@ -1192,14 +1192,14 @@ class _TeacherClassAnalyticsPageState extends State<TeacherClassAnalyticsPage> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
-                          'Daftar Siswa',
+                          l10n.tAnalyticsRosterTitle,
                           style: AppTypography.titleM.copyWith(
                             color: p.text,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
                         Text(
-                          '${roster.length} Siswa',
+                          l10n.tAnalyticsStudentCount(roster.length),
                           style: AppTypography.codeSm.copyWith(
                             color: p.textMuted,
                           ),
@@ -1216,7 +1216,7 @@ class _TeacherClassAnalyticsPageState extends State<TeacherClassAnalyticsPage> {
                         children: [
                           _filterChip(
                             context,
-                            label: 'Semua (${roster.length})',
+                            label: l10n.tAnalyticsFilterAllCount(roster.length),
                             selected: _rosterFilter == 'ALL',
                             accent: p.primary,
                             onSelected: () => setState(() {
@@ -1226,8 +1226,7 @@ class _TeacherClassAnalyticsPageState extends State<TeacherClassAnalyticsPage> {
                           const SizedBox(width: 8),
                           _filterChip(
                             context,
-                            label:
-                                'Materi Tuntas (${roster.where((s) => s.completedCount > 0).length})',
+                            label: l10n.tAnalyticsFilterCompletedCount(roster.where((s) => s.completedCount > 0).length),
                             selected: _rosterFilter == 'TUNTAS',
                             accent: p.success,
                             onSelected: () => setState(() {
@@ -1237,7 +1236,7 @@ class _TeacherClassAnalyticsPageState extends State<TeacherClassAnalyticsPage> {
                           const SizedBox(width: 8),
                           _filterChip(
                             context,
-                            label: 'Latihan Terbanyak',
+                            label: l10n.tAnalyticsFilterPractice,
                             selected: _rosterFilter == 'LATIHAN',
                             accent: p.primary,
                             onSelected: () => setState(() {
@@ -1247,8 +1246,7 @@ class _TeacherClassAnalyticsPageState extends State<TeacherClassAnalyticsPage> {
                           const SizedBox(width: 8),
                           _filterChip(
                             context,
-                            label:
-                                'Belum Memulai (${roster.where((s) => _belumMatch(s)).length})',
+                            label: l10n.tAnalyticsFilterNotStartedCount(roster.where((s) => _belumMatch(s)).length),
                             selected: _rosterFilter == 'BELUM',
                             accent: p.accent,
                             onSelected: () => setState(() {
@@ -1268,7 +1266,7 @@ class _TeacherClassAnalyticsPageState extends State<TeacherClassAnalyticsPage> {
                           children: [
                             _filterChip(
                               context,
-                              label: 'Semua Latihan',
+                              label: l10n.tAnalyticsPracticeAll,
                               selected: _practiceFilter == 'SEMUA',
                               accent: p.primary,
                               onSelected: () => setState(() {
@@ -1278,7 +1276,7 @@ class _TeacherClassAnalyticsPageState extends State<TeacherClassAnalyticsPage> {
                             const SizedBox(width: 8),
                             _filterChip(
                               context,
-                              label: 'Latihan Biasa',
+                              label: l10n.tAnalyticsPracticeRegularLabel,
                               selected: _practiceFilter == 'BIASA',
                               accent: p.primary,
                               onSelected: () => setState(() {
@@ -1288,7 +1286,7 @@ class _TeacherClassAnalyticsPageState extends State<TeacherClassAnalyticsPage> {
                             const SizedBox(width: 8),
                             _filterChip(
                               context,
-                              label: 'Mini Proyek',
+                              label: l10n.filterMiniProject,
                               selected: _practiceFilter == 'MINI',
                               accent: p.primary,
                               onSelected: () => setState(() {
@@ -1309,7 +1307,7 @@ class _TeacherClassAnalyticsPageState extends State<TeacherClassAnalyticsPage> {
                           children: [
                             _filterChip(
                               context,
-                              label: 'Materi & Latihan',
+                              label: l10n.tAnalyticsNotStartedAll,
                               selected: _belumFilter == 'SEMUA',
                               accent: p.accent,
                               onSelected: () => setState(() {
@@ -1319,7 +1317,7 @@ class _TeacherClassAnalyticsPageState extends State<TeacherClassAnalyticsPage> {
                             const SizedBox(width: 8),
                             _filterChip(
                               context,
-                              label: 'Belum Kerjakan Materi',
+                              label: l10n.tAnalyticsNotStartedMaterialLabel,
                               selected: _belumFilter == 'MATERI',
                               accent: p.accent,
                               onSelected: () => setState(() {
@@ -1329,7 +1327,7 @@ class _TeacherClassAnalyticsPageState extends State<TeacherClassAnalyticsPage> {
                             const SizedBox(width: 8),
                             _filterChip(
                               context,
-                              label: 'Belum Selesaikan Latihan',
+                              label: l10n.tAnalyticsNotStartedPracticeLabel,
                               selected: _belumFilter == 'LATIHAN',
                               accent: p.accent,
                               onSelected: () => setState(() {
@@ -1344,7 +1342,7 @@ class _TeacherClassAnalyticsPageState extends State<TeacherClassAnalyticsPage> {
                     const SizedBox(height: 6),
                     Text(
                       // Jelaskan persis basis filter yang aktif.
-                      _rosterFilterHint(materials),
+                      _rosterFilterHint(l10n, materials),
                       style: AppTypography.caption.copyWith(
                         color: p.textMuted,
                         fontSize: 11,
@@ -1368,7 +1366,7 @@ class _TeacherClassAnalyticsPageState extends State<TeacherClassAnalyticsPage> {
                         ),
                         child: Center(
                           child: Text(
-                            'Belum ada siswa yang bergabung di kelas ini.',
+                            l10n.tAnalyticsRosterEmpty,
                             style: AppTypography.bodySm.copyWith(
                               color: p.textMuted,
                             ),
@@ -1384,7 +1382,7 @@ class _TeacherClassAnalyticsPageState extends State<TeacherClassAnalyticsPage> {
                             padding: const EdgeInsets.all(AppSpacing.lg),
                             child: Center(
                               child: Text(
-                                'Tidak ada siswa pada kategori filter ini.',
+                                l10n.tAnalyticsRosterFilterEmpty,
                                 style: AppTypography.bodySm.copyWith(
                                   color: p.textMuted,
                                 ),
@@ -1450,11 +1448,15 @@ class _TeacherClassAnalyticsPageState extends State<TeacherClassAnalyticsPage> {
                                           // Sebutkan angka nyata, bukan label
                                           // samar: berapa materi & latihan tuntas.
                                           _rosterFilter == 'LATIHAN'
-                                              ? '${student.completedCount} materi tuntas • '
-                                                    '${student.regularPracticeCount} latihan biasa • '
-                                                    '${student.miniProjectCount} mini proyek'
-                                              : '${student.completedCount} materi tuntas • '
-                                                    '${student.practiceCompletedCount} latihan lulus',
+                                              ? l10n.tAnalyticsRowPracticeDetail(
+                                                  student.completedCount,
+                                                  student.regularPracticeCount,
+                                                  student.miniProjectCount,
+                                                )
+                                              : l10n.tAnalyticsRowDetail(
+                                                  student.completedCount,
+                                                  student.practiceCompletedCount,
+                                                ),
                                           style: AppTypography.caption.copyWith(
                                             color: student.completedCount > 0
                                                 ? p.success
@@ -1477,7 +1479,7 @@ class _TeacherClassAnalyticsPageState extends State<TeacherClassAnalyticsPage> {
                                       ),
                                       const SizedBox(width: 4),
                                       Text(
-                                        '${student.xpPoints} XP',
+                                        l10n.tAnalyticsXp(student.xpPoints),
                                         style: AppTypography.codeSm.copyWith(
                                           color: p.text,
                                           fontWeight: FontWeight.bold,
@@ -1492,7 +1494,7 @@ class _TeacherClassAnalyticsPageState extends State<TeacherClassAnalyticsPage> {
                                       size: 18,
                                     ),
                                     color: p.error,
-                                    tooltip: 'Keluarkan dari kelas',
+                                    tooltip: l10n.tAnalyticsRemoveFromClass,
                                     visualDensity: VisualDensity.compact,
                                     padding: EdgeInsets.zero,
                                     constraints: const BoxConstraints(

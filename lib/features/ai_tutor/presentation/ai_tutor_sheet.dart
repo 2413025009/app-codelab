@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -18,11 +20,13 @@ import '../domain/tutor_repository.dart';
 
 /// Opens the CodeLab AI Tutor bottom sheet (scaffolded hints, Socratic method).
 ///
-/// [challengeId] + [getCode] mengaktifkan backend nyata (P0-6): tiap buka hint
-/// memanggil POST /tutor/hint dengan kuota 5x/hari dari server. Saat tanpa
-/// backend (offline/demo), sheet jatuh ke [TutorScript.forTopic] yang memakai
-/// [topic] (judul soal/materi aktif) — bukan lagi script soal KKM yang sama
-/// untuk semua tantangan.
+/// [challengeId] + [getCode] mengaktifkan backend nyata (P0-6). Satu kali
+/// modal dibuka = satu sesi = SATU slot kuota harian (global untuk semua
+/// tantangan); hint level 2/3 dalam sesi yang sama tidak menambah pemakaian,
+/// sedangkan menutup lalu membuka lagi memotong satu slot baru dan menampilkan
+/// sisa terakhir dari server. Saat tanpa backend (offline/demo), sheet jatuh
+/// ke [TutorScript.forTopic] yang memakai [topic] (judul soal/materi aktif) —
+/// bukan lagi script soal KKM yang sama untuk semua tantangan.
 Future<void> showAiTutorSheet(
   BuildContext context, {
   String? topic,
@@ -31,7 +35,7 @@ Future<void> showAiTutorSheet(
   String Function()? getCode,
   String? errorMessage,
 }) {
-  final resolved = script ?? TutorScript.forTopic(topic);
+  final resolved = script ?? TutorScript.forTopic(topic, AppLocalizations.of(context));
   final quota = context.read<TutorQuota>();
   final tutorRepo = context.read<TutorRepository?>();
   return showAppSheet<void>(
@@ -85,6 +89,12 @@ class _AiTutorBodyState extends State<AiTutorBody> {
   final List<TutorHint> _hints = [];
   bool _fetching = false;
 
+  /// ID sesi unik untuk SATU kali buka modal. Server memotong satu slot
+  /// kuota saat hint pertama sesi ini berhasil; hint 2/3 tidak menambah.
+  /// Membuka ulang sheet membuat ID baru → satu slot baru.
+  final String _sessionId =
+      '${DateTime.now().microsecondsSinceEpoch}-${Random().nextInt(0x7fffffff)}';
+
   /// Konsep track: memakai konsep statis script di awal (mode demo/offline),
   /// lalu diganti `detected_concept` dari server agar sesuai soal yang aktif —
   /// sebelumnya pill selalu memakai konsep statis untuk semua soal.
@@ -104,17 +114,32 @@ class _AiTutorBodyState extends State<AiTutorBody> {
     super.initState();
     _hints.addAll(widget.script.hints);
     widget.quota.addListener(_refresh);
-    // Buka kuota asli server DULU (tanpa konsumsi) sebelum hint pertama —
-    // pill "Sisa kuota" jangan menebak.
     if (widget.tutorRepo != null) {
-      _syncQuotaOnce();
-      // AKAR MASALAH: slot "Hint 1" dulu tetap berupa teks statis script
-      // (backend baru dipanggil saat membuka hint BERIKUTNYA yang levelnya
-      // 2+), sehingga semua soal tampil seperti soal "kelulusan siswa".
-      // Sekarang slot 1 langsung di-fetch untuk tantangan aktif sejak
-      // sheet terbuka.
-      _waitingFirstHint = true;
-      _loadHintSlot(0);
+      _initBackendSession();
+    } else {
+      // Mode demo/offline: buka modal tetap memotong satu slot lokal agar
+      // aturan "1 buka = 1 kuota" terlihat walau server tidak terjangkau.
+      _openOfflineSession();
+    }
+  }
+
+  /// Buka sesi backend secara BERURUTAN: baca kuota server dulu (read-only),
+  /// baru minta hint pertama (yang memotong satu slot sesi). Dijalankan
+  /// berurutan supaya snapshot kuota lama tidak menimpa angka setelah slot
+  /// sesi ini terpotong.
+  Future<void> _initBackendSession() async {
+    _waitingFirstHint = true;
+    await _syncQuotaOnce();
+    if (!mounted) return;
+    await _loadHintSlot(0);
+  }
+
+  /// Sesi offline: satu kali buka = satu slot lokal; hint 2/3 gratis.
+  void _openOfflineSession() {
+    if (!widget.quota.consume()) {
+      // Habis: tampilkan pesan kuota, bukan hint statis yang bisa disangka
+      // jawaban soal aktif.
+      _quotaBlocked = true;
     }
   }
 
@@ -139,12 +164,9 @@ class _AiTutorBodyState extends State<AiTutorBody> {
     }
   }
 
-  /// Slot demo offline: konsumsi kuota lokal lalu buka hint statis.
+  /// Slot demo offline: slot sesi sudah dibayar saat modal dibuka, jadi
+  /// hint statis berikutnya tidak memotong kuota lagi.
   bool _unlockOfflineSlot() {
-    if (!widget.quota.consume()) {
-      showAppSnack(context, l10n.tutorQuotaToastExhausted);
-      return false;
-    }
     SoundService.playAiHintUnlock();
     setState(() {
       _unlocked++;
@@ -168,15 +190,16 @@ class _AiTutorBodyState extends State<AiTutorBody> {
         challengeId: widget.challengeId!,
         studentCode: widget.getCode?.call() ?? '',
         hintLevel: slotIndex + 1,
+        sessionId: _sessionId,
         errorMessage: widget.errorMessage,
       );
       if (!mounted) return;
-      // Sinkronisasi kuota dari angka resmi server (P0-6). Slot dari cache
-      // (buka ulang tantangan yang sama di sesi ini) tidak membawa angka
-      // kuota baru, jadi pill tidak boleh diganti angka lama pada.
-      if (!result.fromCache) {
-        widget.quota.syncFromServer(used: result.quotaUsed, limit: result.quotaLimit);
-      }
+      // Sinkronisasi kuota dari angka resmi server. Hint pertama sesi ini
+      // memotong satu slot; level 2/3 mengembalikan angka yang sama.
+      widget.quota.syncFromServer(
+        used: result.quotaUsed,
+        limit: result.quotaLimit,
+      );
       setState(() {
         _hints[slotIndex] = result.hint;
         final concept = result.concept;

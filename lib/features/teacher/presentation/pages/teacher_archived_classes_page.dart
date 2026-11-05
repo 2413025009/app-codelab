@@ -14,6 +14,8 @@ import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_snack.dart';
+import '../../../../l10n/app_localizations.dart';
+import '../../../../l10n/l10n_ext.dart';
 import 'package:mobile_codelab_ai/features/class/domain/class_repository.dart';
 import '../cubit/teacher_cubit.dart';
 import '../cubit/teacher_state.dart';
@@ -39,13 +41,14 @@ class _TeacherArchivedClassesPageState
   @override
   Widget build(BuildContext context) {
     final p = context.palette;
+    final l10n = AppLocalizations.of(context);
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Arsip Kelas'),
+        title: Text(l10n.tArchivedTitle),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_rounded),
-          tooltip: 'Kembali',
+          tooltip: l10n.actionBack,
           onPressed: () => context.canPop()
               ? context.pop()
               : context.go(AppRoutes.teacherHome),
@@ -54,16 +57,28 @@ class _TeacherArchivedClassesPageState
       body: SafeArea(
         child: BlocConsumer<TeacherCubit, TeacherState>(
           listener: (context, state) {
+            final l10n = AppLocalizations.of(context);
             if (state.isLoading) _shownError = null;
             if (state.errorMessage != null) {
               // Tampilkan sekali; state error tetap disimpan agar layar bisa
               // menampilkan kartu "gagal memuat" alih-alih empty state palsu.
               if (_shownError != state.errorMessage) {
                 _shownError = state.errorMessage;
-                showAppSnack(context, state.errorMessage!);
+                showAppSnack(
+                  context,
+                  teacherErrorText(l10n, state.errorCode, state.errorMessage!),
+                );
               }
             } else if (state.actionSuccessMessage != null) {
-              showAppSnack(context, state.actionSuccessMessage!);
+              showAppSnack(
+                context,
+                teacherSuccessText(
+                  l10n,
+                  state.actionSuccessCode,
+                  state.actionSuccessArg,
+                  state.actionSuccessMessage!,
+                ),
+              );
               context.read<TeacherCubit>().clearMessages();
             }
           },
@@ -95,8 +110,7 @@ class _TeacherArchivedClassesPageState
                         const SizedBox(width: AppSpacing.sm),
                         Expanded(
                           child: Text(
-                            'Kelas arsip tidak bisa diikuti siswa baru. '
-                            'Pulihkan kelas bila ingin mengaktifkannya lagi.',
+                            l10n.tArchivedInfo,
                             style: AppTypography.bodySm.copyWith(
                               color: p.textMuted,
                             ),
@@ -130,13 +144,17 @@ class _TeacherArchivedClassesPageState
                           ),
                           const SizedBox(height: AppSpacing.md),
                           Text(
-                            'Gagal Memuat Arsip',
+                            l10n.tArchivedLoadFailed,
                             style: AppTypography.titleM.copyWith(color: p.text),
                             textAlign: TextAlign.center,
                           ),
                           const SizedBox(height: AppSpacing.xs),
                           Text(
-                            state.errorMessage!,
+                            teacherErrorText(
+                              l10n,
+                              state.errorCode,
+                              state.errorMessage!,
+                            ),
                             textAlign: TextAlign.center,
                             style: AppTypography.bodyM.copyWith(
                               color: p.textMuted,
@@ -144,7 +162,7 @@ class _TeacherArchivedClassesPageState
                           ),
                           const SizedBox(height: AppSpacing.lg),
                           AppButton(
-                            label: 'Coba Lagi',
+                            label: l10n.actionRetry,
                             leadingIcon: Icons.refresh_rounded,
                             onPressed: () => context
                                 .read<TeacherCubit>()
@@ -170,14 +188,13 @@ class _TeacherArchivedClassesPageState
                           ),
                           const SizedBox(height: AppSpacing.md),
                           Text(
-                            'Belum Ada Kelas Diarsipkan',
+                            l10n.tArchivedEmptyTitle,
                             style: AppTypography.titleM.copyWith(color: p.text),
                             textAlign: TextAlign.center,
                           ),
                           const SizedBox(height: AppSpacing.xs),
                           Text(
-                            'Kelas yang kamu arsipkan dari halaman analisa '
-                            'akan muncul di sini.',
+                            l10n.tArchivedEmptyBody,
                             textAlign: TextAlign.center,
                             style: AppTypography.bodyM.copyWith(
                               color: p.textMuted,
@@ -185,7 +202,7 @@ class _TeacherArchivedClassesPageState
                           ),
                           const SizedBox(height: AppSpacing.lg),
                           AppButton(
-                            label: 'Kembali ke Dashboard',
+                            label: l10n.tArchivedBackDashboard,
                             leadingIcon: Icons.dashboard_rounded,
                             onPressed: () => context.go(AppRoutes.teacherHome),
                           ),
@@ -212,6 +229,7 @@ class _ArchivedClassCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final p = context.palette;
+    final l10n = AppLocalizations.of(context);
     final cubit = context.read<TeacherCubit>();
     final isLoading = context.watch<TeacherCubit>().state.isLoading;
 
@@ -235,7 +253,7 @@ class _ArchivedClassCard extends StatelessWidget {
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: Text(
-                  'Diarsipkan',
+                  l10n.tArchivedBadge,
                   style: AppTypography.labelSm.copyWith(
                     color: p.textMuted,
                     fontWeight: FontWeight.bold,
@@ -246,7 +264,7 @@ class _ArchivedClassCard extends StatelessWidget {
               Icon(Icons.person_rounded, size: 14, color: p.textMuted),
               const SizedBox(width: 4),
               Text(
-                '${room.memberCount} Siswa',
+                l10n.tPickerMemberCount(room.memberCount),
                 style: AppTypography.labelSm.copyWith(color: p.textMuted),
               ),
             ],
@@ -261,7 +279,7 @@ class _ArchivedClassCard extends StatelessWidget {
           ),
           const SizedBox(height: 2),
           Text(
-            '${room.schoolName} • Tahun Ajaran ${room.academicYear}',
+            l10n.tArchivedSchoolYear(room.schoolName, room.academicYear),
             style: AppTypography.bodySm.copyWith(color: p.textMuted),
           ),
           const SizedBox(height: AppSpacing.md),
@@ -278,7 +296,7 @@ class _ArchivedClassCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'KODE KELAS',
+                      l10n.tArchivedClassCode,
                       style: AppTypography.labelSm.copyWith(
                         color: p.textMuted,
                         letterSpacing: 1,
@@ -295,7 +313,7 @@ class _ArchivedClassCard extends StatelessWidget {
                   ],
                 ),
                 Text(
-                  'Nonaktif',
+                  l10n.tArchivedInactive,
                   style: AppTypography.labelSm.copyWith(color: p.textMuted),
                 ),
               ],
@@ -303,7 +321,7 @@ class _ArchivedClassCard extends StatelessWidget {
           ),
           const SizedBox(height: AppSpacing.md),
           AppButton(
-            label: 'Pulihkan Kelas',
+            label: l10n.tArchivedRestore,
             leadingIcon: Icons.unarchive_rounded,
             onPressed: isLoading ? null : () => cubit.restoreClass(room.id),
           ),

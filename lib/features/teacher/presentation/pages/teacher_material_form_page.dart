@@ -14,6 +14,7 @@ import '../../../../core/theme/app_typography.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_snack.dart';
 import '../cubit/teacher_cubit.dart';
+import '../../../../l10n/app_localizations.dart';
 import 'package:mobile_codelab_ai/features/teacher/domain/teacher_models.dart';
 
 class TeacherMaterialFormPage extends StatefulWidget {
@@ -85,20 +86,32 @@ class _TeacherMaterialFormPageState extends State<TeacherMaterialFormPage> {
     }
   }
 
-  final Map<String, String> _levels = {
-    'beginner': 'Pemula',
-    'intermediate': 'Menengah',
-    'advanced': 'Mahir',
-  };
+  // Kode level stabil; labelnya dari l10n (levelBeginner/Intermediate/
+  // Advanced, sama seperti label level di sisi siswa) dan deskripsinya dari
+  // kunci tFormLevelDesc*.
+  static const _levelCodes = ['beginner', 'intermediate', 'advanced'];
 
-  final Map<String, String> _levelDescriptions = {
-    'beginner':
-        'Level dasar: ditujukan bagi siswa yang baru mengenal logika pemrograman.',
-    'intermediate':
-        'Level menengah: percabangan lanjutan, perulangan, & manipulasi data.',
-    'advanced':
-        'Level mahir: algoritma rekursif kompleks & optimasi pemecahan masalah.',
-  };
+  String _levelLabel(AppLocalizations l10n, String code) {
+    switch (code) {
+      case 'intermediate':
+        return l10n.levelIntermediate;
+      case 'advanced':
+        return l10n.levelAdvanced;
+      default:
+        return l10n.levelBeginner;
+    }
+  }
+
+  String _levelDescription(AppLocalizations l10n, String code) {
+    switch (code) {
+      case 'intermediate':
+        return l10n.tFormLevelDescIntermediate;
+      case 'advanced':
+        return l10n.tFormLevelDescAdvanced;
+      default:
+        return l10n.tFormLevelDescBeginner;
+    }
+  }
 
   @override
   void initState() {
@@ -143,6 +156,7 @@ class _TeacherMaterialFormPageState extends State<TeacherMaterialFormPage> {
 
   Future<void> _loadLesson() async {
     if (!mounted) return;
+    final l10n = AppLocalizations.of(context);
     final cubit = context.read<TeacherCubit>();
     final found = await cubit.findMaterial(widget.lessonId!);
     if (!mounted) return;
@@ -150,8 +164,7 @@ class _TeacherMaterialFormPageState extends State<TeacherMaterialFormPage> {
     if (found == null) {
       setState(() {
         _isLoading = false;
-        _loadError =
-            'Materi tidak ditemukan. Kembali ke Studio Materi untuk memilih materi lain.';
+        _loadError = l10n.tFormNotFound;
       });
       return;
     }
@@ -177,9 +190,10 @@ class _TeacherMaterialFormPageState extends State<TeacherMaterialFormPage> {
 
   Future<void> _handleSave({bool continueToBabs = false}) async {
     if (_isSubmitting || _isLoading) return;
+    final l10n = AppLocalizations.of(context);
     final title = _titleController.text.trim();
     if (title.isEmpty) {
-      showAppSnack(context, 'Nama materi wajib diisi.');
+      showAppSnack(context, l10n.tFormTitleRequired);
       return;
     }
 
@@ -196,7 +210,7 @@ class _TeacherMaterialFormPageState extends State<TeacherMaterialFormPage> {
     if (duplicate) {
       showAppSnack(
         context,
-        'Nama materi sudah dipakai. Gunakan nama lain agar siswa tidak bingung.',
+        l10n.tFormTitleDuplicate,
       );
       return;
     }
@@ -233,9 +247,7 @@ class _TeacherMaterialFormPageState extends State<TeacherMaterialFormPage> {
       _isDirty = false;
       showAppSnack(
         context,
-        _isEdit
-            ? 'Materi berhasil diperbarui.'
-            : 'Materi tersimpan sebagai draft.',
+        _isEdit ? l10n.tFormUpdated : l10n.tFormSavedDraft,
       );
       if (continueToBabs) {
         context.pushReplacement(AppRoutes.teacherBabList(savedLesson.id));
@@ -250,7 +262,7 @@ class _TeacherMaterialFormPageState extends State<TeacherMaterialFormPage> {
       showAppSnack(
         context,
         cubit.state.errorMessage ??
-            'Materi belum tersimpan. Periksa koneksi lalu coba lagi.',
+            l10n.tFormSaveFailed,
       );
     }
   }
@@ -258,6 +270,7 @@ class _TeacherMaterialFormPageState extends State<TeacherMaterialFormPage> {
   Future<bool> _onWillPop() async {
     if (!_isDirty) return true;
     final p = context.palette;
+    final l10n = AppLocalizations.of(context);
 
     final shouldPop = await showModalBottomSheet<bool>(
       context: context,
@@ -285,17 +298,17 @@ class _TeacherMaterialFormPageState extends State<TeacherMaterialFormPage> {
                 ),
                 const SizedBox(height: AppSpacing.md),
                 Text(
-                  'Perubahan Belum Disimpan',
+                  l10n.tFormUnsavedTitle,
                   style: AppTypography.titleM.copyWith(color: p.text),
                 ),
                 const SizedBox(height: AppSpacing.sm),
                 Text(
-                  'Ada revisi pada form materi ini. Simpan perubahan sebagai draft terlebih dahulu atau abaikan?',
+                  l10n.tFormUnsavedBody,
                   style: AppTypography.bodyM.copyWith(color: p.textMuted),
                 ),
                 const SizedBox(height: AppSpacing.lg),
                 AppButton(
-                  label: 'Simpan Draft & Keluar',
+                  label: l10n.tFormSaveExit,
                   leadingIcon: Icons.bookmark_added_outlined,
                   onPressed: () {
                     Navigator.of(ctx).pop(false);
@@ -304,13 +317,13 @@ class _TeacherMaterialFormPageState extends State<TeacherMaterialFormPage> {
                 ),
                 const SizedBox(height: AppSpacing.sm),
                 AppButton(
-                  label: 'Buang Perubahan',
+                  label: l10n.tFormDiscard,
                   kind: AppButtonKind.secondary,
                   onPressed: () => Navigator.of(ctx).pop(true),
                 ),
                 const SizedBox(height: AppSpacing.xs),
                 AppButton(
-                  label: 'Lanjut Mengedit',
+                  label: l10n.tFormKeepEditing,
                   kind: AppButtonKind.text,
                   onPressed: () => Navigator.of(ctx).pop(false),
                 ),
@@ -327,17 +340,18 @@ class _TeacherMaterialFormPageState extends State<TeacherMaterialFormPage> {
   @override
   Widget build(BuildContext context) {
     final p = context.palette;
+    final l10n = AppLocalizations.of(context);
 
     if (_isLoading) {
       return Scaffold(
-        appBar: AppBar(title: const Text('Edit Materi')),
+        appBar: AppBar(title: Text(l10n.tFormEdit)),
         body: const Center(child: CircularProgressIndicator()),
       );
     }
 
     if (_loadError != null) {
       return Scaffold(
-        appBar: AppBar(title: const Text('Edit Materi')),
+        appBar: AppBar(title: Text(l10n.tFormEdit)),
         body: SafeArea(
           child: Center(
             child: Padding(
@@ -348,7 +362,7 @@ class _TeacherMaterialFormPageState extends State<TeacherMaterialFormPage> {
                   Icon(Icons.cloud_off_rounded, size: 48, color: p.textMuted),
                   const SizedBox(height: AppSpacing.md),
                   Text(
-                    'Materi Tidak Dapat Dimuat',
+                    l10n.tFormLoadFailed,
                     style: AppTypography.titleM.copyWith(color: p.text),
                   ),
                   const SizedBox(height: AppSpacing.xs),
@@ -359,7 +373,7 @@ class _TeacherMaterialFormPageState extends State<TeacherMaterialFormPage> {
                   ),
                   const SizedBox(height: AppSpacing.lg),
                   AppButton(
-                    label: 'Buka Studio Materi',
+                    label: l10n.tFormOpenStudio,
                     leadingIcon: Icons.menu_book_rounded,
                     onPressed: () => context.go(AppRoutes.teacherStudio),
                   ),
@@ -383,7 +397,7 @@ class _TeacherMaterialFormPageState extends State<TeacherMaterialFormPage> {
       },
       child: Scaffold(
         appBar: AppBar(
-          title: Text(_isEdit ? 'Edit Materi' : 'Tambah Materi Baru'),
+          title: Text(_isEdit ? l10n.tFormEdit : l10n.tFormAdd),
           actions: [
             Container(
               margin: const EdgeInsets.only(right: AppSpacing.md),
@@ -398,7 +412,7 @@ class _TeacherMaterialFormPageState extends State<TeacherMaterialFormPage> {
                   Icon(Icons.check_circle_rounded, size: 14, color: p.primary),
                   const SizedBox(width: 4),
                   Text(
-                    _isEdit ? 'Mode Edit' : 'Materi Baru',
+                    _isEdit ? l10n.tFormModeEdit : l10n.tFormNewBadge,
                     style: AppTypography.labelSm.copyWith(color: p.primary),
                   ),
                 ],
@@ -417,14 +431,12 @@ class _TeacherMaterialFormPageState extends State<TeacherMaterialFormPage> {
                     children: [
                       // Subheader
                       Text(
-                        _isEdit
-                            ? 'Ubah Pengaturan Materi'
-                            : 'Konfigurasi Materi Baru',
+                        _isEdit ? l10n.tFormEditHeading : l10n.tFormAddHeading,
                         style: AppTypography.titleL.copyWith(color: p.text),
                       ),
                       const SizedBox(height: AppSpacing.xs),
                       Text(
-                        'Konfigurasikan judul, track kurikulum, dan level kesulitan untuk ditampilkan ke siswa.',
+                        l10n.tFormSubtitle,
                         style: AppTypography.bodyM.copyWith(color: p.textMuted),
                       ),
                       const SizedBox(height: AppSpacing.xl),
@@ -434,7 +446,7 @@ class _TeacherMaterialFormPageState extends State<TeacherMaterialFormPage> {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Text(
-                            'Nama Materi *',
+                            l10n.tFormFieldName,
                             style: AppTypography.labelL.copyWith(color: p.text),
                           ),
                           Text(
@@ -450,7 +462,7 @@ class _TeacherMaterialFormPageState extends State<TeacherMaterialFormPage> {
                         controller: _titleController,
                         maxLength: 150,
                         decoration: InputDecoration(
-                          hintText: 'Contoh: Dasar Algoritma & Python RPL',
+                          hintText: l10n.tFormExampleName,
                           counterText: '',
                           filled: true,
                           fillColor: p.surface,
@@ -475,7 +487,7 @@ class _TeacherMaterialFormPageState extends State<TeacherMaterialFormPage> {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Text(
-                            'Deskripsi Singkat *',
+                            l10n.tFormFieldDesc,
                             style: AppTypography.labelL.copyWith(color: p.text),
                           ),
                           Text(
@@ -492,8 +504,7 @@ class _TeacherMaterialFormPageState extends State<TeacherMaterialFormPage> {
                         maxLines: 3,
                         maxLength: 300,
                         decoration: InputDecoration(
-                          hintText:
-                              'Jelaskan capaian materi dalam 2-3 kalimat ringkas...',
+                          hintText: l10n.tFormDescHint,
                           counterText: '',
                           filled: true,
                           fillColor: p.surface,
@@ -515,12 +526,12 @@ class _TeacherMaterialFormPageState extends State<TeacherMaterialFormPage> {
 
                       // Field: Kode Ikon Materi
                       Text(
-                        'Kode Ikon Materi *',
+                        l10n.tFormFieldIcon,
                         style: AppTypography.labelL.copyWith(color: p.text),
                       ),
                       const SizedBox(height: AppSpacing.xs),
                       Text(
-                        'Pilih preset ikon atau ketik nama kode ikon (misal: terminal, html, css, javascript, database, psychology, shield, phone_android).',
+                        l10n.tFormIconHint,
                         style: AppTypography.caption.copyWith(
                           color: p.textMuted,
                         ),
@@ -529,7 +540,7 @@ class _TeacherMaterialFormPageState extends State<TeacherMaterialFormPage> {
                       TextField(
                         controller: _iconController,
                         decoration: InputDecoration(
-                          hintText: 'Contoh: terminal',
+                          hintText: l10n.tFormExampleIcon,
                           prefixIcon: Padding(
                             padding: const EdgeInsets.symmetric(horizontal: 12),
                             child: Icon(
@@ -594,7 +605,7 @@ class _TeacherMaterialFormPageState extends State<TeacherMaterialFormPage> {
 
                       // Field: Topik / Track
                       Text(
-                        'Topik / Track Kurikulum *',
+                        l10n.tFormFieldTopic,
                         style: AppTypography.labelL.copyWith(color: p.text),
                       ),
                       const SizedBox(height: AppSpacing.sm),
@@ -635,7 +646,7 @@ class _TeacherMaterialFormPageState extends State<TeacherMaterialFormPage> {
 
                       // Field: Level Pembelajaran
                       Text(
-                        'Tingkat Kesulitan *',
+                        l10n.tFormFieldLevel,
                         style: AppTypography.labelL.copyWith(color: p.text),
                       ),
                       const SizedBox(height: AppSpacing.sm),
@@ -646,13 +657,13 @@ class _TeacherMaterialFormPageState extends State<TeacherMaterialFormPage> {
                           borderRadius: BorderRadius.circular(24),
                         ),
                         child: Row(
-                          children: _levels.entries.map((entry) {
-                            final selected = _selectedLevel == entry.key;
+                          children: _levelCodes.map((code) {
+                            final selected = _selectedLevel == code;
                             return Expanded(
                               child: GestureDetector(
                                 onTap: () {
                                   setState(() {
-                                    _selectedLevel = entry.key;
+                                    _selectedLevel = code;
                                     _isDirty = true;
                                   });
                                 },
@@ -678,7 +689,7 @@ class _TeacherMaterialFormPageState extends State<TeacherMaterialFormPage> {
                                         : null,
                                   ),
                                   child: Text(
-                                    entry.value,
+                                    _levelLabel(l10n, code),
                                     style: AppTypography.labelM.copyWith(
                                       color: selected
                                           ? Colors.white
@@ -696,7 +707,7 @@ class _TeacherMaterialFormPageState extends State<TeacherMaterialFormPage> {
                       ),
                       const SizedBox(height: AppSpacing.xs),
                       Text(
-                        _levelDescriptions[_selectedLevel] ?? '',
+                        _levelDescription(l10n, _selectedLevel),
                         style: AppTypography.bodySm.copyWith(
                           color: p.textMuted,
                         ),
@@ -722,7 +733,7 @@ class _TeacherMaterialFormPageState extends State<TeacherMaterialFormPage> {
                             const SizedBox(width: AppSpacing.sm),
                             Expanded(
                               child: Text(
-                                'Materi baru disimpan sebagai Draft. Materi hanya terlihat oleh siswa setelah kamu menekan tombol "Terbitkan".',
+                                l10n.tFormDraftNotice,
                                 style: AppTypography.bodySm.copyWith(
                                   color: p.text,
                                 ),
@@ -755,7 +766,7 @@ class _TeacherMaterialFormPageState extends State<TeacherMaterialFormPage> {
                     Expanded(
                       flex: 1,
                       child: AppButton(
-                        label: 'Simpan Draft',
+                        label: l10n.tFormSaveDraft,
                         kind: AppButtonKind.secondary,
                         leadingIcon: Icons.bookmark_border_rounded,
                         loading: _isSubmitting,
@@ -766,7 +777,7 @@ class _TeacherMaterialFormPageState extends State<TeacherMaterialFormPage> {
                     Expanded(
                       flex: 1,
                       child: AppButton(
-                        label: 'Lanjut ke Bab',
+                        label: l10n.tFormContinueBabs,
                         leadingIcon: Icons.arrow_forward_rounded,
                         loading: _isSubmitting,
                         onPressed: () => _handleSave(continueToBabs: true),

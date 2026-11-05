@@ -15,6 +15,8 @@ import '../../../../core/utils/topic_icons.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_snack.dart';
 import '../../../auth/presentation/cubit/auth_cubit.dart';
+import '../../../../l10n/app_localizations.dart';
+import '../../../../l10n/l10n_ext.dart';
 import '../cubit/teacher_cubit.dart';
 import '../cubit/teacher_state.dart';
 import 'package:mobile_codelab_ai/features/teacher/domain/teacher_models.dart';
@@ -37,6 +39,7 @@ class _TeacherStudioPageState extends State<TeacherStudioPage> {
 
   void _openActionSheet(BuildContext context, TeacherLesson lesson) {
     final p = context.palette;
+    final l10n = AppLocalizations.of(context);
     final cubit = context.read<TeacherCubit>();
 
     showModalBottomSheet(
@@ -77,7 +80,7 @@ class _TeacherStudioPageState extends State<TeacherStudioPage> {
                     overflow: TextOverflow.ellipsis,
                   ),
                   Text(
-                    'Pilih tindakan untuk materi ini',
+                    l10n.tStudioActionHint,
                     style: AppTypography.bodySm.copyWith(color: p.textMuted),
                   ),
                   const SizedBox(height: AppSpacing.md),
@@ -98,7 +101,7 @@ class _TeacherStudioPageState extends State<TeacherStudioPage> {
                       ),
                     ),
                     title: Text(
-                      'Edit Silabus & Bab',
+                      l10n.tStudioEditSyllabus,
                       style: AppTypography.labelL.copyWith(color: p.text),
                     ),
                     onTap: () {
@@ -119,7 +122,7 @@ class _TeacherStudioPageState extends State<TeacherStudioPage> {
                       child: Icon(Icons.edit_outlined, color: p.text, size: 20),
                     ),
                     title: Text(
-                      'Edit Info Materi',
+                      l10n.tStudioEditInfo,
                       style: AppTypography.labelL.copyWith(color: p.text),
                     ),
                     onTap: () {
@@ -147,7 +150,7 @@ class _TeacherStudioPageState extends State<TeacherStudioPage> {
                       ),
                     ),
                     title: Text(
-                      'Duplikat sebagai Draft Baru',
+                      l10n.tStudioDuplicate,
                       style: AppTypography.labelL.copyWith(color: p.text),
                     ),
                     onTap: () {
@@ -177,8 +180,8 @@ class _TeacherStudioPageState extends State<TeacherStudioPage> {
                     ),
                     title: Text(
                       lesson.isPublished
-                          ? 'Tarik Kembali ke Draft'
-                          : 'Terbitkan ke Siswa',
+                          ? l10n.tStudioUnpublish
+                          : l10n.tStudioPublish,
                       style: AppTypography.labelL.copyWith(
                         color: lesson.isPublished ? p.text : p.primary,
                       ),
@@ -209,7 +212,7 @@ class _TeacherStudioPageState extends State<TeacherStudioPage> {
                       ),
                     ),
                     title: Text(
-                      'Hapus Materi Selamanya',
+                      l10n.tStudioDeleteForever,
                       style: AppTypography.labelL.copyWith(color: p.error),
                     ),
                     onTap: () {
@@ -228,26 +231,26 @@ class _TeacherStudioPageState extends State<TeacherStudioPage> {
 
   void _confirmDeleteLesson(BuildContext context, TeacherLesson lesson) {
     final p = context.palette;
+    final l10n = AppLocalizations.of(context);
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Hapus Materi Ini?'),
+        title: Text(l10n.tStudioDeleteTitle),
         content: Text(
-          'Materi "${lesson.title}" akan dihapus dari Studio. '
-          'Riwayat belajar siswa yang sudah tuntas tetap tersimpan.',
+          l10n.tStudioDeleteBody(lesson.title),
           style: AppTypography.bodyM.copyWith(color: p.textMuted),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(),
-            child: const Text('Batal'),
+            child: Text(l10n.actionCancel),
           ),
           TextButton(
             onPressed: () {
               Navigator.of(ctx).pop();
               context.read<TeacherCubit>().deleteMaterial(lesson.id);
             },
-            child: Text('Hapus', style: TextStyle(color: p.error)),
+            child: Text(l10n.actionDelete, style: TextStyle(color: p.error)),
           ),
         ],
       ),
@@ -257,20 +260,21 @@ class _TeacherStudioPageState extends State<TeacherStudioPage> {
   @override
   Widget build(BuildContext context) {
     final p = context.palette;
+    final l10n = AppLocalizations.of(context);
     final user = context.watch<AuthCubit>().state.user;
     final schoolLabel = user?.schoolName?.trim() ?? '';
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Studio Materi'),
+        title: Text(l10n.tStudioTitle),
         actions: [
           IconButton(
-            tooltip: 'Profil Pengajar',
+            tooltip: l10n.tProfileTitle,
             icon: const Icon(Icons.person_outline_rounded),
             onPressed: () => context.go(AppRoutes.teacherProfile),
           ),
           IconButton(
-            tooltip: 'Pengaturan Pengajar',
+            tooltip: l10n.tStudioSettingsTooltip,
             icon: const Icon(Icons.settings_outlined),
             onPressed: () => context.push(AppRoutes.teacherSettings),
           ),
@@ -279,11 +283,23 @@ class _TeacherStudioPageState extends State<TeacherStudioPage> {
       body: SafeArea(
         child: BlocConsumer<TeacherCubit, TeacherState>(
           listener: (context, state) {
+            final l10n = AppLocalizations.of(context);
             if (state.errorMessage != null) {
-              showAppSnack(context, state.errorMessage!);
+              showAppSnack(
+                context,
+                teacherErrorText(l10n, state.errorCode, state.errorMessage!),
+              );
               context.read<TeacherCubit>().clearMessages();
             } else if (state.actionSuccessMessage != null) {
-              showAppSnack(context, state.actionSuccessMessage!);
+              showAppSnack(
+                context,
+                teacherSuccessText(
+                  l10n,
+                  state.actionSuccessCode,
+                  state.actionSuccessArg,
+                  state.actionSuccessMessage!,
+                ),
+              );
               context.read<TeacherCubit>().clearMessages();
             }
           },
@@ -312,13 +328,13 @@ class _TeacherStudioPageState extends State<TeacherStudioPage> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                'Materi Saya',
+                                l10n.tStudioMyMaterials,
                                 style: AppTypography.titleL.copyWith(
                                   color: p.text,
                                 ),
                               ),
                               Text(
-                                'Kelola modul pembelajaran & bab koding',
+                                l10n.tStudioSubtitle,
                                 style: AppTypography.bodySm.copyWith(
                                   color: p.textMuted,
                                 ),
@@ -329,7 +345,7 @@ class _TeacherStudioPageState extends State<TeacherStudioPage> {
                         const SizedBox(width: AppSpacing.sm),
                         ElevatedButton.icon(
                           icon: const Icon(Icons.add_rounded, size: 18),
-                          label: const Text('Tambah Materi'),
+                          label: Text(l10n.tStudioAdd),
                           style: ElevatedButton.styleFrom(
                             backgroundColor: p.primary,
                             foregroundColor: Colors.white,
@@ -374,13 +390,13 @@ class _TeacherStudioPageState extends State<TeacherStudioPage> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  'Status Pembelajaran Kelas',
+                                  l10n.tStudioBannerTitle,
                                   style: AppTypography.labelL.copyWith(
                                     color: p.text,
                                   ),
                                 ),
                                 Text(
-                                  '${state.publishedCount} materi aktif terbit untuk ${state.totalStudentCount} siswa di ${schoolLabel.isEmpty ? 'sekolahmu' : schoolLabel}.',
+                                  l10n.tStudioBanner(state.publishedCount, state.totalStudentCount, schoolLabel.isEmpty ? l10n.tStudioYourSchool : schoolLabel),
                                   style: AppTypography.bodySm.copyWith(
                                     color: p.textMuted,
                                   ),
@@ -406,7 +422,7 @@ class _TeacherStudioPageState extends State<TeacherStudioPage> {
                         children: [
                           _buildFilterTab(
                             context,
-                            label: 'Semua (${state.materials.length})',
+                            label: l10n.tStudioFilterAll(state.materials.length),
                             isSelected: filter == 'all',
                             onTap: () => context
                                 .read<TeacherCubit>()
@@ -415,7 +431,7 @@ class _TeacherStudioPageState extends State<TeacherStudioPage> {
                           ),
                           _buildFilterTab(
                             context,
-                            label: 'Draft (${state.draftCount})',
+                            label: l10n.tStudioFilterDraft(state.draftCount),
                             isSelected: filter == 'draft',
                             onTap: () => context
                                 .read<TeacherCubit>()
@@ -424,7 +440,7 @@ class _TeacherStudioPageState extends State<TeacherStudioPage> {
                           ),
                           _buildFilterTab(
                             context,
-                            label: 'Terbit (${state.publishedCount})',
+                            label: l10n.tStudioFilterPublished(state.publishedCount),
                             isSelected: filter == 'published',
                             onTap: () => context
                                 .read<TeacherCubit>()
@@ -463,8 +479,10 @@ class _TeacherStudioPageState extends State<TeacherStudioPage> {
                             const SizedBox(height: AppSpacing.md),
                             Text(
                               filter == 'all'
-                                  ? 'Belum Ada Materi'
-                                  : 'Tidak Ada Materi ${filter.toUpperCase()}',
+                                  ? l10n.tStudioEmptyTitle
+                                  : filter == 'draft'
+                                      ? l10n.tStudioEmptyDraftTitle
+                                      : l10n.tStudioEmptyPublishedTitle,
                               style: AppTypography.titleM.copyWith(
                                 color: p.text,
                               ),
@@ -472,8 +490,8 @@ class _TeacherStudioPageState extends State<TeacherStudioPage> {
                             const SizedBox(height: AppSpacing.xs),
                             Text(
                               filter == 'all'
-                                  ? 'Mulai bangun kurikulum coding untuk siswamu. Klik tombol Tambah Materi di atas.'
-                                  : 'Ganti filter atau tambahkan materi baru untuk kategori ini.',
+                                  ? l10n.tStudioEmptyBody
+                                  : l10n.tStudioEmptyFilterBody,
                               textAlign: TextAlign.center,
                               style: AppTypography.bodyM.copyWith(
                                 color: p.textMuted,
@@ -481,7 +499,7 @@ class _TeacherStudioPageState extends State<TeacherStudioPage> {
                             ),
                             const SizedBox(height: AppSpacing.lg),
                             AppButton(
-                              label: 'Buat Materi Baru',
+                              label: l10n.tStudioCreateNew,
                               leadingIcon: Icons.add_rounded,
                               onPressed: () {
                                 context.push(AppRoutes.teacherMaterialCreate);
@@ -555,6 +573,7 @@ class _TeacherStudioPageState extends State<TeacherStudioPage> {
     TeacherLesson lesson,
     AppPalette p,
   ) {
+    final l10n = AppLocalizations.of(context);
     return Container(
       margin: const EdgeInsets.only(bottom: AppSpacing.md),
       padding: const EdgeInsets.all(AppSpacing.md),
@@ -607,7 +626,7 @@ class _TeacherStudioPageState extends State<TeacherStudioPage> {
                           borderRadius: BorderRadius.circular(10),
                         ),
                         child: Text(
-                          lesson.isPublished ? 'Terbit' : 'Draft',
+                          lesson.isPublished ? l10n.tProfilePublished : l10n.tProfileDraft,
                           style: AppTypography.labelSm.copyWith(
                             color: lesson.isPublished ? p.primary : p.textMuted,
                             fontWeight: FontWeight.bold,
@@ -639,7 +658,7 @@ class _TeacherStudioPageState extends State<TeacherStudioPage> {
                               // bab, dan total XP materi ini.
                               [
                                 lesson.topic,
-                                '${lesson.babCount} bab',
+                                l10n.tStudioBabCount(lesson.babCount),
                                 '${lesson.totalXp} XP',
                               ].where((s) => s.isNotEmpty).join(' • '),
                               style: AppTypography.codeSm.copyWith(
@@ -696,7 +715,7 @@ class _TeacherStudioPageState extends State<TeacherStudioPage> {
                     ),
                     const SizedBox(width: 6),
                     Text(
-                      'Belum tampak oleh siswa',
+                      l10n.tStudioNotVisible,
                       style: AppTypography.labelSm.copyWith(color: p.textMuted),
                     ),
                   ],
@@ -722,7 +741,7 @@ class _TeacherStudioPageState extends State<TeacherStudioPage> {
                       ),
                       const SizedBox(width: 4),
                       Text(
-                        '${lesson.babCount} bab',
+                        l10n.tStudioBabCount(lesson.babCount),
                         style: AppTypography.labelM.copyWith(color: p.text),
                       ),
                       const SizedBox(width: 8),

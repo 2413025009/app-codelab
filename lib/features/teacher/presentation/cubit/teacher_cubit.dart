@@ -37,7 +37,7 @@ class TeacherCubit extends Cubit<TeacherState> {
         state.copyWith(classes: classes, isLoading: false, clearError: true),
       );
     } catch (error) {
-      emit(state.copyWith(isLoading: false, errorMessage: _messageOf(error)));
+      emit(state.copyWith(isLoading: false, errorMessage: _messageOf(error), errorCode: _codeOf(error)));
     }
   }
 
@@ -53,7 +53,7 @@ class TeacherCubit extends Cubit<TeacherState> {
         ),
       );
     } catch (error) {
-      emit(state.copyWith(isLoading: false, errorMessage: _messageOf(error)));
+      emit(state.copyWith(isLoading: false, errorMessage: _messageOf(error), errorCode: _codeOf(error)));
     }
   }
 
@@ -74,12 +74,14 @@ class TeacherCubit extends Cubit<TeacherState> {
           classes: [...state.classes, room],
           isLoading: false,
           actionSuccessMessage: 'Kelas ${room.name} berhasil dibuat.',
+          actionSuccessCode: 'CLASS_CREATED',
+          actionSuccessArg: room.name,
           clearError: true,
         ),
       );
       return room;
     } catch (error) {
-      emit(state.copyWith(isLoading: false, errorMessage: _messageOf(error)));
+      emit(state.copyWith(isLoading: false, errorMessage: _messageOf(error), errorCode: _codeOf(error)));
       return null;
     }
   }
@@ -102,11 +104,12 @@ class TeacherCubit extends Cubit<TeacherState> {
                 ],
           isLoading: false,
           actionSuccessMessage: 'Kelas dipindahkan ke arsip.',
+          actionSuccessCode: 'CLASS_ARCHIVED',
           clearError: true,
         ),
       );
     } catch (error) {
-      emit(state.copyWith(isLoading: false, errorMessage: _messageOf(error)));
+      emit(state.copyWith(isLoading: false, errorMessage: _messageOf(error), errorCode: _codeOf(error)));
     }
   }
 
@@ -127,11 +130,12 @@ class TeacherCubit extends Cubit<TeacherState> {
               : [...state.classes, _copyClass(target, status: 'active')],
           isLoading: false,
           actionSuccessMessage: 'Kelas berhasil dipulihkan.',
+          actionSuccessCode: 'CLASS_RESTORED',
           clearError: true,
         ),
       );
     } catch (error) {
-      emit(state.copyWith(isLoading: false, errorMessage: _messageOf(error)));
+      emit(state.copyWith(isLoading: false, errorMessage: _messageOf(error), errorCode: _codeOf(error)));
     }
   }
 
@@ -151,12 +155,14 @@ class TeacherCubit extends Cubit<TeacherState> {
           ],
           isLoading: false,
           actionSuccessMessage: 'Kode kelas baru: $code',
+          actionSuccessCode: 'CLASS_CODE_REGENERATED',
+          actionSuccessArg: code,
           clearError: true,
         ),
       );
       return code;
     } catch (error) {
-      emit(state.copyWith(isLoading: false, errorMessage: _messageOf(error)));
+      emit(state.copyWith(isLoading: false, errorMessage: _messageOf(error), errorCode: _codeOf(error)));
       return null;
     }
   }
@@ -183,7 +189,7 @@ class TeacherCubit extends Cubit<TeacherState> {
         ),
       );
     } catch (error) {
-      emit(state.copyWith(isLoading: false, errorMessage: _messageOf(error)));
+      emit(state.copyWith(isLoading: false, errorMessage: _messageOf(error), errorCode: _codeOf(error)));
     }
   }
 
@@ -208,7 +214,7 @@ class TeacherCubit extends Cubit<TeacherState> {
       emit(state.copyWith(materials: materials, clearError: true));
       return materials.where((material) => material.id == lessonId).firstOrNull;
     } catch (error) {
-      emit(state.copyWith(errorMessage: _messageOf(error)));
+      emit(state.copyWith(errorMessage: _messageOf(error), errorCode: _codeOf(error)));
       return null;
     }
   }
@@ -234,12 +240,13 @@ class TeacherCubit extends Cubit<TeacherState> {
           materials: [...state.materials, material],
           isLoading: false,
           actionSuccessMessage: 'Materi baru berhasil dibuat.',
+          actionSuccessCode: 'LESSON_CREATED',
           clearError: true,
         ),
       );
       return material;
     } catch (error) {
-      emit(state.copyWith(isLoading: false, errorMessage: _messageOf(error)));
+      emit(state.copyWith(isLoading: false, errorMessage: _messageOf(error), errorCode: _codeOf(error)));
       return null;
     }
   }
@@ -267,12 +274,13 @@ class TeacherCubit extends Cubit<TeacherState> {
           materials: _replaceMaterial(material),
           isLoading: false,
           actionSuccessMessage: 'Materi berhasil diperbarui.',
+          actionSuccessCode: 'LESSON_UPDATED',
           clearError: true,
         ),
       );
       return material;
     } catch (error) {
-      emit(state.copyWith(isLoading: false, errorMessage: _messageOf(error)));
+      emit(state.copyWith(isLoading: false, errorMessage: _messageOf(error), errorCode: _codeOf(error)));
       return null;
     }
   }
@@ -289,11 +297,12 @@ class TeacherCubit extends Cubit<TeacherState> {
               : _replaceMaterial(updated),
           isLoading: false,
           actionSuccessMessage: 'Materi berhasil diterbitkan.',
+          actionSuccessCode: 'LESSON_PUBLISHED',
           clearError: true,
         ),
       );
     } catch (error) {
-      emit(state.copyWith(isLoading: false, errorMessage: _messageOf(error)));
+      emit(state.copyWith(isLoading: false, errorMessage: _messageOf(error), errorCode: _codeOf(error)));
     }
   }
 
@@ -309,11 +318,12 @@ class TeacherCubit extends Cubit<TeacherState> {
               : _replaceMaterial(updated),
           isLoading: false,
           actionSuccessMessage: 'Materi dikembalikan ke draft.',
+          actionSuccessCode: 'LESSON_DRAFTED',
           clearError: true,
         ),
       );
     } catch (error) {
-      emit(state.copyWith(isLoading: false, errorMessage: _messageOf(error)));
+      emit(state.copyWith(isLoading: false, errorMessage: _messageOf(error), errorCode: _codeOf(error)));
     }
   }
 
@@ -328,11 +338,12 @@ class TeacherCubit extends Cubit<TeacherState> {
               .toList(),
           isLoading: false,
           actionSuccessMessage: 'Materi berhasil dihapus.',
+          actionSuccessCode: 'LESSON_DELETED',
           clearError: true,
         ),
       );
     } catch (error) {
-      emit(state.copyWith(isLoading: false, errorMessage: _messageOf(error)));
+      emit(state.copyWith(isLoading: false, errorMessage: _messageOf(error), errorCode: _codeOf(error)));
     }
   }
 
@@ -345,12 +356,13 @@ class TeacherCubit extends Cubit<TeacherState> {
           materials: [...state.materials, duplicate],
           isLoading: false,
           actionSuccessMessage: 'Materi berhasil diduplikasi.',
+          actionSuccessCode: 'LESSON_DUPLICATED',
           clearError: true,
         ),
       );
       return duplicate;
     } catch (error) {
-      emit(state.copyWith(isLoading: false, errorMessage: _messageOf(error)));
+      emit(state.copyWith(isLoading: false, errorMessage: _messageOf(error), errorCode: _codeOf(error)));
       return null;
     }
   }
@@ -363,7 +375,7 @@ class TeacherCubit extends Cubit<TeacherState> {
       final babs = await _repository.listBabs(lessonId);
       emit(state.copyWith(babs: babs, isLoading: false, clearError: true));
     } catch (error) {
-      emit(state.copyWith(isLoading: false, errorMessage: _messageOf(error)));
+      emit(state.copyWith(isLoading: false, errorMessage: _messageOf(error), errorCode: _codeOf(error)));
     }
   }
 
@@ -386,12 +398,13 @@ class TeacherCubit extends Cubit<TeacherState> {
           babs: [...state.babs, bab],
           isLoading: false,
           actionSuccessMessage: 'Bab baru berhasil ditambahkan.',
+          actionSuccessCode: 'BAB_CREATED',
           clearError: true,
         ),
       );
       return bab;
     } catch (error) {
-      emit(state.copyWith(isLoading: false, errorMessage: _messageOf(error)));
+      emit(state.copyWith(isLoading: false, errorMessage: _messageOf(error), errorCode: _codeOf(error)));
       return null;
     }
   }
@@ -406,11 +419,13 @@ class TeacherCubit extends Cubit<TeacherState> {
           babs: babs,
           isLoading: false,
           actionSuccessMessage: 'Bab "${bab.title}" berhasil diduplikat.',
+          actionSuccessCode: 'BAB_DUPLICATED',
+          actionSuccessArg: bab.title,
           clearError: true,
         ),
       );
     } catch (error) {
-      emit(state.copyWith(isLoading: false, errorMessage: _messageOf(error)));
+      emit(state.copyWith(isLoading: false, errorMessage: _messageOf(error), errorCode: _codeOf(error)));
     }
   }
 
@@ -437,12 +452,13 @@ class TeacherCubit extends Cubit<TeacherState> {
               : [...state.babs, bab],
           isLoading: false,
           actionSuccessMessage: 'Bab berhasil diperbarui.',
+          actionSuccessCode: 'BAB_UPDATED',
           clearError: true,
         ),
       );
       return bab;
     } catch (error) {
-      emit(state.copyWith(isLoading: false, errorMessage: _messageOf(error)));
+      emit(state.copyWith(isLoading: false, errorMessage: _messageOf(error), errorCode: _codeOf(error)));
       return null;
     }
   }
@@ -456,11 +472,12 @@ class TeacherCubit extends Cubit<TeacherState> {
           babs: state.babs.where((item) => item.id != babId).toList(),
           isLoading: false,
           actionSuccessMessage: 'Bab berhasil dihapus.',
+          actionSuccessCode: 'BAB_DELETED',
           clearError: true,
         ),
       );
     } catch (error) {
-      emit(state.copyWith(isLoading: false, errorMessage: _messageOf(error)));
+      emit(state.copyWith(isLoading: false, errorMessage: _messageOf(error), errorCode: _codeOf(error)));
     }
   }
 
@@ -474,11 +491,12 @@ class TeacherCubit extends Cubit<TeacherState> {
           babs: babs,
           isLoading: false,
           actionSuccessMessage: 'Urutan bab diperbarui.',
+          actionSuccessCode: 'BAB_ORDER_UPDATED',
           clearError: true,
         ),
       );
     } catch (error) {
-      emit(state.copyWith(isLoading: false, errorMessage: _messageOf(error)));
+      emit(state.copyWith(isLoading: false, errorMessage: _messageOf(error), errorCode: _codeOf(error)));
     }
   }
 
@@ -516,7 +534,7 @@ class TeacherCubit extends Cubit<TeacherState> {
       );
     } catch (error) {
       if (isClosed || request != _analyticsRequest) return;
-      emit(state.copyWith(isLoading: false, errorMessage: _messageOf(error)));
+      emit(state.copyWith(isLoading: false, errorMessage: _messageOf(error), errorCode: _codeOf(error)));
     }
   }
 
@@ -567,12 +585,16 @@ class TeacherCubit extends Cubit<TeacherState> {
           actionSuccessMessage: removed == null
               ? 'Siswa dikeluarkan dari kelas.'
               : '${removed.name} dikeluarkan dari kelas.',
+          actionSuccessCode: removed == null
+              ? 'STUDENT_REMOVED'
+              : 'STUDENT_REMOVED_NAMED',
+          actionSuccessArg: removed?.name,
           clearError: true,
         ),
       );
     } catch (error) {
       if (isClosed) return;
-      emit(state.copyWith(isLoading: false, errorMessage: _messageOf(error)));
+      emit(state.copyWith(isLoading: false, errorMessage: _messageOf(error), errorCode: _codeOf(error)));
     }
   }
 
@@ -595,6 +617,17 @@ class TeacherCubit extends Cubit<TeacherState> {
     if (error is ApiTeacherException) return error.message;
     if (error is ApiClassException) return error.message;
     return 'Gagal terhubung ke server. Periksa koneksi lalu coba lagi.';
+  }
+
+  /// Kode stabil pendamping [_messageOf] untuk pemetaan l10n di listener.
+  /// Pesan server (kode tak dikenal) → null agar listener menampilkan
+  /// [TeacherState.errorMessage] apa adanya.
+  String? _codeOf(Object error) {
+    if (error is ApiTeacherException) return error.code;
+    if (error is ApiClassException) {
+      return error.code == 'UNRECOGNIZED_CLASS_RESPONSE' ? error.code : null;
+    }
+    return 'CLIENT_CONNECTION_FAILED';
   }
 
   ClassInfo _copyClass(

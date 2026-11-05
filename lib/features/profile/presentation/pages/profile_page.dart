@@ -698,6 +698,35 @@ class _ProfileContent extends StatelessWidget {
                 ),
               ),
             const SizedBox(height: AppSpacing.xl),
+
+            // Footer versi & hak cipta (juga tampil di halaman pengaturan).
+            Center(
+              child: Column(
+                children: [
+                  Text(
+                    'CodeLab AI Studio v2.4.0 (Build 384)',
+                    style: AppTypography.caption.copyWith(
+                      color: p.textMuted,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    '© 2025 CodeLab AI Inc. All rights reserved.',
+                    style: AppTypography.caption.copyWith(
+                      color: p.textMuted.withValues(alpha: 0.7),
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    'Devwan Hidayawan 2413025009',
+                    style: AppTypography.caption.copyWith(
+                      color: p.textMuted.withValues(alpha: 0.7),
+                    ),
+                  ),
+                ],
+              ),
+            ),
           ],
         ),
       ),

@@ -7,7 +7,7 @@
 //   - previewClass : kartu kelas DARI KODE rombel guru (6 karakter, kolom
 //     dengan tanda lipat "RPL-XXX") — tampil SEBELUM siswa gabung.
 //   - joinClass    : dudukkan siswa ke rombel aktif via kode.
-//   - myClasses    : rombel tempat siswa sedang tergabung (satu kelas aktif).
+//   - myClasses    : rombel tempat siswa tergabung (multi-kelas; terbaru dulu).
 //   - classDetail  : lembar detail kelas — guru pembimbing + daftar teman.
 //   - leaveClass   : hubungkan diri dari rombel (XP & progres tetap aman).
 //
@@ -71,7 +71,7 @@ abstract class ClassRepository {
   /// Kartu kelas aktif berdasarkan kode rombel guru (tidak mengubah apa pun).
   Future<ClassInfo> previewClass(String classCode);
 
-  /// Masukkan siswa yang sedang login ke rombel aktif (satu kelas per siswa).
+  /// Masukkan siswa yang sedang login ke rombel aktif (boleh lebih dari satu).
   /// Bisa menolak dengan kode ALREADY_MEMBER / ALREADY_IN_A_CLASS.
   Future<ClassInfo> joinClass(String classCode);
 

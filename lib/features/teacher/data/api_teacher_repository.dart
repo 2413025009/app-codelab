@@ -412,7 +412,7 @@ class ApiTeacherRepository implements TeacherRepository {
     if (data is! Map<String, dynamic>) {
       throw const ApiTeacherException(
         statusCode: 500,
-        code: 'INTERNAL_ERROR',
+        code: 'CLIENT_INVALID_LESSON_DATA',
         message: 'Format data materi tidak valid.',
       );
     }
@@ -438,7 +438,7 @@ class ApiTeacherRepository implements TeacherRepository {
     if (data is! Map<String, dynamic>) {
       throw const ApiTeacherException(
         statusCode: 500,
-        code: 'INTERNAL_ERROR',
+        code: 'CLIENT_INVALID_BAB_DATA',
         message: 'Format data bab tidak valid.',
       );
     }
@@ -474,7 +474,7 @@ class ApiTeacherRepository implements TeacherRepository {
     if (data is! Map<String, dynamic>) {
       throw const ApiTeacherException(
         statusCode: 500,
-        code: 'INTERNAL_ERROR',
+        code: 'CLIENT_INVALID_CLASS_DATA',
         message: 'Format data kelas tidak valid.',
       );
     }

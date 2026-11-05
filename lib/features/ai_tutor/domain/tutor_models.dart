@@ -7,6 +7,8 @@
 // WAJIB DIUBAH BILA: limit kuota per plan berubah atau level hint bertambah.
 import 'package:flutter/foundation.dart';
 
+import '../../../l10n/app_localizations.dart';
+
 /// Daily AI hint quota. Source of truth = server (`ai_quotas` 5x/hari);
 /// state lokal hanya untuk tampilan antara dua request server.
 class TutorQuota extends ChangeNotifier {
@@ -55,7 +57,6 @@ class TutorHintResult {
     required this.quotaLimit,
     required this.quotaLeft,
     this.concept,
-    this.fromCache = false,
   });
 
   final TutorHint hint;
@@ -66,11 +67,6 @@ class TutorHintResult {
   /// Konsep yang dideteksi server utk soal aktif (detected_concept).
   /// Dipakai menggantikan konsep statis script agar pill sesuai tantangan.
   final String? concept;
-
-  /// true bila repo mengembalikan hint yang SUDAH dibayar (sesi yang sama,
-  /// buka ulang sheet tantangan yang sama). Angka kuota dari salinan cache
-  /// tidak boleh menimpa angka resmi server, jadi UI melewati syncFromServer.
-  final bool fromCache;
 }
 
 class TutorHint {
@@ -95,36 +91,37 @@ class TutorScript {
   /// bersarang, nilai 75) sehingga tutor seolah selalu membahas soal itu.
   /// Sekarang label konsep memakai judul soal asli dan pertanyaannya hanya
   /// menuntun proses berpikir atas kode siswa sendiri.
-  factory TutorScript.forTopic(String? topic) {
+  ///
+  /// Teks hint adalah LABEL UI (bukan konten database): dibangun dari
+  /// [l10n] agar mengikuti bahasa aplikasi aktif. Judul soal ([topic])
+  /// dipakai apa adanya karena itu data.
+  factory TutorScript.forTopic(String? topic, AppLocalizations l10n) {
     final title = (topic ?? '').trim();
     return TutorScript(
-      concept: title.isEmpty ? 'Latihan Koding' : title,
-      hints: const [
+      concept: title.isEmpty ? l10n.tutorHintDefaultConcept : title,
+      hints: [
         TutorHint(
-          tabLabel: 'Hint 1: Konsep',
-          question:
-              'Apa output yang diminta soal ini? Ceritakan dulu dengan bahasamu sendiri sebelum menyentuh kode.',
+          tabLabel: l10n.tutorHintTabConcept,
+          question: l10n.tutorHintChallengeQ1,
           steps: [
-            'Sebutkan input yang tersedia dan output yang harus muncul.',
-            'Tandai bagian kode yang sudah kamu pahami dan bagian yang masih ragu.',
+            l10n.tutorHintChallengeQ1Step1,
+            l10n.tutorHintChallengeQ1Step2,
           ],
         ),
         TutorHint(
-          tabLabel: 'Hint 2: Logika',
-          question:
-              'Bagaimana urutan langkah programmu dari baris pertama sampai terakhir?',
+          tabLabel: l10n.tutorHintTabLogic,
+          question: l10n.tutorHintChallengeQ2,
           steps: [
-            'Tulis urutan langkahnya dalam bahasa sehari-hari, belum dalam kode.',
-            'Periksa apakah setiap langkah benar-benar mengarah ke output yang diminta soal.',
+            l10n.tutorHintChallengeQ2Step1,
+            l10n.tutorHintChallengeQ2Step2,
           ],
         ),
         TutorHint(
-          tabLabel: 'Hint 3: Struktur',
-          question:
-              'Baris mana yang paling sering memunculkan error saat kamu jalankan?',
+          tabLabel: l10n.tutorHintTabStructure,
+          question: l10n.tutorHintChallengeQ3,
           steps: [
-            'Baca pesan error dari baris paling atas: nama error dan nomor barisnya.',
-            'Cocokkan tanda baca di baris itu (kurung, titik dua, tanda kutip, indentasi).',
+            l10n.tutorHintChallengeQ3Step1,
+            l10n.tutorHintChallengeQ3Step2,
           ],
         ),
       ],
@@ -133,34 +130,39 @@ class TutorScript {
 
   /// Script fallback offline untuk mode Playground (kode bebas di luar soal):
   /// panduan umum berpikir-proses yang TIDAK memuat konteks tantangan lama.
-  static const playground = TutorScript(
-    concept: 'Latihan Mandiri (Playground)',
-    hints: [
-      TutorHint(
-        tabLabel: 'Hint 1: Konsep',
-        question:
-            'Masalah apa yang paling ingin kamu pecahkan program ini? Tulis tujuannya dalam satu kalimat dulu.',
-        steps: [
-          'Petakan: input apa yang masuk, proses apa yang dilakukan, output apa yang diharapkan.',
-          'Mulai dari potongan paling kecil yang bisa kamu uji sendiri.',
-        ],
-      ),
-      TutorHint(
-        tabLabel: 'Hint 2: Logika',
-        question: 'Bagaimana urutan langkah programmu dari baris pertama sampai terakhir?',
-        steps: [
-          'Tulis alurnya sebagai pseudo-kode bahasa Indonesia sebelum disalin ke Python.',
-          'Tandai mana bagian yang berulang (loop) dan mana yang bercabang (if).',
-        ],
-      ),
-      TutorHint(
-        tabLabel: 'Hint 3: Struktur',
-        question: 'Bagian mana dari kodemu yang tampak rancu saat dibaca?',
-        steps: [
-          'Cek indentasi dan tanda titik dua pada baris yang berisi logika.',
-          'Uji potongan kecil di terminal yang sama sebelum digabung kembali.',
-        ],
-      ),
-    ],
-  );
+  ///
+  /// Dulu `const`; sekarang factory sadar locale seperti [forTopic] karena
+  /// teksnya adalah label UI. Tidak ada pemakai di repo saat perubahan ini
+  /// (dicari di lib/ dan test/), jadi perubahan dari const ke factory aman.
+  static TutorScript playground(AppLocalizations l10n) {
+    return TutorScript(
+      concept: l10n.tutorHintPlaygroundConcept,
+      hints: [
+        TutorHint(
+          tabLabel: l10n.tutorHintTabConcept,
+          question: l10n.tutorHintPlaygroundQ1,
+          steps: [
+            l10n.tutorHintPlaygroundQ1Step1,
+            l10n.tutorHintPlaygroundQ1Step2,
+          ],
+        ),
+        TutorHint(
+          tabLabel: l10n.tutorHintTabLogic,
+          question: l10n.tutorHintPlaygroundQ2,
+          steps: [
+            l10n.tutorHintPlaygroundQ2Step1,
+            l10n.tutorHintPlaygroundQ2Step2,
+          ],
+        ),
+        TutorHint(
+          tabLabel: l10n.tutorHintTabStructure,
+          question: l10n.tutorHintPlaygroundQ3,
+          steps: [
+            l10n.tutorHintPlaygroundQ3Step1,
+            l10n.tutorHintPlaygroundQ3Step2,
+          ],
+        ),
+      ],
+    );
+  }
 }

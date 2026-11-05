@@ -14,6 +14,7 @@ import '../../../../core/widgets/app_refresh.dart';
 import '../../../../core/widgets/app_snack.dart';
 import '../../../../core/widgets/avatars.dart';
 import '../../../../l10n/app_localizations.dart';
+import '../../../../l10n/l10n_ext.dart';
 import '../../../auth/presentation/cubit/auth_cubit.dart';
 import '../../../class/presentation/widgets/class_status_card.dart';
 import '../../domain/dashboard_repository.dart';
@@ -171,7 +172,7 @@ class _DashboardView extends StatelessWidget {
                 subtitle: l10n.dashLoadingSubtitle,
                 completedSteps: done,
                 totalSteps: total,
-                stageLabel: stage,
+                stageLabel: stage?.labelL10n(l10n) ?? l10n.dashStageConnecting,
                 showTips: false,
                 compact: true,
               ),
@@ -293,7 +294,7 @@ class _Header extends StatelessWidget {
                   children: [
                     Flexible(
                       child: Text(
-                        'Halo, ${displayFirstName(userName)}',
+                        l10n.dashGreeting(displayFirstName(userName)),
                         style: AppTypography.titleL.copyWith(
                           color: p.text,
                           fontWeight: FontWeight.w700,

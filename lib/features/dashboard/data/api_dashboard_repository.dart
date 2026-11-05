@@ -11,40 +11,40 @@ class ApiDashboardRepository implements DashboardRepository {
   @override
   Future<DashboardData> load({
     required String studentEmail,
-    void Function(int done, int total, String stage)? onProgress,
+    void Function(int done, int total, DashboardStage stage)? onProgress,
   }) async {
-    void step(int done, String label) => onProgress?.call(done, 5, label);
+    void step(int done, DashboardStage stage) => onProgress?.call(done, 5, stage);
     try {
-      step(0, 'Menyambung ke server…');
+      step(0, DashboardStage.connecting);
       // Lima GET paralel (P1-8): /challenges ikut supaya KPI "N tantangan
       // selesai" memakai angka tantangan, bukan bab selesai /me. Progres =
       // jumlah GET yang BENAR-BENAR pulang dari jaringan (bukan animasi).
       final meF = _client.dio.get<Map<String, dynamic>>('/me').then((r) {
-        step(1, 'Profil siswa terbaca');
+        step(1, DashboardStage.profile);
         return r;
       });
       final progressF = _client.dio
           .get<Map<String, dynamic>>('/me/progress')
           .then((r) {
-            step(2, 'Kemajuan bab terbaca');
+            step(2, DashboardStage.progress);
             return r;
           });
       final skillsF = _client.dio.get<Map<String, dynamic>>('/me/skills').then((
         r,
       ) {
-        step(3, 'Radar skill terbaca');
+        step(3, DashboardStage.skills);
         return r;
       });
       final lessonsF = _client.dio.get<Map<String, dynamic>>('/lessons').then((
         r,
       ) {
-        step(4, 'Katalog materi terbaca');
+        step(4, DashboardStage.lessons);
         return r;
       });
       final challengesF = _client.dio
           .get<Map<String, dynamic>>('/challenges')
           .then((r) {
-            step(5, 'Catatan tantangan terbaca');
+            step(5, DashboardStage.challenges);
             return r;
           });
       final responses = await Future.wait([
@@ -54,7 +54,7 @@ class ApiDashboardRepository implements DashboardRepository {
         lessonsF,
         challengesF,
       ]);
-      step(5, 'Menyusun dashboard…');
+      step(5, DashboardStage.composing);
 
       final meData = responses[0].data ?? {};
       final progressData = responses[1].data ?? {};

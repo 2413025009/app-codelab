@@ -1,15 +1,15 @@
 // FILE: lib/features/class/presentation/widgets/my_class_section.dart
 //
-// TUGAS: seksi "Kelas & Rombel" di halaman Profil siswa (TODO Minggu 10):
-// saat belum tergabung → tombol "Gabung Kelas" membuka JoinClassSheet;
-// saat sudah tergabung → kartu kelas aktif yang dibuka memunculkan
-// StudentClassDetailSheet (info guru, teman sekelas, keluar kelas).
+// TUGAS: seksi "Kelas & Rombel" di halaman Profil siswa:
+// - belum tergabung → tombol "Gabung Kelas" membuka JoinClassSheet;
+// - sudah tergabung → daftar kelas (maks. 3 kartu tampil; sisanya lewat
+//   "Lihat Semua" / MyClassesSheet) yang dibuka memunculkan
+//   StudentClassDetailSheet (info guru, teman sekelas, keluar kelas).
+// Multi-kelas didukung: siswa boleh tergabung di beberapa rombel sekaligus,
+// urutannya kelas terbaru lebih dulu (joined_at DESC dari server).
 //
 // Data 100% dari backend (GET /classes/my); gagal muat ditampilkan jujur
 // dengan tombol coba lagi — tidak ada kelas tiruan.
-//
-// WAJIB DIUBAH BILA: badge rombel dipasang di Dashboard siswa (minggu 10+
-// lanjutan) — bawa data via repository yang sama.
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -129,6 +129,12 @@ class _MyClassSectionState extends State<MyClassSection> {
     final p = context.palette;
     final l10n = AppLocalizations.of(context);
 
+    // Profil cukup menampilkan tiga kelas teratas agar halaman tidak
+    // memanjang saat siswa ikut banyak rombel; daftar lengkap tetap
+    // terjangkau lewat "Lihat Semua".
+    final visibleClasses =
+        _classes.length > 3 ? _classes.take(3).toList() : _classes;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -140,7 +146,27 @@ class _MyClassSectionState extends State<MyClassSection> {
                 style: AppTypography.titleM.copyWith(color: p.text),
               ),
             ),
-            if (!_loading && !_failed)
+            if (!_loading && !_failed && _classes.length > 1) ...[
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 8,
+                  vertical: 2,
+                ),
+                decoration: BoxDecoration(
+                  color: p.primaryContainer,
+                  borderRadius: AppRadius.pillBorder,
+                ),
+                child: Text(
+                  l10n.classCountBadge(_classes.length),
+                  style: AppTypography.caption.copyWith(
+                    color: p.primary,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+              const SizedBox(width: AppSpacing.sm),
+            ],
+            if (!_loading && !_failed && _classes.isNotEmpty)
               TextButton(
                 onPressed: _openAllClasses,
                 child: Text(
@@ -239,10 +265,9 @@ class _MyClassSectionState extends State<MyClassSection> {
                   ),
           )
         else
-          // Kelas aktif: satu kelas per siswa (aturan minggu 10). Tiap kartu
-          // diberi jarak bawah agar daftar kelas tidak menempel saat siswa
-          // tergabung di lebih dari satu kelas.
-          for (final info in _classes) ...[
+          // Multi-kelas: tampilkan maksimal tiga kartu teratas. Tiap kartu
+          // diberi jarak bawah agar daftar tidak menempel.
+          for (final info in visibleClasses) ...[
             AppCard(
               padding: EdgeInsets.zero,
               child: InkWell(

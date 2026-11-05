@@ -70,7 +70,7 @@ class _SheetFrame extends StatelessWidget {
                 ),
               ),
               IconButton.filled(
-                tooltip: 'Tutup',
+                tooltip: AppLocalizations.of(context).actionClose,
                 style: IconButton.styleFrom(
                   backgroundColor: p.surfaceAlt,
                   foregroundColor: p.textMuted,

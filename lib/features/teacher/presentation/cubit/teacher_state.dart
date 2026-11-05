@@ -18,7 +18,10 @@ class TeacherState extends Equatable {
     this.analytics,
     this.isLoading = false,
     this.errorMessage,
+    this.errorCode,
     this.actionSuccessMessage,
+    this.actionSuccessCode,
+    this.actionSuccessArg,
   });
 
   final List<ClassInfo> classes;
@@ -32,7 +35,10 @@ class TeacherState extends Equatable {
   final ClassAnalytics? analytics;
   final bool isLoading;
   final String? errorMessage;
+  final String? errorCode;
   final String? actionSuccessMessage;
+  final String? actionSuccessCode;
+  final String? actionSuccessArg;
 
   List<TeacherLesson> get filteredMaterials {
     if (materialFilter == 'draft') {
@@ -58,7 +64,10 @@ class TeacherState extends Equatable {
     ClassAnalytics? analytics,
     bool? isLoading,
     String? errorMessage,
+    String? errorCode,
     String? actionSuccessMessage,
+    String? actionSuccessCode,
+    String? actionSuccessArg,
     bool clearError = false,
     bool clearSuccess = false,
   }) {
@@ -72,9 +81,16 @@ class TeacherState extends Equatable {
       analytics: analytics ?? this.analytics,
       isLoading: isLoading ?? this.isLoading,
       errorMessage: clearError ? null : (errorMessage ?? this.errorMessage),
+      errorCode: clearError ? null : (errorCode ?? this.errorCode),
       actionSuccessMessage: clearSuccess
           ? null
           : (actionSuccessMessage ?? this.actionSuccessMessage),
+      actionSuccessCode: clearSuccess
+          ? null
+          : (actionSuccessCode ?? this.actionSuccessCode),
+      actionSuccessArg: clearSuccess
+          ? null
+          : (actionSuccessArg ?? this.actionSuccessArg),
     );
   }
 
@@ -89,6 +105,9 @@ class TeacherState extends Equatable {
     analytics,
     isLoading,
     errorMessage,
+    errorCode,
     actionSuccessMessage,
+    actionSuccessCode,
+    actionSuccessArg,
   ];
 }

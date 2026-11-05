@@ -24,6 +24,8 @@
 import 'dart:async';
 import 'dart:math' as math;
 
+import '../../../l10n/app_localizations.dart';
+
 typedef InputPrompter = Future<String?> Function(String prompt);
 
 class MiniPythonResult {
@@ -36,8 +38,39 @@ class MiniPythonResult {
 }
 
 class _PyError implements Exception {
-  const _PyError(this.message);
+  const _PyError(this.message, {this.code, this.arg});
+
+  /// Pesan fallback (Bahasa Indonesia) — dipakai bila `l10n` null
+  /// (mis. tes tanpa context). Bila `code` null, pesan dipakai apa adanya
+  /// karena itu pesan kanonis CPython, bukan teks milik aplikasi.
   final String message;
+
+  /// Kode stabil untuk pemetaan ke l10n (null = pesan CPython apa adanya).
+  final String? code;
+
+  /// Argumen token untuk pesan berparameter (nama parameter / operator).
+  final String? arg;
+}
+
+/// Selesaikan galat interpreter ke bahasa aktif. Tanpa `l10n` (atau tanpa
+/// kode), pesan fallback dipakai apa adanya sehingga perilaku lama terjaga.
+String _pyErrorMessage(AppLocalizations? l10n, _PyError e) {
+  if (l10n == null || e.code == null) return e.message;
+  return switch (e.code) {
+    'string-unclosed' => l10n.pyErrStringUnclosed,
+    'fstring-close-brace' => l10n.pyErrFStringCloseBrace("'}'"),
+    'fstring-empty-expr' => l10n.pyErrFStringEmptyExpr,
+    'fstring-stray-brace' => l10n.pyErrFStringStrayBrace("'}'"),
+    'fstring-unclosed' => l10n.pyErrFStringUnclosed,
+    'timeout-seconds' => l10n.pyErrTimeoutSeconds,
+    'step-limit' => l10n.pyErrStepLimit,
+    'elif-without-if' => l10n.pyErrElifWithoutIf,
+    'invalid-param' => l10n.pyErrInvalidParam(e.arg ?? ''),
+    'input-needs-dialog' => l10n.pyErrInputNeedsDialog,
+    'sum-needs-list' => l10n.pyErrSumNeedsList,
+    'unknown-operator' => l10n.pyErrUnknownOperator(e.arg ?? ''),
+    _ => e.message,
+  };
 }
 
 class _BreakSignal implements Exception {
@@ -494,7 +527,7 @@ bool _isNameStart(String c) =>
     buf.write(c);
     i++;
   }
-  throw const _PyError('SyntaxError: string tidak ditutup');
+  throw const _PyError('SyntaxError: string tidak ditutup', code: 'string-unclosed');
 }
 
 (List<_FPart>, int) _readFString(String src, int quotePos, String quote) {
@@ -549,7 +582,7 @@ bool _isNameStart(String c) =>
         i++;
       }
       if (depth != 0) {
-        throw const _PyError("SyntaxError: f-string: tanda '}' tidak ditemukan");
+        throw const _PyError("SyntaxError: f-string: tanda '}' tidak ditemukan", code: 'fstring-close-brace');
       }
       i++; // lewati } penutup.
       var expr = exprBuf.toString().trim();
@@ -560,7 +593,7 @@ bool _isNameStart(String c) =>
         expr = expr.substring(0, colon).trim();
       }
       if (expr.isEmpty) {
-        throw const _PyError('SyntaxError: f-string: ekspresi kosong');
+        throw const _PyError('SyntaxError: f-string: ekspresi kosong', code: 'fstring-empty-expr');
       }
       parts.add(_FPart('', expr, spec));
       continue;
@@ -571,12 +604,12 @@ bool _isNameStart(String c) =>
         i += 2;
         continue;
       }
-      throw const _PyError("SyntaxError: f-string: tanda '}' di luar {..}");
+      throw const _PyError("SyntaxError: f-string: tanda '}' di luar {..}", code: 'fstring-stray-brace');
     }
     litBuf.write(c);
     i++;
   }
-  throw const _PyError('SyntaxError: f-string tidak ditutup');
+  throw const _PyError('SyntaxError: f-string tidak ditutup', code: 'fstring-unclosed');
 }
 
 int _topColonIndex(String expr) {
@@ -611,12 +644,12 @@ class _State {
   void tick() {
     steps++;
     if (steps % 4096 == 0 && clock.elapsedMilliseconds >= 5000) {
-      throw const _PyError('RuntimeError: program dihentikan (melewati batas 5 detik)');
+      throw const _PyError('RuntimeError: program dihentikan (melewati batas 5 detik)', code: 'timeout-seconds');
     }
     if (steps >= 100000) {
       throw const _PyError(
           'RuntimeError: program dihentikan — melewati 100.000 langkah '
-          '(periksa perulangan tanpa ujung)');
+          '(periksa perulangan tanpa ujung)', code: 'step-limit');
     }
   }
 }
@@ -636,6 +669,7 @@ class MiniPythonRunner {
   Future<MiniPythonResult> run(
     String code, {
     InputPrompter? onInput,
+    AppLocalizations? l10n,
   }) async {
     final out = <String>[];
     final globals = <String, Object?>{};
@@ -645,20 +679,26 @@ class MiniPythonRunner {
       await _runBody(lines, _Frame(globals, globals), state);
       return MiniPythonResult(lines: out, exitCode: 0);
     } on _PyError catch (e) {
-      return MiniPythonResult(lines: [...out, e.message], exitCode: 1);
+      return MiniPythonResult(
+        lines: [...out, _pyErrorMessage(l10n, e)],
+        exitCode: 1,
+      );
     } on _BreakSignal {
       return MiniPythonResult(
-        lines: [...out, 'SyntaxError: "break" di luar perulangan'],
+        lines: [...out, l10n?.pyErrBreakOutsideLoop ??
+            'SyntaxError: "break" di luar perulangan'],
         exitCode: 1,
       );
     } on _ContinueSignal {
       return MiniPythonResult(
-        lines: [...out, 'SyntaxError: "continue" di luar perulangan'],
+        lines: [...out, l10n?.pyErrContinueOutsideLoop ??
+            'SyntaxError: "continue" di luar perulangan'],
         exitCode: 1,
       );
     } on _ReturnSignal {
       return MiniPythonResult(
-        lines: [...out, "SyntaxError: 'return' di luar fungsi"],
+        lines: [...out, l10n?.pyErrReturnOutsideFunction ??
+            "SyntaxError: 'return' di luar fungsi"],
         exitCode: 1,
       );
     }
@@ -838,7 +878,7 @@ class MiniPythonRunner {
     }
 
     if (text == 'else:' || text.startsWith('elif ')) {
-      throw const _PyError('SyntaxError: invalid syntax (elif/else tanpa if)');
+      throw const _PyError('SyntaxError: invalid syntax (elif/else tanpa if)', code: 'elif-without-if');
     }
 
     // --- Perulangan for -----------------------------------------------
@@ -901,7 +941,7 @@ class MiniPythonRunner {
           : paramsRaw.split(',').map((e) => e.trim()).toList();
       for (final p in params) {
         if (!RegExp(r'^[A-Za-z_]\w*$').hasMatch(p)) {
-          throw _PyError('SyntaxError: paramater tidak valid -> $p');
+          throw _PyError('SyntaxError: parameter tidak valid -> $p', code: 'invalid-param', arg: p);
         }
       }
       state.globals[defM.group(1)!] = _PyFunction(defM.group(1)!, params, body);
@@ -1134,7 +1174,7 @@ class MiniPythonRunner {
         final prompter = state.onInput;
         if (prompter == null) {
           throw const _PyError(
-              'RuntimeError: input() butuh dialog — jalankan dari halaman Playground');
+              'RuntimeError: input() butuh dialog — jalankan dari halaman Playground', code: 'input-needs-dialog');
         }
         final prompt = args.isEmpty ? '' : _str(args.first);
         final raw = await prompter(prompt);
@@ -1221,7 +1261,7 @@ class MiniPythonRunner {
         return _roundEven(v);
       case 'sum':
         if (args.isEmpty || args.first is! List) {
-          throw const _PyError('TypeError: sum() membutuhkan list sebagai argumen pertama');
+          throw const _PyError('TypeError: sum() membutuhkan list sebagai argumen pertama', code: 'sum-needs-list');
         }
         num acc = 0;
         for (final item in (args.first as List).cast<Object?>()) {
@@ -1393,7 +1433,7 @@ class MiniPythonRunner {
         throw _PyError(
             "TypeError: unsupported operand type(s) for **: '${_typeName(l)}' and '${_typeName(r)}'");
     }
-    throw _PyError("TypeError: operator '$op' tidak dikenal");
+    throw _PyError("TypeError: operator '$op' tidak dikenal", code: 'unknown-operator', arg: op);
   }
 
   String _repeatStr(String s, int n) {

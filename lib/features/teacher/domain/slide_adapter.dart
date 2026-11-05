@@ -1,4 +1,5 @@
 import '../../lesson/domain/slide_models.dart';
+import '../../../../l10n/app_localizations.dart';
 
 /// Adapter untuk mengubah `List<Map<String, dynamic>>` slide editor guru
 /// menjadi model domain `LessonDetailData` / `LessonSlide` yang siap dieksekusi
@@ -13,6 +14,7 @@ abstract final class SlideAdapter {
     required String title,
     required int xpReward,
     required List<Map<String, dynamic>> rawSlides,
+    AppLocalizations? l10n,
   }) {
     final slides = <LessonSlide>[];
     for (var i = 0; i < rawSlides.length; i++) {
@@ -80,6 +82,7 @@ abstract final class SlideAdapter {
               file: s['file_name'] as String? ?? 'script.py',
               instruction:
                   _firstNonEmpty([s['instruction'], s['prompt']]) ??
+                  l10n?.tAdapterTypeCodeInstruction ??
                   'Lengkapi kode berikut:',
               codeTemplate:
                   (_firstNonEmpty([s['starter_code'], s['code']]) ?? '')
@@ -108,6 +111,7 @@ abstract final class SlideAdapter {
               codeSnippet: s['code'] as String? ?? '',
               question:
                   _firstNonEmpty([s['question'], s['prompt']]) ??
+                  l10n?.tAdapterOutputQuestion ??
                   'Apakah output dari kode di atas?',
               options: opts,
               correctAnswer: _resolveAnswer(
@@ -139,12 +143,14 @@ abstract final class SlideAdapter {
                     s['instruction'],
                     s['prompt'],
                   ]) ??
+                  l10n?.tAdapterBugInstruction ??
                   'Cari baris yang bermasalah:',
               lines: bugLines,
               correctLine: targetLine.clamp(1, bugLines.length),
               errorType: s['error_type'] as String? ?? 'SyntaxError',
               explanation:
                   _firstNonEmpty([s['bug_hint'], s['explanation'], s['fix']]) ??
+                  l10n?.tAdapterBugExplanation ??
                   'Periksa sintaks pada baris ini.',
             ),
           );
@@ -159,7 +165,10 @@ abstract final class SlideAdapter {
             QuizSlide(
               id: slideId,
               title: slideTitle,
-              question: s['question'] as String? ?? 'Pertanyaan kuis:',
+              question:
+                  s['question'] as String? ??
+                  l10n?.tAdapterQuizQuestion ??
+                  'Pertanyaan kuis:',
               options: quizOpts,
               correctAnswer: _resolveAnswer(
                 raw: _firstNonEmpty([s['correct_answer'], s['answer']]),
@@ -178,13 +187,14 @@ abstract final class SlideAdapter {
               title: slideTitle,
               summary: summary != null && summary.isNotEmpty
                   ? summary
-                  : 'Selamat! Kamu telah menyelesaikan bab ini.',
+                  : l10n?.tAdapterOutroSummary ??
+                      'Selamat! Kamu telah menyelesaikan bab ini.',
               accuracy: '100%',
               xpEarned: xpReward,
-              learningTime: '3 Menit',
+              learningTime: l10n?.tAdapterLearningTime ?? '3 Menit',
               masteredConcepts: _stringList(
                 s['mastered_concepts'],
-                fallback: const ['Konsep Utama'],
+                fallback: [l10n?.tAdapterMainConcept ?? 'Konsep Utama'],
               ),
             ),
           );
@@ -206,7 +216,7 @@ abstract final class SlideAdapter {
         TheorySlide(
           id: 'slide_empty',
           title: title,
-          content: 'Bab ini belum memiliki slide.',
+          content: l10n?.tAdapterEmptyBab ?? 'Bab ini belum memiliki slide.',
         ),
       );
     }
@@ -215,14 +225,14 @@ abstract final class SlideAdapter {
       id: id,
       title: title,
       slug: id,
-      topic: 'Pratinjau Guru',
+      topic: l10n?.tAdapterPreviewTopic ?? 'Pratinjau Guru',
       level: 'beginner',
       orderIndex: 1,
       xpReward: xpReward,
       status: 'draft',
       progressPercent: 0.0,
       currentSlideIndex: 1,
-      description: 'Mode Simulator Pratinjau Guru',
+      description: l10n?.tAdapterPreviewMode ?? 'Mode Simulator Pratinjau Guru',
       slides: slides,
       contentMarkdown: '',
     );
@@ -234,12 +244,14 @@ abstract final class SlideAdapter {
     required String title,
     required int xpReward,
     required Map<String, dynamic> slide,
+    AppLocalizations? l10n,
   }) {
     return toLessonDetailData(
       id: id,
       title: title,
       xpReward: xpReward,
       rawSlides: [slide],
+      l10n: l10n,
     );
   }
 

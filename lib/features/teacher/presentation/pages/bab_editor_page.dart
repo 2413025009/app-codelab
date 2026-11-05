@@ -14,6 +14,8 @@ import '../../../../core/theme/app_typography.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_snack.dart';
 import '../cubit/teacher_cubit.dart';
+import '../../../../l10n/app_localizations.dart';
+import '../../../../l10n/l10n_ext.dart';
 import '../widgets/slide_type_preview_sheet.dart';
 import 'package:mobile_codelab_ai/features/teacher/domain/teacher_models.dart';
 import '../../domain/slide_adapter.dart';
@@ -77,6 +79,7 @@ class _BabEditorPageState extends State<BabEditorPage> {
 
   Future<void> _loadBab() async {
     if (!mounted) return;
+    final l10n = AppLocalizations.of(context);
     final cubit = context.read<TeacherCubit>();
     await cubit.loadBabs(widget.lessonId);
     if (!mounted) return;
@@ -87,9 +90,11 @@ class _BabEditorPageState extends State<BabEditorPage> {
     if (bab == null) {
       setState(() {
         _isLoading = false;
-        _loadError =
-            cubit.state.errorMessage ??
-            'Bab tidak ditemukan. Buka daftar bab untuk memilih bab lain.';
+        _loadError = teacherErrorText(
+          l10n,
+          cubit.state.errorCode,
+          cubit.state.errorMessage ?? l10n.tBabNotFound,
+        );
       });
       return;
     }
@@ -126,8 +131,10 @@ class _BabEditorPageState extends State<BabEditorPage> {
   }
 
   Future<void> _addSlideAndEdit(String type) async {
+    final l10n = AppLocalizations.of(context);
     final normalized = SlideTemplates.normalize(type);
-    final slide = SlideTemplates.create(normalized, xpReward: _xpReward);
+    final slide =
+        SlideTemplates.create(normalized, xpReward: _xpReward, l10n: l10n);
     final edited = await _pushSlideEditor(slide, _slides.length);
     if (!mounted || edited == null) return;
     setState(() => _slides.add(edited));
@@ -167,6 +174,7 @@ class _BabEditorPageState extends State<BabEditorPage> {
   }
 
   String _slideSummary(Map<String, dynamic> slide) {
+    final l10n = AppLocalizations.of(context);
     final type = SlideTemplates.normalize(slide['type']);
     final String raw;
     switch (type) {
@@ -199,13 +207,13 @@ class _BabEditorPageState extends State<BabEditorPage> {
         raw = (slide['content'] as String?)?.trim() ?? '';
         break;
     }
-    if (raw.isEmpty) return 'Belum ada isi. Ketuk Edit Konten untuk mulai.';
+    if (raw.isEmpty) return l10n.tBabSlideEmptyHint;
     return raw.replaceAll('\n', ' ');
   }
 
   void _removeSlide(int index) {
     if (_slides.length <= 1) {
-      showAppSnack(context, 'Bab minimal harus memiliki 1 slide.');
+      showAppSnack(context, AppLocalizations.of(context).tBabMinSlides);
       return;
     }
     setState(() => _slides.removeAt(index));
@@ -222,6 +230,7 @@ class _BabEditorPageState extends State<BabEditorPage> {
 
   void _showAddSlidePicker() {
     final p = context.palette;
+    final l10n = AppLocalizations.of(context);
     showModalBottomSheet(
       context: context,
       backgroundColor: p.surface,
@@ -233,53 +242,53 @@ class _BabEditorPageState extends State<BabEditorPage> {
         final slideTypes = [
           {
             'type': 'THEORY',
-            'name': 'Teori & Konsep',
-            'desc': 'Teks penjelasan konsep materi & contoh kode visual.',
+            'name': l10n.tBabTypeTheoryName,
+            'desc': l10n.tBabSheetDescTheory,
             'icon': Icons.menu_book_rounded,
-            'badge': 'Bahan Baca',
+            'badge': l10n.tBabTypeTheoryBadge,
           },
           {
             'type': 'TAP_TO_FILL',
-            'name': 'Lengkapi Kode (Tap)',
-            'desc': 'Siswa mengetuk keping blok untuk melengkapi baris kode.',
+            'name': l10n.tBabTypeTapName,
+            'desc': l10n.tBabSheetDescTap,
             'icon': Icons.extension_rounded,
-            'badge': 'Interaktif',
+            'badge': l10n.tBabTypeTapBadge,
           },
           {
             'type': 'TYPE_CODE',
-            'name': 'Ketik Kata Kunci',
-            'desc': 'Latihan mengetik keyword atau ekspresi sintaksis.',
+            'name': l10n.tBabTypeTypeName,
+            'desc': l10n.tBabSheetDescType,
             'icon': Icons.keyboard_rounded,
-            'badge': 'Sintaks',
+            'badge': l10n.tBabTypeTypeBadge,
           },
           {
             'type': 'OUTPUT_PREDICT',
-            'name': 'Tebak Output Kode',
+            'name': l10n.tBabTypeOutputName,
             'desc':
-                'Siswa menganalisis snippet dan memprediksi hasil keluaran terminal.',
+                l10n.tBabSheetDescOutput,
             'icon': Icons.terminal_rounded,
-            'badge': 'Logika',
+            'badge': l10n.tBabTypeOutputBadge,
           },
           {
             'type': 'BUG_HUNTER',
-            'name': 'Bug Hunter (Cari Galat)',
-            'desc': 'Tantangan memperbaiki galat penulisan atau logika koding.',
+            'name': l10n.tBabTypeBugName,
+            'desc': l10n.tBabSheetDescBug,
             'icon': Icons.pest_control_rounded,
-            'badge': 'Debugging',
+            'badge': l10n.tBabTypeBugBadge,
           },
           {
             'type': 'QUIZ',
-            'name': 'Kuis Pilihan Ganda',
-            'desc': 'Pertanyaan evaluasi pemahaman dengan 4 opsi pilihan.',
+            'name': l10n.tBabTypeQuizName,
+            'desc': l10n.tBabSheetDescQuiz,
             'icon': Icons.help_outline_rounded,
-            'badge': 'Evaluasi',
+            'badge': l10n.tBabTypeQuizBadge,
           },
           {
             'type': 'OUTRO',
-            'name': 'Rangkuman & Klaim XP',
-            'desc': 'Slide penutup bab dengan ringkasan capaian dan hadiah.',
+            'name': l10n.tBabTypeOutroName,
+            'desc': l10n.tBabSheetDescOutro,
             'icon': Icons.celebration_rounded,
-            'badge': 'Pencapaian',
+            'badge': l10n.tBabTypeOutroBadge,
           },
         ];
 
@@ -304,7 +313,7 @@ class _BabEditorPageState extends State<BabEditorPage> {
                 Row(
                   children: [
                     Text(
-                      'Pilih Jenis Slide Baru',
+                      l10n.tBabPickerTitle,
                       style: AppTypography.titleM.copyWith(
                         color: p.text,
                         fontWeight: FontWeight.bold,
@@ -321,7 +330,7 @@ class _BabEditorPageState extends State<BabEditorPage> {
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: Text(
-                        '7 Format',
+                        l10n.tBabFormatCount(slideTypes.length),
                         style: AppTypography.labelSm.copyWith(
                           color: p.primary,
                           fontWeight: FontWeight.bold,
@@ -332,7 +341,7 @@ class _BabEditorPageState extends State<BabEditorPage> {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  'Ketuk ikon mata untuk melihat pratinjau simulasi koding, atau pilih langsung untuk menambahkan ke alur bab.',
+                  l10n.tBabPickerHint,
                   style: AppTypography.bodySm.copyWith(color: p.textMuted),
                 ),
                 const SizedBox(height: AppSpacing.sm),
@@ -407,7 +416,7 @@ class _BabEditorPageState extends State<BabEditorPage> {
                                 size: 20,
                                 color: p.primary,
                               ),
-                              tooltip: 'Pratinjau Format Interaktif',
+                              tooltip: l10n.tBabPreviewFormatTooltip,
                               onPressed: () {
                                 Navigator.of(ctx).pop();
                                 SlideTypePreviewSheet.show(
@@ -423,7 +432,7 @@ class _BabEditorPageState extends State<BabEditorPage> {
                                 size: 20,
                                 color: p.primary,
                               ),
-                              tooltip: 'Tambahkan Slide',
+                              tooltip: l10n.tBabPickerAddTooltip,
                               onPressed: () {
                                 Navigator.of(ctx).pop();
                                 _addSlideAndEdit(type);
@@ -453,14 +462,15 @@ class _BabEditorPageState extends State<BabEditorPage> {
 
   Future<void> _handleSave() async {
     if (_isSubmitting || _isLoading) return;
+    final l10n = AppLocalizations.of(context);
     final title = _titleController.text.trim();
     if (title.isEmpty) {
-      showAppSnack(context, 'Nama bab wajib diisi.');
+      showAppSnack(context, l10n.tBabTitleRequired);
       return;
     }
 
     if (_slides.isEmpty) {
-      showAppSnack(context, 'Bab minimal harus memiliki 1 slide.');
+      showAppSnack(context, l10n.tBabMinSlides);
       return;
     }
 
@@ -491,7 +501,7 @@ class _BabEditorPageState extends State<BabEditorPage> {
     if (result != null) {
       showAppSnack(
         context,
-        _isEdit ? 'Bab berhasil diperbarui.' : 'Bab baru berhasil ditambahkan.',
+        _isEdit ? l10n.tBabUpdated : l10n.tBabCreated,
       );
       if (context.canPop()) {
         context.pop(result);
@@ -505,14 +515,15 @@ class _BabEditorPageState extends State<BabEditorPage> {
     if (_slides.isEmpty) {
       showAppSnack(
         context,
-        'Bab minimal harus memiliki 1 slide untuk disimulasikan.',
+        AppLocalizations.of(context).tBabMinSlidesPreview,
       );
       return;
     }
     final previewData = SlideAdapter.toLessonDetailData(
+      l10n: AppLocalizations.of(context),
       id: _currentBabId ?? 'preview_bab',
       title: _titleController.text.trim().isEmpty
-          ? 'Pratinjau Bab'
+          ? AppLocalizations.of(context).tBabPreviewFallback
           : _titleController.text.trim(),
       xpReward: _xpReward,
       rawSlides: _slides,
@@ -531,17 +542,18 @@ class _BabEditorPageState extends State<BabEditorPage> {
   @override
   Widget build(BuildContext context) {
     final p = context.palette;
+    final l10n = AppLocalizations.of(context);
 
     if (_isLoading) {
       return Scaffold(
-        appBar: AppBar(title: const Text('Edit Bab')),
+        appBar: AppBar(title: Text(l10n.tBabEditTitle)),
         body: const Center(child: CircularProgressIndicator()),
       );
     }
 
     if (_loadError != null) {
       return Scaffold(
-        appBar: AppBar(title: const Text('Edit Bab')),
+        appBar: AppBar(title: Text(l10n.tBabEditTitle)),
         body: SafeArea(
           child: Center(
             child: Padding(
@@ -552,7 +564,7 @@ class _BabEditorPageState extends State<BabEditorPage> {
                   Icon(Icons.cloud_off_rounded, size: 48, color: p.textMuted),
                   const SizedBox(height: AppSpacing.md),
                   Text(
-                    'Bab Tidak Dapat Dimuat',
+                    l10n.tBabLoadFailedTitle,
                     style: AppTypography.titleM.copyWith(color: p.text),
                   ),
                   const SizedBox(height: AppSpacing.xs),
@@ -563,7 +575,7 @@ class _BabEditorPageState extends State<BabEditorPage> {
                   ),
                   const SizedBox(height: AppSpacing.lg),
                   AppButton(
-                    label: 'Buka Daftar Bab',
+                    label: l10n.tBabOpenList,
                     leadingIcon: Icons.menu_book_rounded,
                     onPressed: () =>
                         context.go(AppRoutes.teacherBabList(widget.lessonId)),
@@ -578,10 +590,10 @@ class _BabEditorPageState extends State<BabEditorPage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(_isEdit ? 'Edit Bab' : 'Bab Builder'),
+        title: Text(_isEdit ? l10n.tBabEditTitle : l10n.tBabBuilderTitle),
         actions: [
           IconButton(
-            tooltip: 'Simulator Siswa (Pratinjau)',
+            tooltip: l10n.tBabPreviewTooltip,
             icon: Icon(Icons.play_circle_outline_rounded, color: p.primary),
             onPressed: _openStudentPreview,
           ),
@@ -633,7 +645,7 @@ class _BabEditorPageState extends State<BabEditorPage> {
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               Text(
-                                'Nama Bab *',
+                                l10n.tBabFieldName,
                                 style: AppTypography.labelL.copyWith(
                                   color: p.text,
                                 ),
@@ -652,7 +664,7 @@ class _BabEditorPageState extends State<BabEditorPage> {
                             maxLength: 100,
                             onChanged: (_) => setState(() {}),
                             decoration: InputDecoration(
-                              hintText: 'Contoh: Pengenalan Tag & Dokumen HTML',
+                              hintText: l10n.tBabExampleName,
                               counterText: '',
                               filled: true,
                               fillColor: p.surfaceAlt,
@@ -683,13 +695,13 @@ class _BabEditorPageState extends State<BabEditorPage> {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
-                                    'XP Hadiah Bab',
+                                    l10n.tBabXpTitle,
                                     style: AppTypography.labelL.copyWith(
                                       color: p.text,
                                     ),
                                   ),
                                   Text(
-                                    'Diberikan saat siswa menuntaskan bab',
+                                    l10n.tBabXpHint,
                                     style: AppTypography.bodySm.copyWith(
                                       color: p.textMuted,
                                     ),
@@ -739,7 +751,7 @@ class _BabEditorPageState extends State<BabEditorPage> {
                         Row(
                           children: [
                             Text(
-                              'Alur Slide',
+                              l10n.tBabFlowTitle,
                               style: AppTypography.titleM.copyWith(
                                 color: p.text,
                               ),
@@ -755,7 +767,7 @@ class _BabEditorPageState extends State<BabEditorPage> {
                                 borderRadius: BorderRadius.circular(12),
                               ),
                               child: Text(
-                                '${_slides.length} Unit',
+                                l10n.tBabSlideCount(_slides.length),
                                 style: AppTypography.labelSm.copyWith(
                                   color: p.primary,
                                   fontWeight: FontWeight.bold,
@@ -766,7 +778,7 @@ class _BabEditorPageState extends State<BabEditorPage> {
                         ),
                         TextButton.icon(
                           icon: const Icon(Icons.add_rounded, size: 18),
-                          label: const Text('Tambah Slide'),
+                          label: Text(l10n.tBabAddSlide),
                           onPressed: _showAddSlidePicker,
                         ),
                       ],
@@ -830,7 +842,7 @@ class _BabEditorPageState extends State<BabEditorPage> {
                                           ),
                                         ),
                                         child: Text(
-                                          SlideTemplates.label(type),
+                                          SlideTemplates.label(type, l10n: l10n),
                                           maxLines: 1,
                                           overflow: TextOverflow.ellipsis,
                                           style: AppTypography.labelSm.copyWith(
@@ -847,7 +859,7 @@ class _BabEditorPageState extends State<BabEditorPage> {
                                         Icons.arrow_upward_rounded,
                                         size: 16,
                                       ),
-                                      tooltip: 'Pindah ke atas',
+                                      tooltip: l10n.tBabMoveUp,
                                       visualDensity: VisualDensity.compact,
                                       onPressed: () => _moveSlide(index, -1),
                                     ),
@@ -857,7 +869,7 @@ class _BabEditorPageState extends State<BabEditorPage> {
                                         Icons.arrow_downward_rounded,
                                         size: 16,
                                       ),
-                                      tooltip: 'Pindah ke bawah',
+                                      tooltip: l10n.tBabMoveDown,
                                       visualDensity: VisualDensity.compact,
                                       onPressed: () => _moveSlide(index, 1),
                                     ),
@@ -867,7 +879,7 @@ class _BabEditorPageState extends State<BabEditorPage> {
                                       size: 18,
                                       color: p.error,
                                     ),
-                                    tooltip: 'Hapus slide',
+                                    tooltip: l10n.tBabDeleteSlide,
                                     visualDensity: VisualDensity.compact,
                                     onPressed: () => _removeSlide(index),
                                   ),
@@ -881,7 +893,7 @@ class _BabEditorPageState extends State<BabEditorPage> {
                                             .isNotEmpty ==
                                         true
                                     ? slide['title'] as String
-                                    : SlideTemplates.label(type),
+                                    : SlideTemplates.label(type, l10n: l10n),
                                 style: AppTypography.labelL.copyWith(
                                   color: p.text,
                                   fontWeight: FontWeight.bold,
@@ -900,7 +912,7 @@ class _BabEditorPageState extends State<BabEditorPage> {
                               OutlinedButton.icon(
                                 onPressed: () => _openSlideEditor(index),
                                 icon: const Icon(Icons.edit_outlined, size: 16),
-                                label: const Text('Edit Konten Slide'),
+                                label: Text(l10n.tBabEditSlideContent),
                                 style: OutlinedButton.styleFrom(
                                   foregroundColor: p.primary,
                                   side: BorderSide(color: p.outline),
@@ -940,7 +952,7 @@ class _BabEditorPageState extends State<BabEditorPage> {
                 ],
               ),
               child: AppButton(
-                label: _isEdit ? 'Simpan Perubahan Bab' : 'Simpan Bab Baru',
+                label: _isEdit ? l10n.tBabSaveChanges : l10n.tBabSaveNew,
                 leadingIcon: Icons.check_circle_outline_rounded,
                 loading: _isSubmitting,
                 onPressed: _handleSave,
@@ -953,50 +965,51 @@ class _BabEditorPageState extends State<BabEditorPage> {
   }
 
   Widget _buildBentoTypePicker(AppPalette p) {
+    final l10n = AppLocalizations.of(context);
     final types = [
       {
         'type': 'THEORY',
-        'name': 'Teori & Konsep',
+        'name': l10n.tBabTypeTheoryName,
         'desc':
-            'Teks bacaan terstruktur, markdown penjelasan, dan contoh kode.',
+            l10n.tBabBentoDescTheory,
         'icon': Icons.menu_book_rounded,
-        'badge': 'Bahan Baca',
+        'badge': l10n.tBabTypeTheoryBadge,
       },
       {
         'type': 'TAP_TO_FILL',
-        'name': 'Lengkapi Kode',
-        'desc': 'Fill-in-the-blanks dengan token kepingan kode terpandu.',
+        'name': l10n.tBabTypeTapName,
+        'desc': l10n.tBabBentoDescTap,
         'icon': Icons.extension_rounded,
-        'badge': 'Interaktif',
+        'badge': l10n.tBabTypeTapBadge,
       },
       {
         'type': 'TYPE_CODE',
-        'name': 'Ketik Kata Kunci',
-        'desc': 'Latihan muscle-memory mengetik keyword sintaksis spesifik.',
+        'name': l10n.tBabTypeTypeName,
+        'desc': l10n.tBabBentoDescType,
         'icon': Icons.keyboard_rounded,
-        'badge': 'Sintaks',
+        'badge': l10n.tBabTypeTypeBadge,
       },
       {
         'type': 'OUTPUT_PREDICT',
-        'name': 'Tebak Output',
+        'name': l10n.tBabTypeOutputName,
         'desc':
-            'Menganalisis baris kode dan memprediksi hasil luaran terminal.',
+            l10n.tBabBentoDescOutput,
         'icon': Icons.terminal_rounded,
-        'badge': 'Logika',
+        'badge': l10n.tBabTypeOutputBadge,
       },
       {
         'type': 'BUG_HUNTER',
-        'name': 'Bug Hunter',
-        'desc': 'Menemukan baris kode yang rusak dan menentukan perbaikannya.',
+        'name': l10n.tBabTypeBugName,
+        'desc': l10n.tBabBentoDescBug,
         'icon': Icons.pest_control_rounded,
-        'badge': 'Debugging',
+        'badge': l10n.tBabTypeBugBadge,
       },
       {
         'type': 'QUIZ',
-        'name': 'Kuis Pilihan Ganda',
-        'desc': 'Pertanyaan konseptual dengan 4 opsi pilihan dan pembahasan.',
+        'name': l10n.tBabTypeQuizName,
+        'desc': l10n.tBabBentoDescQuiz,
         'icon': Icons.help_outline_rounded,
-        'badge': 'Evaluasi',
+        'badge': l10n.tBabTypeQuizBadge,
       },
     ];
 
@@ -1028,7 +1041,7 @@ class _BabEditorPageState extends State<BabEditorPage> {
               const SizedBox(width: AppSpacing.sm),
               Expanded(
                 child: Text(
-                  'Pilih Jenis Slide / Latihan Koding',
+                  l10n.tBabBentoTitle,
                   style: AppTypography.titleM.copyWith(
                     color: p.text,
                     fontWeight: FontWeight.bold,
@@ -1039,7 +1052,7 @@ class _BabEditorPageState extends State<BabEditorPage> {
           ),
           const SizedBox(height: 4),
           Text(
-            'Ketuk "Pratinjau" untuk simulasi koding siswa, atau tekan "Gunakan" untuk memasukkan ke alur bab.',
+            l10n.tBabBentoHint,
             style: AppTypography.bodySm.copyWith(color: p.textMuted),
           ),
           const SizedBox(height: AppSpacing.md),
@@ -1140,7 +1153,7 @@ class _BabEditorPageState extends State<BabEditorPage> {
                                     color: p.primary,
                                   ),
                                   label: Text(
-                                    'Pratinjau',
+                                    l10n.tBabPreviewButton,
                                     style: AppTypography.labelSm.copyWith(
                                       color: p.primary,
                                     ),
@@ -1170,7 +1183,7 @@ class _BabEditorPageState extends State<BabEditorPage> {
                                   ),
                                   icon: const Icon(Icons.add_rounded, size: 16),
                                   label: Text(
-                                    'Gunakan',
+                                    l10n.tBabUseButton,
                                     style: AppTypography.labelSm.copyWith(
                                       color: Colors.white,
                                       fontWeight: FontWeight.bold,

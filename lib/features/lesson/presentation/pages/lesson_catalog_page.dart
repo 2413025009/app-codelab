@@ -12,6 +12,7 @@ import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_card.dart';
 import '../../../../core/widgets/app_progress_bar.dart';
 import '../../../../core/widgets/app_refresh.dart';
+import '../../../../core/widgets/app_snack.dart';
 import '../../../../core/widgets/app_tag.dart';
 import '../../../../core/widgets/skeleton.dart';
 import '../../../../l10n/app_localizations.dart';
@@ -267,6 +268,10 @@ class _LessonCatalogPageState extends State<LessonCatalogPage> {
                       onTap: () {
                         // Lesson dipilih → dashboard memuat seluruh bab-nya.
                         appShellFocusTopic.value = entry.key;
+                        showAppSnack(
+                          context,
+                          l10n.materialSwitchedSnack(entry.key),
+                        );
                         context.go(AppRoutes.dashboard);
                       },
                     ),

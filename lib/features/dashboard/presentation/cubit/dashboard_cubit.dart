@@ -10,17 +10,15 @@ sealed class DashboardState extends Equatable {
 }
 
 class DashboardLoading extends DashboardState {
-  const DashboardLoading({
-    this.done = 0,
-    this.total = 5,
-    this.stage = 'Menyambung ke server…',
-  });
+  const DashboardLoading({this.done = 0, this.total = 5, this.stage});
 
   /// Progres nyata: jumlah permintaan jaringan yang sudah pulang
   /// (diisi repositori lewat onProgress). Bukan animasi tetap.
+  /// `stage` null = belum ada laporan tahap (tampilan memakai label
+  /// `dashStageConnecting` sebagai fallback).
   final int done;
   final int total;
-  final String stage;
+  final DashboardStage? stage;
 
   @override
   List<Object?> get props => [done, total, stage];

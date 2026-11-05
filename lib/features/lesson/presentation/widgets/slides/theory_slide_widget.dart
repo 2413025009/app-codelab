@@ -40,7 +40,16 @@ class TheorySlideWidget extends StatelessWidget {
             style: AppTypography.titleL.copyWith(color: p.text, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: AppSpacing.lg),
-          _MarkdownBody(content: slide.content),
+          // Konten kosong (mis. markdown kosong dari parser) bukan teks
+          // database: tampilkan pesan l10n. Slide teori berkode saja
+          // (codeSnippet ada) tidak kena pesan ini.
+          _MarkdownBody(
+            content: slide.content.trim().isEmpty &&
+                    (slide.codeSnippet == null ||
+                        slide.codeSnippet!.trim().isEmpty)
+                ? l10n.slideContentUnavailable
+                : slide.content,
+          ),
           if (slide.codeSnippet != null && slide.codeSnippet!.isNotEmpty) ...[
             const SizedBox(height: AppSpacing.lg),
             CodeCard(

@@ -19,6 +19,7 @@ import '../../domain/slide_adapter.dart';
 import '../../domain/slide_templates.dart';
 import '../../domain/teacher_models.dart';
 import '../cubit/teacher_cubit.dart';
+import '../../../../l10n/app_localizations.dart';
 import '../widgets/slide_type_forms.dart';
 
 /// Data yang dikirim dari Bab Builder lewat `GoRouter.extra`.
@@ -82,6 +83,7 @@ class _TeacherSlideEditorPageState extends State<TeacherSlideEditorPage> {
 
   Future<void> _loadSlide() async {
     if (!mounted) return;
+    final l10n = AppLocalizations.of(context);
     final cubit = context.read<TeacherCubit>();
     await cubit.loadBabs(widget.lessonId);
     if (!mounted) return;
@@ -99,7 +101,7 @@ class _TeacherSlideEditorPageState extends State<TeacherSlideEditorPage> {
         _isLoading = false;
         _loadError =
             cubit.state.errorMessage ??
-            'Slide tidak ditemukan. Buka Bab Builder untuk memilih slide lain.';
+            l10n.tSlideNotFound;
       });
       return;
     }
@@ -129,26 +131,30 @@ class _TeacherSlideEditorPageState extends State<TeacherSlideEditorPage> {
   }
 
   void _applyTemplate() {
+    final l10n = AppLocalizations.of(context);
     setState(() {
       _slide = SlideTemplates.create(
         _type,
         id: _slide['id'] as String?,
         xpReward: _xpReward,
+        l10n: l10n,
       );
       _formVersion++;
     });
     showAppSnack(
       context,
-      'Template awal ${SlideTemplates.label(_type)} dipakai.',
+      l10n.tSlideTemplateApplied(SlideTemplates.label(_type, l10n: l10n)),
     );
   }
 
   void _preview() {
+    final l10n = AppLocalizations.of(context);
     final title = (_slide['title'] as String?)?.trim();
     final previewData = SlideAdapter.singleSlidePreview(
+      l10n: l10n,
       id: '${widget.lessonId}_${widget.slideIndex}',
       title: title == null || title.isEmpty
-          ? SlideTemplates.label(_type)
+          ? SlideTemplates.label(_type, l10n: l10n)
           : title,
       xpReward: _xpReward,
       slide: _slide,
@@ -166,12 +172,13 @@ class _TeacherSlideEditorPageState extends State<TeacherSlideEditorPage> {
 
   Future<void> _save() async {
     if (_isSaving) return;
+    final l10n = AppLocalizations.of(context);
     final result = SlideTemplates.copy(_slide);
 
     // Bersihkan + periksa isian sebelum keluar dari halaman ini. Kalau ada
     // yang kurang, penyimpanan dibatalkan dan guru tetap di form dengan
     // isian yang sudah diketik (tidak ada data yang hilang).
-    final validation = _SlideGuard(result, _type).run();
+    final validation = _SlideGuard(result, _type, AppLocalizations.of(context)).run();
     if (validation != null) {
       showAppSnack(context, validation);
       return;
@@ -198,7 +205,7 @@ class _TeacherSlideEditorPageState extends State<TeacherSlideEditorPage> {
     if (widget.babId == 'baru') {
       showAppSnack(
         context,
-        'Bab baru belum tersimpan. Tambahkan slide dari Bab Builder agar tersimpan bersama bab.',
+        l10n.tSlideBabUnsaved,
       );
       _backToBabEditor();
       return;
@@ -210,7 +217,7 @@ class _TeacherSlideEditorPageState extends State<TeacherSlideEditorPage> {
         widget.slideIndex >= bab.slides.length) {
       showAppSnack(
         context,
-        'Slide tidak dapat disimpan. Buka Bab Builder untuk memuat ulang bab.',
+        l10n.tSlideSaveNoBab,
       );
       return;
     }
@@ -235,28 +242,29 @@ class _TeacherSlideEditorPageState extends State<TeacherSlideEditorPage> {
     if (saved == null) {
       showAppSnack(
         context,
-        cubit.state.errorMessage ?? 'Slide gagal disimpan. Coba lagi.',
+        cubit.state.errorMessage ?? l10n.tSlideSaveFailed,
       );
       cubit.clearMessages();
       return;
     }
 
-    showAppSnack(context, 'Slide tersimpan ke bab.');
+    showAppSnack(context, l10n.tSlideSaved);
     _backToBabEditor();
   }
 
   @override
   Widget build(BuildContext context) {
     final p = context.palette;
+    final l10n = AppLocalizations.of(context);
     if (_isLoading) {
       return Scaffold(
-        appBar: AppBar(title: const Text('Editor Slide')),
+        appBar: AppBar(title: Text(l10n.tSlideEditorTitle)),
         body: const Center(child: CircularProgressIndicator()),
       );
     }
     if (_loadError != null) {
       return Scaffold(
-        appBar: AppBar(title: const Text('Editor Slide')),
+        appBar: AppBar(title: Text(l10n.tSlideEditorTitle)),
         body: SafeArea(
           child: Center(
             child: Padding(
@@ -267,7 +275,7 @@ class _TeacherSlideEditorPageState extends State<TeacherSlideEditorPage> {
                   Icon(Icons.cloud_off_rounded, size: 48, color: p.textMuted),
                   const SizedBox(height: AppSpacing.md),
                   Text(
-                    'Slide Tidak Dapat Dimuat',
+                    l10n.tSlideLoadFailedTitle,
                     style: AppTypography.titleM.copyWith(color: p.text),
                   ),
                   const SizedBox(height: AppSpacing.xs),
@@ -278,7 +286,7 @@ class _TeacherSlideEditorPageState extends State<TeacherSlideEditorPage> {
                   ),
                   const SizedBox(height: AppSpacing.lg),
                   AppButton(
-                    label: 'Buka Bab Builder',
+                    label: l10n.tSlideOpenBabBuilder,
                     leadingIcon: Icons.menu_book_rounded,
                     onPressed: _backToBabEditor,
                   ),
@@ -292,15 +300,15 @@ class _TeacherSlideEditorPageState extends State<TeacherSlideEditorPage> {
 
     final title = (_slide['title'] as String?)?.trim();
     final displayTitle = title == null || title.isEmpty
-        ? SlideTemplates.label(_type)
+        ? SlideTemplates.label(_type, l10n: l10n)
         : title;
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Editor Slide'),
+        title: Text(l10n.tSlideEditorTitle),
         actions: [
           IconButton(
-            tooltip: 'Pratinjau slide',
+            tooltip: l10n.tSlidePreviewTooltip,
             icon: const Icon(Icons.remove_red_eye_outlined),
             onPressed: _preview,
           ),
@@ -337,7 +345,7 @@ class _TeacherSlideEditorPageState extends State<TeacherSlideEditorPage> {
                                   borderRadius: BorderRadius.circular(8),
                                 ),
                                 child: Text(
-                                  SlideTemplates.badge(_type),
+                                  SlideTemplates.badge(_type, l10n: l10n),
                                   style: AppTypography.labelSm.copyWith(
                                     color: Colors.white,
                                     fontWeight: FontWeight.bold,
@@ -347,7 +355,7 @@ class _TeacherSlideEditorPageState extends State<TeacherSlideEditorPage> {
                               const SizedBox(width: AppSpacing.sm),
                               Expanded(
                                 child: Text(
-                                  'Slide ${widget.slideIndex + 1} • ${SlideTemplates.label(_type)}',
+                                  l10n.tSlideHeader(widget.slideIndex + 1, SlideTemplates.label(_type, l10n: l10n)),
                                   style: AppTypography.labelSm.copyWith(
                                     color: p.textMuted,
                                   ),
@@ -365,7 +373,7 @@ class _TeacherSlideEditorPageState extends State<TeacherSlideEditorPage> {
                           ),
                           const SizedBox(height: 2),
                           Text(
-                            SlideTemplates.description(_type),
+                            SlideTemplates.description(_type, l10n: l10n),
                             style: AppTypography.bodySm.copyWith(
                               color: p.textMuted,
                             ),
@@ -380,7 +388,7 @@ class _TeacherSlideEditorPageState extends State<TeacherSlideEditorPage> {
                         Icons.play_circle_outline_rounded,
                         size: 18,
                       ),
-                      label: const Text('Pratinjau sebagai Siswa'),
+                      label: Text(l10n.tSlidePreviewAsStudent),
                       style: OutlinedButton.styleFrom(
                         foregroundColor: p.primary,
                         padding: const EdgeInsets.symmetric(vertical: 11),
@@ -402,7 +410,7 @@ class _TeacherSlideEditorPageState extends State<TeacherSlideEditorPage> {
                     TextButton.icon(
                       onPressed: _applyTemplate,
                       icon: const Icon(Icons.restart_alt_rounded, size: 18),
-                      label: const Text('Pakai Template Awal'),
+                      label: Text(l10n.tSlideUseTemplate),
                     ),
                   ],
                 ),
@@ -415,7 +423,7 @@ class _TeacherSlideEditorPageState extends State<TeacherSlideEditorPage> {
                 border: Border(top: BorderSide(color: p.outline)),
               ),
               child: AppButton(
-                label: 'Simpan Slide',
+                label: l10n.tSlideSave,
                 leadingIcon: Icons.check_circle_outline_rounded,
                 loading: _isSaving,
                 onPressed: _save,
@@ -441,10 +449,11 @@ class _TeacherSlideEditorPageState extends State<TeacherSlideEditorPage> {
 /// Hasil pembersihan langsung ditulis kembali ke [slide] agar yang disimpan
 /// adalah versi bersih, bukan teks mentah.
 class _SlideGuard {
-  _SlideGuard(this.slide, this.type);
+  _SlideGuard(this.slide, this.type, this.l10n);
 
   final Map<String, dynamic> slide;
   final String type;
+  final AppLocalizations l10n;
 
   static const _codeLangs = ['HTML', 'CSS', 'JavaScript', 'Python'];
   static const _choiceLetters = ['A', 'B', 'C', 'D'];
@@ -466,62 +475,60 @@ class _SlideGuard {
   String? run() {
     switch (type) {
       case 'TAP_TO_FILL':
-        _required('title', 'Judul latihan', max: _titleMax);
-        _optional('prompt', 'Instruksi', max: _shortMax, multiline: true);
+        _required('title', l10n.tSlideFieldExerciseTitle, max: _titleMax);
+        _optional('prompt', l10n.tSlideFieldInstruction, max: _shortMax, multiline: true);
         _tapTemplate();
         _codeLang('HTML');
         break;
 
       case 'TYPE_CODE':
-        _required('title', 'Judul soal', max: _titleMax);
-        _optional('prompt', 'Instruksi', max: _shortMax, multiline: true);
+        _required('title', l10n.tSlideFieldQuestionTitle, max: _titleMax);
+        _optional('prompt', l10n.tSlideFieldInstruction, max: _shortMax, multiline: true);
         final code = _required(
           'code',
-          'Kode soal',
+          l10n.tSlideFieldQuestionCode,
           max: _codeMax,
           multiline: true,
         );
         if (code.isNotEmpty && !code.contains('[KETIK_DISINI]')) {
           _fail(
-            'Kode soal belum punya penanda [KETIK_DISINI] sebagai tempat '
-            'siswa mengetik.',
+            l10n.tSlideTapMarkerMissing,
           );
         }
-        _required('answer', 'Kata kunci jawaban', max: _optionMax);
-        _optional('hint', 'Petunjuk', max: _hintMax, multiline: true);
+        _required('answer', l10n.tSlideFieldAnswerKeyword, max: _optionMax);
+        _optional('hint', l10n.tSlideFieldHint, max: _hintMax, multiline: true);
         break;
 
       case 'OUTPUT_PREDICT':
-        _required('title', 'Judul slide', max: _titleMax);
-        _optional('prompt', 'Instruksi', max: _shortMax, multiline: true);
-        _required('code', 'Blok kode', max: _codeMax, multiline: true);
-        _choices('options', 'pilihan output');
-        _optional('explanation', 'Penjelasan', max: _longMax, multiline: true);
+        _required('title', l10n.tSlideFieldSlideTitle, max: _titleMax);
+        _optional('prompt', l10n.tSlideFieldInstruction, max: _shortMax, multiline: true);
+        _required('code', l10n.tSlideFieldCodeBlock, max: _codeMax, multiline: true);
+        _choices('options', l10n.tSlideFieldOutputChoices);
+        _optional('explanation', l10n.tSlideFieldExplanation, max: _longMax, multiline: true);
         break;
 
       case 'BUG_HUNTER':
-        _required('title', 'Judul tantangan', max: _titleMax);
-        _optional('scenario', 'Skenario', max: _shortMax, multiline: true);
+        _required('title', l10n.tSlideFieldChallengeTitle, max: _titleMax);
+        _optional('scenario', l10n.tSlideFieldScenario, max: _shortMax, multiline: true);
         final buggy = _required(
           'buggy_code',
-          'Kode program',
+          l10n.tSlideFieldProgramCode,
           max: _codeMax,
           multiline: true,
         );
         _bugTarget(buggy);
-        _optional('error_type', 'Jenis error', max: 60);
+        _optional('error_type', l10n.tSlideFieldErrorType, max: 60);
         _optional(
           'bug_hint',
-          'Pesan indikator',
+          l10n.tSlideFieldBugHint,
           max: _hintMax,
           multiline: true,
         );
-        _optional('fix', 'Kode perbaikan', max: _codeMax, multiline: true);
+        _optional('fix', l10n.tSlideFieldFixCode, max: _codeMax, multiline: true);
         if ((slide['bug_hint'] as String?)?.isEmpty ?? true) {
           if ((slide['fix'] as String?)?.isEmpty ?? true) {
             _fail(
-              'Isi "Pesan Indikator" atau "Kode Perbaikan Valid" agar siswa '
-              'mendapat penjelasan setelah menjawab.',
+              l10n.tSlideBugHintOrFix,
             );
           }
         }
@@ -531,50 +538,50 @@ class _SlideGuard {
         break;
 
       case 'QUIZ':
-        _required('title', 'Judul slide', max: _titleMax);
+        _required('title', l10n.tSlideFieldSlideTitle, max: _titleMax);
         _required(
           'question',
-          'Pertanyaan kuis',
+          l10n.tSlideFieldQuizQuestion,
           max: _shortMax,
           multiline: true,
         );
-        _choices('options', 'pilihan jawaban');
-        _optional('explanation', 'Umpan balik', max: _longMax, multiline: true);
+        _choices('options', l10n.tSlideFieldAnswerChoices);
+        _optional('explanation', l10n.tSlideFieldFeedback, max: _longMax, multiline: true);
         break;
 
       case 'OUTRO':
-        _required('title', 'Judul slide penutup', max: _titleMax);
+        _required('title', l10n.tSlideFieldOutroTitle, max: _titleMax);
         _required(
           'summary',
-          'Rangkuman materi',
+          l10n.tSlideFieldSummary,
           max: _longMax,
           multiline: true,
         );
         final concepts = _list(
           slide['mastered_concepts'],
-          label: 'Konsep yang dikuasai',
+          label: l10n.tSlideFieldMasteredConcepts,
           max: 60,
           limit: 12,
         );
         slide['mastered_concepts'] = concepts;
         if (concepts.isEmpty) {
-          _fail('Isi minimal satu konsep yang dikuasai.');
+          _fail(l10n.tSlideConceptRequired);
         }
         break;
 
       case 'THEORY':
       default:
-        _required('title', 'Judul materi teori', max: _titleMax);
+        _required('title', l10n.tSlideFieldTheoryTitle, max: _titleMax);
         _required(
           'content',
-          'Konten penjelasan',
+          l10n.tSlideFieldTheoryContent,
           max: _longMax,
           multiline: true,
         );
         _codeLang('Python');
         _optional(
           'sample_code',
-          'Cuplikan kode sampel',
+          l10n.tSlideFieldSampleCode,
           max: _codeMax,
           multiline: true,
         );
@@ -602,7 +609,7 @@ class _SlideGuard {
     }
     value = value.trim();
     if (value.length > max) {
-      _fail('$label terlalu panjang (maksimal $max karakter).');
+      _fail(l10n.tSlideTooLong(label, max));
     }
     return value;
   }
@@ -620,7 +627,7 @@ class _SlideGuard {
       multiline: multiline,
     );
     slide[key] = value;
-    if (value.isEmpty) _fail('$label wajib diisi.');
+    if (value.isEmpty) _fail(l10n.tSlideRequired(label));
     return value;
   }
 
@@ -652,7 +659,7 @@ class _SlideGuard {
       }
     }
     if (values.length > limit) {
-      _fail('$label maksimal $limit butir.');
+      _fail(l10n.tSlideMaxItems(label, limit));
       return values.sublist(0, limit);
     }
     return values;
@@ -664,7 +671,7 @@ class _SlideGuard {
     final raw = _clean(
       slide['code_lang'],
       max: 20,
-      label: 'Bahasa kode',
+      label: l10n.tSlideFieldCodeLanguage,
     ).toLowerCase();
     var value = fallback;
     for (final lang in _codeLangs) {
@@ -683,17 +690,17 @@ class _SlideGuard {
 
     for (var i = 0; i < options.length; i++) {
       if (options[i].isEmpty) {
-        _fail('Pilihan ${_choiceLetters[i]} pada $label masih kosong.');
+        _fail(l10n.tSlideChoiceEmpty(_choiceLetters[i], label));
       }
     }
 
     final answer = _clean(
       slide['answer'],
       max: 40,
-      label: 'Kunci jawaban',
+      label: l10n.tSlideFieldAnswerKey,
     ).toUpperCase();
     if (!_choiceLetters.contains(answer)) {
-      _fail('Pilih salah satu kunci jawaban A–D pada $label.');
+      _fail(l10n.tSlideChoiceKey(label));
       return;
     }
     slide['answer'] = answer;
@@ -703,42 +710,41 @@ class _SlideGuard {
   void _tapTemplate() {
     final template = _required(
       'template',
-      'Template kode',
+      l10n.tSlideFieldCodeTemplate,
       max: _codeMax,
       multiline: true,
     );
     final slots = RegExp(r'_{2,}\d*_{2,}').allMatches(template).length;
     if (template.isNotEmpty && slots == 0) {
       _fail(
-        'Template kode belum punya slot. Tandai bagian kosong dengan '
-        '___1___, ___2___, dan seterusnya.',
+        l10n.tSlideTemplateNoSlot,
       );
     }
 
-    var blanks = _list(slide['blanks'], label: 'Kunci jawaban slot', limit: 40);
+    var blanks = _list(slide['blanks'], label: l10n.tSlideFieldSlotAnswer, limit: 40);
     if (blanks.length > slots) blanks = blanks.sublist(0, slots);
     while (blanks.length < slots) {
       blanks.add('');
     }
     for (var i = 0; i < slots; i++) {
       if (blanks[i].isEmpty) {
-        _fail('Kunci jawaban slot ${i + 1} masih kosong.');
+        _fail(l10n.tSlideSlotEmpty(i + 1));
       }
     }
     slide['blanks'] = blanks;
 
     final distractors = _list(
       slide['distractors'],
-      label: 'Pengecoh',
+      label: l10n.tSlideFieldDistractors,
       max: 60,
       limit: 8,
     );
     slide['distractors'] = distractors;
     if (distractors.isEmpty) {
-      _fail('Tambahkan minimal satu pengecoh agar soal bisa dipilih.');
+      _fail(l10n.tSlideDistractorRequired);
     } else if (distractors.every(blanks.contains)) {
       _fail(
-        'Semua pengecoh sama dengan kunci jawaban. Tambahkan pilihan lain.',
+        l10n.tSlideDistractorsSame,
       );
     }
   }
@@ -749,17 +755,16 @@ class _SlideGuard {
     final raw = _clean(
       slide['target_line'],
       max: 8,
-      label: 'Target nomor baris',
+      label: l10n.tSlideFieldTargetLine,
     );
     final line = int.tryParse(raw);
     if (line == null) {
-      _fail('Target nomor baris harus berupa angka.');
+      _fail(l10n.tSlideTargetNotNumber);
       return;
     }
     if (line < 1 || line > lineCount) {
       _fail(
-        'Target nomor baris harus antara 1 dan $lineCount sesuai jumlah '
-        'baris kode.',
+        l10n.tSlideTargetRange(lineCount),
       );
       return;
     }

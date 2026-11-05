@@ -16,7 +16,7 @@ class ApiTeacherException implements Exception {
   final String message;
 
   factory ApiTeacherException.fromResponse(int statusCode, dynamic body) {
-    String code = 'INTERNAL_ERROR';
+    String code = 'CLIENT_SERVER_ERROR';
     String message = 'Ada kendala pada server.';
 
     if (body is Map<String, dynamic>) {

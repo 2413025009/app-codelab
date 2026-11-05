@@ -164,22 +164,25 @@ class _CodelabAppState extends State<CodelabApp> {
               },
               routerConfig: _router,
               // Boot gate: layar memuat nyata selagi TokenStore dibaca.
-              builder: (context, child) => AnimatedSwitcher(
-                duration: const Duration(milliseconds: 300),
-                child: !_bootReady || child == null
-                    ? const AppLoadingScreen(
-                        key: ValueKey<String>('codelab-boot'),
-                        title: 'Memulihkan sesimu…',
-                        subtitle: 'Menyiapkan lab kode di perangkat',
-                        totalSteps: 1,
-                        completedSteps: 0,
-                        stageLabel: 'Memeriksa penyimpanan aman',
-                      )
-                    : KeyedSubtree(
-                        key: const ValueKey<String>('codelab-app'),
-                        child: child,
-                      ),
-              ),
+              builder: (context, child) {
+                final l10n = AppLocalizations.of(context);
+                return AnimatedSwitcher(
+                  duration: const Duration(milliseconds: 300),
+                  child: !_bootReady || child == null
+                      ? AppLoadingScreen(
+                          key: const ValueKey<String>('codelab-boot'),
+                          title: l10n.bootTitle,
+                          subtitle: l10n.bootSubtitle,
+                          totalSteps: 1,
+                          completedSteps: 0,
+                          stageLabel: l10n.bootStageSecureStorage,
+                        )
+                      : KeyedSubtree(
+                          key: const ValueKey<String>('codelab-app'),
+                          child: child,
+                        ),
+                );
+              },
             ),
           ),
         ),

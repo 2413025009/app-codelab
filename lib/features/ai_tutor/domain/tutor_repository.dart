@@ -9,12 +9,17 @@ import 'tutor_models.dart';
 /// Respons membawa petunjuk + status kuota harian server (5x/hari).
 abstract interface class TutorRepository {
   /// Ambil petunjuk level [hintLevel] (1=Konsep, 2=Logika, 3=Sintaks).
+  ///
+  /// [sessionId] dibuat baru setiap kali modal AI Tutor dibuka. Server
+  /// memotong SATU slot kuota untuk sesi itu; level 2/3 dalam sesi yang sama
+  /// tidak menambah pemakaian (kuota harian global, bukan per tantangan).
   /// Melempar [ApiChallengeException] untuk error kontrak API; kegagalan
   /// jaringan dilempar apa adanya — pemanggil menentukan fallback offline.
   Future<TutorHintResult> fetchHint({
     required String challengeId,
     required String studentCode,
     required int hintLevel,
+    required String sessionId,
     String? errorMessage,
   });
 

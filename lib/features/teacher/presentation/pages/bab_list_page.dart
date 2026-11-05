@@ -14,6 +14,8 @@ import '../../../../core/theme/app_typography.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_snack.dart';
 import '../cubit/teacher_cubit.dart';
+import '../../../../l10n/app_localizations.dart';
+import '../../../../l10n/l10n_ext.dart';
 import '../cubit/teacher_state.dart';
 import 'package:mobile_codelab_ai/features/teacher/domain/teacher_models.dart';
 import '../../domain/slide_adapter.dart';
@@ -77,26 +79,26 @@ class _BabListPageState extends State<BabListPage> {
 
   void _confirmDeleteBab(BuildContext context, Bab bab) {
     final p = context.palette;
+    final l10n = AppLocalizations.of(context);
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Hapus Bab Ini?'),
+        title: Text(l10n.tBabDeleteTitle),
         content: Text(
-          'Bab "${bab.title}" akan dihapus dari daftar materi. '
-          'Riwayat belajar siswa yang sudah tercatat tetap tersimpan.',
+          l10n.tBabDeleteBody(bab.title),
           style: AppTypography.bodyM.copyWith(color: p.textMuted),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(),
-            child: const Text('Batal'),
+            child: Text(l10n.actionCancel),
           ),
           TextButton(
             onPressed: () {
               Navigator.of(ctx).pop();
               context.read<TeacherCubit>().deleteBab(bab.id, widget.lessonId);
             },
-            child: Text('Hapus', style: TextStyle(color: p.error)),
+            child: Text(l10n.actionDelete, style: TextStyle(color: p.error)),
           ),
         ],
       ),
@@ -105,19 +107,19 @@ class _BabListPageState extends State<BabListPage> {
 
   void _confirmDuplicateBab(BuildContext context, Bab bab) {
     final p = context.palette;
+    final l10n = AppLocalizations.of(context);
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Duplikat Bab Ini?'),
+        title: Text(l10n.tBabDuplicateTitle),
         content: Text(
-          'Salinan "${bab.title}" akan muncul sebagai bab nomor berikutnya, '
-          'lengkap dengan seluruh slide dan XP-nya.',
+          l10n.tBabDuplicateBody(bab.title),
           style: AppTypography.bodyM.copyWith(color: p.textMuted),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(),
-            child: const Text('Batal'),
+            child: Text(l10n.actionCancel),
           ),
           TextButton(
             onPressed: () {
@@ -127,7 +129,7 @@ class _BabListPageState extends State<BabListPage> {
                 widget.lessonId,
               );
             },
-            child: const Text('Duplikat'),
+            child: Text(l10n.tBabDuplicate),
           ),
         ],
       ),
@@ -137,14 +139,15 @@ class _BabListPageState extends State<BabListPage> {
   @override
   Widget build(BuildContext context) {
     final p = context.palette;
+    final l10n = AppLocalizations.of(context);
     final lesson = _findLesson(context);
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Silabus & Bab'),
+        title: Text(l10n.tBabTitle),
         actions: [
           IconButton(
-            tooltip: 'Tambah Bab',
+            tooltip: l10n.tBabAdd,
             icon: const Icon(Icons.add_rounded),
             onPressed: () {
               context.push(AppRoutes.teacherBabCreate(widget.lessonId));
@@ -155,11 +158,23 @@ class _BabListPageState extends State<BabListPage> {
       body: SafeArea(
         child: BlocConsumer<TeacherCubit, TeacherState>(
           listener: (context, state) {
+            final l10n = AppLocalizations.of(context);
             if (state.errorMessage != null) {
-              showAppSnack(context, state.errorMessage!);
+              showAppSnack(
+                context,
+                teacherErrorText(l10n, state.errorCode, state.errorMessage!),
+              );
               context.read<TeacherCubit>().clearMessages();
             } else if (state.actionSuccessMessage != null) {
-              showAppSnack(context, state.actionSuccessMessage!);
+              showAppSnack(
+                context,
+                teacherSuccessText(
+                  l10n,
+                  state.actionSuccessCode,
+                  state.actionSuccessArg,
+                  state.actionSuccessMessage!,
+                ),
+              );
               context.read<TeacherCubit>().clearMessages();
             }
           },
@@ -206,8 +221,8 @@ class _BabListPageState extends State<BabListPage> {
                               const SizedBox(width: 6),
                               Text(
                                 (lesson?.isPublished ?? false)
-                                    ? 'Terbit'
-                                    : 'Draft',
+                                    ? l10n.tProfilePublished
+                                    : l10n.tProfileDraft,
                                 style: AppTypography.labelSm.copyWith(
                                   color: (lesson?.isPublished ?? false)
                                       ? p.primary
@@ -220,7 +235,7 @@ class _BabListPageState extends State<BabListPage> {
                         ),
                         const SizedBox(width: AppSpacing.sm),
                         Text(
-                          lesson?.topic ?? 'Materi Studio',
+                          lesson?.topic ?? l10n.tBabTopicFallback,
                           style: AppTypography.labelM.copyWith(
                             color: p.textMuted,
                           ),
@@ -229,7 +244,7 @@ class _BabListPageState extends State<BabListPage> {
                     ),
                     const SizedBox(height: AppSpacing.xs),
                     Text(
-                      lesson?.title ?? 'Daftar Bab',
+                      lesson?.title ?? l10n.tBabTitleFallback,
                       style: AppTypography.titleL.copyWith(color: p.text),
                     ),
                     const SizedBox(height: AppSpacing.md),
@@ -257,7 +272,7 @@ class _BabListPageState extends State<BabListPage> {
                                   ),
                                   const SizedBox(width: AppSpacing.xs),
                                   Text(
-                                    'Status Kurikulum Bab',
+                                    l10n.tBabCurriculumStatus,
                                     style: AppTypography.labelL.copyWith(
                                       color: p.text,
                                     ),
@@ -265,7 +280,7 @@ class _BabListPageState extends State<BabListPage> {
                                 ],
                               ),
                               Text(
-                                '${babs.length} Bab • $totalXp XP',
+                                l10n.tBabMeta(babs.length, totalXp),
                                 style: AppTypography.codeSm.copyWith(
                                   color: p.primary,
                                   fontWeight: FontWeight.bold,
@@ -286,8 +301,8 @@ class _BabListPageState extends State<BabListPage> {
                           const SizedBox(height: AppSpacing.xs),
                           Text(
                             (lesson?.isPublished ?? false)
-                                ? 'Seluruh bab aktif terbaca oleh siswa di kelasmu.'
-                                : 'Materi berstatus Draft. Siswa belum dapat melihat bab-bab ini.',
+                                ? l10n.tBabPublishedHint
+                                : l10n.tBabDraftHint,
                             style: AppTypography.bodySm.copyWith(
                               color: p.textMuted,
                             ),
@@ -304,7 +319,7 @@ class _BabListPageState extends State<BabListPage> {
                         Row(
                           children: [
                             Text(
-                              'Daftar Bab Terstruktur',
+                              l10n.tBabListTitle,
                               style: AppTypography.labelL.copyWith(
                                 color: p.text,
                               ),
@@ -329,7 +344,7 @@ class _BabListPageState extends State<BabListPage> {
                           ],
                         ),
                         Text(
-                          'Urutan Alur Belajar',
+                          l10n.tBabFlowOrder,
                           style: AppTypography.labelSm.copyWith(
                             color: p.textMuted,
                           ),
@@ -363,14 +378,14 @@ class _BabListPageState extends State<BabListPage> {
                             ),
                             const SizedBox(height: AppSpacing.md),
                             Text(
-                              'Belum Ada Bab',
+                              l10n.tBabEmptyTitle,
                               style: AppTypography.titleM.copyWith(
                                 color: p.text,
                               ),
                             ),
                             const SizedBox(height: AppSpacing.xs),
                             Text(
-                              'Materi ini belum memiliki bab pembelajaran. Tambahkan bab pertama untuk mulai menyusun slide kuis dan teori.',
+                              l10n.tBabEmptyBody,
                               textAlign: TextAlign.center,
                               style: AppTypography.bodyM.copyWith(
                                 color: p.textMuted,
@@ -378,7 +393,7 @@ class _BabListPageState extends State<BabListPage> {
                             ),
                             const SizedBox(height: AppSpacing.lg),
                             AppButton(
-                              label: 'Tambah Bab Pertama',
+                              label: l10n.tBabAddFirst,
                               leadingIcon: Icons.add_rounded,
                               onPressed: () {
                                 context.push(
@@ -449,7 +464,7 @@ class _BabListPageState extends State<BabListPage> {
                                       ),
                                       const SizedBox(height: 2),
                                       Text(
-                                        '${bab.slides.length} Slide • ${bab.xpReward} XP',
+                                        l10n.tBabRowMeta(bab.slides.length, bab.xpReward),
                                         style: AppTypography.bodySm.copyWith(
                                           color: p.textMuted,
                                         ),
@@ -468,7 +483,7 @@ class _BabListPageState extends State<BabListPage> {
                                           Icons.arrow_upward_rounded,
                                           size: 16,
                                         ),
-                                        tooltip: 'Pindah ke atas',
+                                        tooltip: l10n.tBabMoveUp,
                                         visualDensity: VisualDensity.compact,
                                         onPressed: () {
                                           context.read<TeacherCubit>().moveBab(
@@ -484,7 +499,7 @@ class _BabListPageState extends State<BabListPage> {
                                           Icons.arrow_downward_rounded,
                                           size: 16,
                                         ),
-                                        tooltip: 'Pindah ke bawah',
+                                        tooltip: l10n.tBabMoveDown,
                                         visualDensity: VisualDensity.compact,
                                         onPressed: () {
                                           context.read<TeacherCubit>().moveBab(
@@ -500,11 +515,12 @@ class _BabListPageState extends State<BabListPage> {
                                         size: 20,
                                         color: p.primary,
                                       ),
-                                      tooltip: 'Simulator Siswa (Pratinjau)',
+                                      tooltip: l10n.tBabPreviewTooltip,
                                       visualDensity: VisualDensity.compact,
                                       onPressed: () {
                                         final previewData =
                                             SlideAdapter.toLessonDetailData(
+                                              l10n: l10n,
                                               id: bab.id,
                                               title: bab.title,
                                               xpReward: bab.xpReward,
@@ -522,7 +538,7 @@ class _BabListPageState extends State<BabListPage> {
                                       },
                                     ),
                                     PopupMenuButton<_BabAction>(
-                                      tooltip: 'Aksi bab',
+                                      tooltip: l10n.tBabActionTooltip,
                                       icon: Icon(
                                         Icons.more_vert_rounded,
                                         size: 20,
@@ -545,25 +561,25 @@ class _BabListPageState extends State<BabListPage> {
                                         }
                                       },
                                       itemBuilder: (ctx) => [
-                                        const PopupMenuItem(
+                                        PopupMenuItem(
                                           value: _BabAction.edit,
                                           child: _BabMenuRow(
                                             icon: Icons.edit_outlined,
-                                            label: 'Edit Bab',
+                                            label: l10n.tBabEdit,
                                           ),
                                         ),
-                                        const PopupMenuItem(
+                                        PopupMenuItem(
                                           value: _BabAction.duplicate,
                                           child: _BabMenuRow(
                                             icon: Icons.copy_all_rounded,
-                                            label: 'Duplikat Bab',
+                                            label: l10n.tBabDuplicateMenu,
                                           ),
                                         ),
                                         PopupMenuItem(
                                           value: _BabAction.delete,
                                           child: _BabMenuRow(
                                             icon: Icons.delete_outline_rounded,
-                                            label: 'Hapus Bab',
+                                            label: l10n.tBabDeleteMenu,
                                             color: p.error,
                                           ),
                                         ),
@@ -587,7 +603,7 @@ class _BabListPageState extends State<BabListPage> {
         backgroundColor: p.primary,
         foregroundColor: Colors.white,
         icon: const Icon(Icons.add_rounded),
-        label: const Text('Tambah Bab'),
+        label: Text(l10n.tBabAdd),
         onPressed: () {
           context.push(AppRoutes.teacherBabCreate(widget.lessonId));
         },

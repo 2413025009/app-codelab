@@ -160,20 +160,15 @@ class AppLocalizationsId extends AppLocalizations {
   String get settingsAccountLabHeader => 'PENGATURAN AKUN & LAB';
 
   @override
-  String get settingsCurriculum => 'Kurikulum Merdeka';
+  String get settingsHelpCenter => 'Bantuan Admin';
 
   @override
-  String get settingsCurriculumSubtitle =>
-      'Sinkron • Pak Budi (Guru Pembimbing)';
+  String get settingsHelpCenterSubtitle =>
+      'Hubungi admin via WhatsApp +62 831-2500-5309';
 
   @override
-  String get settingsActive => 'Aktif';
-
-  @override
-  String get settingsHelpCenter => 'Pusat Bantuan Lab';
-
-  @override
-  String get settingsHelpCenterSubtitle => 'FAQ Compiler AI & Panduan Guru';
+  String get settingsHelpLaunchFailed =>
+      'Tidak bisa membuka WhatsApp. Coba lagi.';
 
   @override
   String get settingsChangePassword => 'Ubah Password';
@@ -347,6 +342,32 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get dashLoadingSubtitle => 'Menarik data belajar dari server';
+
+  @override
+  String get dashStageConnecting => 'Menyambung ke server…';
+
+  @override
+  String get dashStageProfile => 'Profil siswa terbaca';
+
+  @override
+  String get dashStageProgress => 'Kemajuan bab terbaca';
+
+  @override
+  String get dashStageSkills => 'Radar skill terbaca';
+
+  @override
+  String get dashStageLessons => 'Katalog materi terbaca';
+
+  @override
+  String get dashStageChallenges => 'Catatan tantangan terbaca';
+
+  @override
+  String get dashStageComposing => 'Menyusun dashboard…';
+
+  @override
+  String dashGreeting(String name) {
+    return 'Halo, $name';
+  }
 
   @override
   String get dashNoModules => 'Belum ada modul. Cek lagi sebentar.';
@@ -940,6 +961,11 @@ class AppLocalizationsId extends AppLocalizations {
       'Tidak ada materi yang cocok dengan pencarian atau filter.';
 
   @override
+  String materialSwitchedSnack(String topic) {
+    return 'Menampilkan materi $topic. Peta belajar diperbarui.';
+  }
+
+  @override
   String materialChaptersDone(int done, int total) {
     return '$done/$total bab tuntas';
   }
@@ -1290,6 +1316,11 @@ class AppLocalizationsId extends AppLocalizations {
   String get classActiveBadge => 'Aktif';
 
   @override
+  String classCountBadge(int count) {
+    return '$count kelas';
+  }
+
+  @override
   String get classSeeAllTooltip => 'Lihat semua kelas';
 
   @override
@@ -1309,8 +1340,7 @@ class AppLocalizationsId extends AppLocalizations {
   String get myClassesSubtitle => 'Rombel tempat kamu belajar';
 
   @override
-  String get myClassesOneActiveNote =>
-      'Satu siswa hanya dapat tergabung dalam satu kelas aktif. Keluar dari kelas bila ingin bergabung ke kelas lain.';
+  String get myClassesJoinAnother => 'Gabung Kelas Lain';
 
   @override
   String get myClassesEmptyTitle => 'Belum tergabung ke kelas mana pun';
@@ -1716,8 +1746,171 @@ class AppLocalizationsId extends AppLocalizations {
   String get loadingVersionFooter => 'Versi 2.1 · Kurikulum Merdeka RPL';
 
   @override
-  String get settingsLanguageTeacherLocked =>
-      'Pilihan bahasa dikunci sementara untuk akun pengajar.';
+  String get bootTitle => 'Memulihkan sesimu…';
+
+  @override
+  String get bootSubtitle => 'Menyiapkan lab kode di perangkat';
+
+  @override
+  String get bootStageSecureStorage => 'Memeriksa penyimpanan aman';
+
+  @override
+  String get classResponseUnrecognized =>
+      'Format jawaban kelas tidak dikenali.';
+
+  @override
+  String get slideTapToFillSuccessTitle => 'Tepat Sekali!';
+
+  @override
+  String get slideTapToFillSuccessMsg => 'Sintaks berhasil disusun.';
+
+  @override
+  String get slideTapToFillErrorTitle => 'Coba Periksa Lagi!';
+
+  @override
+  String get slideTapToFillErrorMsg => 'Perhatikan slot yang kosong.';
+
+  @override
+  String get slideTypeCodeSuccessTitle => 'Luar Biasa!';
+
+  @override
+  String get slideTypeCodeSuccessMsg => 'Perintah yang kamu ketik tepat.';
+
+  @override
+  String get slideTypeCodeErrorTitle => 'Kurang Tepat!';
+
+  @override
+  String get slideTypeCodeErrorMsg => 'Perhatikan penulisan huruf.';
+
+  @override
+  String get slideOutputPredictSuccessTitle => 'Mantap Jiwa!';
+
+  @override
+  String get slideOutputPredictSuccessMsg => 'Prediksi logikamu akurat.';
+
+  @override
+  String get slideOutputPredictErrorTitle => 'Kurang Tepat!';
+
+  @override
+  String get slideOutputPredictErrorMsg =>
+      'Perhatikan alur eksekusi baris demi baris.';
+
+  @override
+  String get slideBugHunterSuccessTitle => 'Hebat, Bug Ditemukan!';
+
+  @override
+  String get slideBugHunterSuccessMsg =>
+      'Kamu berhasil mendeteksi baris error.';
+
+  @override
+  String get slideBugHunterErrorTitle => 'Bukan Baris Itu!';
+
+  @override
+  String get slideBugHunterErrorMsg =>
+      'Cari baris yang melanggar aturan sintaks.';
+
+  @override
+  String get slideQuizSuccessTitle => 'Jawaban Sempurna!';
+
+  @override
+  String get slideQuizSuccessMsg => 'Pemahaman konsepmu sangat solid.';
+
+  @override
+  String get slideQuizErrorTitle => 'Kurang Tepat!';
+
+  @override
+  String get slideQuizErrorMsg =>
+      'Coba ingat kembali prinsip dasar materi ini.';
+
+  @override
+  String get slideContentUnavailable => 'Materi belum tersedia saat ini.';
+
+  @override
+  String get tutorHintTabConcept => 'Hint 1: Konsep';
+
+  @override
+  String get tutorHintTabLogic => 'Hint 2: Logika';
+
+  @override
+  String get tutorHintTabStructure => 'Hint 3: Struktur';
+
+  @override
+  String get tutorHintDefaultConcept => 'Latihan Koding';
+
+  @override
+  String get tutorHintPlaygroundConcept => 'Latihan Mandiri (Playground)';
+
+  @override
+  String get tutorHintChallengeQ1 =>
+      'Apa output yang diminta soal ini? Ceritakan dulu dengan bahasamu sendiri sebelum menyentuh kode.';
+
+  @override
+  String get tutorHintChallengeQ1Step1 =>
+      'Sebutkan input yang tersedia dan output yang harus muncul.';
+
+  @override
+  String get tutorHintChallengeQ1Step2 =>
+      'Tandai bagian kode yang sudah kamu pahami dan bagian yang masih ragu.';
+
+  @override
+  String get tutorHintChallengeQ2 =>
+      'Bagaimana urutan langkah programmu dari baris pertama sampai terakhir?';
+
+  @override
+  String get tutorHintChallengeQ2Step1 =>
+      'Tulis urutan langkahnya dalam bahasa sehari-hari, belum dalam kode.';
+
+  @override
+  String get tutorHintChallengeQ2Step2 =>
+      'Periksa apakah setiap langkah benar-benar mengarah ke output yang diminta soal.';
+
+  @override
+  String get tutorHintChallengeQ3 =>
+      'Baris mana yang paling sering memunculkan error saat kamu jalankan?';
+
+  @override
+  String get tutorHintChallengeQ3Step1 =>
+      'Baca pesan error dari baris paling atas: nama error dan nomor barisnya.';
+
+  @override
+  String get tutorHintChallengeQ3Step2 =>
+      'Cocokkan tanda baca di baris itu (kurung, titik dua, tanda kutip, indentasi).';
+
+  @override
+  String get tutorHintPlaygroundQ1 =>
+      'Masalah apa yang paling ingin kamu pecahkan program ini? Tulis tujuannya dalam satu kalimat dulu.';
+
+  @override
+  String get tutorHintPlaygroundQ1Step1 =>
+      'Petakan: input apa yang masuk, proses apa yang dilakukan, output apa yang diharapkan.';
+
+  @override
+  String get tutorHintPlaygroundQ1Step2 =>
+      'Mulai dari potongan paling kecil yang bisa kamu uji sendiri.';
+
+  @override
+  String get tutorHintPlaygroundQ2 =>
+      'Bagaimana urutan langkah programmu dari baris pertama sampai terakhir?';
+
+  @override
+  String get tutorHintPlaygroundQ2Step1 =>
+      'Tulis alurnya sebagai pseudo-kode bahasa Indonesia sebelum disalin ke Python.';
+
+  @override
+  String get tutorHintPlaygroundQ2Step2 =>
+      'Tandai mana bagian yang berulang (loop) dan mana yang bercabang (if).';
+
+  @override
+  String get tutorHintPlaygroundQ3 =>
+      'Bagian mana dari kodemu yang tampak rancu saat dibaca?';
+
+  @override
+  String get tutorHintPlaygroundQ3Step1 =>
+      'Cek indentasi dan tanda titik dua pada baris yang berisi logika.';
+
+  @override
+  String get tutorHintPlaygroundQ3Step2 =>
+      'Uji potongan kecil di terminal yang sama sebelum digabung kembali.';
 
   @override
   String get tNavDashboard => 'Dashboard';
@@ -1727,4 +1920,1977 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get tNavAnalytics => 'Analisa';
+
+  @override
+  String get tPickerTitle => 'Analisa Kelas';
+
+  @override
+  String get tPickerHeading => 'Pilih Kelas';
+
+  @override
+  String get tPickerSubtitle =>
+      'Pilih kelas untuk melihat peringkat materi dan latihan siswa, lalu kelola anggotanya.';
+
+  @override
+  String get tPickerEmptyTitle => 'Belum Ada Kelas';
+
+  @override
+  String get tPickerEmptyBody =>
+      'Buat kelas pertamamu di Dashboard untuk mulai memantau analisa siswa.';
+
+  @override
+  String get tPickerOpenDashboard => 'Buka Dashboard';
+
+  @override
+  String get tPickerSchoolUnset => 'Sekolah belum diatur';
+
+  @override
+  String tPickerMemberCount(int count) {
+    return '$count siswa';
+  }
+
+  @override
+  String get tArchivedTitle => 'Arsip Kelas';
+
+  @override
+  String get tArchivedInfo =>
+      'Kelas arsip tidak bisa diikuti siswa baru. Pulihkan kelas bila ingin mengaktifkannya lagi.';
+
+  @override
+  String get tArchivedLoadFailed => 'Gagal Memuat Arsip';
+
+  @override
+  String get tArchivedEmptyTitle => 'Belum Ada Kelas Diarsipkan';
+
+  @override
+  String get tArchivedEmptyBody =>
+      'Kelas yang kamu arsipkan dari halaman analisa akan muncul di sini.';
+
+  @override
+  String get tArchivedBackDashboard => 'Kembali ke Dashboard';
+
+  @override
+  String get tArchivedBadge => 'Diarsipkan';
+
+  @override
+  String tArchivedSchoolYear(String school, String year) {
+    return '$school • Tahun Ajaran $year';
+  }
+
+  @override
+  String get tArchivedClassCode => 'KODE KELAS';
+
+  @override
+  String get tArchivedInactive => 'Nonaktif';
+
+  @override
+  String get tArchivedRestore => 'Pulihkan Kelas';
+
+  @override
+  String get tDashFilterTitle => 'Filter Daftar Kelas';
+
+  @override
+  String get tDashFilterSubtitle =>
+      'Pencarian dan tahun ajaran disaring dari data kelas yang sudah dimuat.';
+
+  @override
+  String get tDashSearchHint => 'Cari nama atau kode kelas';
+
+  @override
+  String get tDashClearSearch => 'Bersihkan pencarian';
+
+  @override
+  String get tDashYearLabel => 'Tahun Ajaran';
+
+  @override
+  String get tDashApplyFilter => 'Terapkan Filter';
+
+  @override
+  String get tDashFilterReset => 'Reset';
+
+  @override
+  String tDashCodeCopied(String code) {
+    return 'Kode kelas \"$code\" disalin ke clipboard!';
+  }
+
+  @override
+  String get tDashCodeFullscreen => 'KODE KELAS (LAYAR PENUH)';
+
+  @override
+  String get tDashProjectorHint =>
+      'Buka aplikasi CodeLab AI dan masukkan kode kelas:';
+
+  @override
+  String get tDashProjectorCopy => 'Salin Kode';
+
+  @override
+  String get tDashCreateNewClass => 'Buat Kelas Baru';
+
+  @override
+  String get tDashCreateSubtitle =>
+      'Wadah identitas kelas untuk memantau kemajuan belajar siswa.';
+
+  @override
+  String get tDashFieldName => 'Nama Kelas *';
+
+  @override
+  String get tDashExampleName => 'Contoh: X RPL 1';
+
+  @override
+  String get tDashFieldYear => 'Tahun Ajaran *';
+
+  @override
+  String tDashExampleYear(String year) {
+    return 'Contoh: $year';
+  }
+
+  @override
+  String get tDashCreateClass => 'Buat Kelas';
+
+  @override
+  String get tDashValidationRequired =>
+      'Nama kelas dan tahun ajaran wajib diisi.';
+
+  @override
+  String get tDashSchoolUnset => 'Sekolah belum terhubung';
+
+  @override
+  String tDashGreeting(String name) {
+    return 'Halo, $name 👋';
+  }
+
+  @override
+  String get tDashGreetingFallback => 'Guru';
+
+  @override
+  String get tProfileTitle => 'Profil Pengajar';
+
+  @override
+  String get tDashBadgeTotal => 'Total';
+
+  @override
+  String tDashClassCount(int count) {
+    return '$count Kelas';
+  }
+
+  @override
+  String get tDashActiveClasses => 'Kelas Aktif';
+
+  @override
+  String get tDashBadgeRegistered => 'Terdaftar';
+
+  @override
+  String get tDashRegisteredStudents => 'Siswa Terdaftar';
+
+  @override
+  String get tDashClassListTitle => 'Daftar Kelas Belajar';
+
+  @override
+  String get tDashClassListSubtitle =>
+      'Pilih kelas untuk memantau kemajuan atau bagikan kode.';
+
+  @override
+  String get tDashFilterTooltip => 'Filter daftar kelas';
+
+  @override
+  String get tDashArchive => 'Arsip';
+
+  @override
+  String tDashSearchChip(String query) {
+    return 'Cari: $query';
+  }
+
+  @override
+  String get tDashResetFilter => 'Reset filter';
+
+  @override
+  String get tDashEmptyBody =>
+      'Buat kelas pertamamu untuk mendapatkan kode kelas dan mulai memantau kemajuan belajar siswa.';
+
+  @override
+  String get tDashNoMatchTitle => 'Tidak Ada Kelas yang Cocok';
+
+  @override
+  String get tDashNoMatchBody =>
+      'Coba kata kunci lain atau tampilkan semua tahun ajaran.';
+
+  @override
+  String get tDashShowAll => 'Tampilkan Semua Kelas';
+
+  @override
+  String tDashActiveYear(String year) {
+    return 'Aktif $year';
+  }
+
+  @override
+  String get tDashMetaMembers => 'Anggota';
+
+  @override
+  String get tDashProjector => 'Proyektor Kode';
+
+  @override
+  String get tDashMonitor => 'Pantau Kelas';
+
+  @override
+  String get tProfileLogoutTitle => 'Keluar dari Akun Pengajar?';
+
+  @override
+  String get tProfileLogoutBody =>
+      'Kamu perlu memasukkan email dan kata sandi kembali untuk masuk ke akun pengajar ini.';
+
+  @override
+  String get tProfileLogoutConfirm => 'Ya, Keluar';
+
+  @override
+  String get tProfileNameFallback => 'Pengajar RPL';
+
+  @override
+  String get tProfileSettingsTooltip => 'Pengaturan Profil';
+
+  @override
+  String get tProfileRoleChip => 'Instruktur RPL';
+
+  @override
+  String tProfileNip(String code) {
+    return 'NIP: $code';
+  }
+
+  @override
+  String get tProfileAddBio => 'Tambah Bio';
+
+  @override
+  String get tProfileStatClasses => 'Kelas Diajar';
+
+  @override
+  String get tProfileStatStudents => 'Siswa Dibimbing';
+
+  @override
+  String get tProfileStatMaterials => 'Materi Ajar';
+
+  @override
+  String get tProfileClassesTitle => 'Kelas yang Diajar';
+
+  @override
+  String get tProfileNoClasses => 'Belum ada kelas yang dibuat.';
+
+  @override
+  String tProfileClassMeta(String year, int count) {
+    return 'Tahun $year • $count Siswa';
+  }
+
+  @override
+  String get tProfileNoMaterials => 'Belum ada materi yang dibuat.';
+
+  @override
+  String tProfileMaterialCount(int count) {
+    return '$count Materi';
+  }
+
+  @override
+  String tProfileMaterialMeta(String topic, int babs, int xp) {
+    return '$topic • $babs Bab • $xp XP';
+  }
+
+  @override
+  String get tProfilePublished => 'Terbit';
+
+  @override
+  String get tProfileDraft => 'Draft';
+
+  @override
+  String get tProfileOpenSettings => 'Buka Pengaturan Akun';
+
+  @override
+  String get tProfileLogout => 'Keluar dari Akun';
+
+  @override
+  String get tStudioActionHint => 'Pilih tindakan untuk materi ini';
+
+  @override
+  String get tStudioEditSyllabus => 'Edit Silabus & Bab';
+
+  @override
+  String get tStudioEditInfo => 'Edit Info Materi';
+
+  @override
+  String get tStudioDuplicate => 'Duplikat sebagai Draft Baru';
+
+  @override
+  String get tStudioUnpublish => 'Tarik Kembali ke Draft';
+
+  @override
+  String get tStudioPublish => 'Terbitkan ke Siswa';
+
+  @override
+  String get tStudioDeleteForever => 'Hapus Materi Selamanya';
+
+  @override
+  String get tStudioDeleteTitle => 'Hapus Materi Ini?';
+
+  @override
+  String tStudioDeleteBody(String title) {
+    return 'Materi \"$title\" akan dihapus dari Studio. Riwayat belajar siswa yang sudah tuntas tetap tersimpan.';
+  }
+
+  @override
+  String get tStudioTitle => 'Studio Materi';
+
+  @override
+  String get tStudioSettingsTooltip => 'Pengaturan Pengajar';
+
+  @override
+  String get tStudioMyMaterials => 'Materi Saya';
+
+  @override
+  String get tStudioSubtitle => 'Kelola modul pembelajaran & bab koding';
+
+  @override
+  String get tStudioAdd => 'Tambah Materi';
+
+  @override
+  String get tStudioBannerTitle => 'Status Pembelajaran Kelas';
+
+  @override
+  String tStudioBanner(int published, int students, String school) {
+    return '$published materi aktif terbit untuk $students siswa di $school.';
+  }
+
+  @override
+  String get tStudioYourSchool => 'sekolahmu';
+
+  @override
+  String tStudioFilterAll(int count) {
+    return 'Semua ($count)';
+  }
+
+  @override
+  String tStudioFilterDraft(int count) {
+    return 'Draft ($count)';
+  }
+
+  @override
+  String tStudioFilterPublished(int count) {
+    return 'Terbit ($count)';
+  }
+
+  @override
+  String get tStudioEmptyTitle => 'Belum Ada Materi';
+
+  @override
+  String get tStudioEmptyDraftTitle => 'Tidak Ada Materi Draft';
+
+  @override
+  String get tStudioEmptyPublishedTitle => 'Tidak Ada Materi Terbit';
+
+  @override
+  String get tStudioEmptyBody =>
+      'Mulai bangun kurikulum coding untuk siswamu. Klik tombol Tambah Materi di atas.';
+
+  @override
+  String get tStudioEmptyFilterBody =>
+      'Ganti filter atau tambahkan materi baru untuk kategori ini.';
+
+  @override
+  String get tStudioCreateNew => 'Buat Materi Baru';
+
+  @override
+  String tStudioBabCount(int count) {
+    return '$count bab';
+  }
+
+  @override
+  String get tStudioNotVisible => 'Belum tampak oleh siswa';
+
+  @override
+  String get tBabDeleteTitle => 'Hapus Bab Ini?';
+
+  @override
+  String tBabDeleteBody(String title) {
+    return 'Bab \"$title\" akan dihapus dari daftar materi. Riwayat belajar siswa yang sudah tercatat tetap tersimpan.';
+  }
+
+  @override
+  String get tBabDuplicateTitle => 'Duplikat Bab Ini?';
+
+  @override
+  String tBabDuplicateBody(String title) {
+    return 'Salinan \"$title\" akan muncul sebagai bab nomor berikutnya, lengkap dengan seluruh slide dan XP-nya.';
+  }
+
+  @override
+  String get tBabDuplicate => 'Duplikat';
+
+  @override
+  String get tBabTitle => 'Silabus & Bab';
+
+  @override
+  String get tBabAdd => 'Tambah Bab';
+
+  @override
+  String get tBabTopicFallback => 'Materi Studio';
+
+  @override
+  String get tBabTitleFallback => 'Daftar Bab';
+
+  @override
+  String get tBabCurriculumStatus => 'Status Kurikulum Bab';
+
+  @override
+  String tBabMeta(int babs, int xp) {
+    return '$babs Bab • $xp XP';
+  }
+
+  @override
+  String get tBabPublishedHint =>
+      'Seluruh bab aktif terbaca oleh siswa di kelasmu.';
+
+  @override
+  String get tBabDraftHint =>
+      'Materi berstatus Draft. Siswa belum dapat melihat bab-bab ini.';
+
+  @override
+  String get tBabListTitle => 'Daftar Bab Terstruktur';
+
+  @override
+  String get tBabFlowOrder => 'Urutan Alur Belajar';
+
+  @override
+  String get tBabEmptyTitle => 'Belum Ada Bab';
+
+  @override
+  String get tBabEmptyBody =>
+      'Materi ini belum memiliki bab pembelajaran. Tambahkan bab pertama untuk mulai menyusun slide kuis dan teori.';
+
+  @override
+  String get tBabAddFirst => 'Tambah Bab Pertama';
+
+  @override
+  String tBabRowMeta(int slides, int xp) {
+    return '$slides Slide • $xp XP';
+  }
+
+  @override
+  String get tBabMoveUp => 'Pindah ke atas';
+
+  @override
+  String get tBabMoveDown => 'Pindah ke bawah';
+
+  @override
+  String get tBabPreviewTooltip => 'Simulator Siswa (Pratinjau)';
+
+  @override
+  String get tBabActionTooltip => 'Aksi bab';
+
+  @override
+  String get tBabEdit => 'Edit Bab';
+
+  @override
+  String get tBabDuplicateMenu => 'Duplikat Bab';
+
+  @override
+  String get tBabDeleteMenu => 'Hapus Bab';
+
+  @override
+  String get tFormLevelDescBeginner =>
+      'Level dasar: ditujukan bagi siswa yang baru mengenal logika pemrograman.';
+
+  @override
+  String get tFormLevelDescIntermediate =>
+      'Level menengah: percabangan lanjutan, perulangan, & manipulasi data.';
+
+  @override
+  String get tFormLevelDescAdvanced =>
+      'Level mahir: algoritma rekursif kompleks & optimasi pemecahan masalah.';
+
+  @override
+  String get tFormNotFound =>
+      'Materi tidak ditemukan. Kembali ke Studio Materi untuk memilih materi lain.';
+
+  @override
+  String get tFormTitleRequired => 'Nama materi wajib diisi.';
+
+  @override
+  String get tFormTitleDuplicate =>
+      'Nama materi sudah dipakai. Gunakan nama lain agar siswa tidak bingung.';
+
+  @override
+  String get tFormUpdated => 'Materi berhasil diperbarui.';
+
+  @override
+  String get tFormSavedDraft => 'Materi tersimpan sebagai draft.';
+
+  @override
+  String get tFormSaveFailed =>
+      'Materi belum tersimpan. Periksa koneksi lalu coba lagi.';
+
+  @override
+  String get tFormUnsavedTitle => 'Perubahan Belum Disimpan';
+
+  @override
+  String get tFormUnsavedBody =>
+      'Ada revisi pada form materi ini. Simpan perubahan sebagai draft terlebih dahulu atau abaikan?';
+
+  @override
+  String get tFormSaveExit => 'Simpan Draft & Keluar';
+
+  @override
+  String get tFormDiscard => 'Buang Perubahan';
+
+  @override
+  String get tFormKeepEditing => 'Lanjut Mengedit';
+
+  @override
+  String get tFormEdit => 'Edit Materi';
+
+  @override
+  String get tFormLoadFailed => 'Materi Tidak Dapat Dimuat';
+
+  @override
+  String get tFormOpenStudio => 'Buka Studio Materi';
+
+  @override
+  String get tFormAdd => 'Tambah Materi Baru';
+
+  @override
+  String get tFormModeEdit => 'Mode Edit';
+
+  @override
+  String get tFormNewBadge => 'Materi Baru';
+
+  @override
+  String get tFormEditHeading => 'Ubah Pengaturan Materi';
+
+  @override
+  String get tFormAddHeading => 'Konfigurasi Materi Baru';
+
+  @override
+  String get tFormSubtitle =>
+      'Konfigurasikan judul, track kurikulum, dan level kesulitan untuk ditampilkan ke siswa.';
+
+  @override
+  String get tFormFieldName => 'Nama Materi *';
+
+  @override
+  String get tFormExampleName => 'Contoh: Dasar Algoritma & Python RPL';
+
+  @override
+  String get tFormFieldDesc => 'Deskripsi Singkat *';
+
+  @override
+  String get tFormDescHint =>
+      'Jelaskan capaian materi dalam 2-3 kalimat ringkas...';
+
+  @override
+  String get tFormFieldIcon => 'Kode Ikon Materi *';
+
+  @override
+  String get tFormIconHint =>
+      'Pilih preset ikon atau ketik nama kode ikon (misal: terminal, html, css, javascript, database, psychology, shield, phone_android).';
+
+  @override
+  String get tFormExampleIcon => 'Contoh: terminal';
+
+  @override
+  String get tFormFieldTopic => 'Topik / Track Kurikulum *';
+
+  @override
+  String get tFormFieldLevel => 'Tingkat Kesulitan *';
+
+  @override
+  String get tFormDraftNotice =>
+      'Materi baru disimpan sebagai Draft. Materi hanya terlihat oleh siswa setelah kamu menekan tombol \"Terbitkan\".';
+
+  @override
+  String get tFormSaveDraft => 'Simpan Draft';
+
+  @override
+  String get tFormContinueBabs => 'Lanjut ke Bab';
+
+  @override
+  String get tSlideNotFound =>
+      'Slide tidak ditemukan. Buka Bab Builder untuk memilih slide lain.';
+
+  @override
+  String tSlideTemplateApplied(String label) {
+    return 'Template awal \"$label\" dipakai.';
+  }
+
+  @override
+  String get tSlideBabUnsaved =>
+      'Bab baru belum tersimpan. Tambahkan slide dari Bab Builder agar tersimpan bersama bab.';
+
+  @override
+  String get tSlideSaveNoBab =>
+      'Slide tidak dapat disimpan. Buka Bab Builder untuk memuat ulang bab.';
+
+  @override
+  String get tSlideSaveFailed => 'Slide gagal disimpan. Coba lagi.';
+
+  @override
+  String get tSlideSaved => 'Slide tersimpan ke bab.';
+
+  @override
+  String get tSlideEditorTitle => 'Editor Slide';
+
+  @override
+  String get tSlideLoadFailedTitle => 'Slide Tidak Dapat Dimuat';
+
+  @override
+  String get tSlideOpenBabBuilder => 'Buka Bab Builder';
+
+  @override
+  String get tSlidePreviewTooltip => 'Pratinjau slide';
+
+  @override
+  String tSlideHeader(int index, String label) {
+    return 'Slide $index • $label';
+  }
+
+  @override
+  String get tSlidePreviewAsStudent => 'Pratinjau sebagai Siswa';
+
+  @override
+  String get tSlideUseTemplate => 'Pakai Template Awal';
+
+  @override
+  String get tSlideSave => 'Simpan Slide';
+
+  @override
+  String tSlideTooLong(String label, int max) {
+    return '$label terlalu panjang (maksimal $max karakter).';
+  }
+
+  @override
+  String tSlideRequired(String label) {
+    return '$label wajib diisi.';
+  }
+
+  @override
+  String tSlideMaxItems(String label, int limit) {
+    return '$label maksimal $limit butir.';
+  }
+
+  @override
+  String tSlideChoiceEmpty(String letter, String label) {
+    return 'Pilihan $letter pada $label masih kosong.';
+  }
+
+  @override
+  String tSlideChoiceKey(String label) {
+    return 'Pilih salah satu kunci jawaban A–D pada $label.';
+  }
+
+  @override
+  String tSlideSlotEmpty(int n) {
+    return 'Kunci jawaban slot $n masih kosong.';
+  }
+
+  @override
+  String get tSlideTapMarkerMissing =>
+      'Kode soal belum punya penanda [KETIK_DISINI] sebagai tempat siswa mengetik.';
+
+  @override
+  String get tSlideBugHintOrFix =>
+      'Isi \"Pesan Indikator\" atau \"Kode Perbaikan Valid\" agar siswa mendapat penjelasan setelah menjawab.';
+
+  @override
+  String get tSlideConceptRequired => 'Isi minimal satu konsep yang dikuasai.';
+
+  @override
+  String get tSlideTemplateNoSlot =>
+      'Template kode belum punya slot. Tandai bagian kosong dengan ___1___, ___2___, dan seterusnya.';
+
+  @override
+  String get tSlideDistractorRequired =>
+      'Tambahkan minimal satu pengecoh agar soal bisa dipilih.';
+
+  @override
+  String get tSlideDistractorsSame =>
+      'Semua pengecoh sama dengan kunci jawaban. Tambahkan pilihan lain.';
+
+  @override
+  String get tSlideTargetNotNumber => 'Target nomor baris harus berupa angka.';
+
+  @override
+  String tSlideTargetRange(int n) {
+    return 'Target nomor baris harus antara 1 dan $n sesuai jumlah baris kode.';
+  }
+
+  @override
+  String get tSlideFieldExerciseTitle => 'Judul latihan';
+
+  @override
+  String get tSlideFieldInstruction => 'Instruksi';
+
+  @override
+  String get tSlideFieldQuestionTitle => 'Judul soal';
+
+  @override
+  String get tSlideFieldQuestionCode => 'Kode soal';
+
+  @override
+  String get tSlideFieldAnswerKeyword => 'Kata kunci jawaban';
+
+  @override
+  String get tSlideFieldHint => 'Petunjuk';
+
+  @override
+  String get tSlideFieldSlideTitle => 'Judul slide';
+
+  @override
+  String get tSlideFieldCodeBlock => 'Blok kode';
+
+  @override
+  String get tSlideFieldOutputChoices => 'pilihan output';
+
+  @override
+  String get tSlideFieldExplanation => 'Penjelasan';
+
+  @override
+  String get tSlideFieldChallengeTitle => 'Judul tantangan';
+
+  @override
+  String get tSlideFieldScenario => 'Skenario';
+
+  @override
+  String get tSlideFieldProgramCode => 'Kode program';
+
+  @override
+  String get tSlideFieldErrorType => 'Jenis error';
+
+  @override
+  String get tSlideFieldBugHint => 'Pesan indikator';
+
+  @override
+  String get tSlideFieldFixCode => 'Kode perbaikan';
+
+  @override
+  String get tSlideFieldQuizQuestion => 'Pertanyaan kuis';
+
+  @override
+  String get tSlideFieldAnswerChoices => 'pilihan jawaban';
+
+  @override
+  String get tSlideFieldFeedback => 'Umpan balik';
+
+  @override
+  String get tSlideFieldOutroTitle => 'Judul slide penutup';
+
+  @override
+  String get tSlideFieldSummary => 'Rangkuman materi';
+
+  @override
+  String get tSlideFieldMasteredConcepts => 'Konsep yang dikuasai';
+
+  @override
+  String get tSlideFieldTheoryTitle => 'Judul materi teori';
+
+  @override
+  String get tSlideFieldTheoryContent => 'Konten penjelasan';
+
+  @override
+  String get tSlideFieldSampleCode => 'Cuplikan kode sampel';
+
+  @override
+  String get tSlideFieldCodeLanguage => 'Bahasa kode';
+
+  @override
+  String get tSlideFieldCodeTemplate => 'Template kode';
+
+  @override
+  String get tSlideFieldAnswerKey => 'Kunci jawaban';
+
+  @override
+  String get tSlideFieldSlotAnswer => 'Kunci jawaban slot';
+
+  @override
+  String get tSlideFieldDistractors => 'Pengecoh';
+
+  @override
+  String get tSlideFieldTargetLine => 'Target nomor baris';
+
+  @override
+  String get tBabNotFound =>
+      'Bab tidak ditemukan. Buka daftar bab untuk memilih bab lain.';
+
+  @override
+  String get tBabSlideEmptyHint =>
+      'Belum ada isi. Ketuk Edit Konten untuk mulai.';
+
+  @override
+  String get tBabMinSlides => 'Bab minimal harus memiliki 1 slide.';
+
+  @override
+  String get tBabTitleRequired => 'Nama bab wajib diisi.';
+
+  @override
+  String get tBabUpdated => 'Bab berhasil diperbarui.';
+
+  @override
+  String get tBabCreated => 'Bab baru berhasil ditambahkan.';
+
+  @override
+  String get tBabMinSlidesPreview =>
+      'Bab minimal harus memiliki 1 slide untuk disimulasikan.';
+
+  @override
+  String get tBabPreviewFallback => 'Pratinjau Bab';
+
+  @override
+  String get tBabEditTitle => 'Edit Bab';
+
+  @override
+  String get tBabLoadFailedTitle => 'Bab Tidak Dapat Dimuat';
+
+  @override
+  String get tBabOpenList => 'Buka Daftar Bab';
+
+  @override
+  String get tBabBuilderTitle => 'Bab Builder';
+
+  @override
+  String get tBabFieldName => 'Nama Bab *';
+
+  @override
+  String get tBabExampleName => 'Contoh: Pengenalan Tag & Dokumen HTML';
+
+  @override
+  String get tBabXpTitle => 'XP Hadiah Bab';
+
+  @override
+  String get tBabXpHint => 'Diberikan saat siswa menuntaskan bab';
+
+  @override
+  String get tBabFlowTitle => 'Alur Slide';
+
+  @override
+  String tBabSlideCount(int count) {
+    return '$count Unit';
+  }
+
+  @override
+  String get tBabAddSlide => 'Tambah Slide';
+
+  @override
+  String get tBabDeleteSlide => 'Hapus slide';
+
+  @override
+  String get tBabEditSlideContent => 'Edit Konten Slide';
+
+  @override
+  String get tBabSaveChanges => 'Simpan Perubahan Bab';
+
+  @override
+  String get tBabSaveNew => 'Simpan Bab Baru';
+
+  @override
+  String get tBabPickerTitle => 'Pilih Jenis Slide Baru';
+
+  @override
+  String tBabFormatCount(int count) {
+    return '$count Format';
+  }
+
+  @override
+  String get tBabPickerHint =>
+      'Ketuk ikon mata untuk melihat pratinjau simulasi koding, atau pilih langsung untuk menambahkan ke alur bab.';
+
+  @override
+  String get tBabPreviewFormatTooltip => 'Pratinjau Format Interaktif';
+
+  @override
+  String get tBabPickerAddTooltip => 'Tambahkan Slide';
+
+  @override
+  String get tBabBentoTitle => 'Pilih Jenis Slide / Latihan Koding';
+
+  @override
+  String get tBabBentoHint =>
+      'Ketuk \"Pratinjau\" untuk simulasi koding siswa, atau tekan \"Gunakan\" untuk memasukkan ke alur bab.';
+
+  @override
+  String get tBabPreviewButton => 'Pratinjau';
+
+  @override
+  String get tBabUseButton => 'Gunakan';
+
+  @override
+  String get tBabTypeTheoryName => 'Teori & Konsep';
+
+  @override
+  String get tBabTypeTapName => 'Lengkapi Kode';
+
+  @override
+  String get tBabTypeTypeName => 'Ketik Kata Kunci';
+
+  @override
+  String get tBabTypeOutputName => 'Tebak Output';
+
+  @override
+  String get tBabTypeBugName => 'Bug Hunter';
+
+  @override
+  String get tBabTypeQuizName => 'Kuis Pilihan Ganda';
+
+  @override
+  String get tBabTypeOutroName => 'Rangkuman & Klaim XP';
+
+  @override
+  String get tBabTypeTheoryBadge => 'Bahan Baca';
+
+  @override
+  String get tBabTypeTapBadge => 'Interaktif';
+
+  @override
+  String get tBabTypeTypeBadge => 'Sintaks';
+
+  @override
+  String get tBabTypeOutputBadge => 'Logika';
+
+  @override
+  String get tBabTypeBugBadge => 'Debugging';
+
+  @override
+  String get tBabTypeQuizBadge => 'Evaluasi';
+
+  @override
+  String get tBabTypeOutroBadge => 'Pencapaian';
+
+  @override
+  String get tBabSheetDescTheory =>
+      'Teks penjelasan konsep materi & contoh kode visual.';
+
+  @override
+  String get tBabSheetDescTap =>
+      'Siswa mengetuk keping blok untuk melengkapi baris kode.';
+
+  @override
+  String get tBabSheetDescType =>
+      'Latihan mengetik keyword atau ekspresi sintaksis.';
+
+  @override
+  String get tBabSheetDescOutput =>
+      'Siswa menganalisis snippet dan memprediksi hasil keluaran terminal.';
+
+  @override
+  String get tBabSheetDescBug =>
+      'Tantangan memperbaiki galat penulisan atau logika koding.';
+
+  @override
+  String get tBabSheetDescQuiz =>
+      'Pertanyaan evaluasi pemahaman dengan 4 opsi pilihan.';
+
+  @override
+  String get tBabSheetDescOutro =>
+      'Slide penutup bab dengan ringkasan capaian dan hadiah.';
+
+  @override
+  String get tBabBentoDescTheory =>
+      'Teks bacaan terstruktur, markdown penjelasan, dan contoh kode.';
+
+  @override
+  String get tBabBentoDescTap =>
+      'Fill-in-the-blanks dengan token kepingan kode terpandu.';
+
+  @override
+  String get tBabBentoDescType =>
+      'Latihan muscle-memory mengetik keyword sintaksis spesifik.';
+
+  @override
+  String get tBabBentoDescOutput =>
+      'Menganalisis baris kode dan memprediksi hasil luaran terminal.';
+
+  @override
+  String get tBabBentoDescBug =>
+      'Menemukan baris kode yang rusak dan menentukan perbaikannya.';
+
+  @override
+  String get tBabBentoDescQuiz =>
+      'Pertanyaan konseptual dengan 4 opsi pilihan dan pembahasan.';
+
+  @override
+  String get pyErrStringUnclosed => 'SyntaxError: string tidak ditutup';
+
+  @override
+  String pyErrFStringCloseBrace(String brace) {
+    return 'SyntaxError: f-string: tanda $brace tidak ditemukan';
+  }
+
+  @override
+  String get pyErrFStringEmptyExpr => 'SyntaxError: f-string: ekspresi kosong';
+
+  @override
+  String pyErrFStringStrayBrace(String brace) {
+    return 'SyntaxError: f-string: tanda $brace di luar placeholder';
+  }
+
+  @override
+  String get pyErrFStringUnclosed => 'SyntaxError: f-string tidak ditutup';
+
+  @override
+  String get pyErrTimeoutSeconds =>
+      'RuntimeError: program dihentikan (melewati batas 5 detik)';
+
+  @override
+  String get pyErrStepLimit =>
+      'RuntimeError: program dihentikan — melewati 100.000 langkah (periksa perulangan tanpa ujung)';
+
+  @override
+  String get pyErrBreakOutsideLoop =>
+      'SyntaxError: \"break\" di luar perulangan';
+
+  @override
+  String get pyErrContinueOutsideLoop =>
+      'SyntaxError: \"continue\" di luar perulangan';
+
+  @override
+  String get pyErrReturnOutsideFunction =>
+      'SyntaxError: \'return\' di luar fungsi';
+
+  @override
+  String get pyErrElifWithoutIf =>
+      'SyntaxError: invalid syntax (elif/else tanpa if)';
+
+  @override
+  String pyErrInvalidParam(String param) {
+    return 'SyntaxError: parameter tidak valid -> $param';
+  }
+
+  @override
+  String get pyErrInputNeedsDialog =>
+      'RuntimeError: input() butuh dialog — jalankan dari halaman Playground';
+
+  @override
+  String get pyErrSumNeedsList =>
+      'TypeError: sum() membutuhkan list sebagai argumen pertama';
+
+  @override
+  String pyErrUnknownOperator(String op) {
+    return 'TypeError: operator \'$op\' tidak dikenal';
+  }
+
+  @override
+  String tAnalyticsCodeCopied(String code) {
+    return 'Kode kelas \"$code\" disalin ke clipboard!';
+  }
+
+  @override
+  String get tAnalyticsRemoveTitle => 'Keluarkan Siswa';
+
+  @override
+  String tAnalyticsRemoveBody(String name, String className) {
+    return 'Keluarkan $name dari $className?\n\nSiswa tidak akan muncul lagi di daftar dan peringkat kelas. Ia bisa bergabung kembali dengan kode kelas.';
+  }
+
+  @override
+  String get tAnalyticsThisClass => 'kelas ini';
+
+  @override
+  String get tAnalyticsRemoveConfirm => 'Keluarkan';
+
+  @override
+  String tAnalyticsClassOptions(String name) {
+    return 'Opsi Kelas: $name';
+  }
+
+  @override
+  String get tAnalyticsRegenerateCode => 'Acak Ulang Kode Kelas';
+
+  @override
+  String get tAnalyticsRegenerateCodeSub => 'Hasilkan kode kelas baru.';
+
+  @override
+  String get tAnalyticsArchiveClass => 'Arsipkan Kelas';
+
+  @override
+  String get tAnalyticsArchiveClassSub => 'Siswa tidak dapat bergabung lagi.';
+
+  @override
+  String tAnalyticsHintMaterialSuffix(String title) {
+    return ' yang sudah menuntaskan \"$title\"';
+  }
+
+  @override
+  String tAnalyticsHintCompleted(String suffix) {
+    return 'Materi Tuntas = siswa yang sudah menuntaskan minimal satu materi$suffix, diurutkan dari materi tuntas terbanyak.';
+  }
+
+  @override
+  String get tAnalyticsPracticeRegular => 'latihan biasa (bukan mini proyek)';
+
+  @override
+  String get tAnalyticsPracticeMini => 'mini proyek';
+
+  @override
+  String get tAnalyticsPracticeAny => 'latihan apa pun (biasa + mini proyek)';
+
+  @override
+  String tAnalyticsHintPractice(String type, String suffix) {
+    return 'Latihan Terbanyak = siswa yang sudah lulus minimal satu $type$suffix, diurutkan dari jumlah latihan lulus terbanyak.';
+  }
+
+  @override
+  String get tAnalyticsNotStartedMaterial =>
+      'belum menuntaskan satu materi pun';
+
+  @override
+  String get tAnalyticsNotStartedPractice =>
+      'belum menyelesaikan satu latihan pun';
+
+  @override
+  String get tAnalyticsNotStartedBoth =>
+      'belum menuntaskan materi dan belum menyelesaikan latihan';
+
+  @override
+  String tAnalyticsHintNotStarted(String scope, String suffix) {
+    return 'Belum Memulai = siswa yang $scope$suffix, diurutkan dari siswa yang paling aktif berlatih.';
+  }
+
+  @override
+  String tAnalyticsHintAll(String suffix) {
+    return 'Semua = seluruh anggota kelas$suffix, diurutkan dari materi tuntas terbanyak lalu latihan lulus.';
+  }
+
+  @override
+  String get tAnalyticsFilterByMaterial => 'Saring Daftar Siswa per Materi';
+
+  @override
+  String get tAnalyticsFilterByMaterialHint =>
+      'Angka di tiap tombol = jumlah siswa yang sudah menuntaskan materi itu.';
+
+  @override
+  String tAnalyticsFilterAllMaterials(int count) {
+    return 'Semua Materi ($count)';
+  }
+
+  @override
+  String tAnalyticsFilterMaterialCount(String title, int count) {
+    return '$title ($count)';
+  }
+
+  @override
+  String get tAnalyticsTrackBasisTitle => 'Dasar Nilai Kemajuan Per Track';
+
+  @override
+  String get tAnalyticsTrackBasisBody =>
+      'Persentase tiap track = rata-rata progress_percent seluruh siswa kelas pada SEMUA materi resmi (kurikulum bawaan) di track itu.\n\n• Setiap pasangan siswa × materi dihitung satu baris, termasuk materi yang belum pernah dibuka (dianggap 0%).\n• Nilai 100% berarti seluruh siswa kelas sudah menuntaskan seluruh materi di track tersebut.\n• Materi buatan guru tidak dihitung (hanya kurikulum resmi).\n• Angka ini mengukur ketuntasan materi, bukan nilai latihan.';
+
+  @override
+  String get tAnalyticsGotIt => 'Mengerti';
+
+  @override
+  String get tAnalyticsNoStudents => 'Belum ada siswa.';
+
+  @override
+  String get tAnalyticsTitle => 'Analisa Kelas';
+
+  @override
+  String get tAnalyticsClassOptionsLabel => 'Opsi Kelas';
+
+  @override
+  String get tAnalyticsLoading => 'Memuat data analisa kelas...';
+
+  @override
+  String get tAnalyticsEmptyBody =>
+      'Buat kelas pertamamu di Dashboard untuk memantau analisa kurikulum dan progres belajar siswa.';
+
+  @override
+  String get tAnalyticsLabClass => 'Kelas Laboratorium';
+
+  @override
+  String tAnalyticsAcademicYear(String year) {
+    return 'Tahun Ajaran $year';
+  }
+
+  @override
+  String get tAnalyticsClassCode => 'Kode Kelas';
+
+  @override
+  String get tAnalyticsReadyJoin => 'Siap Join';
+
+  @override
+  String get tAnalyticsShareCodeHint =>
+      'Bagikan kode ini agar siswa dapat bergabung ke kelas:';
+
+  @override
+  String get tAnalyticsEnlarge => 'Perbesar ↗';
+
+  @override
+  String get tAnalyticsTrackTitle => 'Kemajuan Kurikulum Per Track';
+
+  @override
+  String get tAnalyticsTrackTooltip =>
+      'Rata-rata progress semua siswa kelas pada semua materi resmi di track ini (materi yang belum dibuka = 0%).';
+
+  @override
+  String get tAnalyticsTrackSubtitle =>
+      'Rata-rata ketuntasan seluruh siswa kelas pada semua materi resmi track tersebut.';
+
+  @override
+  String get tAnalyticsTrackEmpty =>
+      'Data track akan terisi otomatis setelah siswa mulai belajar.';
+
+  @override
+  String get tAnalyticsHardestTitle => 'Bab Tersulit (Perlu Pendampingan)';
+
+  @override
+  String get tAnalyticsHardestEmpty =>
+      'Tidak ada tantangan yang terdeteksi sulit pada kelas ini 🎉';
+
+  @override
+  String tAnalyticsFailCount(int count) {
+    return '$count siswa gagal';
+  }
+
+  @override
+  String get tAnalyticsRankingTitle => 'Peringkat Siswa Kelas';
+
+  @override
+  String tAnalyticsRankingTop(int top, int total) {
+    return '$top teratas dari $total';
+  }
+
+  @override
+  String tAnalyticsStudentCount(int count) {
+    return '$count Siswa';
+  }
+
+  @override
+  String tAnalyticsRankingHint(int max) {
+    return 'Peringkat hanya menampilkan maksimal $max siswa dengan materi/latihan terbanyak. Semua siswa tetap tampil lengkap di bagian Daftar Siswa.';
+  }
+
+  @override
+  String get tAnalyticsRankMaterial => 'Materi';
+
+  @override
+  String get tAnalyticsRankMaterialSub => 'Materi tuntas';
+
+  @override
+  String get tAnalyticsRankPractice => 'Latihan';
+
+  @override
+  String get tAnalyticsRankPracticeSub => 'Tantangan lulus';
+
+  @override
+  String get tAnalyticsRosterTitle => 'Daftar Siswa';
+
+  @override
+  String tAnalyticsFilterAllCount(int count) {
+    return 'Semua ($count)';
+  }
+
+  @override
+  String tAnalyticsFilterCompletedCount(int count) {
+    return 'Materi Tuntas ($count)';
+  }
+
+  @override
+  String get tAnalyticsFilterPractice => 'Latihan Terbanyak';
+
+  @override
+  String tAnalyticsFilterNotStartedCount(int count) {
+    return 'Belum Memulai ($count)';
+  }
+
+  @override
+  String get tAnalyticsPracticeAll => 'Semua Latihan';
+
+  @override
+  String get tAnalyticsPracticeRegularLabel => 'Latihan Biasa';
+
+  @override
+  String get tAnalyticsNotStartedAll => 'Materi & Latihan';
+
+  @override
+  String get tAnalyticsNotStartedMaterialLabel => 'Belum Kerjakan Materi';
+
+  @override
+  String get tAnalyticsNotStartedPracticeLabel => 'Belum Selesaikan Latihan';
+
+  @override
+  String get tAnalyticsRosterEmpty =>
+      'Belum ada siswa yang bergabung di kelas ini.';
+
+  @override
+  String get tAnalyticsRosterFilterEmpty =>
+      'Tidak ada siswa pada kategori filter ini.';
+
+  @override
+  String tAnalyticsRowPracticeDetail(int materials, int regular, int mini) {
+    return '$materials materi tuntas • $regular latihan biasa • $mini mini proyek';
+  }
+
+  @override
+  String tAnalyticsRowDetail(int materials, int practice) {
+    return '$materials materi tuntas • $practice latihan lulus';
+  }
+
+  @override
+  String tAnalyticsXp(int xp) {
+    return '$xp XP';
+  }
+
+  @override
+  String get tAnalyticsRemoveFromClass => 'Keluarkan dari kelas';
+
+  @override
+  String get tSlideFormHelpTheoryTitle =>
+      'Judul tampil paling atas di layar siswa.\n- Buat ringkas dan spesifik, maksimal 120 karakter.\n- Sebut inti konsepnya, bukan nama bab.';
+
+  @override
+  String get tSlideFormHelpTheoryContent =>
+      'Cara menulis isi materi:\n- Pisahkan paragraf dengan satu baris kosong.\n- Baris yang diawali \"- \" atau \"* \" otomatis jadi butir daftar.\n- Selain itu teks ditampilkan apa adanya: **tebal**, # judul, tautan, dan `kode` tidak diformat.\n\nContoh:\nHTML adalah bahasa penanda untuk menyusun halaman web.\n\n- Tag dibuka lalu ditutup.\n- Atribut menempel pada tag pembuka.';
+
+  @override
+  String get tSlideFormHelpCodeFileSample =>
+      'Hanya menentukan nama berkas pada kartu kode:\n- HTML → index.html\n- CSS → style.css\n- JavaScript → script.js\n- Python → script.py';
+
+  @override
+  String get tSlideFormHelpSampleCode =>
+      'Kode contoh yang tampil di kotak kode di bawah penjelasan.\n- Kosongkan bila slide tidak perlu contoh kode.\n- Tulis kode aslinya saja, tanpa penanda blok markdown.\n- Maksimal 8000 karakter.';
+
+  @override
+  String get tSlideFormHelpExerciseTitle =>
+      'Judul tampil di kepala soal, maksimal 120 karakter.\nContoh: \"Lengkapi Tag Penutup HTML\".';
+
+  @override
+  String get tSlideFormHelpShortInstruction =>
+      'Satu sampai dua kalimat arahan sebelum siswa mengetuk slot.\n- Jelaskan bagian mana yang harus dilengkapi.\n- Jangan sebut jawabannya di sini.';
+
+  @override
+  String get tSlideFormHelpCodeTemplate =>
+      'Tempel kode di sini, lalu tandai bagian kosong dengan ___1___, ___2___, dan seterusnya.\n- Penanda dikenali selama memakai minimal dua garis bawah di awal dan akhir, dengan angka opsional di tengah.\n- Urutan slot mengikuti urutan kemunculannya di dalam kode.\n- Satu slot berarti satu jawaban; jangan menaruh dua slot untuk jawaban yang sama.\n\nContoh:\nx = ___1___\nprint(x)';
+
+  @override
+  String get tSlideFormHelpSlotAnswers =>
+      'Isi jawaban benar untuk setiap slot sesuai urutan kemunculan.\n- Spasi di awal/akhir diabaikan, tetapi huruf besar-kecil dihitung: tulis \"print\", bukan \"Print\".\n- Tulis persis seperti yang seharusnya ada di dalam kode.\n- Jumlah isian mengikuti jumlah slot yang terdeteksi.';
+
+  @override
+  String get tSlideFormHelpDistractors =>
+      'Kata tambahan yang muncul sebagai pilihan, tetapi bukan jawaban benar.\n- Pisahkan dengan koma.\n- Pengecoh yang sama dengan kunci otomatis dibuang.\n- Sisakan minimal satu agar siswa benar-benar harus memilih.';
+
+  @override
+  String get tSlideFormHelpCodeFile =>
+      'Menentukan nama berkas pada kartu kode:\n- HTML → index.html\n- CSS → style.css\n- JavaScript → script.js\n- Python → script.py';
+
+  @override
+  String get tSlideFormHelpQuestionTitle =>
+      'Judul tampil di kepala soal, maksimal 120 karakter.\nContoh: \"Deklarasi Variabel Python\".';
+
+  @override
+  String get tSlideFormHelpInteractiveInstruction =>
+      'Arahan singkat yang dibaca siswa sebelum mengetik.\n- Sebutkan apa yang harus dicari tanpa memberi jawabannya.\n- Maksimal 300 karakter.';
+
+  @override
+  String get tSlideFormHelpQuestionCode =>
+      'Tulis potongan kode, lalu ganti bagian yang harus diisi dengan [KETIK_DISINI].\n- Penanda itu berubah menjadi kotak input di layar siswa.\n- Boleh lebih dari satu penanda dalam satu slide.\n- Tanpa penanda, siswa tidak punya tempat mengetik jawaban.';
+
+  @override
+  String get tSlideFormHelpAnswerKeyword =>
+      'Jawaban yang dianggap benar.\n- Perbandingan mengabaikan spasi awal/akhir dan huruf besar-kecil, jadi \"Print\" sama dengan \"print\".\n- Isi satu kata kunci atau ekspresi pendek saja.';
+
+  @override
+  String get tSlideFormHelpWrongHint =>
+      'Bantuan yang muncul ketika jawaban siswa salah.\n- Beri petunjuk arah, jangan tulis jawabannya langsung.\n- Satu sampai dua kalimat sudah cukup.';
+
+  @override
+  String get tSlideFormHelpSlideTitle =>
+      'Judul tampil di kepala slide, maksimal 120 karakter.\nContoh: \"Tebak Output Operator Modulo\".';
+
+  @override
+  String get tSlideFormHelpChallengeInstruction =>
+      'Pertanyaan singkat di atas blok kode.\nBiasanya cukup: \"Apakah output yang dicetak ke terminal?\".';
+
+  @override
+  String get tSlideFormHelpSourceCode =>
+      'Kode yang dibaca siswa untuk menebak output.\n- Tulis persis seperti program aslinya.\n- Kode hanya ditampilkan, tidak dijalankan, jadi hasilnya harus bisa ditebak dari isi kode.';
+
+  @override
+  String get tSlideFormHelpOutputChoices =>
+      'Isi keempat pilihan (A sampai D).\n- Ketuk lingkaran di kiri untuk menandai kunci jawaban.\n- Satu pilihan harus persis sama dengan output sebenarnya.\n- Jangan biarkan pilihan kosong: pilihan kosong tetap tampil di layar siswa.';
+
+  @override
+  String get tSlideFormHelpOutputExplanation =>
+      'Muncul setelah siswa menjawab, benar maupun salah.\nJelaskan alasan output itu muncul, misalnya urutan operasi atau tipe data yang terlibat.';
+
+  @override
+  String get tSlideFormHelpChallengeTitle =>
+      'Judul tampil di kepala tantangan, maksimal 120 karakter.\nContoh: \"Mencari Kesalahan Loop For\".';
+
+  @override
+  String get tSlideFormHelpScenario =>
+      'Konteks singkat masalah yang dihadapi siswa; tampil sebagai instruksi di atas kode.\nCeritakan situasinya, jangan sebut nomor baris yang salah.';
+
+  @override
+  String get tSlideFormHelpBuggyCode =>
+      'Seluruh kode yang mengandung bug.\n- Nomor baris dihitung dari 1 mengikuti urutan baris di kotak ini, termasuk baris kosong.\n- Sisipkan bug yang benar-benar bisa dijelaskan oleh \"Jenis Error\" dan \"Kode Perbaikan\".';
+
+  @override
+  String get tSlideFormHelpTargetLine =>
+      'Nomor baris yang benar, dihitung dari 1.\n- Harus berada di antara 1 dan jumlah baris kode di atas.\n- Bila di luar jangkauan, layar siswa mengunci ke baris terdekat sehingga jawaban tidak pernah cocok.';
+
+  @override
+  String get tSlideFormHelpErrorType =>
+      'Label kategori galat yang tampil ke siswa.\nContoh: SyntaxError, IndentationError, NameError.';
+
+  @override
+  String get tSlideFormHelpBugHint =>
+      'Teks ini menjadi penjelasan yang muncul setelah siswa menjawab.\n- Jelaskan aturan yang dilanggar di baris tersebut.\n- Bila dikosongkan, \"Kode Perbaikan Valid\" yang dipakai sebagai penjelasan.';
+
+  @override
+  String get tSlideFormHelpFixCode =>
+      'Cuplikan perbaikan yang benar untuk baris yang ditandai.\n- Dipakai sebagai contoh solusi sekaligus penjelasan cadangan bila \"Pesan Indikator\" kosong.\n- Tulis hanya bagian yang diperbaiki, bukan seluruh program.';
+
+  @override
+  String get tSlideFormHelpQuizTitle =>
+      'Judul tampil di kepala kuis, maksimal 120 karakter.\nContoh: \"Memahami Tipe Data\".';
+
+  @override
+  String get tSlideFormHelpQuizQuestion =>
+      'Pertanyaan dengan satu jawaban benar.\n- Ajukan satu konsep saja, jangan digabung.\n- Maksimal 300 karakter.';
+
+  @override
+  String get tSlideFormHelpAnswerChoices =>
+      'Isi keempat pilihan (A sampai D).\n- Ketuk lingkaran di kiri untuk menandai kunci jawaban.\n- Jangan biarkan pilihan kosong karena tetap tampil sebagai opsi kosong di layar siswa.';
+
+  @override
+  String get tSlideFormHelpFeedback =>
+      'Muncul setelah siswa menjawab, benar maupun salah.\nJelaskan mengapa kunci jawabannya benar dan, bila perlu, mengapa pengecohnya salah.';
+
+  @override
+  String get tSlideFormHelpOutroTitle =>
+      'Judul tampil di kepala slide penutup, maksimal 120 karakter.\nContoh: \"Rangkuman Bab\".';
+
+  @override
+  String get tSlideFormHelpSummary =>
+      'Ringkasan yang dibaca siswa di akhir bab.\n- Sebut kembali konsep utama yang baru dipelajari.\n- Beri penutup yang memotivasi, bukan soal baru.';
+
+  @override
+  String get tSlideFormHelpMasteredConcepts =>
+      'Daftar konsep yang dianggap dikuasai setelah bab ini.\n- Pisahkan dengan koma, misalnya: Variabel, Perulangan.\n- Setiap konsep tampil sebagai label capaian.\n- Isi minimal satu konsep.';
+
+  @override
+  String get tSlideFormHintTheoryTitleExample =>
+      'Contoh: Struktur Dasar Dokumen HTML5';
+
+  @override
+  String get tSlideFormHintTheoryContent =>
+      'Tuliskan konsep utama, poin-poin, atau contoh...';
+
+  @override
+  String get tSlideFormHintExerciseTitleExample =>
+      'Contoh: Lengkapi Tag Penutup HTML';
+
+  @override
+  String get tSlideFormHintShortInstruction =>
+      'Instruksi pengerjaan bagi siswa...';
+
+  @override
+  String get tSlideFormHintQuestionTitleExample =>
+      'Contoh: Deklarasi Variabel Python';
+
+  @override
+  String get tSlideFormHintInteractiveInstruction =>
+      'Ketikkan kata kunci untuk mendeklarasikan variabel...';
+
+  @override
+  String get tSlideFormHintAnswerKeywordExample => 'Contoh: def / const / let';
+
+  @override
+  String get tSlideFormHintWrongHint => 'Ingat penulisan huruf kecil semua.';
+
+  @override
+  String get tSlideFormHintSlideTitleExample =>
+      'Contoh: Tebak Output Operator Modulo';
+
+  @override
+  String get tSlideFormHintChallengeInstruction =>
+      'Apakah output yang dicetak ke terminal?';
+
+  @override
+  String get tSlideFormHintOutputExplanation =>
+      'Mengapa output tersebut yang muncul?';
+
+  @override
+  String get tSlideFormHintChallengeTitleExample =>
+      'Contoh: Mencari Kesalahan Loop For';
+
+  @override
+  String get tSlideFormHintScenario => 'Deskripsi konteks masalah...';
+
+  @override
+  String get tSlideFormHintTargetLineExample => 'Contoh: 2';
+
+  @override
+  String get tSlideFormHintBugHint =>
+      'Kurang tanda titik dua (:) di akhir pernyataan for';
+
+  @override
+  String get tSlideFormHintQuizTitleExample => 'Contoh: Memahami Tipe Data';
+
+  @override
+  String get tSlideFormHintQuizQuestion => 'Tuliskan pertanyaan konseptual...';
+
+  @override
+  String get tSlideFormHintFeedback => 'Mengapa opsi tersebut benar?';
+
+  @override
+  String get tSlideFormHintOutroTitleExample => 'Contoh: Rangkuman Bab';
+
+  @override
+  String get tSlideFormHintSummary =>
+      'Ringkasan capaian siswa setelah menuntaskan bab...';
+
+  @override
+  String get tSlideFormHintMasteredConcepts =>
+      'Variabel, Percabangan, Perulangan';
+
+  @override
+  String tSlideFormSlotAnswerCount(int count) {
+    return 'Kunci jawaban per slot ($count slot terdeteksi)';
+  }
+
+  @override
+  String tSlideFormSlot(int n) {
+    return 'Slot $n';
+  }
+
+  @override
+  String tSlideFormSlotAnswerHint(int n) {
+    return 'Jawaban benar untuk slot $n';
+  }
+
+  @override
+  String get tSlideFormNoSlotsHint =>
+      'Tambahkan penanda ___1___, ___2___, dan seterusnya pada template.';
+
+  @override
+  String tSlideFormXpNote(int xp) {
+    return 'Siswa otomatis mengklaim $xp XP saat mencapai slide ini.';
+  }
+
+  @override
+  String get tPreviewInteractiveFormat => 'Pratinjau Format Interaktif';
+
+  @override
+  String tPreviewSheetTitle(String title) {
+    return 'Pratinjau Tipe Slide: $title';
+  }
+
+  @override
+  String get tPreviewBenefits => 'Manfaat Pedagogis';
+
+  @override
+  String get tPreviewReward => 'Imbalan Siswa';
+
+  @override
+  String get tPreviewModuleType => 'Tipe Modul';
+
+  @override
+  String get tPreviewUseType => 'Gunakan Tipe Ini';
+
+  @override
+  String get tPreviewSimulation => 'Simulasi Siswa Aktif';
+
+  @override
+  String get tPreviewPhoneScreen => 'Layar Ponsel';
+
+  @override
+  String get tPreviewAnswerChoices => 'Pilihan jawaban untuk siswa:';
+
+  @override
+  String get tPreviewSubtitleTapToFill =>
+      'Simulasi bagaimana siswa berinteraksi dengan latihan ini di ponsel secara langsung.';
+
+  @override
+  String get tPreviewTechTapToFill => 'HTML • V1.2';
+
+  @override
+  String get tPreviewPromptTapToFill =>
+      'Lengkapi tag penutup yang tepat: Baris 4';
+
+  @override
+  String get tPreviewFeedbackTapToFill =>
+      'Siswa mendapat umpan balik instan saat memilih kepingan kode.';
+
+  @override
+  String get tPreviewBenefitTapToFill =>
+      'Melatih penguasaan sintaksis dasar tanpa beban mengetik panjang di papan ketik layar sentuh HP.';
+
+  @override
+  String get tPreviewSubtitleTheory =>
+      'Teks bacaan terstruktur, markdown penjelasan, dan cuplikan kode contoh.';
+
+  @override
+  String get tPreviewTechTheory => 'Markdown • Teori';
+
+  @override
+  String get tPreviewPromptTheory => 'Materi Pembuka & Pengenalan Logika';
+
+  @override
+  String get tPreviewFeedbackTheory =>
+      'Mendukung format Markdown, syntax highlighter, dan kotak callout tips guru.';
+
+  @override
+  String get tPreviewBenefitTheory =>
+      'Membangun landasan pemahaman konseptual yang kuat sebelum siswa masuk ke sesi latihan interaktif.';
+
+  @override
+  String get tPreviewSubtitleTypeCode =>
+      'Latihan muscle-memory mengetikkan keyword sintaksis spesifik.';
+
+  @override
+  String get tPreviewTechTypeCode => 'Python • Sintaks';
+
+  @override
+  String get tPreviewPromptTypeCode =>
+      'Ketikkan kata kunci untuk membuat fungsi di Python:';
+
+  @override
+  String get tPreviewFeedbackTypeCode =>
+      'Dilengkapi validasi case-sensitive dan hint otomatis saat siswa keliru.';
+
+  @override
+  String get tPreviewBenefitTypeCode =>
+      'Membiasakan siswa dengan penulisan sintaksis yang presisi dan melatih ketelitian pengetikan reserved-words.';
+
+  @override
+  String get tPreviewSubtitleOutputPredict =>
+      'Siswa menganalisis baris program dan memprediksi hasil running terminal.';
+
+  @override
+  String get tPreviewTechOutputPredict => 'Console • Logika';
+
+  @override
+  String get tPreviewPromptOutputPredict =>
+      'Apakah output yang dicetak oleh operasi modulus berikut?';
+
+  @override
+  String get tPreviewFeedbackOutputPredict =>
+      'Tampilan opsi bergaya konsol terminal gelap untuk simulasi nyata.';
+
+  @override
+  String get tPreviewBenefitOutputPredict =>
+      'Melatih kemampuan mental execution algoritma dan tracing variabel tanpa ketergantungan debugger.';
+
+  @override
+  String get tPreviewTitleBugHunter => 'Bug Hunter (Cari Galat)';
+
+  @override
+  String get tPreviewSubtitleBugHunter =>
+      'Tantangan menemukan baris kode yang rusak dan memperbaikinya.';
+
+  @override
+  String get tPreviewTechBugHunter => 'Python • Debug';
+
+  @override
+  String get tPreviewPromptBugHunter =>
+      'Temukan baris yang mengandung kesalahan sintaksis:';
+
+  @override
+  String get tPreviewFeedbackBugHunter =>
+      'Siswa mengetuk nomor baris yang bermasalah untuk memicu bimbingan AI.';
+
+  @override
+  String get tPreviewBenefitBugHunter =>
+      'Mengasah intuisi problem-solving dan kemampuan membaca kode orang lain yang merupakan inti skill developer.';
+
+  @override
+  String get tPreviewSubtitleQuiz =>
+      'Pertanyaan evaluasi pemahaman dengan 4 opsi pilihan dan pembahasan.';
+
+  @override
+  String get tPreviewTechQuiz => 'Evaluasi • Konsep';
+
+  @override
+  String get tPreviewPromptQuiz =>
+      'Apa fungsi utama dari deklarasi <!DOCTYPE html>?';
+
+  @override
+  String get tPreviewFeedbackQuiz =>
+      'Dilengkapi pembahasan otomatis yang tampil setelah siswa menjawab.';
+
+  @override
+  String get tPreviewBenefitQuiz =>
+      'Mengukur daya serap materi secara obyektif dan cepat di akhir sesi pembahasan.';
+
+  @override
+  String get tPreviewSubtitleOutro =>
+      'Slide penutup bab dengan rekap materi yang dikuasai dan klaim hadiah.';
+
+  @override
+  String get tPreviewTechOutro => 'Pencapaian • Penutup';
+
+  @override
+  String get tPreviewPromptOutro =>
+      'Selamat! Kamu telah menyelesaikan seluruh latihan di bab ini.';
+
+  @override
+  String get tPreviewFeedbackOutro =>
+      'Otomatis dibuat di akhir alur pembelajaran bab.';
+
+  @override
+  String get tPreviewBenefitOutro =>
+      'Memberikan kepuasan pencapaian (gamification) dan merangkum poin-poin penting materi.';
+
+  @override
+  String get tSettingsAvatarTooBig => 'Ukuran foto maksimal 2 MB.';
+
+  @override
+  String get tSettingsFallbackTeacher => 'Guru';
+
+  @override
+  String tSettingsNameDegree(String name) {
+    return '$name & Gelar *';
+  }
+
+  @override
+  String get tSettingsIdentityTitle => 'Identitas Pengajar';
+
+  @override
+  String get tSettingsBioContact => 'Bio & Kontak';
+
+  @override
+  String get tSettingsBioHint =>
+      'Tuliskan pengalaman mengajar atau bidang spesialisasi kodingmu...';
+
+  @override
+  String get tSettingsAddressHint => 'Alamat domisili pengajar';
+
+  @override
+  String get tSettingsSecurityTitle => 'Keamanan Akun';
+
+  @override
+  String get tSettingsChangePassword => 'Ubah Kata Sandi';
+
+  @override
+  String get tFieldHelpGotIt => 'Mengerti';
+
+  @override
+  String get tTeacherErrServerFallback => 'Ada kendala pada server.';
+
+  @override
+  String get tTeacherErrInvalidLesson => 'Format data materi tidak valid.';
+
+  @override
+  String get tTeacherErrInvalidBab => 'Format data bab tidak valid.';
+
+  @override
+  String get tTeacherErrInvalidClass => 'Format data kelas tidak valid.';
+
+  @override
+  String tCubitClassCreated(String name) {
+    return 'Kelas $name berhasil dibuat.';
+  }
+
+  @override
+  String get tCubitClassArchived => 'Kelas dipindahkan ke arsip.';
+
+  @override
+  String get tCubitClassRestored => 'Kelas berhasil dipulihkan.';
+
+  @override
+  String tCubitClassCodeNew(String code) {
+    return 'Kode kelas baru: $code';
+  }
+
+  @override
+  String get tCubitLessonCreated => 'Materi baru berhasil dibuat.';
+
+  @override
+  String get tCubitLessonPublished => 'Materi berhasil diterbitkan.';
+
+  @override
+  String get tCubitLessonDrafted => 'Materi dikembalikan ke draft.';
+
+  @override
+  String get tCubitLessonDeleted => 'Materi berhasil dihapus.';
+
+  @override
+  String get tCubitLessonDuplicated => 'Materi berhasil diduplikasi.';
+
+  @override
+  String tCubitBabDuplicated(String title) {
+    return 'Bab \"$title\" berhasil diduplikat.';
+  }
+
+  @override
+  String get tCubitBabDeleted => 'Bab berhasil dihapus.';
+
+  @override
+  String get tCubitBabOrderUpdated => 'Urutan bab diperbarui.';
+
+  @override
+  String get tCubitStudentRemoved => 'Siswa dikeluarkan dari kelas.';
+
+  @override
+  String tCubitStudentRemovedNamed(String name) {
+    return '$name dikeluarkan dari kelas.';
+  }
+
+  @override
+  String get tCubitConnectionFailed =>
+      'Gagal terhubung ke server. Periksa koneksi lalu coba lagi.';
+
+  @override
+  String get tAdapterEmptyBab => 'Bab ini belum memiliki slide.';
+
+  @override
+  String get tAdapterPreviewTopic => 'Pratinjau Guru';
+
+  @override
+  String get tAdapterPreviewMode => 'Mode Simulator Pratinjau Guru';
+
+  @override
+  String get tAdapterTypeCodeInstruction => 'Lengkapi kode berikut:';
+
+  @override
+  String get tAdapterOutputQuestion => 'Apakah output dari kode di atas?';
+
+  @override
+  String get tAdapterBugInstruction => 'Cari baris yang bermasalah:';
+
+  @override
+  String get tAdapterBugExplanation => 'Periksa sintaks pada baris ini.';
+
+  @override
+  String get tAdapterQuizQuestion => 'Pertanyaan kuis:';
+
+  @override
+  String get tAdapterOutroSummary =>
+      'Selamat! Kamu telah menyelesaikan bab ini.';
+
+  @override
+  String get tAdapterLearningTime => '3 Menit';
+
+  @override
+  String get tAdapterMainConcept => 'Konsep Utama';
+
+  @override
+  String get tTemplateLabelTapToFill => 'Lengkapi Kode (Tap)';
+
+  @override
+  String get tTemplateLabelTypeCode => 'Ketik Kata Kunci';
+
+  @override
+  String get tTemplateLabelOutputPredict => 'Tebak Output Kode';
+
+  @override
+  String get tTemplateLabelBugHunter => 'Bug Hunter';
+
+  @override
+  String get tTemplateLabelQuiz => 'Kuis Pilihan Ganda';
+
+  @override
+  String get tTemplateLabelOutro => 'Rangkuman & Klaim XP';
+
+  @override
+  String get tTemplateLabelTheory => 'Teori & Konsep';
+
+  @override
+  String get tTemplateBadgeInteractive => 'Interaktif';
+
+  @override
+  String get tTemplateBadgeSyntax => 'Sintaks';
+
+  @override
+  String get tTemplateBadgeLogic => 'Logika';
+
+  @override
+  String get tTemplateBadgeDebugging => 'Debugging';
+
+  @override
+  String get tTemplateBadgeEvaluation => 'Evaluasi';
+
+  @override
+  String get tTemplateBadgeAchievement => 'Pencapaian';
+
+  @override
+  String get tTemplateBadgeReading => 'Bahan Baca';
+
+  @override
+  String get tTemplateDescTapToFill =>
+      'Siswa mengetuk keping blok untuk melengkapi baris kode.';
+
+  @override
+  String get tTemplateDescTypeCode =>
+      'Siswa mengetik kata kunci atau ekspresi sintaksis.';
+
+  @override
+  String get tTemplateDescOutputPredict =>
+      'Siswa memprediksi keluaran terminal dari potongan kode.';
+
+  @override
+  String get tTemplateDescBugHunter =>
+      'Siswa menemukan baris yang bermasalah dan perbaikannya.';
+
+  @override
+  String get tTemplateDescQuiz =>
+      'Pertanyaan pilihan ganda dengan satu jawaban benar.';
+
+  @override
+  String get tTemplateDescOutro =>
+      'Slide penutup dengan rangkuman dan hadiah XP.';
+
+  @override
+  String get tTemplateDescTheory =>
+      'Teks penjelasan konsep materi dan contoh kode.';
+
+  @override
+  String get tTemplateTitleTapToFill => 'Lengkapi Kode';
+
+  @override
+  String get tTemplatePromptTapToFill =>
+      'Ketuk balok kode untuk melengkapi baris berikut.';
+
+  @override
+  String get tTemplatePromptTypeCode =>
+      'Ketikkan fungsi untuk mencetak teks ke layar:';
+
+  @override
+  String get tTemplateHintTypeCode => 'Gunakan huruf kecil semua.';
+
+  @override
+  String get tTemplateTitleOutputPredict => 'Tebak Output';
+
+  @override
+  String get tTemplatePromptOutputPredict =>
+      'Apakah output yang dicetak ke terminal?';
+
+  @override
+  String get tTemplateExplanationOutputPredict =>
+      'Operator + menjumlahkan dua bilangan bulat.';
+
+  @override
+  String get tTemplateTitleBugHunter => 'Temukan Galat (Bug)';
+
+  @override
+  String get tTemplateScenarioBugHunter =>
+      'Siswa memeriksa program yang gagal dijalankan.';
+
+  @override
+  String get tTemplateBugHintBugHunter =>
+      'Periksa tanda titik dua di akhir baris for.';
+
+  @override
+  String get tTemplateQuestionQuiz =>
+      'Manakah yang termasuk tipe data angka bulat?';
+
+  @override
+  String get tTemplateExplanationQuiz => 'int adalah tipe data bilangan bulat.';
+
+  @override
+  String get tTemplateTitleOutro => 'Rangkuman Bab';
+
+  @override
+  String get tTemplateSummaryOutro =>
+      'Hebat! Kamu telah menuntaskan materi pada bab ini.';
+
+  @override
+  String get tTemplateTitleTheory => 'Penjelasan Materi Baru';
+
+  @override
+  String get tTemplateContentTheory =>
+      'Tuliskan penjelasan materi pembelajaran di sini dengan bahasa yang mudah dipahami siswa.';
 }

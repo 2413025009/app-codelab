@@ -14,6 +14,8 @@ import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_snack.dart';
+import '../../../../l10n/app_localizations.dart';
+import '../../../../l10n/l10n_ext.dart';
 import '../../../auth/presentation/cubit/auth_cubit.dart';
 import '../../domain/teacher_class_filter.dart';
 import 'package:mobile_codelab_ai/features/class/domain/class_repository.dart';
@@ -49,6 +51,7 @@ class _TeacherDashboardPageState extends State<TeacherDashboardPage> {
 
   Future<void> _openClassFilterSheet(List<ClassInfo> classes) async {
     final p = context.palette;
+    final l10n = AppLocalizations.of(context);
     final searchCtrl = TextEditingController(text: _classQuery);
     var selectedYear = _academicYearFilter;
     final years =
@@ -90,12 +93,12 @@ class _TeacherDashboardPageState extends State<TeacherDashboardPage> {
                   ),
                   const SizedBox(height: AppSpacing.md),
                   Text(
-                    'Filter Daftar Kelas',
+                    l10n.tDashFilterTitle,
                     style: AppTypography.titleM.copyWith(color: p.text),
                   ),
                   const SizedBox(height: 2),
                   Text(
-                    'Pencarian dan tahun ajaran disaring dari data kelas yang sudah dimuat.',
+                    l10n.tDashFilterSubtitle,
                     style: AppTypography.bodySm.copyWith(color: p.textMuted),
                   ),
                   const SizedBox(height: AppSpacing.md),
@@ -103,12 +106,12 @@ class _TeacherDashboardPageState extends State<TeacherDashboardPage> {
                     controller: searchCtrl,
                     textInputAction: TextInputAction.search,
                     decoration: InputDecoration(
-                      hintText: 'Cari nama atau kode kelas',
+                      hintText: l10n.tDashSearchHint,
                       prefixIcon: const Icon(Icons.search_rounded),
                       suffixIcon: searchCtrl.text.isEmpty
                           ? null
                           : IconButton(
-                              tooltip: 'Bersihkan pencarian',
+                              tooltip: l10n.tDashClearSearch,
                               icon: const Icon(Icons.close_rounded),
                               onPressed: () {
                                 searchCtrl.clear();
@@ -126,7 +129,7 @@ class _TeacherDashboardPageState extends State<TeacherDashboardPage> {
                   if (years.isNotEmpty) ...[
                     const SizedBox(height: AppSpacing.md),
                     Text(
-                      'Tahun Ajaran',
+                      l10n.tDashYearLabel,
                       style: AppTypography.labelSm.copyWith(
                         color: p.text,
                         fontWeight: FontWeight.w600,
@@ -138,7 +141,7 @@ class _TeacherDashboardPageState extends State<TeacherDashboardPage> {
                       runSpacing: 8,
                       children: [
                         ChoiceChip(
-                          label: const Text('Semua'),
+                          label: Text(l10n.filterAll),
                           selected: selectedYear == null,
                           selectedColor: p.primaryContainer,
                           onSelected: (_) =>
@@ -164,7 +167,7 @@ class _TeacherDashboardPageState extends State<TeacherDashboardPage> {
                             searchCtrl.clear();
                             setSheetState(() => selectedYear = null);
                           },
-                          child: const Text('Reset'),
+                          child: Text(l10n.tDashFilterReset),
                         ),
                       ),
                       const SizedBox(width: AppSpacing.sm),
@@ -177,7 +180,7 @@ class _TeacherDashboardPageState extends State<TeacherDashboardPage> {
                               year: selectedYear,
                             ),
                           ),
-                          child: const Text('Terapkan Filter'),
+                          child: Text(l10n.tDashApplyFilter),
                         ),
                       ),
                     ],
@@ -199,8 +202,9 @@ class _TeacherDashboardPageState extends State<TeacherDashboardPage> {
   }
 
   void _copyClassCode(String code) {
+    final l10n = AppLocalizations.of(context);
     Clipboard.setData(ClipboardData(text: code));
-    showAppSnack(context, 'Kode kelas "$code" disalin ke clipboard!');
+    showAppSnack(context, l10n.tDashCodeCopied(code));
   }
 
   void _showFullscreenProjector(
@@ -209,6 +213,7 @@ class _TeacherDashboardPageState extends State<TeacherDashboardPage> {
     String className,
   ) {
     final p = context.palette;
+    final l10n = AppLocalizations.of(context);
     showDialog<void>(
       context: context,
       barrierDismissible: true,
@@ -256,7 +261,7 @@ class _TeacherDashboardPageState extends State<TeacherDashboardPage> {
                             const SizedBox(width: 8),
                             Flexible(
                               child: Text(
-                                'KODE KELAS (LAYAR PENUH)',
+                                l10n.tDashCodeFullscreen,
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
                                 style: AppTypography.labelL.copyWith(
@@ -276,7 +281,7 @@ class _TeacherDashboardPageState extends State<TeacherDashboardPage> {
                       ),
                       const SizedBox(height: AppSpacing.sm),
                       Text(
-                        'Buka aplikasi CodeLab AI dan masukkan kode kelas:',
+                        l10n.tDashProjectorHint,
                         textAlign: TextAlign.center,
                         style: AppTypography.bodyL.copyWith(color: p.textMuted),
                       ),
@@ -307,7 +312,7 @@ class _TeacherDashboardPageState extends State<TeacherDashboardPage> {
                       const SizedBox(height: AppSpacing.xl),
                       ElevatedButton.icon(
                         icon: const Icon(Icons.copy_rounded),
-                        label: const Text('Salin Kode'),
+                        label: Text(l10n.tDashProjectorCopy),
                         style: ElevatedButton.styleFrom(
                           backgroundColor: p.primary,
                           foregroundColor: Colors.white,
@@ -335,6 +340,7 @@ class _TeacherDashboardPageState extends State<TeacherDashboardPage> {
 
   void _openCreateClassSheet(BuildContext context) {
     final p = context.palette;
+    final l10n = AppLocalizations.of(context);
     final now = DateTime.now();
     final academicStart = now.month >= 7 ? now.year : now.year - 1;
     final nameCtrl = TextEditingController();
@@ -370,18 +376,18 @@ class _TeacherDashboardPageState extends State<TeacherDashboardPage> {
                 ),
                 const SizedBox(height: AppSpacing.md),
                 Text(
-                  'Buat Kelas Baru',
+                  l10n.tDashCreateNewClass,
                   style: AppTypography.titleM.copyWith(color: p.text),
                 ),
                 Text(
-                  'Wadah identitas kelas untuk memantau kemajuan belajar siswa.',
+                  l10n.tDashCreateSubtitle,
                   style: AppTypography.bodySm.copyWith(color: p.textMuted),
                 ),
                 const SizedBox(height: AppSpacing.lg),
 
                 // Nama Kelas
                 Text(
-                  'Nama Kelas *',
+                  l10n.tDashFieldName,
                   style: AppTypography.labelSm.copyWith(
                     color: p.text,
                     fontWeight: FontWeight.w600,
@@ -391,7 +397,7 @@ class _TeacherDashboardPageState extends State<TeacherDashboardPage> {
                 TextField(
                   controller: nameCtrl,
                   decoration: InputDecoration(
-                    hintText: 'Contoh: X RPL 1',
+                    hintText: l10n.tDashExampleName,
                     filled: true,
                     fillColor: p.surfaceAlt,
                     border: OutlineInputBorder(
@@ -403,7 +409,7 @@ class _TeacherDashboardPageState extends State<TeacherDashboardPage> {
 
                 // Tahun Ajaran
                 Text(
-                  'Tahun Ajaran *',
+                  l10n.tDashFieldYear,
                   style: AppTypography.labelSm.copyWith(
                     color: p.text,
                     fontWeight: FontWeight.w600,
@@ -413,7 +419,7 @@ class _TeacherDashboardPageState extends State<TeacherDashboardPage> {
                 TextField(
                   controller: yearCtrl,
                   decoration: InputDecoration(
-                    hintText: 'Contoh: $academicStart/${academicStart + 1}',
+                    hintText: l10n.tDashExampleYear('$academicStart/${academicStart + 1}'),
                     filled: true,
                     fillColor: p.surfaceAlt,
                     border: OutlineInputBorder(
@@ -424,7 +430,7 @@ class _TeacherDashboardPageState extends State<TeacherDashboardPage> {
                 const SizedBox(height: AppSpacing.xl),
 
                 AppButton(
-                  label: 'Buat Kelas',
+                  label: l10n.tDashCreateClass,
                   leadingIcon: Icons.add_circle_outline_rounded,
                   onPressed: () {
                     final name = nameCtrl.text.trim();
@@ -432,7 +438,7 @@ class _TeacherDashboardPageState extends State<TeacherDashboardPage> {
                     if (name.isEmpty || year.isEmpty) {
                       showAppSnack(
                         ctx,
-                        'Nama kelas dan tahun ajaran wajib diisi.',
+                        l10n.tDashValidationRequired,
                       );
                       return;
                     }
@@ -458,10 +464,11 @@ class _TeacherDashboardPageState extends State<TeacherDashboardPage> {
   @override
   Widget build(BuildContext context) {
     final p = context.palette;
+    final l10n = AppLocalizations.of(context);
     final user = context.watch<AuthCubit>().state.user;
     final schoolName = user?.schoolName?.trim() ?? '';
     final schoolLabel = schoolName.isEmpty
-        ? 'Sekolah belum terhubung'
+        ? l10n.tDashSchoolUnset
         : schoolName;
 
     return Scaffold(
@@ -470,7 +477,7 @@ class _TeacherDashboardPageState extends State<TeacherDashboardPage> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Halo, ${user?.name ?? 'Guru'} 👋',
+              l10n.tDashGreeting(user?.name ?? l10n.tDashGreetingFallback),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
               style: AppTypography.titleM.copyWith(color: p.text),
@@ -485,12 +492,12 @@ class _TeacherDashboardPageState extends State<TeacherDashboardPage> {
         ),
         actions: [
           IconButton(
-            tooltip: 'Profil Pengajar',
+            tooltip: l10n.tProfileTitle,
             icon: const Icon(Icons.person_outline_rounded),
             onPressed: () => context.go(AppRoutes.teacherProfile),
           ),
           IconButton(
-            tooltip: 'Pengaturan',
+            tooltip: l10n.settingsTitle,
             icon: const Icon(Icons.settings_outlined),
             onPressed: () => context.push(AppRoutes.teacherSettings),
           ),
@@ -499,11 +506,23 @@ class _TeacherDashboardPageState extends State<TeacherDashboardPage> {
       body: SafeArea(
         child: BlocConsumer<TeacherCubit, TeacherState>(
           listener: (context, state) {
+            final l10n = AppLocalizations.of(context);
             if (state.errorMessage != null) {
-              showAppSnack(context, state.errorMessage!);
+              showAppSnack(
+                context,
+                teacherErrorText(l10n, state.errorCode, state.errorMessage!),
+              );
               context.read<TeacherCubit>().clearMessages();
             } else if (state.actionSuccessMessage != null) {
-              showAppSnack(context, state.actionSuccessMessage!);
+              showAppSnack(
+                context,
+                teacherSuccessText(
+                  l10n,
+                  state.actionSuccessCode,
+                  state.actionSuccessArg,
+                  state.actionSuccessMessage!,
+                ),
+              );
               context.read<TeacherCubit>().clearMessages();
             }
           },
@@ -571,7 +590,7 @@ class _TeacherDashboardPageState extends State<TeacherDashboardPage> {
                                         borderRadius: BorderRadius.circular(8),
                                       ),
                                       child: Text(
-                                        'Total',
+                                        l10n.tDashBadgeTotal,
                                         style: AppTypography.labelSm.copyWith(
                                           color: p.textMuted,
                                         ),
@@ -581,13 +600,13 @@ class _TeacherDashboardPageState extends State<TeacherDashboardPage> {
                                 ),
                                 const SizedBox(height: AppSpacing.sm),
                                 Text(
-                                  '${classes.length} Kelas',
+                                  l10n.tDashClassCount(classes.length),
                                   style: AppTypography.titleM.copyWith(
                                     color: p.text,
                                   ),
                                 ),
                                 Text(
-                                  'Kelas Aktif',
+                                  l10n.tDashActiveClasses,
                                   style: AppTypography.bodySm.copyWith(
                                     color: p.textMuted,
                                   ),
@@ -637,7 +656,7 @@ class _TeacherDashboardPageState extends State<TeacherDashboardPage> {
                                         borderRadius: BorderRadius.circular(8),
                                       ),
                                       child: Text(
-                                        'Terdaftar',
+                                        l10n.tDashBadgeRegistered,
                                         style: AppTypography.labelSm.copyWith(
                                           color: p.primary,
                                         ),
@@ -647,13 +666,13 @@ class _TeacherDashboardPageState extends State<TeacherDashboardPage> {
                                 ),
                                 const SizedBox(height: AppSpacing.sm),
                                 Text(
-                                  '$studentCount Siswa',
+                                  l10n.tPickerMemberCount(studentCount),
                                   style: AppTypography.titleM.copyWith(
                                     color: p.text,
                                   ),
                                 ),
                                 Text(
-                                  'Siswa Terdaftar',
+                                  l10n.tDashRegisteredStudents,
                                   style: AppTypography.bodySm.copyWith(
                                     color: p.textMuted,
                                   ),
@@ -675,13 +694,13 @@ class _TeacherDashboardPageState extends State<TeacherDashboardPage> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                'Daftar Kelas Belajar',
+                                l10n.tDashClassListTitle,
                                 style: AppTypography.titleM.copyWith(
                                   color: p.text,
                                 ),
                               ),
                               Text(
-                                'Pilih kelas untuk memantau kemajuan atau bagikan kode.',
+                                l10n.tDashClassListSubtitle,
                                 style: AppTypography.bodySm.copyWith(
                                   color: p.textMuted,
                                 ),
@@ -691,7 +710,7 @@ class _TeacherDashboardPageState extends State<TeacherDashboardPage> {
                         ),
                         const SizedBox(width: 2),
                         IconButton(
-                          tooltip: 'Filter daftar kelas',
+                          tooltip: l10n.tDashFilterTooltip,
                           onPressed: classes.isEmpty
                               ? null
                               : () => _openClassFilterSheet(classes),
@@ -715,7 +734,7 @@ class _TeacherDashboardPageState extends State<TeacherDashboardPage> {
                             Icons.inventory_2_outlined,
                             size: 18,
                           ),
-                          label: const Text('Arsip'),
+                          label: Text(l10n.tDashArchive),
                           style: TextButton.styleFrom(
                             foregroundColor: p.primary,
                             padding: const EdgeInsets.symmetric(
@@ -740,7 +759,7 @@ class _TeacherDashboardPageState extends State<TeacherDashboardPage> {
                                   maxWidth: 170,
                                 ),
                                 child: Text(
-                                  'Cari: ${_classQuery.trim()}',
+                                  l10n.tDashSearchChip(_classQuery.trim()),
                                   maxLines: 1,
                                   overflow: TextOverflow.ellipsis,
                                 ),
@@ -755,7 +774,7 @@ class _TeacherDashboardPageState extends State<TeacherDashboardPage> {
                             ),
                           TextButton(
                             onPressed: _clearClassFilters,
-                            child: const Text('Reset filter'),
+                            child: Text(l10n.tDashResetFilter),
                           ),
                         ],
                       ),
@@ -787,14 +806,14 @@ class _TeacherDashboardPageState extends State<TeacherDashboardPage> {
                             ),
                             const SizedBox(height: AppSpacing.md),
                             Text(
-                              'Belum Ada Kelas',
+                              l10n.tPickerEmptyTitle,
                               style: AppTypography.titleM.copyWith(
                                 color: p.text,
                               ),
                             ),
                             const SizedBox(height: AppSpacing.xs),
                             Text(
-                              'Buat kelas pertamamu untuk mendapatkan kode kelas dan mulai memantau kemajuan belajar siswa.',
+                              l10n.tDashEmptyBody,
                               textAlign: TextAlign.center,
                               style: AppTypography.bodyM.copyWith(
                                 color: p.textMuted,
@@ -802,7 +821,7 @@ class _TeacherDashboardPageState extends State<TeacherDashboardPage> {
                             ),
                             const SizedBox(height: AppSpacing.lg),
                             AppButton(
-                              label: 'Buat Kelas Baru',
+                              label: l10n.tDashCreateNewClass,
                               leadingIcon: Icons.add_rounded,
                               onPressed: () => _openCreateClassSheet(context),
                             ),
@@ -826,14 +845,14 @@ class _TeacherDashboardPageState extends State<TeacherDashboardPage> {
                             ),
                             const SizedBox(height: AppSpacing.md),
                             Text(
-                              'Tidak Ada Kelas yang Cocok',
+                              l10n.tDashNoMatchTitle,
                               style: AppTypography.titleM.copyWith(
                                 color: p.text,
                               ),
                             ),
                             const SizedBox(height: AppSpacing.xs),
                             Text(
-                              'Coba kata kunci lain atau tampilkan semua tahun ajaran.',
+                              l10n.tDashNoMatchBody,
                               textAlign: TextAlign.center,
                               style: AppTypography.bodyM.copyWith(
                                 color: p.textMuted,
@@ -843,7 +862,7 @@ class _TeacherDashboardPageState extends State<TeacherDashboardPage> {
                             OutlinedButton.icon(
                               onPressed: _clearClassFilters,
                               icon: const Icon(Icons.refresh_rounded, size: 18),
-                              label: const Text('Tampilkan Semua Kelas'),
+                              label: Text(l10n.tDashShowAll),
                             ),
                           ],
                         ),
@@ -869,13 +888,14 @@ class _TeacherDashboardPageState extends State<TeacherDashboardPage> {
         backgroundColor: p.primary,
         foregroundColor: Colors.white,
         icon: const Icon(Icons.add_rounded),
-        label: const Text('Buat Kelas'),
+        label: Text(l10n.tDashCreateClass),
         onPressed: () => _openCreateClassSheet(context),
       ),
     );
   }
 
   Widget _buildClassCard(BuildContext context, ClassInfo room, AppPalette p) {
+    final l10n = AppLocalizations.of(context);
     return Container(
       margin: const EdgeInsets.only(bottom: AppSpacing.md),
       padding: const EdgeInsets.all(AppSpacing.md),
@@ -898,7 +918,7 @@ class _TeacherDashboardPageState extends State<TeacherDashboardPage> {
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: Text(
-                  'Aktif ${room.academicYear}',
+                  l10n.tDashActiveYear(room.academicYear),
                   style: AppTypography.labelSm.copyWith(
                     color: p.primary,
                     fontWeight: FontWeight.bold,
@@ -910,7 +930,7 @@ class _TeacherDashboardPageState extends State<TeacherDashboardPage> {
                   Icon(Icons.person_rounded, size: 14, color: p.textMuted),
                   const SizedBox(width: 4),
                   Text(
-                    '${room.memberCount} Siswa',
+                    l10n.tPickerMemberCount(room.memberCount),
                     style: AppTypography.labelSm.copyWith(color: p.textMuted),
                   ),
                 ],
@@ -935,7 +955,7 @@ class _TeacherDashboardPageState extends State<TeacherDashboardPage> {
               Expanded(
                 child: _MetaPill(
                   icon: Icons.calendar_month_rounded,
-                  label: 'Tahun Ajaran',
+                  label: l10n.tDashYearLabel,
                   value: room.academicYear,
                 ),
               ),
@@ -943,8 +963,8 @@ class _TeacherDashboardPageState extends State<TeacherDashboardPage> {
               Expanded(
                 child: _MetaPill(
                   icon: Icons.groups_rounded,
-                  label: 'Anggota',
-                  value: '${room.memberCount} siswa',
+                  label: l10n.tDashMetaMembers,
+                  value: l10n.tPickerMemberCount(room.memberCount),
                 ),
               ),
             ],
@@ -965,7 +985,7 @@ class _TeacherDashboardPageState extends State<TeacherDashboardPage> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'KODE KELAS',
+                      l10n.tArchivedClassCode,
                       style: AppTypography.labelSm.copyWith(
                         color: p.textMuted,
                         letterSpacing: 1,
@@ -983,7 +1003,7 @@ class _TeacherDashboardPageState extends State<TeacherDashboardPage> {
                 ),
                 ElevatedButton.icon(
                   icon: const Icon(Icons.copy_rounded, size: 16),
-                  label: const Text('Salin'),
+                  label: Text(l10n.actionCopy),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: p.surface,
                     foregroundColor: p.primary,
@@ -1005,7 +1025,7 @@ class _TeacherDashboardPageState extends State<TeacherDashboardPage> {
             builder: (context, constraints) {
               final projector = OutlinedButton.icon(
                 icon: const Icon(Icons.tv_rounded, size: 18),
-                label: const Text('Proyektor Kode'),
+                label: Text(l10n.tDashProjector),
                 style: OutlinedButton.styleFrom(
                   padding: const EdgeInsets.symmetric(vertical: 11),
                   foregroundColor: p.primary,
@@ -1022,7 +1042,7 @@ class _TeacherDashboardPageState extends State<TeacherDashboardPage> {
               );
               final monitor = ElevatedButton.icon(
                 icon: const Icon(Icons.query_stats_rounded, size: 18),
-                label: const Text('Pantau Kelas'),
+                label: Text(l10n.tDashMonitor),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: p.primary,
                   foregroundColor: Colors.white,

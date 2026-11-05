@@ -2,8 +2,8 @@
 //
 // TUGAS: Halaman Pengaturan & Edit Data Pribadi Pengajar (/pengaturan-pengajar).
 // Mengelola perubahan profil pengajar (foto, Nama, Telepon, Bio, Alamat,
-// Kode Kepegawaian/NIP), serta preferensi lokal (bahasa, tema, notifikasi &
-// efek suara) dengan styling label di atas border input.
+// Kode Kepegawaian/NIP), serta preferensi lokal (bahasa, tema & efek suara)
+// dengan styling label di atas border input.
 // Tombol keluar akun sengaja hanya ada di halaman Profil Pengajar.
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -13,12 +13,12 @@ import 'package:image_picker/image_picker.dart';
 import '../../../../app/router/app_routes.dart';
 import '../../../../core/services/app_preferences.dart';
 import '../../../../core/services/sound_service.dart';
-import '../../../../core/services/teacher_preferences.dart';
 import '../../../../core/theme/app_palette.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../core/utils/phone.dart';
 import '../../../../core/utils/validators.dart';
+import '../../../../core/widgets/admin_help_tile.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_card.dart';
 import '../../../../core/widgets/app_refresh.dart';
@@ -54,7 +54,6 @@ class _TeacherSettingsPageState extends State<TeacherSettingsPage> {
   bool _isEditing = false;
   bool _isSaving = false;
   bool _isUploadingAvatar = false;
-  bool _submissionNotifications = TeacherPreferences.submissionNotifications;
   bool _sfxEnabled = SoundService.sfxEnabled;
   bool _labSfxEnabled = SoundService.labSfxEnabled;
 
@@ -70,7 +69,6 @@ class _TeacherSettingsPageState extends State<TeacherSettingsPage> {
     _bioController = TextEditingController(text: user?.bio ?? '');
     _addressController = TextEditingController(text: user?.address ?? '');
     _staffCodeController = TextEditingController(text: user?.staffCode ?? '');
-    _submissionNotifications = TeacherPreferences.submissionNotifications;
     _sfxEnabled = SoundService.sfxEnabled;
     _labSfxEnabled = SoundService.labSfxEnabled;
   }
@@ -134,7 +132,7 @@ class _TeacherSettingsPageState extends State<TeacherSettingsPage> {
       final bytes = await picked.readAsBytes();
       if (!mounted) return;
       if (bytes.length > 2 * 1024 * 1024) {
-        showAppSnack(context, 'Ukuran foto maksimal 2 MB.');
+        showAppSnack(context, l10n.tSettingsAvatarTooBig);
         return;
       }
 
@@ -254,6 +252,58 @@ class _TeacherSettingsPageState extends State<TeacherSettingsPage> {
       subtitle: l10n.settingsChangePasswordSheetSubtitle,
       builder: (_) => const ChangePasswordSheet(),
     );
+  }
+
+  /// Pilih bahasa antarmuka (Indonesia / English / العربية), sama seperti
+  /// pengaturan siswa — nilai langsung disimpan ke preferensi lokal.
+  Future<void> _pickLanguage() async {
+    final l10n = AppLocalizations.of(context);
+    Locale? selected;
+    await showAppSheet<void>(
+      context,
+      leadingIcon: Icons.translate_rounded,
+      title: l10n.settingsLanguageSheetTitle,
+      subtitle: l10n.settingsLanguageSheetSubtitle,
+      builder: (ctx) => StatefulBuilder(
+        builder: (ctx, setSheetState) {
+          final currentCode = AppPreferences.instance.locale.languageCode;
+          void pick(String code) {
+            setSheetState(() {});
+            selected = Locale(code);
+            Navigator.of(ctx).pop();
+          }
+
+          return RadioGroup<String>(
+            groupValue: currentCode,
+            onChanged: (v) {
+              if (v != null) pick(v);
+            },
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                RadioListTile<String>(
+                  value: 'id',
+                  title: Text(l10n.languageIndonesian),
+                ),
+                RadioListTile<String>(
+                  value: 'en',
+                  title: Text(l10n.languageEnglish),
+                ),
+                RadioListTile<String>(
+                  value: 'ar',
+                  title: Text(l10n.languageArabic),
+                ),
+                const SizedBox(height: 8),
+              ],
+            ),
+          );
+        },
+      ),
+    );
+    if (selected != null && mounted) {
+      await AppPreferences.instance.setLocale(selected!);
+      if (mounted) setState(() {});
+    }
   }
 
   /// Dekorasi kolom profil: mode baca tampil datar tanpa border, mode edit
@@ -404,7 +454,7 @@ class _TeacherSettingsPageState extends State<TeacherSettingsPage> {
                                 alignment: Alignment.center,
                                 children: [
                                   UserAvatar(
-                                    name: user?.name ?? 'Guru',
+                                    name: user?.name ?? l10n.tSettingsFallbackTeacher,
                                     avatarUrl: user?.avatarUrl,
                                     size: 88,
                                   ),
@@ -502,7 +552,7 @@ class _TeacherSettingsPageState extends State<TeacherSettingsPage> {
                                   ),
                                   const SizedBox(width: AppSpacing.xs),
                                   Text(
-                                    'Identitas Pengajar',
+                                    l10n.tSettingsIdentityTitle,
                                     style: AppTypography.titleM.copyWith(
                                       color: p.text,
                                       fontWeight: FontWeight.bold,
@@ -548,7 +598,7 @@ class _TeacherSettingsPageState extends State<TeacherSettingsPage> {
                                 ),
                               _buildLabeledInput(
                                 context: context,
-                                label: '${l10n.settingsFieldFullName} & Gelar *',
+                                label: l10n.tSettingsNameDegree(l10n.settingsFieldFullName),
                                 controller: _nameController,
                                 hintText:
                                     'Contoh: Drs. Bambang Sutrisno, M.Kom',
@@ -653,7 +703,7 @@ class _TeacherSettingsPageState extends State<TeacherSettingsPage> {
                                   ),
                                   const SizedBox(width: AppSpacing.xs),
                                   Text(
-                                    'Bio & Kontak',
+                                    l10n.tSettingsBioContact,
                                     style: AppTypography.titleM.copyWith(
                                       color: p.text,
                                       fontWeight: FontWeight.bold,
@@ -693,7 +743,7 @@ class _TeacherSettingsPageState extends State<TeacherSettingsPage> {
                                 onChanged: (_) => setState(() {}),
                                 decoration: _profileInputDecoration(
                                   hintText:
-                                      'Tuliskan pengalaman mengajar atau bidang spesialisasi kodingmu...',
+                                      l10n.tSettingsBioHint,
                                 ).copyWith(counterText: ''),
                               ),
                               const SizedBox(height: AppSpacing.md),
@@ -702,7 +752,7 @@ class _TeacherSettingsPageState extends State<TeacherSettingsPage> {
                                 context: context,
                                 label: l10n.settingsFieldAddress,
                                 controller: _addressController,
-                                hintText: 'Alamat domisili pengajar',
+                                hintText: l10n.tSettingsAddressHint,
                                 maxLines: 2,
                               ),
                               const SizedBox(height: AppSpacing.md),
@@ -833,7 +883,7 @@ class _TeacherSettingsPageState extends State<TeacherSettingsPage> {
                                   ),
                                   const SizedBox(width: AppSpacing.xs),
                                   Text(
-                                    'Keamanan Akun',
+                                    l10n.tSettingsSecurityTitle,
                                     style: AppTypography.titleM.copyWith(
                                       color: p.text,
                                       fontWeight: FontWeight.bold,
@@ -858,7 +908,7 @@ class _TeacherSettingsPageState extends State<TeacherSettingsPage> {
                                   ),
                                 ),
                                 title: Text(
-                                  'Ubah Kata Sandi',
+                                  l10n.tSettingsChangePassword,
                                   style: AppTypography.labelL.copyWith(
                                     color: p.text,
                                   ),
@@ -874,6 +924,14 @@ class _TeacherSettingsPageState extends State<TeacherSettingsPage> {
                                   size: 20,
                                 ),
                                 onTap: _openChangePassword,
+                              ),
+                              const SizedBox(height: AppSpacing.xs),
+                              Divider(
+                                height: 1,
+                                color: p.outline.withValues(alpha: 0.5),
+                              ),
+                              const AdminHelpTile(
+                                contentPadding: EdgeInsets.zero,
                               ),
                             ],
                           ),
@@ -894,33 +952,19 @@ class _TeacherSettingsPageState extends State<TeacherSettingsPage> {
                           padding: EdgeInsets.zero,
                           child: Column(
                             children: [
-                              // Pilihan bahasa untuk pengajar dibuat
-                              // readonly: nilai aktif tetap terlihat, tetapi
-                              // tidak dapat diubah dari halaman ini.
+                              // Pilihan bahasa antarmuka (id/en/ar), sama
+                              // seperti pengaturan siswa.
                               ListTile(
-                                enabled: false,
                                 leading: Icon(
                                   Icons.translate,
-                                  color: p.textMuted,
+                                  color: p.primary,
                                 ),
                                 title: Text(l10n.settingsLanguage),
-                                subtitle: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    Text(
-                                      l10n.settingsLanguageSubtitle,
-                                      style: AppTypography.caption.copyWith(
-                                        color: p.textMuted,
-                                      ),
-                                    ),
-                                    Text(
-                                      l10n.settingsLanguageTeacherLocked,
-                                      style: AppTypography.caption.copyWith(
-                                        color: p.textMuted,
-                                      ),
-                                    ),
-                                  ],
+                                subtitle: Text(
+                                  l10n.settingsLanguageSubtitle,
+                                  style: AppTypography.caption.copyWith(
+                                    color: p.textMuted,
+                                  ),
                                 ),
                                 trailing: Row(
                                   mainAxisSize: MainAxisSize.min,
@@ -931,14 +975,10 @@ class _TeacherSettingsPageState extends State<TeacherSettingsPage> {
                                         color: p.textMuted,
                                       ),
                                     ),
-                                    const SizedBox(width: 6),
-                                    Icon(
-                                      Icons.lock_outline_rounded,
-                                      size: 18,
-                                      color: p.textMuted,
-                                    ),
+                                    const Icon(Icons.chevron_right),
                                   ],
                                 ),
+                                onTap: _pickLanguage,
                               ),
                               Divider(
                                 height: 1,
@@ -967,35 +1007,6 @@ class _TeacherSettingsPageState extends State<TeacherSettingsPage> {
                                     val ? ThemeMode.dark : ThemeMode.light,
                                   );
                                   if (mounted) setState(() {});
-                                },
-                              ),
-                              Divider(
-                                height: 1,
-                                color: p.outline.withValues(alpha: 0.5),
-                              ),
-                              SwitchListTile(
-                                secondary: Icon(
-                                  Icons.notifications_active_outlined,
-                                  color: p.primary,
-                                ),
-                                title: const Text(
-                                  'Notifikasi Pengumpulan Tugas',
-                                ),
-                                subtitle: Text(
-                                  l10n.settingsCurriculumSubtitle,
-                                  style: AppTypography.caption.copyWith(
-                                    color: p.textMuted,
-                                  ),
-                                ),
-                                value: _submissionNotifications,
-                                activeTrackColor: p.primary,
-                                onChanged: (val) {
-                                  setState(
-                                    () => _submissionNotifications = val,
-                                  );
-                                  TeacherPreferences.setSubmissionNotifications(
-                                    val,
-                                  );
                                 },
                               ),
                               Divider(
@@ -1061,6 +1072,13 @@ class _TeacherSettingsPageState extends State<TeacherSettingsPage> {
                               const SizedBox(height: 2),
                               Text(
                                 '© 2025 CodeLab AI Inc. All rights reserved.',
+                                style: AppTypography.caption.copyWith(
+                                  color: p.textMuted.withValues(alpha: 0.7),
+                                ),
+                              ),
+                              const SizedBox(height: 2),
+                              Text(
+                                'Devwan Hidayawan 2413025009',
                                 style: AppTypography.caption.copyWith(
                                   color: p.textMuted.withValues(alpha: 0.7),
                                 ),

@@ -1,16 +1,11 @@
 // FILE: lib/features/class/presentation/widgets/my_classes_sheet.dart
 //
-// TUGAS: modal "Daftar Kelas Saya" siswa (Minggu 10 lanjutan) — daftar
-// rombel tempat siswa tergabung dari GET /classes/my. Tiap baris membuka
-// StudentClassDetailSheet; bila daftar kosong tersedia tombol Gabung Kelas
-// yang hasilnya dikembalikan ke pemanggil (null = tidak minta gabung).
-//
-// Catatan aturan backend: satu siswa hanya boleh tergabung di satu kelas
-// aktif, jadi daftar ini umumnya berisi satu baris. Struktur tetap dibuat
-// sebagai daftar agar tidak perlu ditulis ulang bila aturan berubah.
-//
-// WAJIB DIUBAH BILA: backend mengizinkan multi-kelas — tambahkan aksi
-// "Gabung Kelas Lain" di bagian bawah daftar.
+// TUGAS: modal "Daftar Kelas Saya" siswa — daftar SEMUA rombel tempat siswa
+// tergabung dari GET /classes/my (multi-kelas didukung; urutan joined_at
+// DESC = kelas terbaru di atas). Tiap baris membuka StudentClassDetailSheet.
+// Siswa dapat menambah kelas lewat "Gabung Kelas Lain"; saat daftar masih
+// kosong tombolnya menjadi "Gabung Kelas". Hasil `true` dikembalikan ke
+// pemanggil (null = hanya menutup sheet).
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -20,6 +15,7 @@ import '../../../../core/theme/app_typography.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_snack.dart';
 import '../../../../l10n/app_localizations.dart';
+import '../../../../l10n/l10n_ext.dart';
 import '../../domain/class_exceptions.dart';
 import '../../domain/class_repository.dart';
 import 'class_sheet_shell.dart';
@@ -64,7 +60,7 @@ class _MyClassesSheetState extends State<_MyClassesSheet> {
     } on ApiClassException catch (e) {
       if (!mounted) return;
       setState(() {
-        _errorMessage = e.message;
+        _errorMessage = e.messageL10n(AppLocalizations.of(context));
         _phase = _SheetPhase.error;
       });
     } catch (_) {
@@ -152,15 +148,22 @@ class _MyClassesSheetState extends State<_MyClassesSheet> {
                   padding: const EdgeInsets.only(bottom: AppSpacing.sm),
                   child: _ClassRow(info: info, onTap: () => _openDetail(info)),
                 ),
-              const SizedBox(height: AppSpacing.xs),
-              Text(
-                l10n.myClassesOneActiveNote,
-                style: AppTypography.caption.copyWith(color: p.textMuted),
-              ),
             ],
           ),
         },
         const SizedBox(height: AppSpacing.lg),
+        // Multi-kelas: siswa boleh menambah rombel lain tanpa keluar dari
+        // kelas yang sekarang. Sheet menutup diri lalu pemanggil membuka
+        // lembar gabung (nilai `true`).
+        if (_phase == _SheetPhase.ready && count > 0) ...[
+          AppButton(
+            label: l10n.myClassesJoinAnother,
+            leadingIcon: Icons.add_rounded,
+            kind: AppButtonKind.secondary,
+            onPressed: () => Navigator.of(context).pop(true),
+          ),
+          const SizedBox(height: AppSpacing.sm),
+        ],
         AppButton(
           label: _phase == _SheetPhase.ready && count == 0
               ? l10n.classJoinButton

@@ -1,8 +1,8 @@
 // FILE: lib/features/ai_tutor/data/api_tutor_repository.dart
 // TUGAS: petunjuk AI nyata dari gateway (POST /tutor/hint + GET /tutor/quota
 // read-only; kuota 5x/hari selalu dihitung server sesuai PRD).
-// FUNGSI YANG DIKELOLA: fetchHint per level (Konsep/Logika/Sintaks),
-// getQuota (baca sisa kuota saat sheet pertama dibuka), sinkron kuota via
+// FUNGSI YANG DIKELOLA: fetchHint per level (Konsep/Logika/Sintaks) dengan
+// session_id per buka modal, getQuota (baca sisa kuota), sinkron kuota via
 // TutorQuota.syncFromServer; error jaringan dibiar naik agar sheet
 // menampilkan mode offline memakai TutorScript (tanpa mock terselubung).
 // KOLOM DB: ai_quotas (bacaan sisa kuota lewat respons server).
@@ -22,12 +22,6 @@ class ApiTutorRepository implements TutorRepository {
   final ApiClient _client;
 
   static const _labels = ['Konsep', 'Logika', 'Sintaks'];
-
-  /// Cache sesi (in-memory, hilang saat app ditutup): hint per
-  /// `challengeId/level` yang SUDAH dibayar kuotanya. Dengan ini buka ulang
-  /// sheet tantangan yang sama tidak memakai slot kuota untuk konten yang
-  /// sama — jawaban per-soal tetap konsisten antar bukaan.
-  final Map<String, TutorHintResult> _hintCache = {};
 
   @override
   Future<TutorQuotaSnapshot> getQuota() async {
@@ -57,23 +51,9 @@ class ApiTutorRepository implements TutorRepository {
     required String challengeId,
     required String studentCode,
     required int hintLevel,
+    required String sessionId,
     String? errorMessage,
   }) async {
-    // Cache-hint: sudah pernah dibayar di sesi ini → ulangi tanpa konsumsi
-    // kuota; angka kuota disalin apa adanya (UI tak menimpa pill dari cache).
-    final key = '$challengeId#$hintLevel';
-    final cached = _hintCache[key];
-    if (cached != null) {
-      return TutorHintResult(
-        hint: cached.hint,
-        quotaUsed: cached.quotaUsed,
-        quotaLimit: cached.quotaLimit,
-        quotaLeft: cached.quotaLeft,
-        concept: cached.concept,
-        fromCache: true,
-      );
-    }
-
     try {
       final res = await _client.dio.post<Map<String, dynamic>>(
         '/tutor/hint',
@@ -82,6 +62,7 @@ class ApiTutorRepository implements TutorRepository {
           'student_code': studentCode,
           'error_message': errorMessage ?? '',
           'hint_level': hintLevel,
+          'session_id': sessionId,
         },
       );
       final data = res.data ?? const {};
@@ -105,7 +86,6 @@ class ApiTutorRepository implements TutorRepository {
         quotaLeft: quotaLeft.clamp(0, quotaLimit),
         concept: (concept != null && concept.isNotEmpty) ? concept : null,
       );
-      _hintCache[key] = result;
       return result;
     } on DioException catch (e) {
       if (e.type == DioExceptionType.badResponse) {

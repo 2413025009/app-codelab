@@ -16,6 +16,7 @@ import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_card.dart';
 import '../../../../core/widgets/app_refresh.dart';
 import '../../../../core/widgets/avatars.dart';
+import '../../../../l10n/app_localizations.dart';
 import '../../../auth/presentation/cubit/auth_cubit.dart';
 import '../cubit/teacher_cubit.dart';
 
@@ -49,22 +50,23 @@ class _TeacherProfilePageState extends State<TeacherProfilePage> {
 
   Future<void> _confirmLogout() async {
     final p = context.palette;
+    final l10n = AppLocalizations.of(context);
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
         backgroundColor: p.surface,
         title: Text(
-          'Keluar dari Akun Pengajar?',
+          l10n.tProfileLogoutTitle,
           style: AppTypography.titleM.copyWith(color: p.text),
         ),
         content: Text(
-          'Kamu perlu memasukkan email dan kata sandi kembali untuk masuk ke akun pengajar ini.',
+          l10n.tProfileLogoutBody,
           style: AppTypography.bodyM.copyWith(color: p.textMuted),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(false),
-            child: Text('Batal', style: TextStyle(color: p.textMuted)),
+            child: Text(l10n.actionCancel, style: TextStyle(color: p.textMuted)),
           ),
           ElevatedButton(
             style: ElevatedButton.styleFrom(
@@ -72,7 +74,7 @@ class _TeacherProfilePageState extends State<TeacherProfilePage> {
               foregroundColor: Colors.white,
             ),
             onPressed: () => Navigator.of(ctx).pop(true),
-            child: const Text('Ya, Keluar'),
+            child: Text(l10n.tProfileLogoutConfirm),
           ),
         ],
       ),
@@ -120,12 +122,13 @@ class _TeacherProfilePageState extends State<TeacherProfilePage> {
   @override
   Widget build(BuildContext context) {
     final p = context.palette;
+    final l10n = AppLocalizations.of(context);
     final user = context.watch<AuthCubit>().state.user;
     final teacherState = context.watch<TeacherCubit>().state;
 
     final userName = user?.name.isNotEmpty == true
         ? user!.name
-        : 'Pengajar RPL';
+        : l10n.tProfileNameFallback;
     final email = user?.email ?? '';
     final bio = user?.bio?.trim() ?? '';
 
@@ -135,10 +138,10 @@ class _TeacherProfilePageState extends State<TeacherProfilePage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Profil Pengajar'),
+        title: Text(l10n.tProfileTitle),
         actions: [
           IconButton(
-            tooltip: 'Pengaturan Profil',
+            tooltip: l10n.tProfileSettingsTooltip,
             icon: const Icon(Icons.settings_outlined),
             onPressed: () => context.push(AppRoutes.teacherSettings),
           ),
@@ -229,7 +232,7 @@ class _TeacherProfilePageState extends State<TeacherProfilePage> {
                                 ),
                                 const SizedBox(width: 4),
                                 Text(
-                                  'Instruktur RPL',
+                                  l10n.tProfileRoleChip,
                                   style: AppTypography.caption.copyWith(
                                     color: p.primary,
                                     fontWeight: FontWeight.bold,
@@ -286,7 +289,7 @@ class _TeacherProfilePageState extends State<TeacherProfilePage> {
                                   ),
                                   const SizedBox(width: 4),
                                   Text(
-                                    'NIP: ${user!.staffCode}',
+                                    l10n.tProfileNip(user!.staffCode ?? ''),
                                     style: AppTypography.caption.copyWith(
                                       color: p.textMuted,
                                       fontWeight: FontWeight.w600,
@@ -314,7 +317,7 @@ class _TeacherProfilePageState extends State<TeacherProfilePage> {
                             Icons.add_circle_outline_rounded,
                             size: 18,
                           ),
-                          label: const Text('Tambah Bio'),
+                          label: Text(l10n.tProfileAddBio),
                           style: TextButton.styleFrom(
                             foregroundColor: p.primary,
                             textStyle: AppTypography.label.copyWith(
@@ -331,7 +334,7 @@ class _TeacherProfilePageState extends State<TeacherProfilePage> {
                             child: _TeacherStatCard(
                               icon: Icons.school_rounded,
                               value: '${classes.length}',
-                              label: 'Kelas Diajar',
+                              label: l10n.tProfileStatClasses,
                               iconColor: p.primary,
                             ),
                           ),
@@ -340,7 +343,7 @@ class _TeacherProfilePageState extends State<TeacherProfilePage> {
                             child: _TeacherStatCard(
                               icon: Icons.people_alt_rounded,
                               value: '$totalStudents',
-                              label: 'Siswa Dibimbing',
+                              label: l10n.tProfileStatStudents,
                               iconColor: p.accent,
                             ),
                           ),
@@ -349,7 +352,7 @@ class _TeacherProfilePageState extends State<TeacherProfilePage> {
                             child: _TeacherStatCard(
                               icon: Icons.auto_stories_rounded,
                               value: '${materials.length}',
-                              label: 'Materi Ajar',
+                              label: l10n.tProfileStatMaterials,
                               iconColor: p.success,
                             ),
                           ),
@@ -365,7 +368,7 @@ class _TeacherProfilePageState extends State<TeacherProfilePage> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      'Kelas yang Diajar',
+                      l10n.tProfileClassesTitle,
                       style: AppTypography.titleM.copyWith(color: p.text),
                     ),
                     Container(
@@ -378,7 +381,7 @@ class _TeacherProfilePageState extends State<TeacherProfilePage> {
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: Text(
-                        '${classes.length} Kelas',
+                        l10n.tDashClassCount(classes.length),
                         style: AppTypography.caption.copyWith(
                           color: p.primary,
                           fontWeight: FontWeight.bold,
@@ -403,7 +406,7 @@ class _TeacherProfilePageState extends State<TeacherProfilePage> {
                                 ),
                                 const SizedBox(height: AppSpacing.sm),
                                 Text(
-                                  'Belum ada kelas yang dibuat.',
+                                  l10n.tProfileNoClasses,
                                   style: AppTypography.bodyM.copyWith(
                                     color: p.textMuted,
                                   ),
@@ -446,7 +449,7 @@ class _TeacherProfilePageState extends State<TeacherProfilePage> {
                                   ),
                                 ),
                                 subtitle: Text(
-                                  'Tahun ${classes[i].academicYear} • ${classes[i].memberCount} Siswa',
+                                  l10n.tProfileClassMeta(classes[i].academicYear, classes[i].memberCount),
                                   style: AppTypography.caption.copyWith(
                                     color: p.textMuted,
                                   ),
@@ -497,7 +500,7 @@ class _TeacherProfilePageState extends State<TeacherProfilePage> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      'Materi Ajar',
+                      l10n.tProfileStatMaterials,
                       style: AppTypography.titleM.copyWith(color: p.text),
                     ),
                     Container(
@@ -510,7 +513,7 @@ class _TeacherProfilePageState extends State<TeacherProfilePage> {
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: Text(
-                        '${materials.length} Materi',
+                        l10n.tProfileMaterialCount(materials.length),
                         style: AppTypography.caption.copyWith(
                           color: p.primary,
                           fontWeight: FontWeight.bold,
@@ -535,7 +538,7 @@ class _TeacherProfilePageState extends State<TeacherProfilePage> {
                                 ),
                                 const SizedBox(height: AppSpacing.sm),
                                 Text(
-                                  'Belum ada materi yang dibuat.',
+                                  l10n.tProfileNoMaterials,
                                   style: AppTypography.bodyM.copyWith(
                                     color: p.textMuted,
                                   ),
@@ -578,7 +581,7 @@ class _TeacherProfilePageState extends State<TeacherProfilePage> {
                                   ),
                                 ),
                                 subtitle: Text(
-                                  '${materials[i].topic} • ${materials[i].babCount} Bab • ${materials[i].totalXp} XP',
+                                  l10n.tProfileMaterialMeta(materials[i].topic, materials[i].babCount, materials[i].totalXp),
                                   style: AppTypography.caption.copyWith(
                                     color: p.textMuted,
                                   ),
@@ -599,8 +602,8 @@ class _TeacherProfilePageState extends State<TeacherProfilePage> {
                                       ),
                                       child: Text(
                                         materials[i].isPublished
-                                            ? 'Terbit'
-                                            : 'Draft',
+                                            ? l10n.tProfilePublished
+                                            : l10n.tProfileDraft,
                                         style: AppTypography.caption.copyWith(
                                           color: materials[i].isPublished
                                               ? p.success
@@ -629,7 +632,7 @@ class _TeacherProfilePageState extends State<TeacherProfilePage> {
 
                 // 4. Tombol Akses Pengaturan
                 AppButton(
-                  label: 'Buka Pengaturan Akun',
+                  label: l10n.tProfileOpenSettings,
                   leadingIcon: Icons.settings_rounded,
                   kind: AppButtonKind.secondary,
                   onPressed: () => context.push(AppRoutes.teacherSettings),
@@ -640,7 +643,7 @@ class _TeacherProfilePageState extends State<TeacherProfilePage> {
                 OutlinedButton.icon(
                   onPressed: _confirmLogout,
                   icon: const Icon(Icons.logout_rounded, size: 18),
-                  label: const Text('Keluar dari Akun'),
+                  label: Text(l10n.tProfileLogout),
                   style: OutlinedButton.styleFrom(
                     foregroundColor: p.error,
                     padding: const EdgeInsets.symmetric(vertical: 14),
@@ -651,6 +654,36 @@ class _TeacherProfilePageState extends State<TeacherProfilePage> {
                     textStyle: AppTypography.labelL.copyWith(
                       fontWeight: FontWeight.bold,
                     ),
+                  ),
+                ),
+                const SizedBox(height: AppSpacing.xxl),
+
+                // 6. Footer versi & hak cipta (juga tampil di pengaturan).
+                Center(
+                  child: Column(
+                    children: [
+                      Text(
+                        'CodeLab AI Studio v2.4.0 (Build 384)',
+                        style: AppTypography.caption.copyWith(
+                          color: p.textMuted,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        '© 2025 CodeLab AI Inc. All rights reserved.',
+                        style: AppTypography.caption.copyWith(
+                          color: p.textMuted.withValues(alpha: 0.7),
+                        ),
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        'Devwan Hidayawan 2413025009',
+                        style: AppTypography.caption.copyWith(
+                          color: p.textMuted.withValues(alpha: 0.7),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ],

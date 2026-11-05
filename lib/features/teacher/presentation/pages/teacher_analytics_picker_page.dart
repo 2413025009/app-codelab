@@ -14,6 +14,8 @@ import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_snack.dart';
+import '../../../../l10n/app_localizations.dart';
+import '../../../../l10n/l10n_ext.dart';
 import 'package:mobile_codelab_ai/features/class/domain/class_repository.dart';
 import '../cubit/teacher_cubit.dart';
 import '../cubit/teacher_state.dart';
@@ -48,20 +50,33 @@ class _TeacherAnalyticsPickerPageState
   @override
   Widget build(BuildContext context) {
     final p = context.palette;
+    final l10n = AppLocalizations.of(context);
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Analisa Kelas')),
+      appBar: AppBar(title: Text(l10n.tPickerTitle)),
       body: SafeArea(
         child: BlocConsumer<TeacherCubit, TeacherState>(
           listener: (context, state) {
+            final l10n = AppLocalizations.of(context);
             if (state.isLoading) _shownError = null;
             if (state.errorMessage != null) {
               if (_shownError != state.errorMessage) {
                 _shownError = state.errorMessage;
-                showAppSnack(context, state.errorMessage!);
+                showAppSnack(
+                  context,
+                  teacherErrorText(l10n, state.errorCode, state.errorMessage!),
+                );
               }
             } else if (state.actionSuccessMessage != null) {
-              showAppSnack(context, state.actionSuccessMessage!);
+              showAppSnack(
+                context,
+                teacherSuccessText(
+                  l10n,
+                  state.actionSuccessCode,
+                  state.actionSuccessArg,
+                  state.actionSuccessMessage!,
+                ),
+              );
               context.read<TeacherCubit>().clearMessages();
             }
           },
@@ -75,13 +90,12 @@ class _TeacherAnalyticsPickerPageState
                 padding: const EdgeInsets.all(AppSpacing.screen),
                 children: [
                   Text(
-                    'Pilih Kelas',
+                    l10n.tPickerHeading,
                     style: AppTypography.titleL.copyWith(color: p.text),
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    'Pilih kelas untuk melihat peringkat materi dan latihan '
-                    'siswa, lalu kelola anggotanya.',
+                    l10n.tPickerSubtitle,
                     style: AppTypography.bodySm.copyWith(color: p.textMuted),
                   ),
                   const SizedBox(height: AppSpacing.lg),
@@ -109,13 +123,12 @@ class _TeacherAnalyticsPickerPageState
                           ),
                           const SizedBox(height: AppSpacing.md),
                           Text(
-                            'Belum Ada Kelas',
+                            l10n.tPickerEmptyTitle,
                             style: AppTypography.titleL.copyWith(color: p.text),
                           ),
                           const SizedBox(height: AppSpacing.xs),
                           Text(
-                            'Buat kelas pertamamu di Dashboard untuk mulai '
-                            'memantau analisa siswa.',
+                            l10n.tPickerEmptyBody,
                             textAlign: TextAlign.center,
                             style: AppTypography.bodyM.copyWith(
                               color: p.textMuted,
@@ -123,7 +136,7 @@ class _TeacherAnalyticsPickerPageState
                           ),
                           const SizedBox(height: AppSpacing.lg),
                           AppButton(
-                            label: 'Buka Dashboard',
+                            label: l10n.tPickerOpenDashboard,
                             leadingIcon: Icons.dashboard_rounded,
                             onPressed: () => context.go(AppRoutes.teacherHome),
                           ),
@@ -150,6 +163,7 @@ class _ClassAnalyticsCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final p = context.palette;
+    final l10n = AppLocalizations.of(context);
 
     return Padding(
       padding: const EdgeInsets.only(bottom: AppSpacing.sm),
@@ -197,7 +211,7 @@ class _ClassAnalyticsCard extends StatelessWidget {
                       ),
                       const SizedBox(height: 2),
                       Text(
-                        '${room.schoolName.isEmpty ? 'Sekolah belum diatur' : room.schoolName} • ${room.academicYear}',
+                        '${room.schoolName.isEmpty ? l10n.tPickerSchoolUnset : room.schoolName} • ${room.academicYear}',
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: AppTypography.bodySm.copyWith(
@@ -206,7 +220,7 @@ class _ClassAnalyticsCard extends StatelessWidget {
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        '${room.memberCount} siswa',
+                        l10n.tPickerMemberCount(room.memberCount),
                         style: AppTypography.caption.copyWith(
                           color: p.primary,
                           fontWeight: FontWeight.w600,

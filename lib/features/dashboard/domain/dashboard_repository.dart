@@ -100,12 +100,26 @@ class DashboardData extends Equatable {
   ];
 }
 
+/// Tahap pemuatan dashboard (KODE stabil, bukan label). Label tiap tahap
+/// diselesaikan ke l10n lewat extension `DashboardStageL10n` di
+/// `lib/l10n/l10n_ext.dart` agar mengikuti bahasa aplikasi aktif;
+/// repository/cubit tidak menyimpan teks Indonesia.
+enum DashboardStage {
+  connecting,
+  profile,
+  progress,
+  skills,
+  lessons,
+  challenges,
+  composing,
+}
+
 /// Contract for dashboard data (GET /me, /me/progress, /me/skills, /lessons).
 /// `onProgress` = laporan tahap NYATA: dipanggil tiap kali satu permintaan
 /// jaringan benar-benar selesai (dipakai layar memuat, bukan angka palsu).
 abstract interface class DashboardRepository {
   Future<DashboardData> load({
     required String studentEmail,
-    void Function(int done, int total, String stage)? onProgress,
+    void Function(int done, int total, DashboardStage stage)? onProgress,
   });
 }

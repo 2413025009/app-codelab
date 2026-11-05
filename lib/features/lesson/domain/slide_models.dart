@@ -58,10 +58,10 @@ class TapToFillSlide extends LessonSlide {
     required this.options,
     required this.correctAnswers,
     this.instruction = '',
-    this.successTitle = 'Tepat Sekali!',
-    this.successMsg = 'Kamu berhasil menyusun potongan sintaks.',
-    this.errorTitle = 'Coba Periksa Lagi!',
-    this.errorMsg = 'Periksa urutan blok yang kamu masukkan.',
+    this.successTitle,
+    this.successMsg,
+    this.errorTitle,
+    this.errorMsg,
   }) : super(type: SlideType.tapToFill);
 
   final String file;
@@ -69,10 +69,12 @@ class TapToFillSlide extends LessonSlide {
   final List<String> codeLines;
   final List<String> options;
   final List<String> correctAnswers;
-  final String successTitle;
-  final String successMsg;
-  final String errorTitle;
-  final String errorMsg;
+  // Judul/pesan feedback: null = pakai default l10n di presentation
+  // (lesson_reader_page); nilai non-null dari markdown dipertahankan apa adanya.
+  final String? successTitle;
+  final String? successMsg;
+  final String? errorTitle;
+  final String? errorMsg;
 
   @override
   List<Object?> get props => [
@@ -94,10 +96,10 @@ class TypeCodeSlide extends LessonSlide {
     required this.codeTemplate,
     required this.expectedAnswer,
     this.hint = '',
-    this.successTitle = 'Luar Biasa!',
-    this.successMsg = 'Perintah yang kamu ketik tepat sesuai sintaks.',
-    this.errorTitle = 'Kurang Tepat!',
-    this.errorMsg = 'Perhatikan penulisan huruf besar dan kecil.',
+    this.successTitle,
+    this.successMsg,
+    this.errorTitle,
+    this.errorMsg,
   }) : super(type: SlideType.typeCode);
 
   final String file;
@@ -105,10 +107,12 @@ class TypeCodeSlide extends LessonSlide {
   final String codeTemplate;
   final String expectedAnswer;
   final String hint;
-  final String successTitle;
-  final String successMsg;
-  final String errorTitle;
-  final String errorMsg;
+  // Judul/pesan feedback: null = pakai default l10n di presentation
+  // (lesson_reader_page); nilai non-null dari markdown dipertahankan apa adanya.
+  final String? successTitle;
+  final String? successMsg;
+  final String? errorTitle;
+  final String? errorMsg;
 
   @override
   List<Object?> get props => [id, file, codeTemplate, expectedAnswer];
@@ -122,20 +126,22 @@ class OutputPredictSlide extends LessonSlide {
     required this.question,
     required this.options,
     required this.correctAnswer,
-    this.successTitle = 'Mantap Jiwa!',
-    this.successMsg = 'Prediksi logikamu akurat.',
-    this.errorTitle = 'Kurang Tepat!',
-    this.errorMsg = 'Perhatikan alur eksekusi baris demi baris.',
+    this.successTitle,
+    this.successMsg,
+    this.errorTitle,
+    this.errorMsg,
   }) : super(type: SlideType.outputPredict);
 
   final String? codeSnippet;
   final String question;
   final List<String> options;
   final String correctAnswer;
-  final String successTitle;
-  final String successMsg;
-  final String errorTitle;
-  final String errorMsg;
+  // Judul/pesan feedback: null = pakai default l10n di presentation
+  // (lesson_reader_page); nilai non-null dari markdown dipertahankan apa adanya.
+  final String? successTitle;
+  final String? successMsg;
+  final String? errorTitle;
+  final String? errorMsg;
 
   @override
   List<Object?> get props => [
@@ -166,10 +172,10 @@ class BugHunterSlide extends LessonSlide {
     required this.correctLine,
     required this.errorType,
     required this.explanation,
-    this.successTitle = 'Hebat, Bug Ditemukan!',
-    this.successMsg = 'Kamu berhasil mendeteksi baris kode yang rusak.',
-    this.errorTitle = 'Bukan Baris Itu!',
-    this.errorMsg = 'Cari baris yang melanggar aturan sintaks atau logika.',
+    this.successTitle,
+    this.successMsg,
+    this.errorTitle,
+    this.errorMsg,
   }) : super(type: SlideType.bugHunter);
 
   final String instruction;
@@ -177,10 +183,12 @@ class BugHunterSlide extends LessonSlide {
   final int correctLine;
   final String errorType;
   final String explanation;
-  final String successTitle;
-  final String successMsg;
-  final String errorTitle;
-  final String errorMsg;
+  // Judul/pesan feedback: null = pakai default l10n di presentation
+  // (lesson_reader_page); nilai non-null dari markdown dipertahankan apa adanya.
+  final String? successTitle;
+  final String? successMsg;
+  final String? errorTitle;
+  final String? errorMsg;
 
   @override
   List<Object?> get props => [id, lines, correctLine, errorType];
@@ -194,20 +202,22 @@ class QuizSlide extends LessonSlide {
     required this.options,
     required this.correctAnswer,
     required this.explanation,
-    this.successTitle = 'Jawaban Sempurna!',
-    this.successMsg = 'Pemahaman konsepmu sangat solid.',
-    this.errorTitle = 'Kurang Tepat!',
-    this.errorMsg = 'Coba ingat kembali prinsip dasar materi ini.',
+    this.successTitle,
+    this.successMsg,
+    this.errorTitle,
+    this.errorMsg,
   }) : super(type: SlideType.quiz);
 
   final String question;
   final List<String> options;
   final String correctAnswer;
   final String explanation;
-  final String successTitle;
-  final String successMsg;
-  final String errorTitle;
-  final String errorMsg;
+  // Judul/pesan feedback: null = pakai default l10n di presentation
+  // (lesson_reader_page); nilai non-null dari markdown dipertahankan apa adanya.
+  final String? successTitle;
+  final String? successMsg;
+  final String? errorTitle;
+  final String? errorMsg;
 
   @override
   List<Object?> get props => [id, question, options, correctAnswer];

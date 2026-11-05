@@ -12,6 +12,7 @@ import 'package:flutter/material.dart';
 import '../../../../core/theme/app_palette.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_typography.dart';
+import '../../../../l10n/app_localizations.dart';
 
 /// Membuka lembar panduan singkat untuk satu field editor.
 ///
@@ -45,6 +46,7 @@ class SlideHelpSheet extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final p = context.palette;
+    final l10n = AppLocalizations.of(context);
     final maxHeight = MediaQuery.sizeOf(context).height * 0.8;
 
     return SafeArea(
@@ -109,7 +111,7 @@ class SlideHelpSheet extends StatelessWidget {
                 width: double.infinity,
                 child: FilledButton(
                   onPressed: () => Navigator.of(context).maybePop(),
-                  child: const Text('Mengerti'),
+                  child: Text(l10n.tFieldHelpGotIt),
                 ),
               ),
             ],

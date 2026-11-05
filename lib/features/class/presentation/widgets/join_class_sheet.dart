@@ -21,6 +21,7 @@ import '../../../../core/theme/app_typography.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_snack.dart';
 import '../../../../l10n/app_localizations.dart';
+import '../../../../l10n/l10n_ext.dart';
 import '../../domain/class_exceptions.dart';
 import '../../domain/class_repository.dart';
 import 'class_sheet_shell.dart';
@@ -134,7 +135,7 @@ class _JoinClassSheetState extends State<_JoinClassSheet> {
       if (!mounted) return;
       setState(() {
         _phase = _PreviewPhase.notFound;
-        _previewMessage = e.message;
+        _previewMessage = e.messageL10n(AppLocalizations.of(context));
       });
     } catch (_) {
       if (!mounted) return;
@@ -166,9 +167,9 @@ class _JoinClassSheetState extends State<_JoinClassSheet> {
         _joining = false;
         _phase = _PreviewPhase.notFound;
         _found = e.isAlreadyInAClass ? null : _found;
-        _previewMessage = e.message;
+        _previewMessage = e.messageL10n(AppLocalizations.of(context));
       });
-      if (!e.isAlreadyInAClass) showAppSnack(context, e.message);
+      if (!e.isAlreadyInAClass) showAppSnack(context, e.messageL10n(AppLocalizations.of(context)));
     } catch (_) {
       if (!mounted) return;
       setState(() {

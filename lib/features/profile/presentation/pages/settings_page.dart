@@ -11,6 +11,7 @@ import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../core/utils/phone.dart';
 import '../../../../core/utils/validators.dart';
+import '../../../../core/widgets/admin_help_tile.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_card.dart';
 import '../../../../core/widgets/app_refresh.dart';
@@ -911,64 +912,9 @@ class _SettingsPageState extends State<SettingsPage> {
                   padding: EdgeInsets.zero,
                   child: Column(
                     children: [
-                      // Minggu 9 (bug): baris "Sinkron • Pak Budi (Guru
-                      // Pembimbing)" berbingkai siswa — disembunyikan untuk
-                      // akun guru.
-                      if (!_isTeacher) ...[
-                        ListTile(
-                          leading: Container(
-                            padding: const EdgeInsets.all(6),
-                            decoration: BoxDecoration(
-                              color: p.primaryContainer,
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            child: Icon(Icons.sync, color: p.primary, size: 20),
-                          ),
-                          title: Text(l10n.settingsCurriculum),
-                          subtitle: Text(
-                            l10n.settingsCurriculumSubtitle,
-                            style: AppTypography.caption.copyWith(
-                              color: p.textMuted,
-                            ),
-                          ),
-                          trailing: Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 8,
-                              vertical: 3,
-                            ),
-                            decoration: BoxDecoration(
-                              color: p.surfaceAlt,
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            child: Text(
-                              l10n.settingsActive,
-                              style: AppTypography.caption.copyWith(
-                                color: p.primary,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ),
-                        ),
-                        Divider(
-                          height: 1,
-                          color: p.outline.withValues(alpha: 0.5),
-                        ),
-                      ],
-                      ListTile(
-                        leading: Icon(
-                          Icons.support_agent_outlined,
-                          color: p.primary,
-                        ),
-                        title: Text(l10n.settingsHelpCenter),
-                        subtitle: Text(
-                          l10n.settingsHelpCenterSubtitle,
-                          style: AppTypography.caption.copyWith(
-                            color: p.textMuted,
-                          ),
-                        ),
-                        trailing: const Icon(Icons.chevron_right),
-                        onTap: () {},
-                      ),
+                      // Bantuan admin via WhatsApp (membuka di luar
+                      // aplikasi) — tersedia untuk siswa maupun pengajar.
+                      const AdminHelpTile(),
                       Divider(
                         height: 1,
                         color: p.outline.withValues(alpha: 0.5),
@@ -1024,6 +970,13 @@ class _SettingsPageState extends State<SettingsPage> {
                       const SizedBox(height: 2),
                       Text(
                         '© 2025 CodeLab AI Inc. All rights reserved.',
+                        style: AppTypography.caption.copyWith(
+                          color: p.textMuted.withValues(alpha: 0.7),
+                        ),
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        'Devwan Hidayawan 2413025009',
                         style: AppTypography.caption.copyWith(
                           color: p.textMuted.withValues(alpha: 0.7),
                         ),

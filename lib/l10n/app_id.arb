@@ -1,19 +1,18 @@
 {
   "@@locale": "id",
-
   "navLearn": "Belajar",
-  "@navLearn": { "description": "Label tab bawah untuk beranda materi siswa." },
+  "@navLearn": {
+    "description": "Label tab bawah untuk beranda materi siswa."
+  },
   "navChallenges": "Tantangan",
   "navPlayground": "Playground",
   "navProfile": "Profil",
-
   "actionCancel": "Batal",
   "actionClose": "Tutup",
   "actionRetry": "Coba Lagi",
   "actionDelete": "Hapus",
   "actionBack": "Kembali",
   "actionSend": "Kirim",
-
   "settingsTitle": "Pengaturan",
   "settingsAccountTag": "PENGATURAN AKUN",
   "settingsRoleTeacher": "Guru / Pengajar",
@@ -53,11 +52,9 @@
   "settingsLabSfx": "Efek Suara Lab",
   "settingsLabSfxSubtitle": "Audio saat eksekusi kode & terminal",
   "settingsAccountLabHeader": "PENGATURAN AKUN & LAB",
-  "settingsCurriculum": "Kurikulum Merdeka",
-  "settingsCurriculumSubtitle": "Sinkron • Pak Budi (Guru Pembimbing)",
-  "settingsActive": "Aktif",
-  "settingsHelpCenter": "Pusat Bantuan Lab",
-  "settingsHelpCenterSubtitle": "FAQ Compiler AI & Panduan Guru",
+  "settingsHelpCenter": "Bantuan Admin",
+  "settingsHelpCenterSubtitle": "Hubungi admin via WhatsApp +62 831-2500-5309",
+  "settingsHelpLaunchFailed": "Tidak bisa membuka WhatsApp. Coba lagi.",
   "settingsChangePassword": "Ubah Password",
   "settingsChangePasswordSubtitle": "Kata sandi lama & baru dengan checklist keamanan",
   "settingsChangePasswordSheetSubtitle": "Aturan sandi sama seperti saat kamu mendaftar akun.",
@@ -76,11 +73,9 @@
   "settingsProfileSaveFailed": "Gagal menyimpan profil. Coba lagi.",
   "settingsLanguageSheetTitle": "Bahasa Aplikasi",
   "settingsLanguageSheetSubtitle": "Berlaku untuk seluruh layar CodeLab AI",
-
   "languageIndonesian": "Bahasa Indonesia",
   "languageEnglish": "English",
   "languageArabic": "العربية",
-
   "playgroundReset": "Reset",
   "playgroundRun": "Jalankan",
   "playgroundRunning": "Menjalankan…",
@@ -108,10 +103,24 @@
   "sandboxLimitLimitsTitle": "Menjalankan program yang terlalu berat",
   "sandboxLimitLimitsBody": "Program otomatis dihentikan setelah 100.000 langkah atau 5 detik, dan rekursi dibatasi 200 tingkat. Kalau kena batas ini, periksa lagi perulanganmu — biasanya ada yang tidak pernah berhenti.",
   "sandboxClosing": "Kalau ada error padahal kodemu terasa benar, cek dulu apakah yang kamu pakai termasuk daftar di atas. Kalau masih bingung, tanyakan ke gurumu di kelas — kamu tidak perlu menyelesaikannya sendirian.",
-
   "dashTitle": "Dashboard",
   "dashLoadingTitle": "Menyiapkan dashboard",
   "dashLoadingSubtitle": "Menarik data belajar dari server",
+  "dashStageConnecting": "Menyambung ke server…",
+  "dashStageProfile": "Profil siswa terbaca",
+  "dashStageProgress": "Kemajuan bab terbaca",
+  "dashStageSkills": "Radar skill terbaca",
+  "dashStageLessons": "Katalog materi terbaca",
+  "dashStageChallenges": "Catatan tantangan terbaca",
+  "dashStageComposing": "Menyusun dashboard…",
+  "dashGreeting": "Halo, {name}",
+  "@dashGreeting": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "dashNoModules": "Belum ada modul. Cek lagi sebentar.",
   "dashQuickTipTitle": "Trik Cepat Python",
   "dashQuickTipSubtitle": "Gunakan elif untuk evaluasi multi-kondisi",
@@ -122,24 +131,31 @@
   "dashChallengesCompleted": "{count} tantangan selesai",
   "@dashChallengesCompleted": {
     "placeholders": {
-      "count": { "type": "int" }
+      "count": {
+        "type": "int"
+      }
     }
   },
   "dashModuleLocked": "Modul ini masih terkunci.",
-
   "dashDefaultTopic": "Python Dasar & Logika",
   "dashDefaultChapter": "1. Pengenalan Logika Koding",
   "dashBabOf": "Bab {current} dari {total}",
   "@dashBabOf": {
     "placeholders": {
-      "current": { "type": "int" },
-      "total": { "type": "int" }
+      "current": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
     }
   },
   "dashPercentDone": "{percent}% Selesai",
   "@dashPercentDone": {
     "placeholders": {
-      "percent": { "type": "int" }
+      "percent": {
+        "type": "int"
+      }
     }
   },
   "dashCompetencyTitle": "Kompetensimu",
@@ -149,18 +165,21 @@
   "moduleStatusActive": "Sedang dipelajari",
   "moduleStatusAvailable": "Bisa dikerjakan",
   "moduleStatusLocked": "Terkunci",
-
   "roadmapTitle": "Peta Petualangan Belajar",
   "roadmapStopsToCertificate": "{count} Pos Menuju Sertifikat",
   "@roadmapStopsToCertificate": {
     "placeholders": {
-      "count": { "type": "int" }
+      "count": {
+        "type": "int"
+      }
     }
   },
   "roadmapActiveBab": "Bab {step} Aktif",
   "@roadmapActiveBab": {
     "placeholders": {
-      "step": { "type": "int" }
+      "step": {
+        "type": "int"
+      }
     }
   },
   "roadmapCatalogTitle": "Katalog Materi",
@@ -171,15 +190,18 @@
   "roadmapBabLine": "Bab {order} • {label}",
   "@roadmapBabLine": {
     "placeholders": {
-      "order": { "type": "int" },
-      "label": { "type": "String" }
+      "order": {
+        "type": "int"
+      },
+      "label": {
+        "type": "String"
+      }
     }
   },
   "roadmapQuizNode": "Uji Pemahaman",
   "roadmapAvailableNow": "Bisa langsung dikerjakan",
   "roadmapCertificate": "Sertifikat Modul",
   "roadmapGraduationTarget": "Target Kelulusan",
-
   "levelBeginner": "Pemula",
   "levelIntermediate": "Menengah",
   "levelAdvanced": "Mahir",
@@ -195,8 +217,12 @@
   "challengeLockedBody": "Syarat: Butuh minimal {xp} XP untuk membuka tantangan ini. Saat ini kamu memiliki {userXp} XP.",
   "@challengeLockedBody": {
     "placeholders": {
-      "xp": { "type": "int" },
-      "userXp": { "type": "int" }
+      "xp": {
+        "type": "int"
+      },
+      "userXp": {
+        "type": "int"
+      }
     }
   },
   "challengeLearningPath": "Jalur Belajar",
@@ -207,8 +233,12 @@
   "challengeFilterCount": "{label} ({count})",
   "@challengeFilterCount": {
     "placeholders": {
-      "label": { "type": "String" },
-      "count": { "type": "int" }
+      "label": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      }
     }
   },
   "challengeSearchHint": "Cari topik, fungsi, atau algoritma...",
@@ -218,29 +248,43 @@
   "challengeGroupDone": "{done} / {total} Selesai",
   "@challengeGroupDone": {
     "placeholders": {
-      "done": { "type": "int" },
-      "total": { "type": "int" }
+      "done": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
     }
   },
   "challengeGroupUnlocked": "{unlocked} / {total} Dibuka",
   "@challengeGroupUnlocked": {
     "placeholders": {
-      "unlocked": { "type": "int" },
-      "total": { "type": "int" }
+      "unlocked": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
     }
   },
   "challengeSummaryDone": "{done} dari {total} Selesai",
   "@challengeSummaryDone": {
     "placeholders": {
-      "done": { "type": "int" },
-      "total": { "type": "int" }
+      "done": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
     }
   },
   "challengeSummarySubtitle": "Kemahiran Kurikulum Algoritma RPL",
   "challengeXpEarned": "+{xp} XP Didapat",
   "@challengeXpEarned": {
     "placeholders": {
-      "xp": { "type": "int" }
+      "xp": {
+        "type": "int"
+      }
     }
   },
   "challengeStatusInProgress": "Sedang Dicoba",
@@ -250,25 +294,33 @@
   "challengeMinutes": "{count} Menit",
   "@challengeMinutes": {
     "placeholders": {
-      "count": { "type": "int" }
+      "count": {
+        "type": "int"
+      }
     }
   },
   "challengeXpRequired": "Butuh {xp} XP",
   "@challengeXpRequired": {
     "placeholders": {
-      "xp": { "type": "int" }
+      "xp": {
+        "type": "int"
+      }
     }
   },
   "challengeXpRequirement": "Syarat: Butuh {xp} XP",
   "@challengeXpRequirement": {
     "placeholders": {
-      "xp": { "type": "int" }
+      "xp": {
+        "type": "int"
+      }
     }
   },
   "challengeTestCount": "{count} Unit Test",
   "@challengeTestCount": {
     "placeholders": {
-      "count": { "type": "int" }
+      "count": {
+        "type": "int"
+      }
     }
   },
   "challengeDetailTitle": "Tantangan Koding",
@@ -276,19 +328,25 @@
   "challengeLevelLine": "Tingkat: {level}",
   "@challengeLevelLine": {
     "placeholders": {
-      "level": { "type": "String" }
+      "level": {
+        "type": "String"
+      }
     }
   },
   "challengeXpPlus": "+{xp} XP",
   "@challengeXpPlus": {
     "placeholders": {
-      "xp": { "type": "int" }
+      "xp": {
+        "type": "int"
+      }
     }
   },
   "challengeMinutesShort": "~{count} mnt",
   "@challengeMinutesShort": {
     "placeholders": {
-      "count": { "type": "int" }
+      "count": {
+        "type": "int"
+      }
     }
   },
   "challengeTaskInstruction": "Instruksi Tugas",
@@ -303,8 +361,12 @@
   "challengeQuotaLabel": "{used}/{total} Kuota",
   "@challengeQuotaLabel": {
     "placeholders": {
-      "used": { "type": "int" },
-      "total": { "type": "int" }
+      "used": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
     }
   },
   "challengeAskHint": "Minta Hint",
@@ -315,14 +377,20 @@
   "challengePassedCount": "{passed}/{total} Lolos",
   "@challengePassedCount": {
     "placeholders": {
-      "passed": { "type": "int" },
-      "total": { "type": "int" }
+      "passed": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
     }
   },
   "challengeExecutionTime": "Eksekusi: {ms}ms",
   "@challengeExecutionTime": {
     "placeholders": {
-      "ms": { "type": "int" }
+      "ms": {
+        "type": "int"
+      }
     }
   },
   "challengePassed": "Lolos",
@@ -330,9 +398,15 @@
   "challengeCaseDetail": "Input: {input} • Ekspektasi: {expected} • Output: {output}",
   "@challengeCaseDetail": {
     "placeholders": {
-      "input": { "type": "String" },
-      "expected": { "type": "String" },
-      "output": { "type": "String" }
+      "input": {
+        "type": "String"
+      },
+      "expected": {
+        "type": "String"
+      },
+      "output": {
+        "type": "String"
+      }
     }
   },
   "challengeScaffoldingLevels": "Scaffolding 3 Level",
@@ -341,7 +415,9 @@
   "challengeCasesNotPassed": "{count} kasus belum lolos dari pengujian otomatis. Minta arahan AI Tutor di bawah — petunjuknya memandu kodemu, bukan jawaban jadi.",
   "@challengeCasesNotPassed": {
     "placeholders": {
-      "count": { "type": "int" }
+      "count": {
+        "type": "int"
+      }
     }
   },
   "challengeAskAiTutor": "Tanya AI Tutor",
@@ -349,7 +425,9 @@
   "challengeBestScore": "Skor terbaik: {score}%",
   "@challengeBestScore": {
     "placeholders": {
-      "score": { "type": "int" }
+      "score": {
+        "type": "int"
+      }
     }
   },
   "challengeViewHistory": "Lihat riwayat submisi",
@@ -362,8 +440,12 @@
   "evalSomeFailedBody": "Jangan patah semangat! {passed} dari {total} pengujian berhasil. Mari kita telaah kesalahan dan perbaiki bersama AI Tutor.",
   "@evalSomeFailedBody": {
     "placeholders": {
-      "passed": { "type": "int" },
-      "total": { "type": "int" }
+      "passed": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
     }
   },
   "evalMetricFinalScore": "NILAI AKHIR",
@@ -390,7 +472,9 @@
   "historyAttemptsCount": "{count} Percobaan Dikirim",
   "@historyAttemptsCount": {
     "placeholders": {
-      "count": { "type": "int" }
+      "count": {
+        "type": "int"
+      }
     }
   },
   "historySubmissionsHeader": "Riwayat Pengiriman",
@@ -400,25 +484,33 @@
   "historySubmissionNumber": "Submisi #{number}",
   "@historySubmissionNumber": {
     "placeholders": {
-      "number": { "type": "int" }
+      "number": {
+        "type": "int"
+      }
     }
   },
   "historyScoreInline": "  •  Skor {score}/100",
   "@historyScoreInline": {
     "placeholders": {
-      "score": { "type": "int" }
+      "score": {
+        "type": "int"
+      }
     }
   },
   "historyHintsUsed": "{count} Hint AI digunakan",
   "@historyHintsUsed": {
     "placeholders": {
-      "count": { "type": "int" }
+      "count": {
+        "type": "int"
+      }
     }
   },
   "historySubmissionCode": "Kode Submisi #{number} (Python)",
   "@historySubmissionCode": {
     "placeholders": {
-      "number": { "type": "int" }
+      "number": {
+        "type": "int"
+      }
     }
   },
   "historyAiReview": "Ulasan AI Tutor",
@@ -430,14 +522,20 @@
   "tutorConceptLabel": "Konsep: {concept}",
   "@tutorConceptLabel": {
     "placeholders": {
-      "concept": { "type": "String" }
+      "concept": {
+        "type": "String"
+      }
     }
   },
   "tutorLevelLabel": "Level {unlocked}/{total}",
   "@tutorLevelLabel": {
     "placeholders": {
-      "unlocked": { "type": "int" },
-      "total": { "type": "int" }
+      "unlocked": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
     }
   },
   "tutorQuotaRemaining": "Sisa kuota",
@@ -451,7 +549,9 @@
   "tutorUnlockNext": "Buka Hint Berikutnya ({level})",
   "@tutorUnlockNext": {
     "placeholders": {
-      "level": { "type": "String" }
+      "level": {
+        "type": "String"
+      }
     }
   },
   "tutorQuotaExhaustedBody": "Kuota petunjuk harian sudah habis (maksimal 5x per hari sesuai PRD). Setiap beristirahat akan reset besok — sementara ini, tuntaskan di kodemu dulu.",
@@ -465,19 +565,32 @@
   "materialSearchHint": "Cari materi atau deskripsinya…",
   "materialClearSearch": "Hapus pencarian",
   "materialNoMatch": "Tidak ada materi yang cocok dengan pencarian atau filter.",
+  "materialSwitchedSnack": "Menampilkan materi {topic}. Peta belajar diperbarui.",
+  "@materialSwitchedSnack": {
+    "placeholders": {
+      "topic": {
+        "type": "String"
+      }
+    }
+  },
   "materialChaptersDone": "{done}/{total} bab tuntas",
   "@materialChaptersDone": {
     "placeholders": {
-      "done": { "type": "int" },
-      "total": { "type": "int" }
+      "done": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
     }
   },
-
   "readerPreviewDone": "Pratinjau Siswa Selesai! Semua slide berhasil dievaluasi.",
   "readerXpEarned": "Selamat! Kamu memperoleh +{xp} XP! 🎉",
   "@readerXpEarned": {
     "placeholders": {
-      "xp": { "type": "int" }
+      "xp": {
+        "type": "int"
+      }
     }
   },
   "readerXpAlreadyDone": "Bab sudah pernah dituntaskan — XP tidak dihitung dua kali.",
@@ -490,7 +603,6 @@
   "readerContinue": "Paham, Lanjutkan",
   "readerFinishSave": "Selesai & Simpan Progres",
   "readerCheckAnswer": "Periksa Jawaban",
-
   "slideBadgeValidated": "Langkah Tervalidasi",
   "slideProgressSaved": "Progres Tersimpan",
   "slideWhyCorrect": "Mengapa Jawabanmu Benar?",
@@ -516,7 +628,6 @@
   "slideOutroAccuracy": "Akurasi",
   "slideOutroLearningTime": "Waktu Belajar",
   "slideOutroMasteredConcepts": "Konsep yang Kamu Kuasai",
-
   "profileTitle": "Profil & Kompetensi",
   "profileSettingsTooltip": "Pengaturan Profil",
   "profileLoading": "Memuat profil…",
@@ -533,8 +644,12 @@
   "profileChaptersInline": "{done}/{total} bab",
   "@profileChaptersInline": {
     "placeholders": {
-      "done": { "type": "int" },
-      "total": { "type": "int" }
+      "done": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
     }
   },
   "profileCurriculumUnavailable": "Kurikulum belum tersedia dari server. Coba lagi.",
@@ -542,8 +657,12 @@
   "profileTracksDoneBadge": "{done}/{total} Tuntas",
   "@profileTracksDoneBadge": {
     "placeholders": {
-      "done": { "type": "int" },
-      "total": { "type": "int" }
+      "done": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
     }
   },
   "profileChallengeCertsTitle": "Sertifikat Tantangan",
@@ -551,8 +670,12 @@
   "profileBabCountInline": "{done}/{total} Bab",
   "@profileBabCountInline": {
     "placeholders": {
-      "done": { "type": "int" },
-      "total": { "type": "int" }
+      "done": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
     }
   },
   "profileCertReady": "Sertifikat siap diunduh",
@@ -562,7 +685,6 @@
   "profileCertChallengeLocked": "Terkunci — kurang XP",
   "profileCertChallengeInProgress": "Sedang dikerjakan",
   "profileDownloadSoon": "Fitur unduh sertifikat segera hadir, ya!",
-
   "changePassOldLabel": "Kata Sandi Lama",
   "changePassNewLabel": "Kata Sandi Baru",
   "changePassConfirmLabel": "Konfirmasi Kata Sandi Baru",
@@ -576,7 +698,6 @@
   "changePassConfirmMismatch": "Konfirmasi belum sama dengan kata sandi baru.",
   "changePassSaving": "Menyimpan…",
   "changePassSave": "Simpan Kata Sandi",
-
   "joinClassTitle": "Gabung ke Kelas Gurumu",
   "joinClassSubtitle": "Masukkan 6 karakter kode kelas yang dibagikan gurumu.",
   "joinClassClearCode": "Hapus kode",
@@ -585,7 +706,9 @@
   "joinClassSuccess": "Berhasil bergabung ke {name}!",
   "@joinClassSuccess": {
     "placeholders": {
-      "name": { "type": "String" }
+      "name": {
+        "type": "String"
+      }
     }
   },
   "joinClassCtaButton": "Gabung Kelas Sekarang",
@@ -593,22 +716,27 @@
   "joinClassMemberCount": "{count} Teman Sekelas",
   "@joinClassMemberCount": {
     "placeholders": {
-      "count": { "type": "int" }
+      "count": {
+        "type": "int"
+      }
     }
   },
-
   "classServerUnreachable": "Server belum terjangkau. Periksa koneksi lab, lalu coba lagi.",
   "classServerUnreachableShort": "Server belum terjangkau. Coba beberapa saat lagi, ya.",
   "classJoinedSnack": "Berhasil bergabung ke kelas {name}!",
   "@classJoinedSnack": {
     "placeholders": {
-      "name": { "type": "String" }
+      "name": {
+        "type": "String"
+      }
     }
   },
   "classLeftSnack": "Kamu keluar dari kelas {name}.",
   "@classLeftSnack": {
     "placeholders": {
-      "name": { "type": "String" }
+      "name": {
+        "type": "String"
+      }
     }
   },
   "classSectionTitle": "Kelas Belajar",
@@ -624,26 +752,36 @@
   "classJoinHintShort": "Gabung pakai kode 6 karakter dari gurumu.",
   "classJoinShort": "Gabung",
   "classActiveBadge": "Aktif",
+  "classCountBadge": "{count} kelas",
+  "@classCountBadge": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "classSeeAllTooltip": "Lihat semua kelas",
   "classMemberCountInline": "{count} teman sekelas",
   "@classMemberCountInline": {
     "placeholders": {
-      "count": { "type": "int" }
+      "count": {
+        "type": "int"
+      }
     }
   },
-
   "myClassesTitle": "Kelas Saya",
   "myClassesActiveCount": "{count} kelas aktif",
   "@myClassesActiveCount": {
     "placeholders": {
-      "count": { "type": "int" }
+      "count": {
+        "type": "int"
+      }
     }
   },
   "myClassesSubtitle": "Rombel tempat kamu belajar",
-  "myClassesOneActiveNote": "Satu siswa hanya dapat tergabung dalam satu kelas aktif. Keluar dari kelas bila ingin bergabung ke kelas lain.",
+  "myClassesJoinAnother": "Gabung Kelas Lain",
   "myClassesEmptyTitle": "Belum tergabung ke kelas mana pun",
   "myClassesEmptyBody": "Minta kode kelas 6 karakter kepada gurumu, lalu gabung dari sini.",
-
   "classDetailLoadFailed": "Detail kelas gagal dimuat",
   "classRegisteredBadge": "Terdaftar Aktif",
   "classTeacherRoleBadge": "Guru",
@@ -652,7 +790,9 @@
   "classClassmatesCount": "({count} Siswa)",
   "@classClassmatesCount": {
     "placeholders": {
-      "count": { "type": "int" }
+      "count": {
+        "type": "int"
+      }
     }
   },
   "classNoClassmates": "Belum ada teman sekelas yang terdaftar.",
@@ -668,16 +808,19 @@
   "classMoreCount": "+{rest} lainnya",
   "@classMoreCount": {
     "placeholders": {
-      "rest": { "type": "int" }
+      "rest": {
+        "type": "int"
+      }
     }
   },
   "classSeeAllNames": "Lihat semua nama ({count})",
   "@classSeeAllNames": {
     "placeholders": {
-      "count": { "type": "int" }
+      "count": {
+        "type": "int"
+      }
     }
   },
-
   "authPassNotFilled": "Belum diisi",
   "authPassVeryGood": "Sangat Bagus!",
   "authPassNeedsWork": "Perlu ditingkatkan",
@@ -690,18 +833,21 @@
   "authSchoolCodePrefix": "Kode: {code}",
   "@authSchoolCodePrefix": {
     "placeholders": {
-      "code": { "type": "String" }
+      "code": {
+        "type": "String"
+      }
     }
   },
   "authSchoolReadOnlyNote": "Data sekolah ini bersifat read-only dan terverifikasi otomatis; tidak dapat diubah oleh instruktur.",
-
   "validNameRequired": "Isi nama lengkapmu dulu.",
   "validEmailRequired": "Isi email kamu dulu.",
   "validEmailFormat": "Format email belum benar. Contoh: nama@smk.belajar.id",
   "validSchoolEmailDomain": "Email harus memakai domain {domain}.",
   "@validSchoolEmailDomain": {
     "placeholders": {
-      "domain": { "type": "String" }
+      "domain": {
+        "type": "String"
+      }
     }
   },
   "validPasswordRequired": "Isi kata sandi kamu dulu.",
@@ -709,7 +855,6 @@
   "validPasswordPolicy": "Minimal 8 karakter dan ada angka atau simbol.",
   "validConfirmRequired": "Ketik ulang kata sandi untuk konfirmasi.",
   "validPasswordMismatch": "Kata sandi belum sama dengan isian pertama.",
-
   "authErrInvalidCredentials": "Email atau kata sandi belum cocok. Coba periksa lagi.",
   "authErrEmailTaken": "Email ini sudah punya akun. Mau masuk saja?",
   "authErrNetwork": "Belum tersambung ke internet. Coba lagi sebentar.",
@@ -720,7 +865,6 @@
   "authErrEmailDomain": "Email harus memakai domain @smk.belajar.id.",
   "authErrInvalidInput": "Ada isian yang belum sesuai. Periksa kembali lalu simpan lagi.",
   "authErrServer": "Server sedang bermasalah. Coba lagi beberapa saat lagi.",
-
   "loginWelcomeTitle": "Selamat datang kembali",
   "loginWelcomeSubtitle": "Lanjutkan belajar koding dari mana kamu berhenti.",
   "loginJustRegisteredBanner": "Akunmu sudah dibuat. Silakan masuk untuk mulai belajar.",
@@ -730,7 +874,6 @@
   "loginSubmit": "Masuk Sekarang",
   "loginNoAccount": "Belum punya akun?",
   "authRegisterLink": "Daftar",
-
   "authBackTooltip": "Kembali",
   "registerTitle": "Daftar Akun",
   "registerTagBanner": "Platform Belajar Coding RPL",
@@ -752,7 +895,6 @@
   "registerSuccessBody": "Akunmu sudah dibuat dan siap dipakai.\n\nSilakan masuk (login) menggunakan email dan kata sandi yang baru saja kamu buat.",
   "registerCommunityPrefix": "Gabung bersama",
   "registerCommunitySuffix": "rekan RPL yang mulai belajar logika algoritma, Git, dan web dev hari ini.",
-
   "teacherRegTitle": "Registrasi Akun Pendidik",
   "teacherRegTagBanner": "Kemitraan Instansi",
   "teacherRegHeading": "Pilih Peran Akunmu",
@@ -776,7 +918,9 @@
   "teacherRegSuccessBody": "Akun pengajarmu sudah dibuat untuk {school}.\n\nSilakan masuk (login) menggunakan email dan kata sandi yang baru saja kamu buat.",
   "@teacherRegSuccessBody": {
     "placeholders": {
-      "school": { "type": "String" }
+      "school": {
+        "type": "String"
+      }
     }
   },
   "teacherRegYourSchool": "sekolahmu",
@@ -786,7 +930,6 @@
   "roleTeacherChip": "Akses Pendidik",
   "roleTeacherTitle": "Guru / Instruktur",
   "roleTeacherDesc": "Kelola lab kelas, kurikulum & pantau siswa",
-
   "actionCopy": "Salin",
   "codeCopied": "Kode disalin.",
   "a11yShowPassword": "Tampilkan kata sandi",
@@ -795,23 +938,1179 @@
   "a11yMasteryRadar": "Radar penguasaan: {detail}",
   "@a11yMasteryRadar": {
     "placeholders": {
-      "detail": { "type": "String" }
+      "detail": {
+        "type": "String"
+      }
     }
   },
   "loadingTipSubmitQuota": "Tekan \"{run}\" dulu sebelum \"{submit}\" — biar kuota harianmu aman.",
   "@loadingTipSubmitQuota": {
     "placeholders": {
-      "run": { "type": "String" },
-      "submit": { "type": "String" }
+      "run": {
+        "type": "String"
+      },
+      "submit": {
+        "type": "String"
+      }
     }
   },
   "loadingTipAiHint": "Bantuan AI hanya memberi petunjuk, bukan kode jadi. Jawabnya tetap kerjamu.",
   "loadingTipPlayground": "Playground menjalankan Python langsung di perangkat — tetap aktif walau offline.",
   "loadingTipHiddenTests": "Kasus uji rahasia tinggal di server, tidak ikut terkirim ke HP siswa.",
   "loadingVersionFooter": "Versi 2.1 · Kurikulum Merdeka RPL",
-  "settingsLanguageTeacherLocked": "Pilihan bahasa dikunci sementara untuk akun pengajar.",
-
+  "bootTitle": "Memulihkan sesimu…",
+  "@bootTitle": {
+    "description": "Judul layar memuat saat boot (pemulihan sesi)."
+  },
+  "bootSubtitle": "Menyiapkan lab kode di perangkat",
+  "@bootSubtitle": {
+    "description": "Subjudul layar memuat saat boot."
+  },
+  "bootStageSecureStorage": "Memeriksa penyimpanan aman",
+  "@bootStageSecureStorage": {
+    "description": "Label tahap boot: memeriksa penyimpanan aman."
+  },
+  "classResponseUnrecognized": "Format jawaban kelas tidak dikenali.",
+  "@classResponseUnrecognized": {
+    "description": "Pesan galat saat jawaban server kelas bukan format yang dikenali (bukan teks server)."
+  },
+  "slideTapToFillSuccessTitle": "Tepat Sekali!",
+  "slideTapToFillSuccessMsg": "Sintaks berhasil disusun.",
+  "slideTapToFillErrorTitle": "Coba Periksa Lagi!",
+  "slideTapToFillErrorMsg": "Perhatikan slot yang kosong.",
+  "slideTypeCodeSuccessTitle": "Luar Biasa!",
+  "slideTypeCodeSuccessMsg": "Perintah yang kamu ketik tepat.",
+  "slideTypeCodeErrorTitle": "Kurang Tepat!",
+  "slideTypeCodeErrorMsg": "Perhatikan penulisan huruf.",
+  "slideOutputPredictSuccessTitle": "Mantap Jiwa!",
+  "slideOutputPredictSuccessMsg": "Prediksi logikamu akurat.",
+  "slideOutputPredictErrorTitle": "Kurang Tepat!",
+  "slideOutputPredictErrorMsg": "Perhatikan alur eksekusi baris demi baris.",
+  "slideBugHunterSuccessTitle": "Hebat, Bug Ditemukan!",
+  "slideBugHunterSuccessMsg": "Kamu berhasil mendeteksi baris error.",
+  "slideBugHunterErrorTitle": "Bukan Baris Itu!",
+  "slideBugHunterErrorMsg": "Cari baris yang melanggar aturan sintaks.",
+  "slideQuizSuccessTitle": "Jawaban Sempurna!",
+  "slideQuizSuccessMsg": "Pemahaman konsepmu sangat solid.",
+  "slideQuizErrorTitle": "Kurang Tepat!",
+  "slideQuizErrorMsg": "Coba ingat kembali prinsip dasar materi ini.",
+  "slideContentUnavailable": "Materi belum tersedia saat ini.",
+  "tutorHintTabConcept": "Hint 1: Konsep",
+  "tutorHintTabLogic": "Hint 2: Logika",
+  "tutorHintTabStructure": "Hint 3: Struktur",
+  "tutorHintDefaultConcept": "Latihan Koding",
+  "tutorHintPlaygroundConcept": "Latihan Mandiri (Playground)",
+  "tutorHintChallengeQ1": "Apa output yang diminta soal ini? Ceritakan dulu dengan bahasamu sendiri sebelum menyentuh kode.",
+  "tutorHintChallengeQ1Step1": "Sebutkan input yang tersedia dan output yang harus muncul.",
+  "tutorHintChallengeQ1Step2": "Tandai bagian kode yang sudah kamu pahami dan bagian yang masih ragu.",
+  "tutorHintChallengeQ2": "Bagaimana urutan langkah programmu dari baris pertama sampai terakhir?",
+  "tutorHintChallengeQ2Step1": "Tulis urutan langkahnya dalam bahasa sehari-hari, belum dalam kode.",
+  "tutorHintChallengeQ2Step2": "Periksa apakah setiap langkah benar-benar mengarah ke output yang diminta soal.",
+  "tutorHintChallengeQ3": "Baris mana yang paling sering memunculkan error saat kamu jalankan?",
+  "tutorHintChallengeQ3Step1": "Baca pesan error dari baris paling atas: nama error dan nomor barisnya.",
+  "tutorHintChallengeQ3Step2": "Cocokkan tanda baca di baris itu (kurung, titik dua, tanda kutip, indentasi).",
+  "tutorHintPlaygroundQ1": "Masalah apa yang paling ingin kamu pecahkan program ini? Tulis tujuannya dalam satu kalimat dulu.",
+  "tutorHintPlaygroundQ1Step1": "Petakan: input apa yang masuk, proses apa yang dilakukan, output apa yang diharapkan.",
+  "tutorHintPlaygroundQ1Step2": "Mulai dari potongan paling kecil yang bisa kamu uji sendiri.",
+  "tutorHintPlaygroundQ2": "Bagaimana urutan langkah programmu dari baris pertama sampai terakhir?",
+  "tutorHintPlaygroundQ2Step1": "Tulis alurnya sebagai pseudo-kode bahasa Indonesia sebelum disalin ke Python.",
+  "tutorHintPlaygroundQ2Step2": "Tandai mana bagian yang berulang (loop) dan mana yang bercabang (if).",
+  "tutorHintPlaygroundQ3": "Bagian mana dari kodemu yang tampak rancu saat dibaca?",
+  "tutorHintPlaygroundQ3Step1": "Cek indentasi dan tanda titik dua pada baris yang berisi logika.",
+  "tutorHintPlaygroundQ3Step2": "Uji potongan kecil di terminal yang sama sebelum digabung kembali.",
   "tNavDashboard": "Dashboard",
   "tNavMaterials": "Materi",
-  "tNavAnalytics": "Analisa"
+  "tNavAnalytics": "Analisa",
+  "tPickerTitle": "Analisa Kelas",
+  "tPickerHeading": "Pilih Kelas",
+  "tPickerSubtitle": "Pilih kelas untuk melihat peringkat materi dan latihan siswa, lalu kelola anggotanya.",
+  "tPickerEmptyTitle": "Belum Ada Kelas",
+  "tPickerEmptyBody": "Buat kelas pertamamu di Dashboard untuk mulai memantau analisa siswa.",
+  "tPickerOpenDashboard": "Buka Dashboard",
+  "tPickerSchoolUnset": "Sekolah belum diatur",
+  "tPickerMemberCount": "{count} siswa",
+  "@tPickerMemberCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "tArchivedTitle": "Arsip Kelas",
+  "tArchivedInfo": "Kelas arsip tidak bisa diikuti siswa baru. Pulihkan kelas bila ingin mengaktifkannya lagi.",
+  "tArchivedLoadFailed": "Gagal Memuat Arsip",
+  "tArchivedEmptyTitle": "Belum Ada Kelas Diarsipkan",
+  "tArchivedEmptyBody": "Kelas yang kamu arsipkan dari halaman analisa akan muncul di sini.",
+  "tArchivedBackDashboard": "Kembali ke Dashboard",
+  "tArchivedBadge": "Diarsipkan",
+  "tArchivedSchoolYear": "{school} • Tahun Ajaran {year}",
+  "@tArchivedSchoolYear": {
+    "placeholders": {
+      "school": {
+        "type": "String"
+      },
+      "year": {
+        "type": "String"
+      }
+    }
+  },
+  "tArchivedClassCode": "KODE KELAS",
+  "tArchivedInactive": "Nonaktif",
+  "tArchivedRestore": "Pulihkan Kelas",
+  "tDashFilterTitle": "Filter Daftar Kelas",
+  "tDashFilterSubtitle": "Pencarian dan tahun ajaran disaring dari data kelas yang sudah dimuat.",
+  "tDashSearchHint": "Cari nama atau kode kelas",
+  "tDashClearSearch": "Bersihkan pencarian",
+  "tDashYearLabel": "Tahun Ajaran",
+  "tDashApplyFilter": "Terapkan Filter",
+  "tDashFilterReset": "Reset",
+  "tDashCodeCopied": "Kode kelas \"{code}\" disalin ke clipboard!",
+  "@tDashCodeCopied": {
+    "placeholders": {
+      "code": {
+        "type": "String"
+      }
+    }
+  },
+  "tDashCodeFullscreen": "KODE KELAS (LAYAR PENUH)",
+  "tDashProjectorHint": "Buka aplikasi CodeLab AI dan masukkan kode kelas:",
+  "tDashProjectorCopy": "Salin Kode",
+  "tDashCreateNewClass": "Buat Kelas Baru",
+  "tDashCreateSubtitle": "Wadah identitas kelas untuk memantau kemajuan belajar siswa.",
+  "tDashFieldName": "Nama Kelas *",
+  "tDashExampleName": "Contoh: X RPL 1",
+  "tDashFieldYear": "Tahun Ajaran *",
+  "tDashExampleYear": "Contoh: {year}",
+  "@tDashExampleYear": {
+    "placeholders": {
+      "year": {
+        "type": "String"
+      }
+    }
+  },
+  "tDashCreateClass": "Buat Kelas",
+  "tDashValidationRequired": "Nama kelas dan tahun ajaran wajib diisi.",
+  "tDashSchoolUnset": "Sekolah belum terhubung",
+  "tDashGreeting": "Halo, {name} 👋",
+  "@tDashGreeting": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "tDashGreetingFallback": "Guru",
+  "tProfileTitle": "Profil Pengajar",
+  "tDashBadgeTotal": "Total",
+  "tDashClassCount": "{count} Kelas",
+  "@tDashClassCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "tDashActiveClasses": "Kelas Aktif",
+  "tDashBadgeRegistered": "Terdaftar",
+  "tDashRegisteredStudents": "Siswa Terdaftar",
+  "tDashClassListTitle": "Daftar Kelas Belajar",
+  "tDashClassListSubtitle": "Pilih kelas untuk memantau kemajuan atau bagikan kode.",
+  "tDashFilterTooltip": "Filter daftar kelas",
+  "tDashArchive": "Arsip",
+  "tDashSearchChip": "Cari: {query}",
+  "@tDashSearchChip": {
+    "placeholders": {
+      "query": {
+        "type": "String"
+      }
+    }
+  },
+  "tDashResetFilter": "Reset filter",
+  "tDashEmptyBody": "Buat kelas pertamamu untuk mendapatkan kode kelas dan mulai memantau kemajuan belajar siswa.",
+  "tDashNoMatchTitle": "Tidak Ada Kelas yang Cocok",
+  "tDashNoMatchBody": "Coba kata kunci lain atau tampilkan semua tahun ajaran.",
+  "tDashShowAll": "Tampilkan Semua Kelas",
+  "tDashActiveYear": "Aktif {year}",
+  "@tDashActiveYear": {
+    "placeholders": {
+      "year": {
+        "type": "String"
+      }
+    }
+  },
+  "tDashMetaMembers": "Anggota",
+  "tDashProjector": "Proyektor Kode",
+  "tDashMonitor": "Pantau Kelas",
+  "tProfileLogoutTitle": "Keluar dari Akun Pengajar?",
+  "tProfileLogoutBody": "Kamu perlu memasukkan email dan kata sandi kembali untuk masuk ke akun pengajar ini.",
+  "tProfileLogoutConfirm": "Ya, Keluar",
+  "tProfileNameFallback": "Pengajar RPL",
+  "tProfileSettingsTooltip": "Pengaturan Profil",
+  "tProfileRoleChip": "Instruktur RPL",
+  "tProfileNip": "NIP: {code}",
+  "@tProfileNip": {
+    "placeholders": {
+      "code": {
+        "type": "String"
+      }
+    }
+  },
+  "tProfileAddBio": "Tambah Bio",
+  "tProfileStatClasses": "Kelas Diajar",
+  "tProfileStatStudents": "Siswa Dibimbing",
+  "tProfileStatMaterials": "Materi Ajar",
+  "tProfileClassesTitle": "Kelas yang Diajar",
+  "tProfileNoClasses": "Belum ada kelas yang dibuat.",
+  "tProfileClassMeta": "Tahun {year} • {count} Siswa",
+  "@tProfileClassMeta": {
+    "placeholders": {
+      "year": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "tProfileNoMaterials": "Belum ada materi yang dibuat.",
+  "tProfileMaterialCount": "{count} Materi",
+  "@tProfileMaterialCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "tProfileMaterialMeta": "{topic} • {babs} Bab • {xp} XP",
+  "@tProfileMaterialMeta": {
+    "placeholders": {
+      "topic": {
+        "type": "String"
+      },
+      "babs": {
+        "type": "int"
+      },
+      "xp": {
+        "type": "int"
+      }
+    }
+  },
+  "tProfilePublished": "Terbit",
+  "tProfileDraft": "Draft",
+  "tProfileOpenSettings": "Buka Pengaturan Akun",
+  "tProfileLogout": "Keluar dari Akun",
+  "tStudioActionHint": "Pilih tindakan untuk materi ini",
+  "tStudioEditSyllabus": "Edit Silabus & Bab",
+  "tStudioEditInfo": "Edit Info Materi",
+  "tStudioDuplicate": "Duplikat sebagai Draft Baru",
+  "tStudioUnpublish": "Tarik Kembali ke Draft",
+  "tStudioPublish": "Terbitkan ke Siswa",
+  "tStudioDeleteForever": "Hapus Materi Selamanya",
+  "tStudioDeleteTitle": "Hapus Materi Ini?",
+  "tStudioDeleteBody": "Materi \"{title}\" akan dihapus dari Studio. Riwayat belajar siswa yang sudah tuntas tetap tersimpan.",
+  "@tStudioDeleteBody": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "tStudioTitle": "Studio Materi",
+  "tStudioSettingsTooltip": "Pengaturan Pengajar",
+  "tStudioMyMaterials": "Materi Saya",
+  "tStudioSubtitle": "Kelola modul pembelajaran & bab koding",
+  "tStudioAdd": "Tambah Materi",
+  "tStudioBannerTitle": "Status Pembelajaran Kelas",
+  "tStudioBanner": "{published} materi aktif terbit untuk {students} siswa di {school}.",
+  "@tStudioBanner": {
+    "placeholders": {
+      "published": {
+        "type": "int"
+      },
+      "students": {
+        "type": "int"
+      },
+      "school": {
+        "type": "String"
+      }
+    }
+  },
+  "tStudioYourSchool": "sekolahmu",
+  "tStudioFilterAll": "Semua ({count})",
+  "@tStudioFilterAll": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "tStudioFilterDraft": "Draft ({count})",
+  "@tStudioFilterDraft": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "tStudioFilterPublished": "Terbit ({count})",
+  "@tStudioFilterPublished": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "tStudioEmptyTitle": "Belum Ada Materi",
+  "tStudioEmptyDraftTitle": "Tidak Ada Materi Draft",
+  "tStudioEmptyPublishedTitle": "Tidak Ada Materi Terbit",
+  "tStudioEmptyBody": "Mulai bangun kurikulum coding untuk siswamu. Klik tombol Tambah Materi di atas.",
+  "tStudioEmptyFilterBody": "Ganti filter atau tambahkan materi baru untuk kategori ini.",
+  "tStudioCreateNew": "Buat Materi Baru",
+  "tStudioBabCount": "{count} bab",
+  "@tStudioBabCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "tStudioNotVisible": "Belum tampak oleh siswa",
+  "tBabDeleteTitle": "Hapus Bab Ini?",
+  "tBabDeleteBody": "Bab \"{title}\" akan dihapus dari daftar materi. Riwayat belajar siswa yang sudah tercatat tetap tersimpan.",
+  "@tBabDeleteBody": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "tBabDuplicateTitle": "Duplikat Bab Ini?",
+  "tBabDuplicateBody": "Salinan \"{title}\" akan muncul sebagai bab nomor berikutnya, lengkap dengan seluruh slide dan XP-nya.",
+  "@tBabDuplicateBody": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "tBabDuplicate": "Duplikat",
+  "tBabTitle": "Silabus & Bab",
+  "tBabAdd": "Tambah Bab",
+  "tBabTopicFallback": "Materi Studio",
+  "tBabTitleFallback": "Daftar Bab",
+  "tBabCurriculumStatus": "Status Kurikulum Bab",
+  "tBabMeta": "{babs} Bab • {xp} XP",
+  "@tBabMeta": {
+    "placeholders": {
+      "babs": {
+        "type": "int"
+      },
+      "xp": {
+        "type": "int"
+      }
+    }
+  },
+  "tBabPublishedHint": "Seluruh bab aktif terbaca oleh siswa di kelasmu.",
+  "tBabDraftHint": "Materi berstatus Draft. Siswa belum dapat melihat bab-bab ini.",
+  "tBabListTitle": "Daftar Bab Terstruktur",
+  "tBabFlowOrder": "Urutan Alur Belajar",
+  "tBabEmptyTitle": "Belum Ada Bab",
+  "tBabEmptyBody": "Materi ini belum memiliki bab pembelajaran. Tambahkan bab pertama untuk mulai menyusun slide kuis dan teori.",
+  "tBabAddFirst": "Tambah Bab Pertama",
+  "tBabRowMeta": "{slides} Slide • {xp} XP",
+  "@tBabRowMeta": {
+    "placeholders": {
+      "slides": {
+        "type": "int"
+      },
+      "xp": {
+        "type": "int"
+      }
+    }
+  },
+  "tBabMoveUp": "Pindah ke atas",
+  "tBabMoveDown": "Pindah ke bawah",
+  "tBabPreviewTooltip": "Simulator Siswa (Pratinjau)",
+  "tBabActionTooltip": "Aksi bab",
+  "tBabEdit": "Edit Bab",
+  "tBabDuplicateMenu": "Duplikat Bab",
+  "tBabDeleteMenu": "Hapus Bab",
+  "tFormLevelDescBeginner": "Level dasar: ditujukan bagi siswa yang baru mengenal logika pemrograman.",
+  "tFormLevelDescIntermediate": "Level menengah: percabangan lanjutan, perulangan, & manipulasi data.",
+  "tFormLevelDescAdvanced": "Level mahir: algoritma rekursif kompleks & optimasi pemecahan masalah.",
+  "tFormNotFound": "Materi tidak ditemukan. Kembali ke Studio Materi untuk memilih materi lain.",
+  "tFormTitleRequired": "Nama materi wajib diisi.",
+  "tFormTitleDuplicate": "Nama materi sudah dipakai. Gunakan nama lain agar siswa tidak bingung.",
+  "tFormUpdated": "Materi berhasil diperbarui.",
+  "tFormSavedDraft": "Materi tersimpan sebagai draft.",
+  "tFormSaveFailed": "Materi belum tersimpan. Periksa koneksi lalu coba lagi.",
+  "tFormUnsavedTitle": "Perubahan Belum Disimpan",
+  "tFormUnsavedBody": "Ada revisi pada form materi ini. Simpan perubahan sebagai draft terlebih dahulu atau abaikan?",
+  "tFormSaveExit": "Simpan Draft & Keluar",
+  "tFormDiscard": "Buang Perubahan",
+  "tFormKeepEditing": "Lanjut Mengedit",
+  "tFormEdit": "Edit Materi",
+  "tFormLoadFailed": "Materi Tidak Dapat Dimuat",
+  "tFormOpenStudio": "Buka Studio Materi",
+  "tFormAdd": "Tambah Materi Baru",
+  "tFormModeEdit": "Mode Edit",
+  "tFormNewBadge": "Materi Baru",
+  "tFormEditHeading": "Ubah Pengaturan Materi",
+  "tFormAddHeading": "Konfigurasi Materi Baru",
+  "tFormSubtitle": "Konfigurasikan judul, track kurikulum, dan level kesulitan untuk ditampilkan ke siswa.",
+  "tFormFieldName": "Nama Materi *",
+  "tFormExampleName": "Contoh: Dasar Algoritma & Python RPL",
+  "tFormFieldDesc": "Deskripsi Singkat *",
+  "tFormDescHint": "Jelaskan capaian materi dalam 2-3 kalimat ringkas...",
+  "tFormFieldIcon": "Kode Ikon Materi *",
+  "tFormIconHint": "Pilih preset ikon atau ketik nama kode ikon (misal: terminal, html, css, javascript, database, psychology, shield, phone_android).",
+  "tFormExampleIcon": "Contoh: terminal",
+  "tFormFieldTopic": "Topik / Track Kurikulum *",
+  "tFormFieldLevel": "Tingkat Kesulitan *",
+  "tFormDraftNotice": "Materi baru disimpan sebagai Draft. Materi hanya terlihat oleh siswa setelah kamu menekan tombol \"Terbitkan\".",
+  "tFormSaveDraft": "Simpan Draft",
+  "tFormContinueBabs": "Lanjut ke Bab",
+  "tSlideNotFound": "Slide tidak ditemukan. Buka Bab Builder untuk memilih slide lain.",
+  "tSlideTemplateApplied": "Template awal \"{label}\" dipakai.",
+  "@tSlideTemplateApplied": {
+    "placeholders": {
+      "label": {
+        "type": "String"
+      }
+    }
+  },
+  "tSlideBabUnsaved": "Bab baru belum tersimpan. Tambahkan slide dari Bab Builder agar tersimpan bersama bab.",
+  "tSlideSaveNoBab": "Slide tidak dapat disimpan. Buka Bab Builder untuk memuat ulang bab.",
+  "tSlideSaveFailed": "Slide gagal disimpan. Coba lagi.",
+  "tSlideSaved": "Slide tersimpan ke bab.",
+  "tSlideEditorTitle": "Editor Slide",
+  "tSlideLoadFailedTitle": "Slide Tidak Dapat Dimuat",
+  "tSlideOpenBabBuilder": "Buka Bab Builder",
+  "tSlidePreviewTooltip": "Pratinjau slide",
+  "tSlideHeader": "Slide {index} • {label}",
+  "@tSlideHeader": {
+    "placeholders": {
+      "index": {
+        "type": "int"
+      },
+      "label": {
+        "type": "String"
+      }
+    }
+  },
+  "tSlidePreviewAsStudent": "Pratinjau sebagai Siswa",
+  "tSlideUseTemplate": "Pakai Template Awal",
+  "tSlideSave": "Simpan Slide",
+  "tSlideTooLong": "{label} terlalu panjang (maksimal {max} karakter).",
+  "@tSlideTooLong": {
+    "placeholders": {
+      "label": {
+        "type": "String"
+      },
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "tSlideRequired": "{label} wajib diisi.",
+  "@tSlideRequired": {
+    "placeholders": {
+      "label": {
+        "type": "String"
+      }
+    }
+  },
+  "tSlideMaxItems": "{label} maksimal {limit} butir.",
+  "@tSlideMaxItems": {
+    "placeholders": {
+      "label": {
+        "type": "String"
+      },
+      "limit": {
+        "type": "int"
+      }
+    }
+  },
+  "tSlideChoiceEmpty": "Pilihan {letter} pada {label} masih kosong.",
+  "@tSlideChoiceEmpty": {
+    "placeholders": {
+      "letter": {
+        "type": "String"
+      },
+      "label": {
+        "type": "String"
+      }
+    }
+  },
+  "tSlideChoiceKey": "Pilih salah satu kunci jawaban A–D pada {label}.",
+  "@tSlideChoiceKey": {
+    "placeholders": {
+      "label": {
+        "type": "String"
+      }
+    }
+  },
+  "tSlideSlotEmpty": "Kunci jawaban slot {n} masih kosong.",
+  "@tSlideSlotEmpty": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "tSlideTapMarkerMissing": "Kode soal belum punya penanda [KETIK_DISINI] sebagai tempat siswa mengetik.",
+  "tSlideBugHintOrFix": "Isi \"Pesan Indikator\" atau \"Kode Perbaikan Valid\" agar siswa mendapat penjelasan setelah menjawab.",
+  "tSlideConceptRequired": "Isi minimal satu konsep yang dikuasai.",
+  "tSlideTemplateNoSlot": "Template kode belum punya slot. Tandai bagian kosong dengan ___1___, ___2___, dan seterusnya.",
+  "tSlideDistractorRequired": "Tambahkan minimal satu pengecoh agar soal bisa dipilih.",
+  "tSlideDistractorsSame": "Semua pengecoh sama dengan kunci jawaban. Tambahkan pilihan lain.",
+  "tSlideTargetNotNumber": "Target nomor baris harus berupa angka.",
+  "tSlideTargetRange": "Target nomor baris harus antara 1 dan {n} sesuai jumlah baris kode.",
+  "@tSlideTargetRange": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "tSlideFieldExerciseTitle": "Judul latihan",
+  "tSlideFieldInstruction": "Instruksi",
+  "tSlideFieldQuestionTitle": "Judul soal",
+  "tSlideFieldQuestionCode": "Kode soal",
+  "tSlideFieldAnswerKeyword": "Kata kunci jawaban",
+  "tSlideFieldHint": "Petunjuk",
+  "tSlideFieldSlideTitle": "Judul slide",
+  "tSlideFieldCodeBlock": "Blok kode",
+  "tSlideFieldOutputChoices": "pilihan output",
+  "tSlideFieldExplanation": "Penjelasan",
+  "tSlideFieldChallengeTitle": "Judul tantangan",
+  "tSlideFieldScenario": "Skenario",
+  "tSlideFieldProgramCode": "Kode program",
+  "tSlideFieldErrorType": "Jenis error",
+  "tSlideFieldBugHint": "Pesan indikator",
+  "tSlideFieldFixCode": "Kode perbaikan",
+  "tSlideFieldQuizQuestion": "Pertanyaan kuis",
+  "tSlideFieldAnswerChoices": "pilihan jawaban",
+  "tSlideFieldFeedback": "Umpan balik",
+  "tSlideFieldOutroTitle": "Judul slide penutup",
+  "tSlideFieldSummary": "Rangkuman materi",
+  "tSlideFieldMasteredConcepts": "Konsep yang dikuasai",
+  "tSlideFieldTheoryTitle": "Judul materi teori",
+  "tSlideFieldTheoryContent": "Konten penjelasan",
+  "tSlideFieldSampleCode": "Cuplikan kode sampel",
+  "tSlideFieldCodeLanguage": "Bahasa kode",
+  "tSlideFieldCodeTemplate": "Template kode",
+  "tSlideFieldAnswerKey": "Kunci jawaban",
+  "tSlideFieldSlotAnswer": "Kunci jawaban slot",
+  "tSlideFieldDistractors": "Pengecoh",
+  "tSlideFieldTargetLine": "Target nomor baris",
+  "tBabNotFound": "Bab tidak ditemukan. Buka daftar bab untuk memilih bab lain.",
+  "tBabSlideEmptyHint": "Belum ada isi. Ketuk Edit Konten untuk mulai.",
+  "tBabMinSlides": "Bab minimal harus memiliki 1 slide.",
+  "tBabTitleRequired": "Nama bab wajib diisi.",
+  "tBabUpdated": "Bab berhasil diperbarui.",
+  "tBabCreated": "Bab baru berhasil ditambahkan.",
+  "tBabMinSlidesPreview": "Bab minimal harus memiliki 1 slide untuk disimulasikan.",
+  "tBabPreviewFallback": "Pratinjau Bab",
+  "tBabEditTitle": "Edit Bab",
+  "tBabLoadFailedTitle": "Bab Tidak Dapat Dimuat",
+  "tBabOpenList": "Buka Daftar Bab",
+  "tBabBuilderTitle": "Bab Builder",
+  "tBabFieldName": "Nama Bab *",
+  "tBabExampleName": "Contoh: Pengenalan Tag & Dokumen HTML",
+  "tBabXpTitle": "XP Hadiah Bab",
+  "tBabXpHint": "Diberikan saat siswa menuntaskan bab",
+  "tBabFlowTitle": "Alur Slide",
+  "tBabSlideCount": "{count} Unit",
+  "@tBabSlideCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "tBabAddSlide": "Tambah Slide",
+  "tBabDeleteSlide": "Hapus slide",
+  "tBabEditSlideContent": "Edit Konten Slide",
+  "tBabSaveChanges": "Simpan Perubahan Bab",
+  "tBabSaveNew": "Simpan Bab Baru",
+  "tBabPickerTitle": "Pilih Jenis Slide Baru",
+  "tBabFormatCount": "{count} Format",
+  "@tBabFormatCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "tBabPickerHint": "Ketuk ikon mata untuk melihat pratinjau simulasi koding, atau pilih langsung untuk menambahkan ke alur bab.",
+  "tBabPreviewFormatTooltip": "Pratinjau Format Interaktif",
+  "tBabPickerAddTooltip": "Tambahkan Slide",
+  "tBabBentoTitle": "Pilih Jenis Slide / Latihan Koding",
+  "tBabBentoHint": "Ketuk \"Pratinjau\" untuk simulasi koding siswa, atau tekan \"Gunakan\" untuk memasukkan ke alur bab.",
+  "tBabPreviewButton": "Pratinjau",
+  "tBabUseButton": "Gunakan",
+  "tBabTypeTheoryName": "Teori & Konsep",
+  "tBabTypeTapName": "Lengkapi Kode",
+  "tBabTypeTypeName": "Ketik Kata Kunci",
+  "tBabTypeOutputName": "Tebak Output",
+  "tBabTypeBugName": "Bug Hunter",
+  "tBabTypeQuizName": "Kuis Pilihan Ganda",
+  "tBabTypeOutroName": "Rangkuman & Klaim XP",
+  "tBabTypeTheoryBadge": "Bahan Baca",
+  "tBabTypeTapBadge": "Interaktif",
+  "tBabTypeTypeBadge": "Sintaks",
+  "tBabTypeOutputBadge": "Logika",
+  "tBabTypeBugBadge": "Debugging",
+  "tBabTypeQuizBadge": "Evaluasi",
+  "tBabTypeOutroBadge": "Pencapaian",
+  "tBabSheetDescTheory": "Teks penjelasan konsep materi & contoh kode visual.",
+  "tBabSheetDescTap": "Siswa mengetuk keping blok untuk melengkapi baris kode.",
+  "tBabSheetDescType": "Latihan mengetik keyword atau ekspresi sintaksis.",
+  "tBabSheetDescOutput": "Siswa menganalisis snippet dan memprediksi hasil keluaran terminal.",
+  "tBabSheetDescBug": "Tantangan memperbaiki galat penulisan atau logika koding.",
+  "tBabSheetDescQuiz": "Pertanyaan evaluasi pemahaman dengan 4 opsi pilihan.",
+  "tBabSheetDescOutro": "Slide penutup bab dengan ringkasan capaian dan hadiah.",
+  "tBabBentoDescTheory": "Teks bacaan terstruktur, markdown penjelasan, dan contoh kode.",
+  "tBabBentoDescTap": "Fill-in-the-blanks dengan token kepingan kode terpandu.",
+  "tBabBentoDescType": "Latihan muscle-memory mengetik keyword sintaksis spesifik.",
+  "tBabBentoDescOutput": "Menganalisis baris kode dan memprediksi hasil luaran terminal.",
+  "tBabBentoDescBug": "Menemukan baris kode yang rusak dan menentukan perbaikannya.",
+  "tBabBentoDescQuiz": "Pertanyaan konseptual dengan 4 opsi pilihan dan pembahasan.",
+  "pyErrStringUnclosed": "SyntaxError: string tidak ditutup",
+  "pyErrFStringCloseBrace": "SyntaxError: f-string: tanda {brace} tidak ditemukan",
+  "@pyErrFStringCloseBrace": {
+    "placeholders": {
+      "brace": {
+        "type": "String"
+      }
+    }
+  },
+  "pyErrFStringEmptyExpr": "SyntaxError: f-string: ekspresi kosong",
+  "pyErrFStringStrayBrace": "SyntaxError: f-string: tanda {brace} di luar placeholder",
+  "@pyErrFStringStrayBrace": {
+    "placeholders": {
+      "brace": {
+        "type": "String"
+      }
+    }
+  },
+  "pyErrFStringUnclosed": "SyntaxError: f-string tidak ditutup",
+  "pyErrTimeoutSeconds": "RuntimeError: program dihentikan (melewati batas 5 detik)",
+  "pyErrStepLimit": "RuntimeError: program dihentikan — melewati 100.000 langkah (periksa perulangan tanpa ujung)",
+  "pyErrBreakOutsideLoop": "SyntaxError: \"break\" di luar perulangan",
+  "pyErrContinueOutsideLoop": "SyntaxError: \"continue\" di luar perulangan",
+  "pyErrReturnOutsideFunction": "SyntaxError: 'return' di luar fungsi",
+  "pyErrElifWithoutIf": "SyntaxError: invalid syntax (elif/else tanpa if)",
+  "pyErrInvalidParam": "SyntaxError: parameter tidak valid -> {param}",
+  "@pyErrInvalidParam": {
+    "placeholders": {
+      "param": {
+        "type": "String"
+      }
+    }
+  },
+  "pyErrInputNeedsDialog": "RuntimeError: input() butuh dialog — jalankan dari halaman Playground",
+  "pyErrSumNeedsList": "TypeError: sum() membutuhkan list sebagai argumen pertama",
+  "pyErrUnknownOperator": "TypeError: operator '{op}' tidak dikenal",
+  "@pyErrUnknownOperator": {
+    "placeholders": {
+      "op": {
+        "type": "String"
+      }
+    }
+  },
+  "tAnalyticsCodeCopied": "Kode kelas \"{code}\" disalin ke clipboard!",
+  "@tAnalyticsCodeCopied": {
+    "placeholders": {
+      "code": {
+        "type": "String"
+      }
+    }
+  },
+  "tAnalyticsRemoveTitle": "Keluarkan Siswa",
+  "tAnalyticsRemoveBody": "Keluarkan {name} dari {className}?\n\nSiswa tidak akan muncul lagi di daftar dan peringkat kelas. Ia bisa bergabung kembali dengan kode kelas.",
+  "@tAnalyticsRemoveBody": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "className": {
+        "type": "String"
+      }
+    }
+  },
+  "tAnalyticsThisClass": "kelas ini",
+  "tAnalyticsRemoveConfirm": "Keluarkan",
+  "tAnalyticsClassOptions": "Opsi Kelas: {name}",
+  "@tAnalyticsClassOptions": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "tAnalyticsRegenerateCode": "Acak Ulang Kode Kelas",
+  "tAnalyticsRegenerateCodeSub": "Hasilkan kode kelas baru.",
+  "tAnalyticsArchiveClass": "Arsipkan Kelas",
+  "tAnalyticsArchiveClassSub": "Siswa tidak dapat bergabung lagi.",
+  "tAnalyticsHintMaterialSuffix": " yang sudah menuntaskan \"{title}\"",
+  "@tAnalyticsHintMaterialSuffix": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "tAnalyticsHintCompleted": "Materi Tuntas = siswa yang sudah menuntaskan minimal satu materi{suffix}, diurutkan dari materi tuntas terbanyak.",
+  "@tAnalyticsHintCompleted": {
+    "placeholders": {
+      "suffix": {
+        "type": "String"
+      }
+    }
+  },
+  "tAnalyticsPracticeRegular": "latihan biasa (bukan mini proyek)",
+  "tAnalyticsPracticeMini": "mini proyek",
+  "tAnalyticsPracticeAny": "latihan apa pun (biasa + mini proyek)",
+  "tAnalyticsHintPractice": "Latihan Terbanyak = siswa yang sudah lulus minimal satu {type}{suffix}, diurutkan dari jumlah latihan lulus terbanyak.",
+  "@tAnalyticsHintPractice": {
+    "placeholders": {
+      "type": {
+        "type": "String"
+      },
+      "suffix": {
+        "type": "String"
+      }
+    }
+  },
+  "tAnalyticsNotStartedMaterial": "belum menuntaskan satu materi pun",
+  "tAnalyticsNotStartedPractice": "belum menyelesaikan satu latihan pun",
+  "tAnalyticsNotStartedBoth": "belum menuntaskan materi dan belum menyelesaikan latihan",
+  "tAnalyticsHintNotStarted": "Belum Memulai = siswa yang {scope}{suffix}, diurutkan dari siswa yang paling aktif berlatih.",
+  "@tAnalyticsHintNotStarted": {
+    "placeholders": {
+      "scope": {
+        "type": "String"
+      },
+      "suffix": {
+        "type": "String"
+      }
+    }
+  },
+  "tAnalyticsHintAll": "Semua = seluruh anggota kelas{suffix}, diurutkan dari materi tuntas terbanyak lalu latihan lulus.",
+  "@tAnalyticsHintAll": {
+    "placeholders": {
+      "suffix": {
+        "type": "String"
+      }
+    }
+  },
+  "tAnalyticsFilterByMaterial": "Saring Daftar Siswa per Materi",
+  "tAnalyticsFilterByMaterialHint": "Angka di tiap tombol = jumlah siswa yang sudah menuntaskan materi itu.",
+  "tAnalyticsFilterAllMaterials": "Semua Materi ({count})",
+  "@tAnalyticsFilterAllMaterials": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "tAnalyticsFilterMaterialCount": "{title} ({count})",
+  "@tAnalyticsFilterMaterialCount": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "tAnalyticsTrackBasisTitle": "Dasar Nilai Kemajuan Per Track",
+  "tAnalyticsTrackBasisBody": "Persentase tiap track = rata-rata progress_percent seluruh siswa kelas pada SEMUA materi resmi (kurikulum bawaan) di track itu.\n\n• Setiap pasangan siswa × materi dihitung satu baris, termasuk materi yang belum pernah dibuka (dianggap 0%).\n• Nilai 100% berarti seluruh siswa kelas sudah menuntaskan seluruh materi di track tersebut.\n• Materi buatan guru tidak dihitung (hanya kurikulum resmi).\n• Angka ini mengukur ketuntasan materi, bukan nilai latihan.",
+  "tAnalyticsGotIt": "Mengerti",
+  "tAnalyticsNoStudents": "Belum ada siswa.",
+  "tAnalyticsTitle": "Analisa Kelas",
+  "tAnalyticsClassOptionsLabel": "Opsi Kelas",
+  "tAnalyticsLoading": "Memuat data analisa kelas...",
+  "tAnalyticsEmptyBody": "Buat kelas pertamamu di Dashboard untuk memantau analisa kurikulum dan progres belajar siswa.",
+  "tAnalyticsLabClass": "Kelas Laboratorium",
+  "tAnalyticsAcademicYear": "Tahun Ajaran {year}",
+  "@tAnalyticsAcademicYear": {
+    "placeholders": {
+      "year": {
+        "type": "String"
+      }
+    }
+  },
+  "tAnalyticsClassCode": "Kode Kelas",
+  "tAnalyticsReadyJoin": "Siap Join",
+  "tAnalyticsShareCodeHint": "Bagikan kode ini agar siswa dapat bergabung ke kelas:",
+  "tAnalyticsEnlarge": "Perbesar ↗",
+  "tAnalyticsTrackTitle": "Kemajuan Kurikulum Per Track",
+  "tAnalyticsTrackTooltip": "Rata-rata progress semua siswa kelas pada semua materi resmi di track ini (materi yang belum dibuka = 0%).",
+  "tAnalyticsTrackSubtitle": "Rata-rata ketuntasan seluruh siswa kelas pada semua materi resmi track tersebut.",
+  "tAnalyticsTrackEmpty": "Data track akan terisi otomatis setelah siswa mulai belajar.",
+  "tAnalyticsHardestTitle": "Bab Tersulit (Perlu Pendampingan)",
+  "tAnalyticsHardestEmpty": "Tidak ada tantangan yang terdeteksi sulit pada kelas ini 🎉",
+  "tAnalyticsFailCount": "{count} siswa gagal",
+  "@tAnalyticsFailCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "tAnalyticsRankingTitle": "Peringkat Siswa Kelas",
+  "tAnalyticsRankingTop": "{top} teratas dari {total}",
+  "@tAnalyticsRankingTop": {
+    "placeholders": {
+      "top": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "tAnalyticsStudentCount": "{count} Siswa",
+  "@tAnalyticsStudentCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "tAnalyticsRankingHint": "Peringkat hanya menampilkan maksimal {max} siswa dengan materi/latihan terbanyak. Semua siswa tetap tampil lengkap di bagian Daftar Siswa.",
+  "@tAnalyticsRankingHint": {
+    "placeholders": {
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "tAnalyticsRankMaterial": "Materi",
+  "tAnalyticsRankMaterialSub": "Materi tuntas",
+  "tAnalyticsRankPractice": "Latihan",
+  "tAnalyticsRankPracticeSub": "Tantangan lulus",
+  "tAnalyticsRosterTitle": "Daftar Siswa",
+  "tAnalyticsFilterAllCount": "Semua ({count})",
+  "@tAnalyticsFilterAllCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "tAnalyticsFilterCompletedCount": "Materi Tuntas ({count})",
+  "@tAnalyticsFilterCompletedCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "tAnalyticsFilterPractice": "Latihan Terbanyak",
+  "tAnalyticsFilterNotStartedCount": "Belum Memulai ({count})",
+  "@tAnalyticsFilterNotStartedCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "tAnalyticsPracticeAll": "Semua Latihan",
+  "tAnalyticsPracticeRegularLabel": "Latihan Biasa",
+  "tAnalyticsNotStartedAll": "Materi & Latihan",
+  "tAnalyticsNotStartedMaterialLabel": "Belum Kerjakan Materi",
+  "tAnalyticsNotStartedPracticeLabel": "Belum Selesaikan Latihan",
+  "tAnalyticsRosterEmpty": "Belum ada siswa yang bergabung di kelas ini.",
+  "tAnalyticsRosterFilterEmpty": "Tidak ada siswa pada kategori filter ini.",
+  "tAnalyticsRowPracticeDetail": "{materials} materi tuntas • {regular} latihan biasa • {mini} mini proyek",
+  "@tAnalyticsRowPracticeDetail": {
+    "placeholders": {
+      "materials": {
+        "type": "int"
+      },
+      "regular": {
+        "type": "int"
+      },
+      "mini": {
+        "type": "int"
+      }
+    }
+  },
+  "tAnalyticsRowDetail": "{materials} materi tuntas • {practice} latihan lulus",
+  "@tAnalyticsRowDetail": {
+    "placeholders": {
+      "materials": {
+        "type": "int"
+      },
+      "practice": {
+        "type": "int"
+      }
+    }
+  },
+  "tAnalyticsXp": "{xp} XP",
+  "@tAnalyticsXp": {
+    "placeholders": {
+      "xp": {
+        "type": "int"
+      }
+    }
+  },
+  "tAnalyticsRemoveFromClass": "Keluarkan dari kelas",
+  "tSlideFormHelpTheoryTitle": "Judul tampil paling atas di layar siswa.\n- Buat ringkas dan spesifik, maksimal 120 karakter.\n- Sebut inti konsepnya, bukan nama bab.",
+  "tSlideFormHelpTheoryContent": "Cara menulis isi materi:\n- Pisahkan paragraf dengan satu baris kosong.\n- Baris yang diawali \"- \" atau \"* \" otomatis jadi butir daftar.\n- Selain itu teks ditampilkan apa adanya: **tebal**, # judul, tautan, dan `kode` tidak diformat.\n\nContoh:\nHTML adalah bahasa penanda untuk menyusun halaman web.\n\n- Tag dibuka lalu ditutup.\n- Atribut menempel pada tag pembuka.",
+  "tSlideFormHelpCodeFileSample": "Hanya menentukan nama berkas pada kartu kode:\n- HTML → index.html\n- CSS → style.css\n- JavaScript → script.js\n- Python → script.py",
+  "tSlideFormHelpSampleCode": "Kode contoh yang tampil di kotak kode di bawah penjelasan.\n- Kosongkan bila slide tidak perlu contoh kode.\n- Tulis kode aslinya saja, tanpa penanda blok markdown.\n- Maksimal 8000 karakter.",
+  "tSlideFormHelpExerciseTitle": "Judul tampil di kepala soal, maksimal 120 karakter.\nContoh: \"Lengkapi Tag Penutup HTML\".",
+  "tSlideFormHelpShortInstruction": "Satu sampai dua kalimat arahan sebelum siswa mengetuk slot.\n- Jelaskan bagian mana yang harus dilengkapi.\n- Jangan sebut jawabannya di sini.",
+  "tSlideFormHelpCodeTemplate": "Tempel kode di sini, lalu tandai bagian kosong dengan ___1___, ___2___, dan seterusnya.\n- Penanda dikenali selama memakai minimal dua garis bawah di awal dan akhir, dengan angka opsional di tengah.\n- Urutan slot mengikuti urutan kemunculannya di dalam kode.\n- Satu slot berarti satu jawaban; jangan menaruh dua slot untuk jawaban yang sama.\n\nContoh:\nx = ___1___\nprint(x)",
+  "tSlideFormHelpSlotAnswers": "Isi jawaban benar untuk setiap slot sesuai urutan kemunculan.\n- Spasi di awal/akhir diabaikan, tetapi huruf besar-kecil dihitung: tulis \"print\", bukan \"Print\".\n- Tulis persis seperti yang seharusnya ada di dalam kode.\n- Jumlah isian mengikuti jumlah slot yang terdeteksi.",
+  "tSlideFormHelpDistractors": "Kata tambahan yang muncul sebagai pilihan, tetapi bukan jawaban benar.\n- Pisahkan dengan koma.\n- Pengecoh yang sama dengan kunci otomatis dibuang.\n- Sisakan minimal satu agar siswa benar-benar harus memilih.",
+  "tSlideFormHelpCodeFile": "Menentukan nama berkas pada kartu kode:\n- HTML → index.html\n- CSS → style.css\n- JavaScript → script.js\n- Python → script.py",
+  "tSlideFormHelpQuestionTitle": "Judul tampil di kepala soal, maksimal 120 karakter.\nContoh: \"Deklarasi Variabel Python\".",
+  "tSlideFormHelpInteractiveInstruction": "Arahan singkat yang dibaca siswa sebelum mengetik.\n- Sebutkan apa yang harus dicari tanpa memberi jawabannya.\n- Maksimal 300 karakter.",
+  "tSlideFormHelpQuestionCode": "Tulis potongan kode, lalu ganti bagian yang harus diisi dengan [KETIK_DISINI].\n- Penanda itu berubah menjadi kotak input di layar siswa.\n- Boleh lebih dari satu penanda dalam satu slide.\n- Tanpa penanda, siswa tidak punya tempat mengetik jawaban.",
+  "tSlideFormHelpAnswerKeyword": "Jawaban yang dianggap benar.\n- Perbandingan mengabaikan spasi awal/akhir dan huruf besar-kecil, jadi \"Print\" sama dengan \"print\".\n- Isi satu kata kunci atau ekspresi pendek saja.",
+  "tSlideFormHelpWrongHint": "Bantuan yang muncul ketika jawaban siswa salah.\n- Beri petunjuk arah, jangan tulis jawabannya langsung.\n- Satu sampai dua kalimat sudah cukup.",
+  "tSlideFormHelpSlideTitle": "Judul tampil di kepala slide, maksimal 120 karakter.\nContoh: \"Tebak Output Operator Modulo\".",
+  "tSlideFormHelpChallengeInstruction": "Pertanyaan singkat di atas blok kode.\nBiasanya cukup: \"Apakah output yang dicetak ke terminal?\".",
+  "tSlideFormHelpSourceCode": "Kode yang dibaca siswa untuk menebak output.\n- Tulis persis seperti program aslinya.\n- Kode hanya ditampilkan, tidak dijalankan, jadi hasilnya harus bisa ditebak dari isi kode.",
+  "tSlideFormHelpOutputChoices": "Isi keempat pilihan (A sampai D).\n- Ketuk lingkaran di kiri untuk menandai kunci jawaban.\n- Satu pilihan harus persis sama dengan output sebenarnya.\n- Jangan biarkan pilihan kosong: pilihan kosong tetap tampil di layar siswa.",
+  "tSlideFormHelpOutputExplanation": "Muncul setelah siswa menjawab, benar maupun salah.\nJelaskan alasan output itu muncul, misalnya urutan operasi atau tipe data yang terlibat.",
+  "tSlideFormHelpChallengeTitle": "Judul tampil di kepala tantangan, maksimal 120 karakter.\nContoh: \"Mencari Kesalahan Loop For\".",
+  "tSlideFormHelpScenario": "Konteks singkat masalah yang dihadapi siswa; tampil sebagai instruksi di atas kode.\nCeritakan situasinya, jangan sebut nomor baris yang salah.",
+  "tSlideFormHelpBuggyCode": "Seluruh kode yang mengandung bug.\n- Nomor baris dihitung dari 1 mengikuti urutan baris di kotak ini, termasuk baris kosong.\n- Sisipkan bug yang benar-benar bisa dijelaskan oleh \"Jenis Error\" dan \"Kode Perbaikan\".",
+  "tSlideFormHelpTargetLine": "Nomor baris yang benar, dihitung dari 1.\n- Harus berada di antara 1 dan jumlah baris kode di atas.\n- Bila di luar jangkauan, layar siswa mengunci ke baris terdekat sehingga jawaban tidak pernah cocok.",
+  "tSlideFormHelpErrorType": "Label kategori galat yang tampil ke siswa.\nContoh: SyntaxError, IndentationError, NameError.",
+  "tSlideFormHelpBugHint": "Teks ini menjadi penjelasan yang muncul setelah siswa menjawab.\n- Jelaskan aturan yang dilanggar di baris tersebut.\n- Bila dikosongkan, \"Kode Perbaikan Valid\" yang dipakai sebagai penjelasan.",
+  "tSlideFormHelpFixCode": "Cuplikan perbaikan yang benar untuk baris yang ditandai.\n- Dipakai sebagai contoh solusi sekaligus penjelasan cadangan bila \"Pesan Indikator\" kosong.\n- Tulis hanya bagian yang diperbaiki, bukan seluruh program.",
+  "tSlideFormHelpQuizTitle": "Judul tampil di kepala kuis, maksimal 120 karakter.\nContoh: \"Memahami Tipe Data\".",
+  "tSlideFormHelpQuizQuestion": "Pertanyaan dengan satu jawaban benar.\n- Ajukan satu konsep saja, jangan digabung.\n- Maksimal 300 karakter.",
+  "tSlideFormHelpAnswerChoices": "Isi keempat pilihan (A sampai D).\n- Ketuk lingkaran di kiri untuk menandai kunci jawaban.\n- Jangan biarkan pilihan kosong karena tetap tampil sebagai opsi kosong di layar siswa.",
+  "tSlideFormHelpFeedback": "Muncul setelah siswa menjawab, benar maupun salah.\nJelaskan mengapa kunci jawabannya benar dan, bila perlu, mengapa pengecohnya salah.",
+  "tSlideFormHelpOutroTitle": "Judul tampil di kepala slide penutup, maksimal 120 karakter.\nContoh: \"Rangkuman Bab\".",
+  "tSlideFormHelpSummary": "Ringkasan yang dibaca siswa di akhir bab.\n- Sebut kembali konsep utama yang baru dipelajari.\n- Beri penutup yang memotivasi, bukan soal baru.",
+  "tSlideFormHelpMasteredConcepts": "Daftar konsep yang dianggap dikuasai setelah bab ini.\n- Pisahkan dengan koma, misalnya: Variabel, Perulangan.\n- Setiap konsep tampil sebagai label capaian.\n- Isi minimal satu konsep.",
+  "tSlideFormHintTheoryTitleExample": "Contoh: Struktur Dasar Dokumen HTML5",
+  "tSlideFormHintTheoryContent": "Tuliskan konsep utama, poin-poin, atau contoh...",
+  "tSlideFormHintExerciseTitleExample": "Contoh: Lengkapi Tag Penutup HTML",
+  "tSlideFormHintShortInstruction": "Instruksi pengerjaan bagi siswa...",
+  "tSlideFormHintQuestionTitleExample": "Contoh: Deklarasi Variabel Python",
+  "tSlideFormHintInteractiveInstruction": "Ketikkan kata kunci untuk mendeklarasikan variabel...",
+  "tSlideFormHintAnswerKeywordExample": "Contoh: def / const / let",
+  "tSlideFormHintWrongHint": "Ingat penulisan huruf kecil semua.",
+  "tSlideFormHintSlideTitleExample": "Contoh: Tebak Output Operator Modulo",
+  "tSlideFormHintChallengeInstruction": "Apakah output yang dicetak ke terminal?",
+  "tSlideFormHintOutputExplanation": "Mengapa output tersebut yang muncul?",
+  "tSlideFormHintChallengeTitleExample": "Contoh: Mencari Kesalahan Loop For",
+  "tSlideFormHintScenario": "Deskripsi konteks masalah...",
+  "tSlideFormHintTargetLineExample": "Contoh: 2",
+  "tSlideFormHintBugHint": "Kurang tanda titik dua (:) di akhir pernyataan for",
+  "tSlideFormHintQuizTitleExample": "Contoh: Memahami Tipe Data",
+  "tSlideFormHintQuizQuestion": "Tuliskan pertanyaan konseptual...",
+  "tSlideFormHintFeedback": "Mengapa opsi tersebut benar?",
+  "tSlideFormHintOutroTitleExample": "Contoh: Rangkuman Bab",
+  "tSlideFormHintSummary": "Ringkasan capaian siswa setelah menuntaskan bab...",
+  "tSlideFormHintMasteredConcepts": "Variabel, Percabangan, Perulangan",
+  "tSlideFormSlotAnswerCount": "Kunci jawaban per slot ({count} slot terdeteksi)",
+  "@tSlideFormSlotAnswerCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "tSlideFormSlot": "Slot {n}",
+  "@tSlideFormSlot": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "tSlideFormSlotAnswerHint": "Jawaban benar untuk slot {n}",
+  "@tSlideFormSlotAnswerHint": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "tSlideFormNoSlotsHint": "Tambahkan penanda ___1___, ___2___, dan seterusnya pada template.",
+  "tSlideFormXpNote": "Siswa otomatis mengklaim {xp} XP saat mencapai slide ini.",
+  "@tSlideFormXpNote": {
+    "placeholders": {
+      "xp": {
+        "type": "int"
+      }
+    }
+  },
+  "tPreviewInteractiveFormat": "Pratinjau Format Interaktif",
+  "tPreviewSheetTitle": "Pratinjau Tipe Slide: {title}",
+  "@tPreviewSheetTitle": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "tPreviewBenefits": "Manfaat Pedagogis",
+  "tPreviewReward": "Imbalan Siswa",
+  "tPreviewModuleType": "Tipe Modul",
+  "tPreviewUseType": "Gunakan Tipe Ini",
+  "tPreviewSimulation": "Simulasi Siswa Aktif",
+  "tPreviewPhoneScreen": "Layar Ponsel",
+  "tPreviewAnswerChoices": "Pilihan jawaban untuk siswa:",
+  "tPreviewSubtitleTapToFill": "Simulasi bagaimana siswa berinteraksi dengan latihan ini di ponsel secara langsung.",
+  "tPreviewTechTapToFill": "HTML • V1.2",
+  "tPreviewPromptTapToFill": "Lengkapi tag penutup yang tepat: Baris 4",
+  "tPreviewFeedbackTapToFill": "Siswa mendapat umpan balik instan saat memilih kepingan kode.",
+  "tPreviewBenefitTapToFill": "Melatih penguasaan sintaksis dasar tanpa beban mengetik panjang di papan ketik layar sentuh HP.",
+  "tPreviewSubtitleTheory": "Teks bacaan terstruktur, markdown penjelasan, dan cuplikan kode contoh.",
+  "tPreviewTechTheory": "Markdown • Teori",
+  "tPreviewPromptTheory": "Materi Pembuka & Pengenalan Logika",
+  "tPreviewFeedbackTheory": "Mendukung format Markdown, syntax highlighter, dan kotak callout tips guru.",
+  "tPreviewBenefitTheory": "Membangun landasan pemahaman konseptual yang kuat sebelum siswa masuk ke sesi latihan interaktif.",
+  "tPreviewSubtitleTypeCode": "Latihan muscle-memory mengetikkan keyword sintaksis spesifik.",
+  "tPreviewTechTypeCode": "Python • Sintaks",
+  "tPreviewPromptTypeCode": "Ketikkan kata kunci untuk membuat fungsi di Python:",
+  "tPreviewFeedbackTypeCode": "Dilengkapi validasi case-sensitive dan hint otomatis saat siswa keliru.",
+  "tPreviewBenefitTypeCode": "Membiasakan siswa dengan penulisan sintaksis yang presisi dan melatih ketelitian pengetikan reserved-words.",
+  "tPreviewSubtitleOutputPredict": "Siswa menganalisis baris program dan memprediksi hasil running terminal.",
+  "tPreviewTechOutputPredict": "Console • Logika",
+  "tPreviewPromptOutputPredict": "Apakah output yang dicetak oleh operasi modulus berikut?",
+  "tPreviewFeedbackOutputPredict": "Tampilan opsi bergaya konsol terminal gelap untuk simulasi nyata.",
+  "tPreviewBenefitOutputPredict": "Melatih kemampuan mental execution algoritma dan tracing variabel tanpa ketergantungan debugger.",
+  "tPreviewTitleBugHunter": "Bug Hunter (Cari Galat)",
+  "tPreviewSubtitleBugHunter": "Tantangan menemukan baris kode yang rusak dan memperbaikinya.",
+  "tPreviewTechBugHunter": "Python • Debug",
+  "tPreviewPromptBugHunter": "Temukan baris yang mengandung kesalahan sintaksis:",
+  "tPreviewFeedbackBugHunter": "Siswa mengetuk nomor baris yang bermasalah untuk memicu bimbingan AI.",
+  "tPreviewBenefitBugHunter": "Mengasah intuisi problem-solving dan kemampuan membaca kode orang lain yang merupakan inti skill developer.",
+  "tPreviewSubtitleQuiz": "Pertanyaan evaluasi pemahaman dengan 4 opsi pilihan dan pembahasan.",
+  "tPreviewTechQuiz": "Evaluasi • Konsep",
+  "tPreviewPromptQuiz": "Apa fungsi utama dari deklarasi <!DOCTYPE html>?",
+  "tPreviewFeedbackQuiz": "Dilengkapi pembahasan otomatis yang tampil setelah siswa menjawab.",
+  "tPreviewBenefitQuiz": "Mengukur daya serap materi secara obyektif dan cepat di akhir sesi pembahasan.",
+  "tPreviewSubtitleOutro": "Slide penutup bab dengan rekap materi yang dikuasai dan klaim hadiah.",
+  "tPreviewTechOutro": "Pencapaian • Penutup",
+  "tPreviewPromptOutro": "Selamat! Kamu telah menyelesaikan seluruh latihan di bab ini.",
+  "tPreviewFeedbackOutro": "Otomatis dibuat di akhir alur pembelajaran bab.",
+  "tPreviewBenefitOutro": "Memberikan kepuasan pencapaian (gamification) dan merangkum poin-poin penting materi.",
+  "tSettingsAvatarTooBig": "Ukuran foto maksimal 2 MB.",
+  "tSettingsFallbackTeacher": "Guru",
+  "tSettingsNameDegree": "{name} & Gelar *",
+  "@tSettingsNameDegree": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "tSettingsIdentityTitle": "Identitas Pengajar",
+  "tSettingsBioContact": "Bio & Kontak",
+  "tSettingsBioHint": "Tuliskan pengalaman mengajar atau bidang spesialisasi kodingmu...",
+  "tSettingsAddressHint": "Alamat domisili pengajar",
+  "tSettingsSecurityTitle": "Keamanan Akun",
+  "tSettingsChangePassword": "Ubah Kata Sandi",
+  "tFieldHelpGotIt": "Mengerti",
+  "tTeacherErrServerFallback": "Ada kendala pada server.",
+  "tTeacherErrInvalidLesson": "Format data materi tidak valid.",
+  "tTeacherErrInvalidBab": "Format data bab tidak valid.",
+  "tTeacherErrInvalidClass": "Format data kelas tidak valid.",
+  "tCubitClassCreated": "Kelas {name} berhasil dibuat.",
+  "@tCubitClassCreated": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "tCubitClassArchived": "Kelas dipindahkan ke arsip.",
+  "tCubitClassRestored": "Kelas berhasil dipulihkan.",
+  "tCubitClassCodeNew": "Kode kelas baru: {code}",
+  "@tCubitClassCodeNew": {
+    "placeholders": {
+      "code": {
+        "type": "String"
+      }
+    }
+  },
+  "tCubitLessonCreated": "Materi baru berhasil dibuat.",
+  "tCubitLessonPublished": "Materi berhasil diterbitkan.",
+  "tCubitLessonDrafted": "Materi dikembalikan ke draft.",
+  "tCubitLessonDeleted": "Materi berhasil dihapus.",
+  "tCubitLessonDuplicated": "Materi berhasil diduplikasi.",
+  "tCubitBabDuplicated": "Bab \"{title}\" berhasil diduplikat.",
+  "@tCubitBabDuplicated": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "tCubitBabDeleted": "Bab berhasil dihapus.",
+  "tCubitBabOrderUpdated": "Urutan bab diperbarui.",
+  "tCubitStudentRemoved": "Siswa dikeluarkan dari kelas.",
+  "tCubitStudentRemovedNamed": "{name} dikeluarkan dari kelas.",
+  "@tCubitStudentRemovedNamed": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "tCubitConnectionFailed": "Gagal terhubung ke server. Periksa koneksi lalu coba lagi.",
+  "tAdapterEmptyBab": "Bab ini belum memiliki slide.",
+  "tAdapterPreviewTopic": "Pratinjau Guru",
+  "tAdapterPreviewMode": "Mode Simulator Pratinjau Guru",
+  "tAdapterTypeCodeInstruction": "Lengkapi kode berikut:",
+  "tAdapterOutputQuestion": "Apakah output dari kode di atas?",
+  "tAdapterBugInstruction": "Cari baris yang bermasalah:",
+  "tAdapterBugExplanation": "Periksa sintaks pada baris ini.",
+  "tAdapterQuizQuestion": "Pertanyaan kuis:",
+  "tAdapterOutroSummary": "Selamat! Kamu telah menyelesaikan bab ini.",
+  "tAdapterLearningTime": "3 Menit",
+  "tAdapterMainConcept": "Konsep Utama",
+  "tTemplateLabelTapToFill": "Lengkapi Kode (Tap)",
+  "tTemplateLabelTypeCode": "Ketik Kata Kunci",
+  "tTemplateLabelOutputPredict": "Tebak Output Kode",
+  "tTemplateLabelBugHunter": "Bug Hunter",
+  "tTemplateLabelQuiz": "Kuis Pilihan Ganda",
+  "tTemplateLabelOutro": "Rangkuman & Klaim XP",
+  "tTemplateLabelTheory": "Teori & Konsep",
+  "tTemplateBadgeInteractive": "Interaktif",
+  "tTemplateBadgeSyntax": "Sintaks",
+  "tTemplateBadgeLogic": "Logika",
+  "tTemplateBadgeDebugging": "Debugging",
+  "tTemplateBadgeEvaluation": "Evaluasi",
+  "tTemplateBadgeAchievement": "Pencapaian",
+  "tTemplateBadgeReading": "Bahan Baca",
+  "tTemplateDescTapToFill": "Siswa mengetuk keping blok untuk melengkapi baris kode.",
+  "tTemplateDescTypeCode": "Siswa mengetik kata kunci atau ekspresi sintaksis.",
+  "tTemplateDescOutputPredict": "Siswa memprediksi keluaran terminal dari potongan kode.",
+  "tTemplateDescBugHunter": "Siswa menemukan baris yang bermasalah dan perbaikannya.",
+  "tTemplateDescQuiz": "Pertanyaan pilihan ganda dengan satu jawaban benar.",
+  "tTemplateDescOutro": "Slide penutup dengan rangkuman dan hadiah XP.",
+  "tTemplateDescTheory": "Teks penjelasan konsep materi dan contoh kode.",
+  "tTemplateTitleTapToFill": "Lengkapi Kode",
+  "tTemplatePromptTapToFill": "Ketuk balok kode untuk melengkapi baris berikut.",
+  "tTemplatePromptTypeCode": "Ketikkan fungsi untuk mencetak teks ke layar:",
+  "tTemplateHintTypeCode": "Gunakan huruf kecil semua.",
+  "tTemplateTitleOutputPredict": "Tebak Output",
+  "tTemplatePromptOutputPredict": "Apakah output yang dicetak ke terminal?",
+  "tTemplateExplanationOutputPredict": "Operator + menjumlahkan dua bilangan bulat.",
+  "tTemplateTitleBugHunter": "Temukan Galat (Bug)",
+  "tTemplateScenarioBugHunter": "Siswa memeriksa program yang gagal dijalankan.",
+  "tTemplateBugHintBugHunter": "Periksa tanda titik dua di akhir baris for.",
+  "tTemplateQuestionQuiz": "Manakah yang termasuk tipe data angka bulat?",
+  "tTemplateExplanationQuiz": "int adalah tipe data bilangan bulat.",
+  "tTemplateTitleOutro": "Rangkuman Bab",
+  "tTemplateSummaryOutro": "Hebat! Kamu telah menuntaskan materi pada bab ini.",
+  "tTemplateTitleTheory": "Penjelasan Materi Baru",
+  "tTemplateContentTheory": "Tuliskan penjelasan materi pembelajaran di sini dengan bahasa yang mudah dipahami siswa."
 }

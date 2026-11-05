@@ -125,7 +125,7 @@ class ApiClassRepository implements ClassRepository {
     if (data is! Map<String, dynamic>) {
       throw const ApiClassException(
         statusCode: 500,
-        code: 'INTERNAL_ERROR',
+        code: 'UNRECOGNIZED_CLASS_RESPONSE',
         message: 'Format jawaban kelas tidak dikenali.',
       );
     }

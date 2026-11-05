@@ -105,8 +105,8 @@ class _LessonReaderPageState extends State<LessonReaderPage> {
       isCorrect = _tapToFillKey.currentState?.checkAnswer() ?? false;
       _showFeedback(
         isCorrect: isCorrect,
-        title: isCorrect ? slide.successTitle : slide.errorTitle,
-        message: isCorrect ? slide.successMsg : slide.errorMsg,
+        title: _feedbackTitle(slide, isCorrect),
+        message: _feedbackMessage(slide, isCorrect),
         data: data,
         onRetry: () => _tapToFillKey.currentState?.resetAnswer(),
       );
@@ -114,8 +114,8 @@ class _LessonReaderPageState extends State<LessonReaderPage> {
       isCorrect = _typeCodeKey.currentState?.checkAnswer() ?? false;
       _showFeedback(
         isCorrect: isCorrect,
-        title: isCorrect ? slide.successTitle : slide.errorTitle,
-        message: isCorrect ? slide.successMsg : slide.errorMsg,
+        title: _feedbackTitle(slide, isCorrect),
+        message: _feedbackMessage(slide, isCorrect),
         data: data,
         onRetry: () => _typeCodeKey.currentState?.resetAnswer(),
       );
@@ -123,8 +123,8 @@ class _LessonReaderPageState extends State<LessonReaderPage> {
       isCorrect = _outputPredictKey.currentState?.checkAnswer() ?? false;
       _showFeedback(
         isCorrect: isCorrect,
-        title: isCorrect ? slide.successTitle : slide.errorTitle,
-        message: isCorrect ? slide.successMsg : slide.errorMsg,
+        title: _feedbackTitle(slide, isCorrect),
+        message: _feedbackMessage(slide, isCorrect),
         data: data,
         onRetry: () => _outputPredictKey.currentState?.resetAnswer(),
       );
@@ -132,8 +132,8 @@ class _LessonReaderPageState extends State<LessonReaderPage> {
       isCorrect = _bugHunterKey.currentState?.checkAnswer() ?? false;
       _showFeedback(
         isCorrect: isCorrect,
-        title: isCorrect ? slide.successTitle : slide.errorTitle,
-        message: isCorrect ? slide.successMsg : slide.errorMsg,
+        title: _feedbackTitle(slide, isCorrect),
+        message: _feedbackMessage(slide, isCorrect),
         data: data,
         onRetry: () => _bugHunterKey.currentState?.resetAnswer(),
       );
@@ -141,12 +141,73 @@ class _LessonReaderPageState extends State<LessonReaderPage> {
       isCorrect = _quizKey.currentState?.checkAnswer() ?? false;
       _showFeedback(
         isCorrect: isCorrect,
-        title: isCorrect ? slide.successTitle : slide.errorTitle,
-        message: isCorrect ? slide.successMsg : slide.errorMsg,
+        title: _feedbackTitle(slide, isCorrect),
+        message: _feedbackMessage(slide, isCorrect),
         data: data,
         onRetry: () => _quizKey.currentState?.resetAnswer(),
       );
     }
+  }
+
+  // Feedback default: nilai dari markdown dipakai apa adanya; bila null
+  // (markdown tidak meng-override), pakai default l10n per tipe slide.
+  // Hanya dipanggil untuk 5 tipe slide interaktif di _checkCurrentAnswer.
+  String _feedbackTitle(LessonSlide slide, bool isCorrect) {
+    if (slide is TapToFillSlide) {
+      return isCorrect
+          ? (slide.successTitle ?? l10n.slideTapToFillSuccessTitle)
+          : (slide.errorTitle ?? l10n.slideTapToFillErrorTitle);
+    }
+    if (slide is TypeCodeSlide) {
+      return isCorrect
+          ? (slide.successTitle ?? l10n.slideTypeCodeSuccessTitle)
+          : (slide.errorTitle ?? l10n.slideTypeCodeErrorTitle);
+    }
+    if (slide is OutputPredictSlide) {
+      return isCorrect
+          ? (slide.successTitle ?? l10n.slideOutputPredictSuccessTitle)
+          : (slide.errorTitle ?? l10n.slideOutputPredictErrorTitle);
+    }
+    if (slide is BugHunterSlide) {
+      return isCorrect
+          ? (slide.successTitle ?? l10n.slideBugHunterSuccessTitle)
+          : (slide.errorTitle ?? l10n.slideBugHunterErrorTitle);
+    }
+    if (slide is QuizSlide) {
+      return isCorrect
+          ? (slide.successTitle ?? l10n.slideQuizSuccessTitle)
+          : (slide.errorTitle ?? l10n.slideQuizErrorTitle);
+    }
+    return '';
+  }
+
+  String _feedbackMessage(LessonSlide slide, bool isCorrect) {
+    if (slide is TapToFillSlide) {
+      return isCorrect
+          ? (slide.successMsg ?? l10n.slideTapToFillSuccessMsg)
+          : (slide.errorMsg ?? l10n.slideTapToFillErrorMsg);
+    }
+    if (slide is TypeCodeSlide) {
+      return isCorrect
+          ? (slide.successMsg ?? l10n.slideTypeCodeSuccessMsg)
+          : (slide.errorMsg ?? l10n.slideTypeCodeErrorMsg);
+    }
+    if (slide is OutputPredictSlide) {
+      return isCorrect
+          ? (slide.successMsg ?? l10n.slideOutputPredictSuccessMsg)
+          : (slide.errorMsg ?? l10n.slideOutputPredictErrorMsg);
+    }
+    if (slide is BugHunterSlide) {
+      return isCorrect
+          ? (slide.successMsg ?? l10n.slideBugHunterSuccessMsg)
+          : (slide.errorMsg ?? l10n.slideBugHunterErrorMsg);
+    }
+    if (slide is QuizSlide) {
+      return isCorrect
+          ? (slide.successMsg ?? l10n.slideQuizSuccessMsg)
+          : (slide.errorMsg ?? l10n.slideQuizErrorMsg);
+    }
+    return '';
   }
 
   void _showFeedback({

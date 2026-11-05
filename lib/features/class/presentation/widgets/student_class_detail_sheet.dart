@@ -21,6 +21,7 @@ import '../../../../core/theme/app_typography.dart';
 import '../../../../core/widgets/app_snack.dart';
 import '../../../../core/widgets/avatars.dart';
 import '../../../../l10n/app_localizations.dart';
+import '../../../../l10n/l10n_ext.dart';
 import '../../domain/class_exceptions.dart';
 import '../../domain/class_repository.dart';
 import 'class_sheet_shell.dart';
@@ -85,7 +86,7 @@ class _StudentClassDetailSheetState extends State<_StudentClassDetailSheet> {
     } on ApiClassException catch (e) {
       if (!mounted) return;
       setState(() {
-        _errorMessage = e.message;
+        _errorMessage = e.messageL10n(AppLocalizations.of(context));
         _phase = _DetailPhase.error;
       });
     } catch (_) {
@@ -134,7 +135,7 @@ class _StudentClassDetailSheetState extends State<_StudentClassDetailSheet> {
     } on ApiClassException catch (e) {
       if (!mounted) return;
       setState(() => _leaving = false);
-      showAppSnack(context, e.message);
+      showAppSnack(context, e.messageL10n(AppLocalizations.of(context)));
     } catch (_) {
       if (!mounted) return;
       setState(() => _leaving = false);

@@ -8,6 +8,10 @@
 //   - ALREADY_IN_A_CLASS    (409) siswa masih tergabung di kelas lain
 //   - FORBIDDEN             (403) bukan akun siswa / bukan anggota kelas
 //   - NOT_A_MEMBER          (404) siswa belum tergabung di kelas itu
+//
+// KODE SISI KLIEN (bukan dari backend, dibuat repository sendiri):
+//   - UNRECOGNIZED_CLASS_RESPONSE (500) jawaban server bukan format kelas
+//     yang dikenali — dipetakan ke l10n di l10n_ext (bukan teks server).
 
 /// Throws yang membawa pesan siap-tampil bawaan server (bahasa Indonesia).
 class ApiClassException implements Exception {

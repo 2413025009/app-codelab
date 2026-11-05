@@ -1,3 +1,5 @@
+import '../../../../l10n/app_localizations.dart';
+
 /// Template awal untuk setiap tipe slide.
 ///
 /// Dipakai oleh Bab Builder saat guru menambah slide baru dan oleh layar
@@ -19,63 +21,63 @@ abstract final class SlideTemplates {
     return supportedTypes.contains(type) ? type : 'THEORY';
   }
 
-  static String label(String type) {
+  static String label(String type, {AppLocalizations? l10n}) {
     switch (normalize(type)) {
       case 'TAP_TO_FILL':
-        return 'Lengkapi Kode (Tap)';
+        return l10n?.tTemplateLabelTapToFill ?? 'Lengkapi Kode (Tap)';
       case 'TYPE_CODE':
-        return 'Ketik Kata Kunci';
+        return l10n?.tTemplateLabelTypeCode ?? 'Ketik Kata Kunci';
       case 'OUTPUT_PREDICT':
-        return 'Tebak Output Kode';
+        return l10n?.tTemplateLabelOutputPredict ?? 'Tebak Output Kode';
       case 'BUG_HUNTER':
-        return 'Bug Hunter';
+        return l10n?.tTemplateLabelBugHunter ?? 'Bug Hunter';
       case 'QUIZ':
-        return 'Kuis Pilihan Ganda';
+        return l10n?.tTemplateLabelQuiz ?? 'Kuis Pilihan Ganda';
       case 'OUTRO':
-        return 'Rangkuman & Klaim XP';
+        return l10n?.tTemplateLabelOutro ?? 'Rangkuman & Klaim XP';
       case 'THEORY':
       default:
-        return 'Teori & Konsep';
+        return l10n?.tTemplateLabelTheory ?? 'Teori & Konsep';
     }
   }
 
-  static String badge(String type) {
+  static String badge(String type, {AppLocalizations? l10n}) {
     switch (normalize(type)) {
       case 'TAP_TO_FILL':
-        return 'Interaktif';
+        return l10n?.tTemplateBadgeInteractive ?? 'Interaktif';
       case 'TYPE_CODE':
-        return 'Sintaks';
+        return l10n?.tTemplateBadgeSyntax ?? 'Sintaks';
       case 'OUTPUT_PREDICT':
-        return 'Logika';
+        return l10n?.tTemplateBadgeLogic ?? 'Logika';
       case 'BUG_HUNTER':
-        return 'Debugging';
+        return l10n?.tTemplateBadgeDebugging ?? 'Debugging';
       case 'QUIZ':
-        return 'Evaluasi';
+        return l10n?.tTemplateBadgeEvaluation ?? 'Evaluasi';
       case 'OUTRO':
-        return 'Pencapaian';
+        return l10n?.tTemplateBadgeAchievement ?? 'Pencapaian';
       case 'THEORY':
       default:
-        return 'Bahan Baca';
+        return l10n?.tTemplateBadgeReading ?? 'Bahan Baca';
     }
   }
 
-  static String description(String type) {
+  static String description(String type, {AppLocalizations? l10n}) {
     switch (normalize(type)) {
       case 'TAP_TO_FILL':
-        return 'Siswa mengetuk keping blok untuk melengkapi baris kode.';
+        return l10n?.tTemplateDescTapToFill ?? 'Siswa mengetuk keping blok untuk melengkapi baris kode.';
       case 'TYPE_CODE':
-        return 'Siswa mengetik kata kunci atau ekspresi sintaksis.';
+        return l10n?.tTemplateDescTypeCode ?? 'Siswa mengetik kata kunci atau ekspresi sintaksis.';
       case 'OUTPUT_PREDICT':
-        return 'Siswa memprediksi keluaran terminal dari potongan kode.';
+        return l10n?.tTemplateDescOutputPredict ?? 'Siswa memprediksi keluaran terminal dari potongan kode.';
       case 'BUG_HUNTER':
-        return 'Siswa menemukan baris yang bermasalah dan perbaikannya.';
+        return l10n?.tTemplateDescBugHunter ?? 'Siswa menemukan baris yang bermasalah dan perbaikannya.';
       case 'QUIZ':
-        return 'Pertanyaan pilihan ganda dengan satu jawaban benar.';
+        return l10n?.tTemplateDescQuiz ?? 'Pertanyaan pilihan ganda dengan satu jawaban benar.';
       case 'OUTRO':
-        return 'Slide penutup dengan rangkuman dan hadiah XP.';
+        return l10n?.tTemplateDescOutro ?? 'Slide penutup dengan rangkuman dan hadiah XP.';
       case 'THEORY':
       default:
-        return 'Teks penjelasan konsep materi dan contoh kode.';
+        return l10n?.tTemplateDescTheory ?? 'Teks penjelasan konsep materi dan contoh kode.';
     }
   }
 
@@ -86,6 +88,7 @@ abstract final class SlideTemplates {
     String type, {
     String? id,
     int xpReward = 50,
+    AppLocalizations? l10n,
   }) {
     final normalized = normalize(type);
     final slideId =
@@ -97,8 +100,8 @@ abstract final class SlideTemplates {
         return {
           'id': slideId,
           'type': normalized,
-          'title': 'Lengkapi Kode',
-          'prompt': 'Ketuk balok kode untuk melengkapi baris berikut.',
+          'title': l10n?.tTemplateTitleTapToFill ?? 'Lengkapi Kode',
+          'prompt': l10n?.tTemplatePromptTapToFill ?? 'Ketuk balok kode untuk melengkapi baris berikut.',
           'template': 'x = ___1___\nprint(x)',
           'blanks': ['10'],
           'distractors': ['20', 'print'],
@@ -108,32 +111,32 @@ abstract final class SlideTemplates {
         return {
           'id': slideId,
           'type': normalized,
-          'title': 'Ketik Kata Kunci',
-          'prompt': 'Ketikkan fungsi untuk mencetak teks ke layar:',
+          'title': l10n?.tTemplateLabelTypeCode ?? 'Ketik Kata Kunci',
+          'prompt': l10n?.tTemplatePromptTypeCode ?? 'Ketikkan fungsi untuk mencetak teks ke layar:',
           'code': '[KETIK_DISINI] ("Halo")',
           'answer': 'print',
-          'hint': 'Gunakan huruf kecil semua.',
+          'hint': l10n?.tTemplateHintTypeCode ?? 'Gunakan huruf kecil semua.',
         };
       case 'OUTPUT_PREDICT':
         return {
           'id': slideId,
           'type': normalized,
-          'title': 'Tebak Output',
-          'prompt': 'Apakah output yang dicetak ke terminal?',
+          'title': l10n?.tTemplateTitleOutputPredict ?? 'Tebak Output',
+          'prompt': l10n?.tTemplatePromptOutputPredict ?? 'Apakah output yang dicetak ke terminal?',
           'code': 'a = 5\nb = 3\nprint(a + b)',
           'options': ['8', '53', '5 + 3', 'Error'],
           'answer': 'A',
-          'explanation': 'Operator + menjumlahkan dua bilangan bulat.',
+          'explanation': l10n?.tTemplateExplanationOutputPredict ?? 'Operator + menjumlahkan dua bilangan bulat.',
         };
       case 'BUG_HUNTER':
         return {
           'id': slideId,
           'type': normalized,
-          'title': 'Temukan Galat (Bug)',
-          'scenario': 'Siswa memeriksa program yang gagal dijalankan.',
+          'title': l10n?.tTemplateTitleBugHunter ?? 'Temukan Galat (Bug)',
+          'scenario': l10n?.tTemplateScenarioBugHunter ?? 'Siswa memeriksa program yang gagal dijalankan.',
           'buggy_code': 'total = 0\nfor i in range(10)\n    total += i',
           'target_line': '2',
-          'bug_hint': 'Periksa tanda titik dua di akhir baris for.',
+          'bug_hint': l10n?.tTemplateBugHintBugHunter ?? 'Periksa tanda titik dua di akhir baris for.',
           'fix': 'for i in range(10):',
           'error_type': 'SyntaxError',
         };
@@ -141,28 +144,29 @@ abstract final class SlideTemplates {
         return {
           'id': slideId,
           'type': normalized,
-          'title': 'Kuis Pilihan Ganda',
-          'question': 'Manakah yang termasuk tipe data angka bulat?',
+          'title': l10n?.tTemplateLabelQuiz ?? 'Kuis Pilihan Ganda',
+          'question': l10n?.tTemplateQuestionQuiz ?? 'Manakah yang termasuk tipe data angka bulat?',
           'options': ['int', 'string', 'boolean', 'list'],
           'answer': 'A',
-          'explanation': 'int adalah tipe data bilangan bulat.',
+          'explanation': l10n?.tTemplateExplanationQuiz ?? 'int adalah tipe data bilangan bulat.',
         };
       case 'OUTRO':
         return {
           'id': slideId,
           'type': normalized,
-          'title': 'Rangkuman Bab',
-          'summary': 'Hebat! Kamu telah menuntaskan materi pada bab ini.',
+          'title': l10n?.tTemplateTitleOutro ?? 'Rangkuman Bab',
+          'summary': l10n?.tTemplateSummaryOutro ?? 'Hebat! Kamu telah menuntaskan materi pada bab ini.',
           'xp_preview': xpReward,
-          'mastered_concepts': ['Konsep Utama'],
+          'mastered_concepts': [l10n?.tAdapterMainConcept ?? 'Konsep Utama'],
         };
       case 'THEORY':
       default:
         return {
           'id': slideId,
           'type': 'THEORY',
-          'title': 'Penjelasan Materi Baru',
+          'title': l10n?.tTemplateTitleTheory ?? 'Penjelasan Materi Baru',
           'content':
+              l10n?.tTemplateContentTheory ??
               'Tuliskan penjelasan materi pembelajaran di sini dengan bahasa yang mudah dipahami siswa.',
           'sample_code': '',
           'code_lang': 'Python',
