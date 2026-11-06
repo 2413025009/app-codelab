@@ -134,7 +134,9 @@ void main() {
     expect(find.text('Diberikan kepada'), findsOneWidget);
     expect(find.textContaining('Halaman 1'), findsOneWidget);
 
-    // Halaman 2: silabus bab + label transkrip.
+    // Halaman 2 dibuka lewat tab "Transkrip" (satu halaman per tampilan).
+    await tester.tap(find.text('Transkrip'));
+    await tester.pumpAndSettle();
     expect(find.textContaining('Halaman 2'), findsWidgets);
     expect(find.text('Bab yang dituntaskan:'), findsOneWidget);
     expect(
@@ -152,6 +154,10 @@ void main() {
   ) async {
     await _pumpPage(tester, _moduleCert);
 
+    // Tab transkrip memuat silabus bab, bukan kriteria uji tantangan.
+    await tester.tap(find.text('Transkrip'));
+    await tester.pumpAndSettle();
+
     expect(find.textContaining('Test Case'), findsNothing);
     expect(find.textContaining('Hidden'), findsNothing);
     expect(find.textContaining('Kriteria & Kasus Uji'), findsNothing);
@@ -166,6 +172,11 @@ void main() {
 
     expect(find.text('Validasi Tahun Kabisat'), findsWidgets);
     expect(find.text('CL-CERT-2026-CH01-FARHAN01'), findsWidgets);
+
+    // Aturan & test case berada di halaman 2 (tab Transkrip).
+    await tester.tap(find.text('Transkrip'));
+    await tester.pumpAndSettle();
+
     expect(
       find.text('Kriteria & Kasus Uji (Test Cases) yang Diselesaikan:'),
       findsOneWidget,

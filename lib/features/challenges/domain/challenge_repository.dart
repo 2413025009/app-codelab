@@ -224,12 +224,20 @@ class SubmissionHistory extends Equatable {
     required this.context,
     required this.bestScore,
     required this.submissions,
+    this.total = 0,
+    this.hasMore = false,
   });
 
   final String challengeTitle;
   final String context;
   final int bestScore;
   final List<Submission> submissions;
+
+  /// Minggu 13: jumlah SELURUH riwayat yang ada (bukan hanya halaman ini).
+  final int total;
+
+  /// Masih ada halaman berikutnya untuk dimuat.
+  final bool hasMore;
 
   @override
   List<Object?> get props => [challengeTitle, submissions];

@@ -248,7 +248,7 @@ class _WindingRoadmapState extends State<WindingRoadmap>
                   child: Column(
                     children: [
                       for (var i = 0; i < visibleModules.length; i++) ...[
-                        _buildNode(context, visibleModules[i], i.isEven),
+                        _buildNode(context, visibleModules[i], i.isEven, i),
                         const SizedBox(height: 26),
                       ],
 
@@ -318,7 +318,7 @@ class _WindingRoadmapState extends State<WindingRoadmap>
     );
   }
 
-  Widget _buildNode(BuildContext context, LearningModule module, bool isEven) {
+  Widget _buildNode(BuildContext context, LearningModule module, bool isEven, int index) {
     final isCompleted = module.status == ModuleStatus.completed;
     final isActive = module.status == ModuleStatus.active;
     // Minggu 9 (owner): bab tidak lagi berantai terkunci — 'available'
@@ -333,111 +333,128 @@ class _WindingRoadmapState extends State<WindingRoadmap>
     }
 
     if (isCompleted) {
-      return _buildCompletedNode(context, module, isEven);
+      return _buildCompletedNode(context, module, isEven, index);
     }
 
     if (isAvailable) {
-      return _buildAvailableNode(context, module, isEven);
+      return _buildAvailableNode(context, module, isEven, index);
     }
 
     if (isQuiz) {
-      return _buildQuizNode(context, module, isEven);
+      return _buildQuizNode(context, module, isEven, index);
     }
 
-    return _buildLockedNode(context, module, isEven);
+    return _buildLockedNode(context, module, isEven, index);
   }
 
   Widget _buildCompletedNode(
     BuildContext context,
     LearningModule module,
     bool isEven,
+    int index,
   ) {
     final p = context.palette;
-    final pill = InkWell(
-      onTap: () => widget.onModuleTap(module),
-      borderRadius: BorderRadius.circular(999),
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-        decoration: BoxDecoration(
-          color: p.surface.withValues(alpha: 0.95),
-          borderRadius: BorderRadius.circular(999),
-          border: Border.all(color: p.outline.withValues(alpha: 0.6)),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.04),
-              blurRadius: 6,
-              offset: const Offset(0, 2),
-            ),
-          ],
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          textDirection: isEven ? TextDirection.ltr : TextDirection.rtl,
-          children: [
-            Container(
-              width: 44,
-              height: 44,
+    // Phase offset berbeda tiap node agar gerakan mengapung bergelombang alami.
+    final phaseOffset = (index * 0.42) % 1.0;
+
+    return AnimatedBuilder(
+      animation: _pulseController,
+      builder: (context, child) {
+        final t = (_pulseController.value + phaseOffset) % 1.0;
+        final floatOffset = math.sin(t * math.pi * 2) * 3.0;
+
+        return Transform.translate(
+          offset: Offset(0, floatOffset),
+          child: child,
+        );
+      },
+      child: Align(
+        alignment: isEven ? Alignment.centerLeft : Alignment.centerRight,
+        child: Padding(
+          padding: EdgeInsets.only(
+            left: isEven ? 16 : 0,
+            right: isEven ? 0 : 16,
+          ),
+          child: InkWell(
+            onTap: () => widget.onModuleTap(module),
+            borderRadius: BorderRadius.circular(999),
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
               decoration: BoxDecoration(
-                color: p.primary,
-                shape: BoxShape.circle,
+                color: p.surface.withValues(alpha: 0.95),
+                borderRadius: BorderRadius.circular(999),
+                border: Border.all(color: p.outline.withValues(alpha: 0.6)),
                 boxShadow: [
                   BoxShadow(
-                    color: p.primary.withValues(alpha: 0.3),
+                    color: Colors.black.withValues(alpha: 0.04),
                     blurRadius: 6,
                     offset: const Offset(0, 2),
                   ),
                 ],
               ),
-              alignment: Alignment.center,
-              child: Icon(
-                Icons.check_rounded,
-                color: p.onPrimary,
-                size: 22,
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                textDirection: isEven ? TextDirection.ltr : TextDirection.rtl,
+                children: [
+                  Container(
+                    width: 44,
+                    height: 44,
+                    decoration: BoxDecoration(
+                      color: p.primary,
+                      shape: BoxShape.circle,
+                      boxShadow: [
+                        BoxShadow(
+                          color: p.primary.withValues(alpha: 0.3),
+                          blurRadius: 6,
+                          offset: const Offset(0, 2),
+                        ),
+                      ],
+                    ),
+                    alignment: Alignment.center,
+                    child: Icon(
+                      Icons.check_rounded,
+                      color: p.onPrimary,
+                      size: 22,
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  Column(
+                    crossAxisAlignment: isEven
+                        ? CrossAxisAlignment.start
+                        : CrossAxisAlignment.end,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        '${module.order}. ${module.title}',
+                        style: AppTypography.bodyM.copyWith(
+                          fontWeight: FontWeight.w600,
+                          color: p.text,
+                          fontSize: 13,
+                        ),
+                      ),
+                      Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(Icons.star_rounded, color: p.accent, size: 14),
+                          const SizedBox(width: 2),
+                          Text(
+                            '+50 XP',
+                            style: AppTypography.caption.copyWith(
+                              fontWeight: FontWeight.bold,
+                              color: p.textMuted,
+                              fontSize: 11,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                  const SizedBox(width: 4),
+                ],
               ),
             ),
-            const SizedBox(width: 10),
-            Column(
-              crossAxisAlignment: isEven
-                  ? CrossAxisAlignment.start
-                  : CrossAxisAlignment.end,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  '${module.order}. ${module.title}',
-                  style: AppTypography.bodyM.copyWith(
-                    fontWeight: FontWeight.w600,
-                    color: p.text,
-                    fontSize: 13,
-                  ),
-                ),
-                Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(Icons.star_rounded, color: p.accent, size: 14),
-                    const SizedBox(width: 2),
-                    Text(
-                      '+50 XP',
-                      style: AppTypography.caption.copyWith(
-                        fontWeight: FontWeight.bold,
-                        color: p.textMuted,
-                        fontSize: 11,
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-            const SizedBox(width: 4),
-          ],
+          ),
         ),
-      ),
-    );
-
-    return Align(
-      alignment: isEven ? Alignment.centerLeft : Alignment.centerRight,
-      child: Padding(
-        padding: EdgeInsets.only(left: isEven ? 16 : 0, right: isEven ? 0 : 16),
-        child: pill,
       ),
     );
   }
@@ -450,176 +467,180 @@ class _WindingRoadmapState extends State<WindingRoadmap>
       animation: _pulseController,
       builder: (context, child) {
         final pulseValue = _pulseController.value;
-        final bounceOffset = math.sin(pulseValue * math.pi) * 4;
+        final bounceOffset = math.sin(pulseValue * math.pi) * 4.5;
+        final cardFloat = math.sin(pulseValue * math.pi * 2) * 3.0;
 
-        return Align(
-          alignment: Alignment.centerLeft,
-          child: Padding(
-            padding: const EdgeInsets.only(left: 8),
-            child: Stack(
-              clipBehavior: Clip.none,
-              children: [
-                // Floating Bouncing Tooltip Badge
-                Positioned(
-                  top: -24 + bounceOffset,
-                  left: 20,
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 10,
-                          vertical: 3,
-                        ),
-                        decoration: BoxDecoration(
-                          color: p.text,
-                          borderRadius: BorderRadius.circular(999),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withValues(alpha: 0.2),
-                              blurRadius: 6,
-                              offset: const Offset(0, 2),
-                            ),
-                          ],
-                        ),
-                        child: Text(
-                          l10n.roadmapStartHere,
-                          style: TextStyle(
-                            // p.bg = kebalikan p.text, jadi tetap terbaca
-                            // walau bubble ini memakai latar p.text.
-                            color: p.bg,
-                            fontSize: 11,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                      // Little pointer arrow
-                      Transform.rotate(
-                        angle: math.pi / 4,
-                        child: Container(width: 6, height: 6, color: p.text),
-                      ),
-                    ],
-                  ),
-                ),
-
-                // Active Card
-                InkWell(
-                  onTap: () => widget.onModuleTap(module),
-                  borderRadius: BorderRadius.circular(20),
-                  child: Container(
-                    margin: const EdgeInsets.only(top: 8),
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 14,
-                      vertical: 10,
-                    ),
-                    decoration: BoxDecoration(
-                      // primaryContainer ikut berubah di mode gelap; versi
-                      // hardcoded #F1F3FF membuat judul bab tak terbaca.
-                      color: p.primaryContainer,
-                      borderRadius: BorderRadius.circular(20),
-                      border: Border.all(
-                        color: p.primary.withValues(alpha: 0.35),
-                      ),
-                      boxShadow: [
-                        BoxShadow(
-                          color: p.primary.withValues(alpha: 0.08),
-                          blurRadius: 10,
-                          offset: const Offset(0, 3),
-                        ),
-                      ],
-                    ),
-                    child: Row(
+        return Transform.translate(
+          offset: Offset(0, cardFloat),
+          child: Align(
+            alignment: Alignment.centerLeft,
+            child: Padding(
+              padding: const EdgeInsets.only(left: 8),
+              child: Stack(
+                clipBehavior: Clip.none,
+                children: [
+                  // Floating Bouncing Tooltip Badge
+                  Positioned(
+                    top: -24 + bounceOffset,
+                    left: 20,
+                    child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        // Pulsing play button
-                        Stack(
-                          alignment: Alignment.center,
-                          children: [
-                            Container(
-                              width: 58 + (pulseValue * 8),
-                              height: 58 + (pulseValue * 8),
-                              decoration: BoxDecoration(
-                                color: p.primary.withValues(
-                                  alpha: 0.15 * (1 - pulseValue * 0.5),
-                                ),
-                                shape: BoxShape.circle,
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 10,
+                            vertical: 3,
+                          ),
+                          decoration: BoxDecoration(
+                            color: p.text,
+                            borderRadius: BorderRadius.circular(999),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withValues(alpha: 0.2),
+                                blurRadius: 6,
+                                offset: const Offset(0, 2),
                               ),
+                            ],
+                          ),
+                          child: Text(
+                            l10n.roadmapStartHere,
+                            style: TextStyle(
+                              // p.bg = kebalikan p.text, jadi tetap terbaca
+                              // walau bubble ini memakai latar p.text.
+                              color: p.bg,
+                              fontSize: 11,
+                              fontWeight: FontWeight.bold,
                             ),
-                            Container(
-                              width: 50,
-                              height: 50,
-                              decoration: BoxDecoration(
-                                color: p.surface,
-                                shape: BoxShape.circle,
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: p.primary.withValues(alpha: 0.25),
-                                    blurRadius: 8,
-                                    offset: const Offset(0, 2),
-                                  ),
-                                ],
-                              ),
-                              alignment: Alignment.center,
-                              child: Icon(
-                                Icons.play_circle_fill_rounded,
-                                color: p.primary,
-                                size: 36,
-                              ),
-                            ),
-                          ],
+                          ),
                         ),
-                        const SizedBox(width: 12),
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 8,
-                                vertical: 2,
-                              ),
-                              decoration: BoxDecoration(
-                                color: p.primary,
-                                borderRadius: BorderRadius.circular(999),
-                              ),
-                              child: Text(
-                                l10n.roadmapInProgress,
-                                style: TextStyle(
-                                  color: p.onPrimary,
-                                  fontSize: 10,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ),
-                            const SizedBox(height: 3),
-                            Text(
-                              '${module.order}. ${module.title}',
-                              style: AppTypography.bodyL.copyWith(
-                                fontWeight: FontWeight.bold,
-                                color: p.text,
-                                fontSize: 15,
-                              ),
-                            ),
-                            Text(
-                              l10n.roadmapBabLine(
-                                module.order,
-                                module.description.contains('Slide')
-                                    ? module.description
-                                    : l10n.roadmapPracticeCount,
-                              ),
-                              style: AppTypography.caption.copyWith(
-                                color: p.textMuted,
-                                fontSize: 11,
-                              ),
-                            ),
-                          ],
+                        // Little pointer arrow
+                        Transform.rotate(
+                          angle: math.pi / 4,
+                          child: Container(width: 6, height: 6, color: p.text),
                         ),
-                        const SizedBox(width: 8),
                       ],
                     ),
                   ),
-                ),
-              ],
+
+                  // Active Card
+                  InkWell(
+                    onTap: () => widget.onModuleTap(module),
+                    borderRadius: BorderRadius.circular(20),
+                    child: Container(
+                      margin: const EdgeInsets.only(top: 8),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 14,
+                        vertical: 10,
+                      ),
+                      decoration: BoxDecoration(
+                        // primaryContainer ikut berubah di mode gelap; versi
+                        // hardcoded #F1F3FF membuat judul bab tak terbaca.
+                        color: p.primaryContainer,
+                        borderRadius: BorderRadius.circular(20),
+                        border: Border.all(
+                          color: p.primary.withValues(alpha: 0.35),
+                        ),
+                        boxShadow: [
+                          BoxShadow(
+                            color: p.primary.withValues(alpha: 0.08),
+                            blurRadius: 10,
+                            offset: const Offset(0, 3),
+                          ),
+                        ],
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          // Pulsing play button
+                          Stack(
+                            alignment: Alignment.center,
+                            children: [
+                              Container(
+                                width: 58 + (pulseValue * 8),
+                                height: 58 + (pulseValue * 8),
+                                decoration: BoxDecoration(
+                                  color: p.primary.withValues(
+                                    alpha: 0.15 * (1 - pulseValue * 0.5),
+                                  ),
+                                  shape: BoxShape.circle,
+                                ),
+                              ),
+                              Container(
+                                width: 50,
+                                height: 50,
+                                decoration: BoxDecoration(
+                                  color: p.surface,
+                                  shape: BoxShape.circle,
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: p.primary.withValues(alpha: 0.25),
+                                      blurRadius: 8,
+                                      offset: const Offset(0, 2),
+                                    ),
+                                  ],
+                                ),
+                                alignment: Alignment.center,
+                                child: Icon(
+                                  Icons.play_circle_fill_rounded,
+                                  color: p.primary,
+                                  size: 36,
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(width: 12),
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 8,
+                                  vertical: 2,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: p.primary,
+                                  borderRadius: BorderRadius.circular(999),
+                                ),
+                                child: Text(
+                                  l10n.roadmapInProgress,
+                                  style: TextStyle(
+                                    color: p.onPrimary,
+                                    fontSize: 10,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(height: 3),
+                              Text(
+                                '${module.order}. ${module.title}',
+                                style: AppTypography.bodyL.copyWith(
+                                  fontWeight: FontWeight.bold,
+                                  color: p.text,
+                                  fontSize: 15,
+                                ),
+                              ),
+                              Text(
+                                l10n.roadmapBabLine(
+                                  module.order,
+                                  module.description.contains('Slide')
+                                      ? module.description
+                                      : l10n.roadmapPracticeCount,
+                                ),
+                                style: AppTypography.caption.copyWith(
+                                  color: p.textMuted,
+                                  fontSize: 11,
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(width: 8),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
         );
@@ -631,75 +652,90 @@ class _WindingRoadmapState extends State<WindingRoadmap>
     BuildContext context,
     LearningModule module,
     bool isEven,
+    int index,
   ) {
     final p = context.palette;
     final l10n = AppLocalizations.of(context);
-    final pill = InkWell(
-      onTap: () => widget.onModuleTap(module),
-      borderRadius: BorderRadius.circular(999),
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-        decoration: BoxDecoration(
-          color: p.surface.withValues(alpha: 0.95),
-          borderRadius: BorderRadius.circular(999),
-          border: Border.all(color: p.outline.withValues(alpha: 0.6)),
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          textDirection: isEven ? TextDirection.ltr : TextDirection.rtl,
-          children: [
-            Container(
-              width: 44,
-              height: 44,
-              decoration: BoxDecoration(
-                // accent + warningText adalah pasangan token: amber muda
-                // dengan teks cokelat di mode terang, amber tua dengan teks
-                // amber terang di mode gelap.
-                color: p.accent.withValues(alpha: 0.22),
-                shape: BoxShape.circle,
-              ),
-              alignment: Alignment.center,
-              child: Icon(
-                Icons.bolt_rounded,
-                color: p.warningText,
-                size: 24,
-              ),
-            ),
-            const SizedBox(width: 10),
-            Column(
-              crossAxisAlignment: isEven
-                  ? CrossAxisAlignment.start
-                  : CrossAxisAlignment.end,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  '${module.order}. ${module.title}',
-                  style: AppTypography.bodyM.copyWith(
-                    fontWeight: FontWeight.w600,
-                    color: p.text,
-                    fontSize: 13,
-                  ),
-                ),
-                Text(
-                  l10n.roadmapQuizNode,
-                  style: AppTypography.caption.copyWith(
-                    color: p.textMuted,
-                    fontSize: 11,
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(width: 4),
-          ],
-        ),
-      ),
-    );
+    final phaseOffset = (index * 0.42) % 1.0;
 
-    return Align(
-      alignment: isEven ? Alignment.centerLeft : Alignment.centerRight,
-      child: Padding(
-        padding: EdgeInsets.only(left: isEven ? 16 : 0, right: isEven ? 0 : 16),
-        child: pill,
+    return AnimatedBuilder(
+      animation: _pulseController,
+      builder: (context, child) {
+        final t = (_pulseController.value + phaseOffset) % 1.0;
+        final floatOffset = math.sin(t * math.pi * 2) * 3.0;
+        return Transform.translate(
+          offset: Offset(0, floatOffset),
+          child: child,
+        );
+      },
+      child: Align(
+        alignment: isEven ? Alignment.centerLeft : Alignment.centerRight,
+        child: Padding(
+          padding: EdgeInsets.only(
+            left: isEven ? 16 : 0,
+            right: isEven ? 0 : 16,
+          ),
+          child: InkWell(
+            onTap: () => widget.onModuleTap(module),
+            borderRadius: BorderRadius.circular(999),
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+              decoration: BoxDecoration(
+                color: p.surface.withValues(alpha: 0.95),
+                borderRadius: BorderRadius.circular(999),
+                border: Border.all(color: p.outline.withValues(alpha: 0.6)),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                textDirection: isEven ? TextDirection.ltr : TextDirection.rtl,
+                children: [
+                  Container(
+                    width: 44,
+                    height: 44,
+                    decoration: BoxDecoration(
+                      // accent + warningText adalah pasangan token: amber muda
+                      // dengan teks cokelat di mode terang, amber tua dengan teks
+                      // amber terang di mode gelap.
+                      color: p.accent.withValues(alpha: 0.22),
+                      shape: BoxShape.circle,
+                    ),
+                    alignment: Alignment.center,
+                    child: Icon(
+                      Icons.bolt_rounded,
+                      color: p.warningText,
+                      size: 24,
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  Column(
+                    crossAxisAlignment: isEven
+                        ? CrossAxisAlignment.start
+                        : CrossAxisAlignment.end,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        '${module.order}. ${module.title}',
+                        style: AppTypography.bodyM.copyWith(
+                          fontWeight: FontWeight.w600,
+                          color: p.text,
+                          fontSize: 13,
+                        ),
+                      ),
+                      Text(
+                        l10n.roadmapQuizNode,
+                        style: AppTypography.caption.copyWith(
+                          color: p.textMuted,
+                          fontSize: 11,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(width: 4),
+                ],
+              ),
+            ),
+          ),
+        ),
       ),
     );
   }
@@ -710,68 +746,83 @@ class _WindingRoadmapState extends State<WindingRoadmap>
     BuildContext context,
     LearningModule module,
     bool isEven,
+    int index,
   ) {
     final p = context.palette;
     final l10n = AppLocalizations.of(context);
-    final pill = InkWell(
-      onTap: () => widget.onModuleTap(module),
-      borderRadius: BorderRadius.circular(999),
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-        decoration: BoxDecoration(
-          color: p.surface.withValues(alpha: 0.95),
-          borderRadius: BorderRadius.circular(999),
-          border: Border.all(color: p.outline.withValues(alpha: 0.6)),
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          textDirection: isEven ? TextDirection.ltr : TextDirection.rtl,
-          children: [
-            Container(
-              width: 44,
-              height: 44,
-              decoration: BoxDecoration(
-                color: p.primaryContainer,
-                shape: BoxShape.circle,
-              ),
-              alignment: Alignment.center,
-              child: Icon(Icons.play_arrow_rounded, color: p.primary, size: 24),
-            ),
-            const SizedBox(width: 10),
-            Column(
-              crossAxisAlignment: isEven
-                  ? CrossAxisAlignment.start
-                  : CrossAxisAlignment.end,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  '${module.order}. ${module.title}',
-                  style: AppTypography.bodyM.copyWith(
-                    fontWeight: FontWeight.w600,
-                    color: p.text,
-                    fontSize: 13,
-                  ),
-                ),
-                Text(
-                  l10n.roadmapAvailableNow,
-                  style: AppTypography.caption.copyWith(
-                    color: p.textMuted,
-                    fontSize: 11,
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(width: 4),
-          ],
-        ),
-      ),
-    );
+    final phaseOffset = (index * 0.42) % 1.0;
 
-    return Align(
-      alignment: isEven ? Alignment.centerLeft : Alignment.centerRight,
-      child: Padding(
-        padding: EdgeInsets.only(left: isEven ? 16 : 0, right: isEven ? 0 : 16),
-        child: pill,
+    return AnimatedBuilder(
+      animation: _pulseController,
+      builder: (context, child) {
+        final t = (_pulseController.value + phaseOffset) % 1.0;
+        final floatOffset = math.sin(t * math.pi * 2) * 3.2;
+        return Transform.translate(
+          offset: Offset(0, floatOffset),
+          child: child,
+        );
+      },
+      child: Align(
+        alignment: isEven ? Alignment.centerLeft : Alignment.centerRight,
+        child: Padding(
+          padding: EdgeInsets.only(
+            left: isEven ? 16 : 0,
+            right: isEven ? 0 : 16,
+          ),
+          child: InkWell(
+            onTap: () => widget.onModuleTap(module),
+            borderRadius: BorderRadius.circular(999),
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+              decoration: BoxDecoration(
+                color: p.surface.withValues(alpha: 0.95),
+                borderRadius: BorderRadius.circular(999),
+                border: Border.all(color: p.outline.withValues(alpha: 0.6)),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                textDirection: isEven ? TextDirection.ltr : TextDirection.rtl,
+                children: [
+                  Container(
+                    width: 44,
+                    height: 44,
+                    decoration: BoxDecoration(
+                      color: p.primaryContainer,
+                      shape: BoxShape.circle,
+                    ),
+                    alignment: Alignment.center,
+                    child: Icon(Icons.play_arrow_rounded, color: p.primary, size: 24),
+                  ),
+                  const SizedBox(width: 10),
+                  Column(
+                    crossAxisAlignment: isEven
+                        ? CrossAxisAlignment.start
+                        : CrossAxisAlignment.end,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        '${module.order}. ${module.title}',
+                        style: AppTypography.bodyM.copyWith(
+                          fontWeight: FontWeight.w600,
+                          color: p.text,
+                          fontSize: 13,
+                        ),
+                      ),
+                      Text(
+                        l10n.roadmapAvailableNow,
+                        style: AppTypography.caption.copyWith(
+                          color: p.textMuted,
+                          fontSize: 11,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(width: 4),
+                ],
+              ),
+            ),
+          ),
+        ),
       ),
     );
   }
@@ -780,71 +831,86 @@ class _WindingRoadmapState extends State<WindingRoadmap>
     BuildContext context,
     LearningModule module,
     bool isEven,
+    int index,
   ) {
     final p = context.palette;
     final l10n = AppLocalizations.of(context);
-    final pill = Opacity(
-      opacity: 0.72,
-      child: InkWell(
-        onTap: () => widget.onModuleTap(module),
-        borderRadius: BorderRadius.circular(999),
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-          decoration: BoxDecoration(
-            color: p.surface.withValues(alpha: 0.95),
-            borderRadius: BorderRadius.circular(999),
-            border: Border.all(color: p.outline.withValues(alpha: 0.6)),
+    final phaseOffset = (index * 0.42) % 1.0;
+
+    return AnimatedBuilder(
+      animation: _pulseController,
+      builder: (context, child) {
+        final t = (_pulseController.value + phaseOffset) % 1.0;
+        final floatOffset = math.sin(t * math.pi * 2) * 2.0;
+        return Transform.translate(
+          offset: Offset(0, floatOffset),
+          child: child,
+        );
+      },
+      child: Align(
+        alignment: isEven ? Alignment.centerLeft : Alignment.centerRight,
+        child: Padding(
+          padding: EdgeInsets.only(
+            left: isEven ? 16 : 0,
+            right: isEven ? 0 : 16,
           ),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            textDirection: isEven ? TextDirection.ltr : TextDirection.rtl,
-            children: [
-              Container(
-                width: 42,
-                height: 42,
+          child: Opacity(
+            opacity: 0.72,
+            child: InkWell(
+              onTap: () => widget.onModuleTap(module),
+              borderRadius: BorderRadius.circular(999),
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                 decoration: BoxDecoration(
-                  color: p.surfaceAlt,
-                  shape: BoxShape.circle,
+                  color: p.surface.withValues(alpha: 0.95),
+                  borderRadius: BorderRadius.circular(999),
+                  border: Border.all(color: p.outline.withValues(alpha: 0.6)),
                 ),
-                alignment: Alignment.center,
-                child: Icon(Icons.lock_rounded, color: p.textMuted, size: 20),
-              ),
-              const SizedBox(width: 10),
-              Column(
-                crossAxisAlignment: isEven
-                    ? CrossAxisAlignment.start
-                    : CrossAxisAlignment.end,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(
-                    '${module.order}. ${module.title}',
-                    style: AppTypography.bodyM.copyWith(
-                      fontWeight: FontWeight.w600,
-                      color: p.text,
-                      fontSize: 13,
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  textDirection: isEven ? TextDirection.ltr : TextDirection.rtl,
+                  children: [
+                    Container(
+                      width: 42,
+                      height: 42,
+                      decoration: BoxDecoration(
+                        color: p.surfaceAlt,
+                        shape: BoxShape.circle,
+                      ),
+                      alignment: Alignment.center,
+                      child: Icon(Icons.lock_rounded, color: p.textMuted, size: 20),
                     ),
-                  ),
-                  Text(
-                    l10n.moduleStatusLocked,
-                    style: AppTypography.caption.copyWith(
-                      color: p.textMuted,
-                      fontSize: 11,
+                    const SizedBox(width: 10),
+                    Column(
+                      crossAxisAlignment: isEven
+                          ? CrossAxisAlignment.start
+                          : CrossAxisAlignment.end,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          '${module.order}. ${module.title}',
+                          style: AppTypography.bodyM.copyWith(
+                            fontWeight: FontWeight.w600,
+                            color: p.text,
+                            fontSize: 13,
+                          ),
+                        ),
+                        Text(
+                          l10n.moduleStatusLocked,
+                          style: AppTypography.caption.copyWith(
+                            color: p.textMuted,
+                            fontSize: 11,
+                          ),
+                        ),
+                      ],
                     ),
-                  ),
-                ],
+                    const SizedBox(width: 4),
+                  ],
+                ),
               ),
-              const SizedBox(width: 4),
-            ],
+            ),
           ),
         ),
-      ),
-    );
-
-    return Align(
-      alignment: isEven ? Alignment.centerLeft : Alignment.centerRight,
-      child: Padding(
-        padding: EdgeInsets.only(left: isEven ? 16 : 0, right: isEven ? 0 : 16),
-        child: pill,
       ),
     );
   }
@@ -853,7 +919,24 @@ class _WindingRoadmapState extends State<WindingRoadmap>
     final p = context.palette;
     final l10n = AppLocalizations.of(context);
     final onTap = widget.onCertificateTap;
-    return Center(
+
+    return AnimatedBuilder(
+      animation: _pulseController,
+      builder: (context, child) {
+        // Node sertifikat: float sedang (2.5px) + slight scale pulse untuk kesan "hadiah".
+        final pulse = _pulseController.value;
+        final floatOffset = math.sin(pulse * math.pi * 2) * 2.5;
+        final scaleValue = 1.0 + (math.sin(pulse * math.pi) * 0.012);
+        return Center(
+          child: Transform.translate(
+            offset: Offset(0, floatOffset),
+            child: Transform.scale(
+              scale: scaleValue,
+              child: child,
+            ),
+          ),
+        );
+      },
       child: Semantics(
         button: onTap != null,
         label: l10n.roadmapCertificate,

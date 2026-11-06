@@ -76,6 +76,34 @@ class LessonContent extends Equatable {
   List<Object?> get props => [id];
 }
 
+/// Minggu 13: ringkasan modul buatan pengajar yang terlihat oleh siswa
+/// (GET /student/guru-lessons). Dipakai untuk lencana "Baru" dan notifikasi
+/// modul baru, bukan untuk membuka isi bab (itu lewat /student/guru-babs/:id).
+class GuruLessonSummary extends Equatable {
+  const GuruLessonSummary({
+    required this.id,
+    required this.title,
+    required this.topic,
+    this.description = '',
+    this.iconCode = 'terminal',
+    this.babCount = 0,
+    this.totalXp = 0,
+    this.teacherName = '',
+  });
+
+  final String id;
+  final String title;
+  final String topic;
+  final String description;
+  final String iconCode;
+  final int babCount;
+  final int totalXp;
+  final String teacherName;
+
+  @override
+  List<Object?> get props => [id, title];
+}
+
 /// Contract for lesson content (GET /lessons/:id).
 abstract interface class LessonRepository {
   Future<LessonDetailData> getLessonDetail(String id);
@@ -90,4 +118,38 @@ abstract interface class LessonRepository {
     required bool completed,
   });
   Future<List<LessonDetailData>> listAllLessons();
+
+  /// Minggu 13: modul yang diterbitkan pengajar kelas siswa. Dipakai untuk
+  /// penanda "Baru" pada katalog dan notifikasi modul baru. Kegagalan
+  /// (mis. siswa belum punya kelas) dikembalikan sebagai daftar kosong oleh
+  /// implementasi, bukan dilempar sebagai galat layar.
+  Future<List<GuruLessonSummary>> listGuruLessons();
+
+  /// Minggu 13: pencarian kata kunci sampai ke ISI bab (GET /lessons/search).
+  /// Kata kunci kosong → daftar kosong tanpa memanggil server.
+  Future<List<LessonSearchHit>> searchLessons(String keyword);
+}
+
+/// Satu hasil pencarian yang menyentuh isi materi (Minggu 13).
+class LessonSearchHit extends Equatable {
+  const LessonSearchHit({
+    required this.lessonId,
+    required this.lessonTitle,
+    required this.topic,
+    required this.source,
+    required this.snippet,
+  });
+
+  final String lessonId;
+  final String lessonTitle;
+  final String topic;
+
+  /// "title" (judul materi) | "chapter" (judul bab guru) | "content" (isi).
+  final String source;
+  final String snippet;
+
+  bool get isContentMatch => source == 'content' || source == 'chapter';
+
+  @override
+  List<Object?> get props => [lessonId, source, snippet];
 }

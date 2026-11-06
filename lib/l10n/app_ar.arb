@@ -44,6 +44,86 @@
   "settingsLanguageSubtitle": "الإندونيسية أو English أو العربية",
   "settingsDarkMode": "الوضع الداكن",
   "settingsDarkModeSubtitle": "سمة داكنة مريحة للعين",
+  "settingsThemeMode": "سمة المظهر",
+  "settingsThemeModeSubtitle": "اختر فاتحًا أو داكنًا أو اتبع إعداد الهاتف",
+  "settingsThemeLight": "فاتح",
+  "settingsThemeDark": "داكن",
+  "settingsThemeSystem": "اتبع النظام",
+  "settingsNotifications": "الإشعارات",
+  "settingsNotificationsSubtitle": "تحديثات مهمة دون فتح التطبيق",
+  "settingsNotifySummaryAllOn": "جميع الأنواع مفعّلة",
+  "settingsNotifySummaryOff": "معطّلة",
+  "settingsNotifySummaryPartial": "{count} من 5 أنواع مفعّلة",
+  "@settingsNotifySummaryPartial": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "settingsNotificationsMaster": "تفعيل الإشعارات",
+  "settingsNotificationsMasterSubtitle": "أوقفه لإيقاف جميع الإشعارات",
+  "settingsNotifyCertificate": "إصدار الشهادة",
+  "settingsNotifyCertificateSubtitle": "عند إتمام مودول أو النجاح في تحدٍ",
+  "settingsNotifyDownload": "تنزيل الشهادة",
+  "settingsNotifyDownloadSubtitle": "عند اكتمال تنزيل الشهادة PDF",
+  "settingsNotifyReminder": "تذكير الدراسة",
+  "settingsNotifyReminderSubtitle": "تذكير يومي وعودة حصة AI Tutor كاملة",
+  "settingsNotifyMaterial": "مودولات جديدة",
+  "settingsNotifyMaterialSubtitle": "عند نشر المعلم مودول أو فصلًا جديدًا",
+  "settingsNotifySession": "أمان الجلسة",
+  "settingsNotifySessionSubtitle": "عند تسجيل الدخول من جهاز آخر",
+  "settingsNotifyTest": "إرسال إشعار تجريبي",
+  "settingsNotifyTestSubtitle": "تأكد من ظهور الإشعارات على هذا الجهاز",
+  "settingsNotifyTestSent": "تم إرسال الإشعار التجريبي.",
+  "settingsNotifyTestFailed": "تعذّر إرسال الإشعار. تحقّق من إذن الإشعارات لهذا التطبيق.",
+  "settingsNotifyPermissionDenied": "تم رفض إذن الإشعارات. فعّله من إعدادات الهاتف.",
+  "notifCertificateTitle": "صدرت شهادة الكفاءة",
+  "notifCertificateBody": "اكتمل {topic}. شهادتك جاهزة للتنزيل.",
+  "@notifCertificateBody": {
+    "placeholders": {
+      "topic": {
+        "type": "String"
+      }
+    }
+  },
+  "notifChallengeTitle": "صدرت شهادة التحدي",
+  "notifChallengeBody": "{title} نجح بدرجة 100/100. شهادة التحدي جاهزة للتنزيل.",
+  "@notifChallengeBody": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "notifDownloadTitle": "تم تنزيل الشهادة",
+  "notifDownloadBody": "تم حفظ الملف {certId} على هذا الجهاز.",
+  "@notifDownloadBody": {
+    "placeholders": {
+      "certId": {
+        "type": "String"
+      }
+    }
+  },
+  "notifReminderTitle": "حان وقت الدراسة",
+  "notifReminderBody": "عادت حصة AI Tutor إلى 5/5 اليوم.",
+  "notifMaterialTitle": "مودول جديد من معلمك",
+  "notifMaterialBody": "تم نشر {title}. افتح الكتالوج لرؤيته.",
+  "@notifMaterialBody": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "notifSessionTitle": "انتهت الجلسة",
+  "notifSessionBody": "تم تسجيل الدخول إلى حسابك من جهاز آخر. سجّل الدخول مجددًا للمتابعة.",
+  "notifTestTitle": "إشعار تجريبي",
+  "notifTestBody": "إشعارات CodeLab AI تعمل على هذا الجهاز.",
+  "notifNewBadge": "جديد",
+  "offlineBannerTitle": "أنت غير متصل. تحقّق من اتصال الإنترنت.",
+  "materialSearchContentTitle": "نتائج داخل المادة",
+  "materialSearchContentNoSnippet": "تظهر هذه الكلمة داخل المادة.",
   "settingsSfx": "مؤثرات صوتية للتطبيق",
   "settingsSfxSubtitle": "أصوات النوافذ والإشعارات والاختبارات",
   "settingsLabSfx": "مؤثرات صوتية للمختبر",
@@ -88,6 +168,8 @@
   "sandboxTooltip": "ما الذي لا يمكن فعله في ساحة التجربة؟",
   "sandboxSheetTitle": "حدود ساحة بايثون",
   "sandboxSheetSubtitle": "رسالة المعلّم قبل أن تبدأ",
+  "sandboxLimitJudgeTitle": "مقيّم الساحة يختلف عن مقيّم التحديات",
+  "sandboxLimitJudgeBody": "تعمل الساحة على هاتفك، بينما تُقيَّم التحديات على الخادم ببايثون كاملة. قد يختلف سلوك الكود هنا عند التسليم. إذا حدث ذلك، اعتمد النتيجة في صفحة التحدي — فهي الدرجة الرسمية.",
   "sandboxIntro": "يا أبنائي، قبل أن تبدأوا التجربة، استمعوا إلى رسالة معلّمكم. ساحة بايثون هذه مساحة تدريب محدودة عمدًا، وليست بايثون كاملة. ولكي لا تحتاروا عند فشل شيء، إليكم ما لا يمكن فعله هنا بعد:",
   "sandboxLimitImportTitle": "استدعاء الوحدات عبر import",
   "sandboxLimitImportBody": "أمر import غير موجود في هذه الساحة. لذلك لا يمكن استخدام مكتبات مثل random وmath وdatetime أو أي حزمة من الإنترنت بعد.",
@@ -367,7 +449,7 @@
   "certValidUntilLabel": "صالح حتى",
   "certPageOne": "الصفحة 1 — شهادة إتمام",
   "certPageTwo": "الصفحة 2 — كشف الدرجات والإنجازات",
-  "certPdfHint": "يُفتح المستند في المتصفح لتحفظه أو تطبعه بصيغة PDF.",
+  "certPdfHint": "تُنزَّل الصفحتان تلقائيًا في ملف PDF واحد.",
   "certChapterCountInline": "{done}/{total} فصول مكتملة",
   "@certChapterCountInline": {
     "placeholders": {
@@ -381,6 +463,26 @@
   },
   "certPreviewTitle": "معاينة الشهادة الإلكترونية",
   "certChallengeSectionTitle": "شهادات تحديات البرمجة",
+  "certCatalogTitle": "فهرس الشهادات",
+  "certCatalogSubtitle": "كل شهادات المودولات والتحديات التي أكملتها.",
+  "certModuleSectionTitle": "شهادات المودولات",
+  "certDownloadPdf": "تنزيل PDF",
+  "certDownloadFailed": "تعذّر تنزيل ملف PDF. تحقّق من الاتصال ثم حاول مجددًا.",
+  "certReadyCount": "{count} شهادة جاهزة للتنزيل",
+  "@certReadyCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "certEmptyTitle": "لا توجد شهادات بعد",
+  "certEmptyBody": "أكمل جميع فصول مودول أو اجتز تحدي برمجة لإصدار شهادة.",
+  "certNotEligibleShort": "غير مؤهل",
+  "certOpenCatalog": "عرض جميع الشهادات",
+  "certProfileSummaryBody": "المودولات والتحديات التي أكملتها.",
+  "certTabFront": "الشهادة",
+  "certTabBack": "كشف الدرجات",
   "certProgressLockedHint": "{percent}% مكتمل — تُصدر الشهادة تلقائيًا بعد إتمام جميع الفصول.",
   "@certProgressLockedHint": {
     "placeholders": {

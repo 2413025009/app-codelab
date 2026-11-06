@@ -145,6 +145,165 @@ class AppLocalizationsEn extends AppLocalizations {
       'A darker theme that is easier on the eyes';
 
   @override
+  String get settingsThemeMode => 'Appearance Theme';
+
+  @override
+  String get settingsThemeModeSubtitle =>
+      'Choose light, dark, or follow your phone setting';
+
+  @override
+  String get settingsThemeLight => 'Light';
+
+  @override
+  String get settingsThemeDark => 'Dark';
+
+  @override
+  String get settingsThemeSystem => 'Follow System';
+
+  @override
+  String get settingsNotifications => 'Notifications';
+
+  @override
+  String get settingsNotificationsSubtitle =>
+      'Important updates without opening the app';
+
+  @override
+  String get settingsNotifySummaryAllOn => 'All types enabled';
+
+  @override
+  String get settingsNotifySummaryOff => 'Disabled';
+
+  @override
+  String settingsNotifySummaryPartial(int count) {
+    return '$count of 5 types enabled';
+  }
+
+  @override
+  String get settingsNotificationsMaster => 'Enable Notifications';
+
+  @override
+  String get settingsNotificationsMasterSubtitle =>
+      'Turn off to stop receiving all notifications';
+
+  @override
+  String get settingsNotifyCertificate => 'Certificate Issued';
+
+  @override
+  String get settingsNotifyCertificateSubtitle =>
+      'When a module is completed or a challenge is passed';
+
+  @override
+  String get settingsNotifyDownload => 'Certificate Download';
+
+  @override
+  String get settingsNotifyDownloadSubtitle =>
+      'When the e-Certificate PDF finishes downloading';
+
+  @override
+  String get settingsNotifyReminder => 'Study Reminder';
+
+  @override
+  String get settingsNotifyReminderSubtitle =>
+      'Daily reminder and AI Tutor quota reset';
+
+  @override
+  String get settingsNotifyMaterial => 'New Modules';
+
+  @override
+  String get settingsNotifyMaterialSubtitle =>
+      'When a teacher publishes a new module or chapter';
+
+  @override
+  String get settingsNotifySession => 'Session Security';
+
+  @override
+  String get settingsNotifySessionSubtitle =>
+      'When the account signs in on another device';
+
+  @override
+  String get settingsNotifyTest => 'Send Test Notification';
+
+  @override
+  String get settingsNotifyTestSubtitle =>
+      'Make sure notifications appear on this device';
+
+  @override
+  String get settingsNotifyTestSent => 'Test notification sent.';
+
+  @override
+  String get settingsNotifyTestFailed =>
+      'The notification could not be sent. Check this app\'s notification permission.';
+
+  @override
+  String get settingsNotifyPermissionDenied =>
+      'Notification permission denied. Enable it in your phone settings.';
+
+  @override
+  String get notifCertificateTitle => 'Certificate of Competency Issued';
+
+  @override
+  String notifCertificateBody(String topic) {
+    return '$topic is complete. Your certificate is ready to download.';
+  }
+
+  @override
+  String get notifChallengeTitle => 'Challenge Certificate Issued';
+
+  @override
+  String notifChallengeBody(String title) {
+    return '$title passed 100/100. Your challenge certificate is ready.';
+  }
+
+  @override
+  String get notifDownloadTitle => 'Certificate Downloaded';
+
+  @override
+  String notifDownloadBody(String certId) {
+    return 'The PDF $certId was saved to this device.';
+  }
+
+  @override
+  String get notifReminderTitle => 'Time to Study';
+
+  @override
+  String get notifReminderBody => 'Your AI Tutor quota is back to 5/5 today.';
+
+  @override
+  String get notifMaterialTitle => 'New Module from Your Teacher';
+
+  @override
+  String notifMaterialBody(String title) {
+    return '$title was just published. Open the catalog to see it.';
+  }
+
+  @override
+  String get notifSessionTitle => 'Session Ended';
+
+  @override
+  String get notifSessionBody =>
+      'Your account signed in on another device. Sign in again to continue.';
+
+  @override
+  String get notifTestTitle => 'Test Notification';
+
+  @override
+  String get notifTestBody => 'CodeLab AI notifications work on this device.';
+
+  @override
+  String get notifNewBadge => 'New';
+
+  @override
+  String get offlineBannerTitle =>
+      'You are offline. Check your internet connection.';
+
+  @override
+  String get materialSearchContentTitle => 'Matched inside the lesson';
+
+  @override
+  String get materialSearchContentNoSnippet =>
+      'This word appears inside the lesson.';
+
+  @override
   String get settingsSfx => 'App Sound Effects';
 
   @override
@@ -291,6 +450,14 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get sandboxSheetSubtitle =>
       'A note from your teacher before you start';
+
+  @override
+  String get sandboxLimitJudgeTitle =>
+      'Playground runs a different judge than challenges';
+
+  @override
+  String get sandboxLimitJudgeBody =>
+      'The Playground runs on your phone, while challenges are judged by the server with full Python. Code that works here may behave differently when submitted. If that happens, trust the result on the challenge page — that is the official score.';
 
   @override
   String get sandboxIntro =>
@@ -1238,7 +1405,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get certPdfHint =>
-      'The document opens in your browser so you can save or print it as a PDF.';
+      'Both pages download automatically as a single PDF file.';
 
   @override
   String certChapterCountInline(int done, int total) {
@@ -1250,6 +1417,51 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get certChallengeSectionTitle => 'Coding Challenge Certificates';
+
+  @override
+  String get certCatalogTitle => 'Certificate Catalog';
+
+  @override
+  String get certCatalogSubtitle =>
+      'Every module and challenge certificate you have completed.';
+
+  @override
+  String get certModuleSectionTitle => 'Module Certificates';
+
+  @override
+  String get certDownloadPdf => 'Download PDF';
+
+  @override
+  String get certDownloadFailed =>
+      'The PDF could not be downloaded. Check your connection and try again.';
+
+  @override
+  String certReadyCount(int count) {
+    return '$count certificates ready to download';
+  }
+
+  @override
+  String get certEmptyTitle => 'No certificates yet';
+
+  @override
+  String get certEmptyBody =>
+      'Complete every chapter of a module or pass a coding challenge to earn a certificate.';
+
+  @override
+  String get certNotEligibleShort => 'Not eligible';
+
+  @override
+  String get certOpenCatalog => 'View All Certificates';
+
+  @override
+  String get certProfileSummaryBody =>
+      'Modules and challenges you have completed.';
+
+  @override
+  String get certTabFront => 'Certificate';
+
+  @override
+  String get certTabBack => 'Transcript';
 
   @override
   String certProgressLockedHint(int percent) {

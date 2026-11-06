@@ -13,11 +13,14 @@ import '../../../../core/widgets/app_loading_screen.dart';
 import '../../../../core/widgets/app_refresh.dart';
 import '../../../../core/widgets/app_snack.dart';
 import '../../../../core/widgets/avatars.dart';
+import '../../../../core/widgets/staggered_reveal.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../../../../l10n/l10n_ext.dart';
 import '../../../auth/presentation/cubit/auth_cubit.dart';
 import '../../../certificate/presentation/certificate_actions.dart';
 import '../../../class/presentation/widgets/class_status_card.dart';
+import '../../../lesson/domain/lesson_repository.dart';
+import '../../../notifications/new_material_watcher.dart';
 import '../../domain/dashboard_repository.dart';
 import '../cubit/dashboard_cubit.dart';
 import '../widgets/dashboard_widgets.dart';
@@ -47,6 +50,23 @@ class _DashboardPageState extends State<DashboardPage> {
     // Minggu 9 (owner): menekan tab Belajar LAGI melepas fokus lesson
     // pilihan katalog — peta kembali menampilkan track aktif natural.
     appShellTabActivated.addListener(_handleTabActivated);
+    // Minggu 13 (Notifikasi 4): periksa modul baru dari pengajar setelah
+    // frame pertama, supaya notifikasi tidak menahan tampilan dashboard.
+    WidgetsBinding.instance.addPostFrameCallback((_) => _checkNewMaterials());
+  }
+
+  /// Memberi kabar bila pengajar menerbitkan modul/bab baru sejak terakhir
+  /// dilihat. Kegagalan apa pun diabaikan: notifikasi bersifat tambahan.
+  Future<void> _checkNewMaterials() async {
+    if (!mounted) return;
+    try {
+      await NewMaterialWatcher.instance.check(
+        context.read<LessonRepository>(),
+        l10n: AppLocalizations.of(context),
+      );
+    } catch (_) {
+      // abaikan
+    }
   }
 
   void _handleTabActivated() {
@@ -166,7 +186,7 @@ class _DashboardView extends StatelessWidget {
       ),
       body: BlocBuilder<DashboardCubit, DashboardState>(
         builder: (context, state) {
-          return switch (state) {
+          final content = switch (state) {
             DashboardLoading(:final done, :final total, :final stage) =>
               AppLoadingScreen(
                 title: l10n.dashLoadingTitle,
@@ -193,76 +213,111 @@ class _DashboardView extends StatelessWidget {
                 physics: const AlwaysScrollableScrollPhysics(),
                 children: [
                   // 1. Greeting Section (Halo, Farhan 👋 + Tantangan Selesai + Avatar)
-                  _Header(
-                    userName: userName,
-                    completed: data.completedChallenges,
-                    onAvatar: () => context.go(AppRoutes.profile),
+                  StaggeredReveal(
+                    child: _Header(
+                      userName: userName,
+                      completed: data.completedChallenges,
+                      onAvatar: () => context.go(AppRoutes.profile),
+                    ),
                   ),
                   const SizedBox(height: AppSpacing.md),
 
                   // 2. Active Lesson / Progress Card (Stitch v2)
-                  ResumeCard(
-                    resume: data.resume,
-                    // Minggu 9 (owner): "Bab X dari Y" dihitung DALAM
-                    // topik anchor — dulu mencampur 49 bab semua topik.
-                    currentChapter: data.modules.isNotEmpty
-                        ? _anchorModule(data.modules).order
-                        : 1,
-                    totalChapters: data.modules.isNotEmpty
-                        ? data.modules
-                              .where(
-                                (m) =>
-                                    m.topic ==
-                                    _anchorModule(data.modules).topic,
-                              )
-                              .length
-                        : data.modules.length,
-                    // Minggu 9 (owner): klik card atas membuka Katalog
-                    // Materi; bab bisa dikerjakan kapan saja (tanpa
-                    // rantai bab terkunci).
-                    onPressed: () => context.push(AppRoutes.catalog),
+                  StaggeredReveal(
+                    delay: const Duration(milliseconds: 70),
+                    child: ResumeCard(
+                      resume: data.resume,
+                      // Minggu 9 (owner): "Bab X dari Y" dihitung DALAM
+                      // topik anchor — dulu mencampur 49 bab semua topik.
+                      currentChapter: data.modules.isNotEmpty
+                          ? _anchorModule(data.modules).order
+                          : 1,
+                      totalChapters: data.modules.isNotEmpty
+                          ? data.modules
+                                .where(
+                                  (m) =>
+                                      m.topic ==
+                                      _anchorModule(data.modules).topic,
+                                )
+                                .length
+                          : data.modules.length,
+                      // Minggu 9 (owner): klik card atas membuka Katalog
+                      // Materi; bab bisa dikerjakan kapan saja (tanpa
+                      // rantai bab terkunci).
+                      onPressed: () => context.push(AppRoutes.catalog),
+                    ),
                   ),
                   const SizedBox(height: AppSpacing.lg),
 
                   // 3. Seksi kecil kelas: kelas yang sedang dimasuki, atau
                   // ajakan gabung bila siswa belum masuk kelas mana pun.
-                  const ClassStatusCard(),
+                  const StaggeredReveal(
+                    delay: Duration(milliseconds: 140),
+                    child: ClassStatusCard(),
+                  ),
                   const SizedBox(height: AppSpacing.lg),
 
                   // 4. Winding Roadmap ("Peta Petualangan Belajar" with blueprint dotted canvas)
-                  if (data.modules.isEmpty)
-                    Text(
-                      l10n.dashNoModules,
-                      style: AppTypography.bodyM.copyWith(color: p.textMuted),
-                    )
-                  else
-                    ValueListenableBuilder<String?>(
-                      valueListenable: appShellFocusTopic,
-                      builder: (context, focusTopic, _) => WindingRoadmap(
-                        modules: data.modules,
-                        // Minggu 9 (owner): bab dari LESSON pilihan katalog
-                        // (termasuk yang sudah selesai) — null = track
-                        // aktif natural siswa.
-                        focusTopic: focusTopic,
-                        onModuleTap: (m) => _openModule(context, m),
-                        onOpenCatalog: () => context.push(AppRoutes.catalog),
-                        // Minggu 12: titik akhir peta = e-Sertifikat. Bila
-                        // modul aktif sudah tuntas, langsung buka sertifikatnya;
-                        // bila belum, tampil alasan + progres yang ramah.
-                        onCertificateTap: () => openModuleCertificate(
-                          context,
-                          _anchorModule(data.modules).topic,
-                        ),
-                      ),
-                    ),
+                  StaggeredReveal(
+                    delay: const Duration(milliseconds: 210),
+                    child: data.modules.isEmpty
+                        ? Text(
+                            l10n.dashNoModules,
+                            style: AppTypography.bodyM.copyWith(
+                              color: p.textMuted,
+                            ),
+                          )
+                        : ValueListenableBuilder<String?>(
+                            valueListenable: appShellFocusTopic,
+                            builder: (context, focusTopic, _) =>
+                                WindingRoadmap(
+                                  modules: data.modules,
+                                  // Minggu 9 (owner): bab dari LESSON pilihan
+                                  // katalog (termasuk yang sudah selesai) —
+                                  // null = track aktif natural siswa.
+                                  focusTopic: focusTopic,
+                                  onModuleTap: (m) =>
+                                      _openModule(context, m),
+                                  onOpenCatalog: () =>
+                                      context.push(AppRoutes.catalog),
+                                  // Minggu 12: titik akhir peta = e-Sertifikat.
+                                  // Bila modul aktif sudah tuntas, langsung buka
+                                  // sertifikatnya; bila belum, tampil alasan +
+                                  // progres yang ramah.
+                                  onCertificateTap: () => openModuleCertificate(
+                                    context,
+                                    _anchorModule(data.modules).topic,
+                                  ),
+                                ),
+                          ),
+                  ),
                   const SizedBox(height: AppSpacing.lg),
 
                   // 5. Quick Tip Banner ("Trik Cepat Python" from Stitch v2)
-                  _QuickTipCard(onTap: () => _showQuickTip(context)),
+                  StaggeredReveal(
+                    delay: const Duration(milliseconds: 280),
+                    child: _QuickTipCard(
+                      onTap: () => _showQuickTip(context),
+                    ),
+                  ),
                 ],
               ),
             ),
           };
+
+          final reduceMotion =
+              MediaQuery.maybeOf(context)?.disableAnimations ?? false;
+          return AnimatedSwitcher(
+            duration: reduceMotion
+                ? Duration.zero
+                : const Duration(milliseconds: 320),
+            switchInCurve: Curves.easeOutCubic,
+            switchOutCurve: Curves.easeInCubic,
+            child: KeyedSubtree(
+              key: ValueKey<Type>(state.runtimeType),
+              child: content,
+            ),
+          );
         },
       ),
     );

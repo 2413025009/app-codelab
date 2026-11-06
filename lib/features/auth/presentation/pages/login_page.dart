@@ -1,8 +1,11 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../app/router/app_routes.dart';
+import '../../../../core/network/session_notice.dart';
 import '../../../../core/theme/app_palette.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_typography.dart';
@@ -12,6 +15,7 @@ import '../../../../core/widgets/app_card.dart';
 import '../../../../core/widgets/app_text_field.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../../../../l10n/l10n_ext.dart';
+import '../../../notifications/notification_events.dart';
 import '../../domain/auth_repository.dart';
 import '../cubit/auth_cubit.dart';
 import '../widgets/auth_widgets.dart';
@@ -33,8 +37,37 @@ class _LoginPageState extends State<LoginPage> {
   bool _loading = false;
   String? _error;
 
+  /// Minggu 13: pesan "sesi berakhir" dari server (akun dipakai di perangkat
+  /// lain, logout, atau sandi berubah). Ditampilkan SEKALI saat layar masuk
+  /// terbuka, lalu dibersihkan agar tidak berulang.
+  String? _sessionMessage;
+
+  @override
+  void initState() {
+    super.initState();
+    SessionNotice.message.addListener(_syncSessionMessage);
+    _syncSessionMessage();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Minggu 13: teruskan bahasa aktif ke AuthCubit agar notifikasi "sesi
+    // berakhir" memakai bahasa yang sama dengan antarmuka.
+    context.read<AuthCubit>().setLocalizations(AppLocalizations.of(context));
+  }
+
+  void _syncSessionMessage() {
+    final msg = SessionNotice.message.value;
+    if (msg == null) return;
+    if (!mounted) return;
+    setState(() => _sessionMessage = msg);
+    SessionNotice.clear();
+  }
+
   @override
   void dispose() {
+    SessionNotice.message.removeListener(_syncSessionMessage);
     _email.dispose();
     _password.dispose();
     super.dispose();
@@ -49,6 +82,11 @@ class _LoginPageState extends State<LoginPage> {
     });
     try {
       await context.read<AuthCubit>().login(email: _email.text, password: _password.text);
+      // Minggu 13 (Notifikasi 3): setelah masuk, pasang pengingat belajar
+      // harian + kabar kuota AI Tutor kembali penuh. Kegagalan diabaikan.
+      if (mounted) {
+        unawaited(NotificationEvents.scheduleDailyReminder(context));
+      }
       // Router redirect moves us to the dashboard once authenticated.
     } on AuthFailure catch (e) {
       if (mounted) {
@@ -94,6 +132,12 @@ class _LoginPageState extends State<LoginPage> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
+                          // Sesi berakhir (dipakai di perangkat lain / logout /
+                          // sandi berubah) — tampil sebelum pesan lain.
+                          if (_sessionMessage != null && _error == null) ...[
+                            FormBanner(message: _sessionMessage!),
+                            const SizedBox(height: AppSpacing.lg),
+                          ],
                           if (widget.justRegistered && _error == null) ...[
                             FormBanner(
                               isError: false,

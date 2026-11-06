@@ -10,12 +10,16 @@
 //      judul/deskripsi, chip JP/tingkat/predikat, tanggal, tanda tangan
 //      Devwan Hidayawan. Halaman 2: silabus bab (modul) ATAU instruksi +
 //      aturan + hasil uji (tantangan).
-//   2. Tombol "Buka Halaman Verifikasi" (membuka URL cetak PDF resmi
-//      https://api.codelab-ai.web.id/verify/{certId} di browser perangkat).
-//   3. Tombol "Bagikan Sertifikat" (menyalin tautan verifikasi).
+//   2. Tombol "Unduh PDF" — mengunduh dokumen 2 halaman (depan + belakang)
+//      langsung dari backend sebagai satu berkas PDF (Content-Disposition:
+//      attachment), tanpa membuka halaman verifikasi atau dialog cetak.
+//   3. Tombol "Buka Halaman Verifikasi" (membuka URL verifikasi resmi) dan
+//      "Bagikan Sertifikat" (menyalin tautan verifikasi).
 //
 // WAJIB DIUBAH BILA: tata letak piagam berubah — halaman web resmi memakai
 // template yang sama di backend (certificate_page.go); jaga keduanya sejalan.
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -25,10 +29,12 @@ import '../../../../core/theme/app_palette.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../core/widgets/app_button.dart';
+import '../../../../core/widgets/app_card.dart';
 import '../../../../core/widgets/app_snack.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../../domain/certificate_models.dart';
 import '../../domain/certificate_repository.dart';
+import '../certificate_actions.dart';
 import '../certificate_doc_labels.dart';
 
 class CertificatePage extends StatefulWidget {
@@ -96,6 +102,12 @@ class _CertificatePageState extends State<CertificatePage> {
         title: Text(l10n.certScreenTitle),
         actions: [
           IconButton(
+            tooltip: l10n.certDownloadPdf,
+            icon: const Icon(Icons.download_rounded),
+            onPressed: () =>
+                downloadCertificatePdf(context, widget.certId),
+          ),
+          IconButton(
             tooltip: l10n.certShareAction,
             icon: const Icon(Icons.ios_share_rounded),
             onPressed: () => _share(CertificateLinks.verify(widget.certId)),
@@ -141,6 +153,7 @@ class _CertificatePageState extends State<CertificatePage> {
                   ? data.verifyUrl
                   : CertificateLinks.verify(data.certId),
             ),
+            onDownload: () => downloadCertificatePdf(context, data.certId),
           );
         },
       ),
@@ -189,21 +202,33 @@ class _CertError extends StatelessWidget {
   }
 }
 
-class _CertBody extends StatelessWidget {
+class _CertBody extends StatefulWidget {
   const _CertBody({
     required this.data,
     required this.onOpenWeb,
     required this.onShare,
+    required this.onDownload,
   });
 
   final CertificateVerification data;
   final VoidCallback onOpenWeb;
   final VoidCallback onShare;
+  final VoidCallback onDownload;
+
+  @override
+  State<_CertBody> createState() => _CertBodyState();
+}
+
+class _CertBodyState extends State<_CertBody> {
+  /// 0 = piagam depan, 1 = transkrip belakang. Hanya satu halaman ditampilkan
+  /// agar layar tidak menjadi gulungan dua lembar A4 yang panjang.
+  int _page = 0;
 
   @override
   Widget build(BuildContext context) {
     final p = context.palette;
     final l10n = AppLocalizations.of(context);
+    final data = widget.data;
     // Bahasa dokumen mengikuti bahasa aplikasi aktif (id/en/ar).
     final doc = CertificateDocLabels.of(context);
 
@@ -217,9 +242,138 @@ class _CertBody extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          // Ringkasan judul + jenis sertifikat.
+          // Ringkasan + tombol unduh utama, selalu terlihat sebelum pratinjau.
+          _CertificateSummary(data: data, onDownload: widget.onDownload),
+          const SizedBox(height: AppSpacing.lg),
+
+          // Pemilih halaman: piagam depan atau transkrip belakang.
+          SegmentedButton<int>(
+            segments: [
+              ButtonSegment<int>(
+                value: 0,
+                icon: const Icon(Icons.article_outlined, size: 18),
+                label: Text(l10n.certTabFront),
+              ),
+              ButtonSegment<int>(
+                value: 1,
+                icon: const Icon(Icons.fact_check_outlined, size: 18),
+                label: Text(l10n.certTabBack),
+              ),
+            ],
+            selected: {_page},
+            showSelectedIcon: false,
+            onSelectionChanged: (selection) {
+              if (selection.isEmpty) return;
+              setState(() => _page = selection.first);
+            },
+          ),
+          const SizedBox(height: AppSpacing.md),
+
+          AnimatedSwitcher(
+            duration: const Duration(milliseconds: 240),
+            switchInCurve: Curves.easeOutCubic,
+            switchOutCurve: Curves.easeInCubic,
+            transitionBuilder: (child, animation) {
+              final slide = Tween<Offset>(
+                begin: const Offset(0.035, 0),
+                end: Offset.zero,
+              ).animate(animation);
+              return FadeTransition(
+                opacity: animation,
+                child: SlideTransition(position: slide, child: child),
+              );
+            },
+            child: Column(
+              key: ValueKey<int>(_page),
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Text(
+                  _page == 0 ? l10n.certPageOne : l10n.certPageTwo,
+                  style: AppTypography.label.copyWith(
+                    color: p.text,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 13,
+                  ),
+                ),
+                const SizedBox(height: AppSpacing.sm),
+                _CertPageShell(
+                  child: _page == 0
+                      ? _CertificateFrontPage(data: data, doc: doc)
+                      : _CertificateBackPage(data: data, doc: doc),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: AppSpacing.md),
+
+          Text(
+            l10n.certPdfHint,
+            style: AppTypography.caption.copyWith(color: p.textMuted),
+          ),
+          const SizedBox(height: AppSpacing.lg),
+
+          AppButton(
+            label: l10n.certDownloadPdf,
+            leadingIcon: Icons.download_rounded,
+            onPressed: widget.onDownload,
+          ),
+          const SizedBox(height: AppSpacing.sm),
+          AppButton(
+            label: l10n.certOpenWeb,
+            kind: AppButtonKind.secondary,
+            leadingIcon: Icons.open_in_new_rounded,
+            onPressed: widget.onOpenWeb,
+          ),
+          const SizedBox(height: AppSpacing.sm),
+          AppButton(
+            label: l10n.certShareAction,
+            kind: AppButtonKind.secondary,
+            leadingIcon: Icons.ios_share_rounded,
+            onPressed: widget.onShare,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Kartu ringkasan sertifikat: judul, nomor, status, dan tombol unduh utama.
+class _CertificateSummary extends StatelessWidget {
+  const _CertificateSummary({required this.data, required this.onDownload});
+
+  final CertificateVerification data;
+  final VoidCallback onDownload;
+
+  @override
+  Widget build(BuildContext context) {
+    final p = context.palette;
+    final l10n = AppLocalizations.of(context);
+
+    return AppCard(
+      padding: const EdgeInsets.all(AppSpacing.lg),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
           Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              Container(
+                width: 46,
+                height: 46,
+                decoration: BoxDecoration(
+                  color: p.primaryContainer,
+                  borderRadius: BorderRadius.circular(13),
+                ),
+                alignment: Alignment.center,
+                child: Icon(
+                  data.isChallenge
+                      ? Icons.workspace_premium_outlined
+                      : Icons.workspace_premium_rounded,
+                  color: p.primary,
+                  size: 24,
+                ),
+              ),
+              const SizedBox(width: AppSpacing.md),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -236,79 +390,27 @@ class _CertBody extends StatelessWidget {
                       data.certId,
                       style: AppTypography.codeSm.copyWith(color: p.primary),
                     ),
+                    const SizedBox(height: 3),
+                    Text(
+                      data.isChallenge
+                          ? l10n.certChallengeSectionTitle
+                          : l10n.certModuleSectionTitle,
+                      style: AppTypography.caption.copyWith(
+                        color: p.textMuted,
+                      ),
+                    ),
+                    const SizedBox(height: 6),
+                    _CertStatusPill(challenge: data.isChallenge),
                   ],
-                ),
-              ),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                decoration: BoxDecoration(
-                  color: data.isChallenge
-                      ? p.accent.withValues(alpha: 0.18)
-                      : p.primaryContainer,
-                  borderRadius: BorderRadius.circular(999),
-                ),
-                child: Text(
-                  data.isChallenge
-                      ? l10n.profileCertChallengeDone
-                      : l10n.profileCertReady,
-                  style: AppTypography.caption.copyWith(
-                    color: data.isChallenge ? p.warningText : p.primary,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 10,
-                  ),
                 ),
               ),
             ],
           ),
           const SizedBox(height: AppSpacing.md),
-
-          // ── Halaman 1: piagam depan ─────────────────────────────────────
-          Text(
-            l10n.certPageOne,
-            style: AppTypography.label.copyWith(
-              color: p.text,
-              fontWeight: FontWeight.bold,
-              fontSize: 13,
-            ),
-          ),
-          const SizedBox(height: AppSpacing.sm),
-          _CertPageShell(
-            child: _CertificateFrontPage(data: data, doc: doc),
-          ),
-          const SizedBox(height: AppSpacing.lg),
-
-          // ── Halaman 2: transkrip belakang ──────────────────────────────
-          Text(
-            l10n.certPageTwo,
-            style: AppTypography.label.copyWith(
-              color: p.text,
-              fontWeight: FontWeight.bold,
-              fontSize: 13,
-            ),
-          ),
-          const SizedBox(height: AppSpacing.sm),
-          _CertPageShell(
-            child: _CertificateBackPage(data: data, doc: doc),
-          ),
-          const SizedBox(height: AppSpacing.md),
-
-          Text(
-            l10n.certPdfHint,
-            style: AppTypography.caption.copyWith(color: p.textMuted),
-          ),
-          const SizedBox(height: AppSpacing.lg),
-
           AppButton(
-            label: l10n.certOpenWeb,
-            leadingIcon: Icons.open_in_new_rounded,
-            onPressed: onOpenWeb,
-          ),
-          const SizedBox(height: AppSpacing.sm),
-          AppButton(
-            label: l10n.certShareAction,
-            kind: AppButtonKind.secondary,
-            leadingIcon: Icons.ios_share_rounded,
-            onPressed: onShare,
+            label: l10n.certDownloadPdf,
+            leadingIcon: Icons.download_rounded,
+            onPressed: onDownload,
           ),
         ],
       ),
@@ -316,8 +418,39 @@ class _CertBody extends StatelessWidget {
   }
 }
 
+class _CertStatusPill extends StatelessWidget {
+  const _CertStatusPill({required this.challenge});
+
+  final bool challenge;
+
+  @override
+  Widget build(BuildContext context) {
+    final p = context.palette;
+    final l10n = AppLocalizations.of(context);
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 4),
+      decoration: BoxDecoration(
+        color: challenge
+            ? p.accent.withValues(alpha: 0.18)
+            : p.primaryContainer,
+        borderRadius: BorderRadius.circular(999),
+      ),
+      child: Text(
+        challenge
+            ? l10n.profileCertChallengeDone
+            : l10n.profileCertReady,
+        style: AppTypography.caption.copyWith(
+          color: challenge ? p.warningText : p.primary,
+          fontWeight: FontWeight.bold,
+          fontSize: 10,
+        ),
+      ),
+    );
+  }
+}
+
 /// Bingkai halaman A4 landscape (rasio 1040 : 720) yang menyesuaikan lebar
-/// layar ponsel. Isi halaman diskalakan agar tetap terbaca.
+/// layar ponsel. Isi halaman diskalakan proporsional (tidak terdistorsi).
 class _CertPageShell extends StatelessWidget {
   const _CertPageShell({required this.child});
 
@@ -330,6 +463,7 @@ class _CertPageShell extends StatelessWidget {
       builder: (context, constraints) {
         const canvasWidth = 1040.0;
         const canvasHeight = 720.0;
+        // Skala berdasarkan lebar layar — mempertahankan aspek rasio A4 landscape.
         final scale = constraints.maxWidth / canvasWidth;
         return Container(
           clipBehavior: Clip.antiAlias,
@@ -345,13 +479,20 @@ class _CertPageShell extends StatelessWidget {
               ),
             ],
           ),
+          // Tinggi dihitung dari skala agar rasio tetap terjaga.
           height: canvasHeight * scale,
-          child: FittedBox(
-            fit: BoxFit.fill,
-            child: SizedBox(
-              width: canvasWidth,
-              height: canvasHeight,
-              child: child,
+          child: OverflowBox(
+            maxWidth: canvasWidth,
+            maxHeight: canvasHeight,
+            alignment: Alignment.topLeft,
+            child: Transform.scale(
+              scale: scale,
+              alignment: Alignment.topLeft,
+              child: SizedBox(
+                width: canvasWidth,
+                height: canvasHeight,
+                child: child,
+              ),
             ),
           ),
         );
@@ -391,7 +532,7 @@ class _CertificateFrontPage extends StatelessWidget {
       color: _docSurface,
       child: Stack(
         children: [
-          // Bingkai navy tebal + garis slate tipis.
+          // Bingkai navy tebal + garis slate tipis (persis testing-farhan/index.html).
           Positioned.fill(
             child: Container(
               margin: const EdgeInsets.all(16),
@@ -408,83 +549,99 @@ class _CertificateFrontPage extends StatelessWidget {
               ),
             ),
           ),
-          // Pita segel kanan atas.
+          // Pita segel kanan atas + medali ganda + ekor V-Cut.
           Positioned(
             top: 0,
             right: 56,
-            child: Container(
-              width: 176,
-              padding: const EdgeInsets.fromLTRB(12, 22, 12, 18),
-              color: _docNavy,
-              child: Column(
-                children: [
-                  Text(
-                    isChallenge ? doc.ribbonChallenge : doc.ribbonModule,
-                    textAlign: TextAlign.center,
-                    style: const TextStyle(
-                      fontFamily: AppFonts.sans,
-                      color: Colors.white,
-                      fontSize: 12.5,
-                      height: 1.35,
-                      fontWeight: FontWeight.w800,
-                      letterSpacing: 1.1,
-                    ),
-                  ),
-                  const SizedBox(height: 14),
-                  Container(
-                    width: 104,
-                    height: 104,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      border: Border.all(
-                        color: Colors.white.withValues(alpha: 0.35),
-                        width: 1.4,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  width: 176,
+                  padding: const EdgeInsets.fromLTRB(12, 24, 12, 20),
+                  decoration: BoxDecoration(
+                    color: _docNavy,
+                    boxShadow: [
+                      BoxShadow(
+                        color: _docNavy.withValues(alpha: 0.28),
+                        blurRadius: 24,
+                        offset: const Offset(0, 12),
                       ),
-                    ),
-                    child: const Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text(
-                          'VERIFIED',
-                          style: TextStyle(
-                            fontFamily: AppFonts.sans,
-                            color: Color(0xCCFFFFFF),
-                            fontSize: 8,
-                            fontWeight: FontWeight.w800,
-                            letterSpacing: 1.4,
-                          ),
-                        ),
-                        Text(
-                          'AI',
-                          style: TextStyle(
-                            fontFamily: AppFonts.sans,
-                            color: Colors.white,
-                            fontSize: 24,
-                            height: 1.1,
-                            fontWeight: FontWeight.w900,
-                          ),
-                        ),
-                        Text(
-                          'CODELAB',
-                          style: TextStyle(
-                            fontFamily: AppFonts.sans,
-                            color: Color(0xE6FFFFFF),
-                            fontSize: 8,
-                            fontWeight: FontWeight.w700,
-                            letterSpacing: 1.2,
-                          ),
-                        ),
-                      ],
-                    ),
+                    ],
                   ),
-                ],
-              ),
+                  child: Column(
+                    children: [
+                      Text(
+                        isChallenge ? doc.ribbonChallenge : doc.ribbonModule,
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(
+                          fontFamily: AppFonts.sans,
+                          color: Colors.white,
+                          fontSize: 13.5,
+                          height: 1.3,
+                          fontWeight: FontWeight.w800,
+                          letterSpacing: 1.1,
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      SizedBox(
+                        width: 112,
+                        height: 112,
+                        child: CustomPaint(
+                          painter: _SealRingPainter(),
+                          child: const Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text(
+                                'VERIFIED',
+                                style: TextStyle(
+                                  fontFamily: AppFonts.sans,
+                                  color: Color(0xCCFFFFFF),
+                                  fontSize: 8.5,
+                                  fontWeight: FontWeight.w800,
+                                  letterSpacing: 1.5,
+                                ),
+                              ),
+                              SizedBox(height: 1),
+                              Text(
+                                'AI',
+                                style: TextStyle(
+                                  fontFamily: AppFonts.sans,
+                                  color: Colors.white,
+                                  fontSize: 22,
+                                  height: 1.05,
+                                  fontWeight: FontWeight.w900,
+                                ),
+                              ),
+                              SizedBox(height: 1),
+                              Text(
+                                'CODELAB',
+                                style: TextStyle(
+                                  fontFamily: AppFonts.sans,
+                                  color: Color(0xE6FFFFFF),
+                                  fontSize: 8.5,
+                                  fontWeight: FontWeight.w700,
+                                  letterSpacing: 1.2,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                CustomPaint(
+                  size: const Size(176, 26),
+                  painter: _RibbonTailPainter(),
+                ),
+              ],
             ),
           ),
 
-          // Isi utama.
+          // Isi utama (padding 54/48 di dalam bingkai dalam 32px, persis p-6 + p-8 HTML).
           Padding(
-            padding: const EdgeInsets.fromLTRB(34, 30, 34, 30),
+            padding: const EdgeInsets.fromLTRB(54, 48, 54, 46),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -501,7 +658,7 @@ class _CertificateFrontPage extends StatelessWidget {
                           padding: const EdgeInsets.all(5),
                           decoration: BoxDecoration(
                             color: _docNavy,
-                            borderRadius: BorderRadius.circular(10),
+                            borderRadius: BorderRadius.circular(8),
                           ),
                           child: Image.asset(
                             'assets/images/logo.png',
@@ -513,7 +670,7 @@ class _CertificateFrontPage extends StatelessWidget {
                             ),
                           ),
                         ),
-                        const SizedBox(width: 12),
+                        const SizedBox(width: 10),
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
@@ -525,63 +682,67 @@ class _CertificateFrontPage extends StatelessWidget {
                                   'CodeLab',
                                   style: TextStyle(
                                     fontFamily: AppFonts.sans,
-                                    fontSize: 21,
+                                    fontSize: 22,
+                                    height: 1.0,
                                     fontWeight: FontWeight.w800,
                                     color: _docNavy,
-                                    letterSpacing: -0.6,
+                                    letterSpacing: -0.5,
                                   ),
                                 ),
+                                SizedBox(width: 4),
                                 Text(
                                   'AI',
                                   style: TextStyle(
                                     fontFamily: AppFonts.sans,
-                                    fontSize: 21,
+                                    fontSize: 22,
+                                    height: 1.0,
                                     fontWeight: FontWeight.w800,
                                     color: _docPrimary,
-                                    letterSpacing: -0.6,
+                                    letterSpacing: -0.5,
                                   ),
                                 ),
                               ],
                             ),
+                            const SizedBox(height: 2),
                             Text(
                               doc.platformTagline,
                               style: const TextStyle(
                                 fontFamily: AppFonts.sans,
-                                fontSize: 9.5,
+                                fontSize: 10,
                                 color: _docMuted,
                                 fontWeight: FontWeight.w600,
                               ),
                             ),
                           ],
                         ),
+                        const SizedBox(width: 18),
+                        Container(width: 1.5, height: 24, color: _docOutline),
                         const SizedBox(width: 16),
-                        Container(width: 1.5, height: 26, color: _docOutline),
-                        const SizedBox(width: 14),
-                        const Icon(
-                          Icons.workspace_premium_rounded,
-                          size: 18,
+                        Icon(
+                          _moduleIconData(data.moduleIcon, data.topic),
+                          size: 19,
                           color: _docPrimary,
                         ),
-                        const SizedBox(width: 5),
+                        const SizedBox(width: 7),
                         Text(
                           isChallenge
                               ? 'Automated Judge Verified'
                               : doc.accreditationValue,
                           style: const TextStyle(
                             fontFamily: AppFonts.sans,
-                            fontSize: 9.5,
+                            fontSize: 10.5,
                             fontWeight: FontWeight.w700,
                             color: _docText,
                           ),
                         ),
                       ],
                     ),
-                    const SizedBox(height: 16),
+                    const SizedBox(height: 18),
                     Row(
                       children: [
                         Container(
                           padding: const EdgeInsets.symmetric(
-                            horizontal: 12,
+                            horizontal: 13,
                             vertical: 6,
                           ),
                           decoration: BoxDecoration(
@@ -598,15 +759,15 @@ class _CertificateFrontPage extends StatelessWidget {
                                   shape: BoxShape.circle,
                                 ),
                               ),
-                              const SizedBox(width: 7),
+                              const SizedBox(width: 8),
                               Text(
                                 data.certId,
                                 style: const TextStyle(
                                   fontFamily: AppFonts.mono,
-                                  fontSize: 11.5,
+                                  fontSize: 12,
                                   fontWeight: FontWeight.w800,
                                   color: Colors.white,
-                                  letterSpacing: 0.5,
+                                  letterSpacing: 0.6,
                                 ),
                               ),
                             ],
@@ -615,20 +776,25 @@ class _CertificateFrontPage extends StatelessWidget {
                         const SizedBox(width: 8),
                         Container(
                           padding: const EdgeInsets.symmetric(
-                            horizontal: 9,
-                            vertical: 4,
+                            horizontal: 10,
+                            vertical: 4.5,
                           ),
                           decoration: BoxDecoration(
                             color: isChallenge
                                 ? _docAccent.withValues(alpha: 0.2)
                                 : _docPrimary.withValues(alpha: 0.1),
                             borderRadius: BorderRadius.circular(4),
+                            border: Border.all(
+                              color: isChallenge
+                                  ? _docAccent.withValues(alpha: 0.45)
+                                  : _docPrimary.withValues(alpha: 0.22),
+                            ),
                           ),
                           child: Text(
                             isChallenge ? doc.kindChallenge : doc.kindModule,
                             style: TextStyle(
                               fontFamily: AppFonts.sans,
-                              fontSize: 9.5,
+                              fontSize: 10,
                               fontWeight: FontWeight.w800,
                               color: isChallenge
                                   ? const Color(0xFF7C5800)
@@ -644,7 +810,7 @@ class _CertificateFrontPage extends StatelessWidget {
 
                 // Tengah: penerima, kalimat kelulusan, judul, chip metadata.
                 SizedBox(
-                  width: 700,
+                  width: 730,
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -652,52 +818,56 @@ class _CertificateFrontPage extends StatelessWidget {
                         l10n.certGivenTo,
                         style: const TextStyle(
                           fontFamily: AppFonts.sans,
-                          fontSize: 13,
+                          fontSize: 15,
                           color: _docMuted,
                         ),
                       ),
-                      const SizedBox(height: 4),
+                      const SizedBox(height: 5),
                       Text(
                         data.student.name.isEmpty
                             ? l10n.profileNewStudent
                             : data.student.name,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                         style: const TextStyle(
                           fontFamily: AppFonts.sans,
-                          fontSize: 40,
+                          fontSize: 41,
                           height: 1.12,
                           fontWeight: FontWeight.w800,
-                          letterSpacing: -1.0,
+                          letterSpacing: -0.9,
                           color: _docPrimary,
                         ),
                       ),
-                      const SizedBox(height: 6),
+                      const SizedBox(height: 7),
                       Text(
                         isChallenge
                             ? doc.completionChallenge
                             : doc.completionModule,
                         style: const TextStyle(
                           fontFamily: AppFonts.sans,
-                          fontSize: 12,
+                          fontSize: 13.5,
                           color: _docMuted,
                         ),
                       ),
-                      const SizedBox(height: 3),
+                      const SizedBox(height: 4),
                       Text(
                         data.description.isEmpty
                             ? data.topic
                             : '${data.topic}: ${data.description}',
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
                         style: const TextStyle(
                           fontFamily: AppFonts.sans,
-                          fontSize: 20,
-                          height: 1.35,
+                          fontSize: 21.5,
+                          height: 1.32,
                           fontWeight: FontWeight.w800,
                           letterSpacing: -0.4,
                           color: _docPrimary,
                         ),
                       ),
-                      const SizedBox(height: 13),
+                      const SizedBox(height: 14),
                       Wrap(
-                        spacing: 7,
+                        spacing: 8,
                         runSpacing: 7,
                         children: [
                           _DocChip(
@@ -710,6 +880,7 @@ class _CertificateFrontPage extends StatelessWidget {
                           ),
                           _DocChip(bold: doc.level, text: _levelLabel(data.level)),
                           _DocChip(
+                            icon: Icons.check_circle_rounded,
                             bold: doc.predicate,
                             text: doc.predicateValue,
                             success: true,
@@ -720,7 +891,7 @@ class _CertificateFrontPage extends StatelessWidget {
                   ),
                 ),
 
-                // Kaki: tanda tangan + QR verifikasi.
+                // Kaki: tanda tangan + stempel VALIDATED + QR verifikasi.
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.end,
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -732,32 +903,73 @@ class _CertificateFrontPage extends StatelessWidget {
                           _dateLabel(issued),
                           style: const TextStyle(
                             fontFamily: AppFonts.sans,
-                            fontSize: 11,
+                            fontSize: 11.5,
                             fontWeight: FontWeight.w600,
                             color: _docMuted,
                           ),
                         ),
+                        const SizedBox(height: 2),
                         SizedBox(
-                          width: 200,
-                          height: 52,
-                          child: CustomPaint(
-                            painter: _SignaturePainter(),
+                          width: 210,
+                          height: 54,
+                          child: Stack(
+                            clipBehavior: Clip.none,
+                            children: [
+                              Positioned.fill(
+                                child: CustomPaint(
+                                  painter: _SignaturePainter(),
+                                ),
+                              ),
+                              Positioned(
+                                left: 112,
+                                top: -10,
+                                child: Transform.rotate(
+                                  angle: -12 * math.pi / 180,
+                                  child: Container(
+                                    width: 62,
+                                    height: 62,
+                                    alignment: Alignment.center,
+                                    decoration: BoxDecoration(
+                                      shape: BoxShape.circle,
+                                      border: Border.all(
+                                        color: _docPrimary.withValues(alpha: 0.26),
+                                        width: 2,
+                                      ),
+                                    ),
+                                    child: Text(
+                                      'VALIDATED\nCODELAB AI',
+                                      textAlign: TextAlign.center,
+                                      style: TextStyle(
+                                        fontFamily: AppFonts.sans,
+                                        fontSize: 7.2,
+                                        height: 1.15,
+                                        fontWeight: FontWeight.w800,
+                                        letterSpacing: 0.3,
+                                        color: _docPrimary.withValues(alpha: 0.36),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
                           ),
                         ),
+                        const SizedBox(height: 2),
                         const Text(
                           'Devwan Hidayawan',
                           style: TextStyle(
                             fontFamily: AppFonts.sans,
-                            fontSize: 14,
+                            fontSize: 15,
                             fontWeight: FontWeight.w800,
                             color: _docText,
                           ),
                         ),
+                        const SizedBox(height: 1),
                         Text(
                           doc.instructorRole,
                           style: const TextStyle(
                             fontFamily: AppFonts.sans,
-                            fontSize: 10,
+                            fontSize: 10.5,
                             color: _docMuted,
                           ),
                         ),
@@ -765,14 +977,14 @@ class _CertificateFrontPage extends StatelessWidget {
                           'CodeLab AI: ${doc.platformTagline}',
                           style: const TextStyle(
                             fontFamily: AppFonts.sans,
-                            fontSize: 10,
+                            fontSize: 10.5,
                             color: _docMuted,
                           ),
                         ),
                       ],
                     ),
                     SizedBox(
-                      width: 300,
+                      width: 340,
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.end,
                         children: [
@@ -780,27 +992,28 @@ class _CertificateFrontPage extends StatelessWidget {
                             padding: const EdgeInsets.all(6),
                             decoration: BoxDecoration(
                               color: Colors.white,
-                              borderRadius: BorderRadius.circular(10),
+                              borderRadius: BorderRadius.circular(8),
                               border: Border.all(color: _docOutline),
                             ),
                             child: _DynamicQr(certId: data.certId),
                           ),
-                          const SizedBox(height: 5),
+                          const SizedBox(height: 6),
                           Text(
                             doc.verifyHeading,
                             style: const TextStyle(
                               fontFamily: AppFonts.sans,
-                              fontSize: 13,
+                              fontSize: 13.5,
                               fontWeight: FontWeight.w800,
                               color: _docText,
                             ),
                           ),
+                          const SizedBox(height: 2),
                           Text(
                             'https://api.codelab-ai.web.id/verify/${data.certId}',
                             textAlign: TextAlign.right,
                             style: const TextStyle(
                               fontFamily: AppFonts.mono,
-                              fontSize: 9.5,
+                              fontSize: 10.5,
                               color: _docMuted,
                               decoration: TextDecoration.underline,
                               decorationStyle: TextDecorationStyle.dotted,
@@ -811,7 +1024,7 @@ class _CertificateFrontPage extends StatelessWidget {
                             '${doc.validUntil} ${_dateLabel(valid)}',
                             style: const TextStyle(
                               fontFamily: AppFonts.sans,
-                              fontSize: 10,
+                              fontSize: 10.5,
                               color: _docMuted,
                             ),
                           ),
@@ -829,7 +1042,8 @@ class _CertificateFrontPage extends StatelessWidget {
   }
 }
 
-/// HALAMAN 2 — Transkrip silabus (modul) atau evaluasi tantangan.
+/// HALAMAN 2 — Transkrip silabus (modul) atau kriteria & test case (tantangan)
+/// sesuai prototipe `testing-farhan/index.html` (tanpa blok evaluasi modul).
 class _CertificateBackPage extends StatelessWidget {
   const _CertificateBackPage({required this.data, required this.doc});
 
@@ -840,6 +1054,7 @@ class _CertificateBackPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final isChallenge = data.isChallenge;
     final chapters = data.chapters;
+    final compact = !isChallenge && chapters.length > 6;
 
     return Container(
       color: _docSurface,
@@ -854,320 +1069,346 @@ class _CertificateBackPage extends StatelessWidget {
             ),
           ),
           Padding(
-            padding: const EdgeInsets.fromLTRB(36, 36, 36, 36),
+            padding: const EdgeInsets.fromLTRB(36, 34, 36, 34),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                // Kepala halaman 2.
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                // 1. Kepala halaman 2.
+                Column(
                   children: [
                     Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Container(
-                          width: 30,
-                          height: 30,
-                          padding: const EdgeInsets.all(4),
-                          decoration: BoxDecoration(
-                            color: _docPrimary.withValues(alpha: 0.1),
-                            borderRadius: BorderRadius.circular(9),
-                            border: Border.all(
-                              color: _docPrimary.withValues(alpha: 0.2),
+                        Row(
+                          children: [
+                            Container(
+                              width: 32,
+                              height: 32,
+                              padding: const EdgeInsets.all(4),
+                              decoration: BoxDecoration(
+                                color: _docPrimary.withValues(alpha: 0.1),
+                                borderRadius: BorderRadius.circular(8),
+                                border: Border.all(
+                                  color: _docPrimary.withValues(alpha: 0.2),
+                                ),
+                              ),
+                              child: Image.asset(
+                                'assets/images/logo.png',
+                                fit: BoxFit.contain,
+                                errorBuilder: (_, _, _) => const Icon(
+                                  Icons.terminal_rounded,
+                                  size: 18,
+                                  color: _docPrimary,
+                                ),
+                              ),
                             ),
-                          ),
-                          child: Image.asset(
-                            'assets/images/logo.png',
-                            fit: BoxFit.contain,
-                            errorBuilder: (_, _, _) => const Icon(
-                              Icons.terminal_rounded,
-                              size: 18,
-                              color: _docPrimary,
+                            const SizedBox(width: 10),
+                            const Text(
+                              'CodeLab',
+                              style: TextStyle(
+                                fontFamily: AppFonts.sans,
+                                fontSize: 18,
+                                fontWeight: FontWeight.w800,
+                                color: _docText,
+                                letterSpacing: -0.4,
+                              ),
                             ),
-                          ),
-                        ),
-                        const SizedBox(width: 9),
-                        const Text(
-                          'CodeLab',
-                          style: TextStyle(
-                            fontFamily: AppFonts.sans,
-                            fontSize: 16,
-                            fontWeight: FontWeight.w800,
-                            color: _docText,
-                            letterSpacing: -0.4,
-                          ),
-                        ),
-                        const Text(
-                          'AI',
-                          style: TextStyle(
-                            fontFamily: AppFonts.sans,
-                            fontSize: 16,
-                            fontWeight: FontWeight.w800,
-                            color: _docPrimary,
-                            letterSpacing: -0.4,
-                          ),
-                        ),
-                        const SizedBox(width: 6),
-                        Text(
-                          isChallenge
-                              ? doc.challengeAttachment
-                              : doc.moduleAttachment,
-                          style: const TextStyle(
-                            fontFamily: AppFonts.sans,
-                            fontSize: 10.5,
-                            color: _docMuted,
-                          ),
-                        ),
-                      ],
-                    ),
-                    Text(
-                      doc.pageOf,
-                      style: const TextStyle(
-                        fontFamily: AppFonts.sans,
-                        fontSize: 11.5,
-                        fontWeight: FontWeight.w700,
-                        color: _docMuted,
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 10),
-                Container(height: 1, color: _docOutline),
-                const SizedBox(height: 12),
-
-                // Pasangan logo + topik.
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Container(
-                      width: 38,
-                      height: 38,
-                      padding: const EdgeInsets.all(5),
-                      decoration: BoxDecoration(
-                        color: _docPrimary.withValues(alpha: 0.1),
-                        borderRadius: BorderRadius.circular(11),
-                        border: Border.all(
-                          color: _docPrimary.withValues(alpha: 0.2),
-                        ),
-                      ),
-                      child: Image.asset(
-                        'assets/images/logo.png',
-                        fit: BoxFit.contain,
-                        errorBuilder: (_, _, _) => const Icon(
-                          Icons.terminal_rounded,
-                          size: 22,
-                          color: _docPrimary,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 10),
-                    const Text(
-                      'CodeLab',
-                      style: TextStyle(
-                        fontFamily: AppFonts.sans,
-                        fontSize: 19,
-                        fontWeight: FontWeight.w800,
-                        color: _docText,
-                        letterSpacing: -0.5,
-                      ),
-                    ),
-                    const Text(
-                      'AI',
-                      style: TextStyle(
-                        fontFamily: AppFonts.sans,
-                        fontSize: 19,
-                        fontWeight: FontWeight.w800,
-                        color: _docPrimary,
-                        letterSpacing: -0.5,
-                      ),
-                    ),
-                    const SizedBox(width: 30),
-                    Container(width: 1, height: 30, color: _docOutline),
-                    const SizedBox(width: 30),
-                    Container(
-                      width: 38,
-                      height: 38,
-                      alignment: Alignment.center,
-                      decoration: BoxDecoration(
-                        color: _docSurfaceAlt,
-                        borderRadius: BorderRadius.circular(11),
-                      ),
-                      child: const Icon(
-                        Icons.data_object_rounded,
-                        size: 20,
-                        color: _docPrimary,
-                      ),
-                    ),
-                    const SizedBox(width: 10),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          data.topic,
-                          style: const TextStyle(
-                            fontFamily: AppFonts.sans,
-                            fontSize: 15,
-                            fontWeight: FontWeight.w800,
-                            color: _docText,
-                          ),
+                            const SizedBox(width: 4),
+                            const Text(
+                              'AI',
+                              style: TextStyle(
+                                fontFamily: AppFonts.sans,
+                                fontSize: 18,
+                                fontWeight: FontWeight.w800,
+                                color: _docPrimary,
+                                letterSpacing: -0.4,
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            Text(
+                              isChallenge
+                                  ? doc.challengeAttachment
+                                  : doc.moduleAttachment,
+                              style: const TextStyle(
+                                fontFamily: AppFonts.sans,
+                                fontSize: 11.5,
+                                color: _docMuted,
+                              ),
+                            ),
+                          ],
                         ),
                         Text(
-                          isChallenge
-                              ? '${data.category} • ${data.difficulty}'
-                              : '${doc.curriculumTag} • ${chapters.length} ${_chapterUnit(doc.languageCode)}',
+                          doc.pageOf,
                           style: const TextStyle(
                             fontFamily: AppFonts.sans,
-                            fontSize: 9,
+                            fontSize: 12.5,
                             fontWeight: FontWeight.w700,
-                            letterSpacing: 1.2,
                             color: _docMuted,
                           ),
                         ),
                       ],
                     ),
+                    const SizedBox(height: 12),
+                    Container(height: 1, color: _docOutline),
                   ],
                 ),
-                const SizedBox(height: 12),
 
-                // Ringkasan.
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 14,
-                    vertical: 12,
-                  ),
-                  decoration: BoxDecoration(
-                    color: _docSurfaceAlt.withValues(alpha: 0.62),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Text(
-                    _summaryText(data, doc),
-                    textAlign: TextAlign.justify,
-                    style: const TextStyle(
-                      fontFamily: AppFonts.sans,
-                      fontSize: 11.4,
-                      height: 1.6,
-                      color: _docText,
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 11),
-
-                // Daftar bab / kriteria uji.
-                Text(
-                  isChallenge ? doc.criteriaHeading : doc.chaptersCompleted,
-                  style: const TextStyle(
-                    fontFamily: AppFonts.sans,
-                    fontSize: 12.5,
-                    fontWeight: FontWeight.w800,
-                    color: _docText,
-                  ),
-                ),
-                const SizedBox(height: 6),
+                // 2. Konten Tengah: Pasangan Logo + Ringkasan + Daftar Bab/Kriteria.
                 Expanded(
-                  child: isChallenge
-                      ? _ChallengeCriteriaList(data: data, doc: doc)
-                      : _ChapterList(chapters: chapters, doc: doc),
-                ),
-
-                // Evaluasi: MODUL hanya menyebut 7 tipe slide interaktif
-                // (tanpa tantangan/unit test); TANTANGAN menyebut sandbox +
-                // kelulusan test case 100%.
-                const SizedBox(height: 6),
-                Text(
-                  isChallenge ? doc.evalChallenge : doc.evalModule,
-                  style: const TextStyle(
-                    fontFamily: AppFonts.sans,
-                    fontSize: 11.5,
-                    fontWeight: FontWeight.w800,
-                    color: _docText,
-                  ),
-                ),
-                const SizedBox(height: 3),
-                for (final line in _evaluationLines(data, doc))
-                  Padding(
-                    padding: const EdgeInsets.only(bottom: 2),
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 12),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        const Padding(
-                          padding: EdgeInsets.only(top: 4, right: 6),
-                          child: Icon(
-                            Icons.circle,
-                            size: 4,
-                            color: _docPrimary,
-                          ),
+                        // Pasangan logo + topik di tengah.
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Container(
+                              width: 40,
+                              height: 40,
+                              padding: const EdgeInsets.all(5),
+                              decoration: BoxDecoration(
+                                color: _docPrimary.withValues(alpha: 0.1),
+                                borderRadius: BorderRadius.circular(12),
+                                border: Border.all(
+                                  color: _docPrimary.withValues(alpha: 0.2),
+                                ),
+                              ),
+                              child: Image.asset(
+                                'assets/images/logo.png',
+                                fit: BoxFit.contain,
+                                errorBuilder: (_, _, _) => const Icon(
+                                  Icons.terminal_rounded,
+                                  size: 22,
+                                  color: _docPrimary,
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 11),
+                            const Text(
+                              'CodeLab',
+                              style: TextStyle(
+                                fontFamily: AppFonts.sans,
+                                fontSize: 22,
+                                fontWeight: FontWeight.w800,
+                                color: _docText,
+                                letterSpacing: -0.5,
+                              ),
+                            ),
+                            const SizedBox(width: 4),
+                            const Text(
+                              'AI',
+                              style: TextStyle(
+                                fontFamily: AppFonts.sans,
+                                fontSize: 22,
+                                fontWeight: FontWeight.w800,
+                                color: _docPrimary,
+                                letterSpacing: -0.5,
+                              ),
+                            ),
+                            const SizedBox(width: 36),
+                            Container(width: 1, height: 28, color: _docOutline),
+                            const SizedBox(width: 36),
+                            Container(
+                              width: 40,
+                              height: 40,
+                              alignment: Alignment.center,
+                              decoration: BoxDecoration(
+                                color: _docSurfaceAlt,
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: Icon(
+                                _moduleIconData(data.moduleIcon, data.topic),
+                                size: 22,
+                                color: _docPrimary,
+                              ),
+                            ),
+                            const SizedBox(width: 11),
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  data.topic,
+                                  style: const TextStyle(
+                                    fontFamily: AppFonts.sans,
+                                    fontSize: 17,
+                                    fontWeight: FontWeight.w800,
+                                    color: _docText,
+                                  ),
+                                ),
+                                const SizedBox(height: 5),
+                                Text(
+                                  (isChallenge
+                                          ? '${data.category} • ${data.topicTag.isNotEmpty ? data.topicTag : data.difficulty}'
+                                          : '${doc.curriculumTag} • ${chapters.length} ${_chapterUnit(doc.languageCode)}')
+                                      .toUpperCase(),
+                                  style: const TextStyle(
+                                    fontFamily: AppFonts.sans,
+                                    fontSize: 9.5,
+                                    fontWeight: FontWeight.w700,
+                                    letterSpacing: 1.1,
+                                    color: _docMuted,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
                         ),
-                        Expanded(
+
+                        // Ringkasan.
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 14,
+                            vertical: 12,
+                          ),
+                          decoration: BoxDecoration(
+                            color: _docSurfaceAlt.withValues(alpha: 0.65),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
                           child: Text(
-                            line,
+                            _summaryText(data, doc),
+                            textAlign: TextAlign.justify,
                             style: const TextStyle(
                               fontFamily: AppFonts.sans,
-                              fontSize: 10.4,
-                              height: 1.45,
+                              fontSize: 11.8,
+                              height: 1.55,
                               color: _docText,
                             ),
                           ),
                         ),
+
+                        // Daftar bab / kriteria uji (di tengah vertikal).
+                        Expanded(
+                          child: Padding(
+                            padding: const EdgeInsets.only(top: 10),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.stretch,
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Row(
+                                  children: [
+                                    Text(
+                                      isChallenge
+                                          ? doc.criteriaHeading
+                                          : doc.chaptersCompleted,
+                                      style: const TextStyle(
+                                        fontFamily: AppFonts.sans,
+                                        fontSize: 13,
+                                        fontWeight: FontWeight.w800,
+                                        color: _docText,
+                                      ),
+                                    ),
+                                    const SizedBox(width: 8),
+                                    Text(
+                                      _syllabusModeNote(
+                                        data,
+                                        doc,
+                                        compact: compact,
+                                      ),
+                                      style: const TextStyle(
+                                        fontFamily: AppFonts.sans,
+                                        fontSize: 10.8,
+                                        color: _docMuted,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 8),
+                                Flexible(
+                                  child: isChallenge
+                                      ? _ChallengeCriteriaList(
+                                          data: data,
+                                          doc: doc,
+                                        )
+                                      : _ChapterList(
+                                          chapters: chapters,
+                                          doc: doc,
+                                        ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
                       ],
                     ),
                   ),
+                ),
 
-                // Footer metadata.
-                Container(height: 1, color: _docOutline),
-                const SizedBox(height: 8),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  crossAxisAlignment: CrossAxisAlignment.end,
+                // 3. Footer metadata.
+                Column(
                   children: [
-                    Expanded(
-                      child: Wrap(
-                        spacing: 6,
-                        runSpacing: 6,
-                        children: [
-                          _DocChip(
-                            bold: isChallenge
-                                ? doc.durationAndScore
-                                : doc.totalEffective,
-                            text: isChallenge
-                                ? '${data.estimatedMinutes} ${_minuteUnit(doc.languageCode)} • 100/100'
-                                : '${data.effectiveJp} ${_jpUnit(doc.languageCode)} (JP)',
-                          ),
-                          _DocChip(
-                            bold: '',
-                            text: isChallenge
-                                ? 'Automated Judge Verified (+${data.xpReward} XP)'
-                                : '${doc.accreditationValue} (${data.accreditationJp} JP)',
-                            success: true,
-                          ),
-                          _DocChip(bold: doc.level, text: _levelLabel(data.level)),
-                          _DocChip(
-                            bold: doc.predicate,
-                            text: doc.predicateValue,
-                            success: true,
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.end,
+                    Container(height: 1, color: _docOutline),
+                    const SizedBox(height: 10),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
-                        Text(
-                          doc.instructorFooter,
-                          style: const TextStyle(
-                            fontFamily: AppFonts.sans,
-                            fontSize: 9.5,
-                            color: _docMuted,
+                        Expanded(
+                          child: Wrap(
+                            spacing: 8,
+                            runSpacing: 6,
+                            children: [
+                              _DocFooterBadge(
+                                icon: Icons.timer_outlined,
+                                iconColor: _docPrimary,
+                                bold: isChallenge
+                                    ? doc.durationAndScore
+                                    : doc.totalEffective,
+                                text: isChallenge
+                                    ? '${data.estimatedMinutes} ${_minuteUnit(doc.languageCode)} • 100/100'
+                                    : '${data.effectiveJp} ${_jpUnit(doc.languageCode)} (JP)',
+                              ),
+                              _DocFooterBadge(
+                                icon: Icons.verified_rounded,
+                                iconColor: _docSuccess,
+                                bold: '',
+                                text: isChallenge
+                                    ? 'Automated Judge Verified (+${data.xpReward} XP)'
+                                    : '${doc.accreditationValue} (${data.accreditationJp} JP)',
+                              ),
+                              _DocFooterBadge(
+                                icon: Icons.signal_cellular_alt_rounded,
+                                iconColor: _docPrimary,
+                                bold: doc.level,
+                                text: _levelLabel(data.level, doc.languageCode),
+                              ),
+                              _DocFooterBadge(
+                                icon: Icons.workspace_premium_rounded,
+                                iconColor: _docSuccess,
+                                bold: doc.predicate,
+                                text: doc.predicateValue,
+                                highlightSuccess: true,
+                              ),
+                            ],
                           ),
                         ),
-                        Text(
-                          'REG: ${data.certId}',
-                          style: const TextStyle(
-                            fontFamily: AppFonts.mono,
-                            fontSize: 10.5,
-                            fontWeight: FontWeight.w800,
-                            color: _docText,
-                            letterSpacing: 0.4,
-                          ),
+                        const SizedBox(width: 14),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.end,
+                          children: [
+                            Text(
+                              doc.instructorFooter,
+                              style: const TextStyle(
+                                fontFamily: AppFonts.sans,
+                                fontSize: 10,
+                                color: _docMuted,
+                              ),
+                            ),
+                            const SizedBox(height: 1),
+                            Text(
+                              'REG: ${data.certId}',
+                              style: const TextStyle(
+                                fontFamily: AppFonts.mono,
+                                fontSize: 11,
+                                fontWeight: FontWeight.w800,
+                                color: _docText,
+                                letterSpacing: 0.5,
+                              ),
+                            ),
+                          ],
                         ),
                       ],
                     ),
@@ -1182,8 +1423,8 @@ class _CertificateBackPage extends StatelessWidget {
   }
 }
 
-/// Daftar bab modul: mode ringkas (judul + durasi) bila lebih dari 6 bab agar
-/// tetap muat satu halaman A4 landscape, sama seperti kanvas PDF di web.
+/// Daftar bab modul: mode ringkas (judul + durasi, 2 kolom berborder bawah)
+/// bila lebih dari 6 bab agar muat satu halaman A4 landscape, persis prototipe.
 class _ChapterList extends StatelessWidget {
   const _ChapterList({required this.chapters, required this.doc});
 
@@ -1202,86 +1443,85 @@ class _ChapterList extends StatelessWidget {
     }
     final compact = chapters.length > 6;
     if (compact) {
-      return SingleChildScrollView(
-        child: Column(
-          children: [
-            for (var i = 0; i < chapters.length; i += 2)
-              Padding(
-                padding: const EdgeInsets.only(bottom: 5),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: _ChapterRow(chapter: chapters[i], doc: doc),
-                    ),
-                    const SizedBox(width: 22),
-                    Expanded(
-                      child: i + 1 < chapters.length
-                          ? _ChapterRow(chapter: chapters[i + 1], doc: doc)
-                          : const SizedBox.shrink(),
-                    ),
-                  ],
-                ),
-              ),
-          ],
-        ),
-      );
-    }
-    return SingleChildScrollView(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      return Column(
+        mainAxisSize: MainAxisSize.min,
         children: [
-          for (final c in chapters)
+          for (var i = 0; i < chapters.length; i += 2)
             Padding(
               padding: const EdgeInsets.only(bottom: 5),
               child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Padding(
-                    padding: EdgeInsets.only(top: 3, right: 7),
-                    child: Icon(Icons.circle, size: 5, color: _docPrimary),
-                  ),
                   Expanded(
-                    child: Text.rich(
-                      TextSpan(
-                        children: [
-                          TextSpan(
-                            text: c.title,
-                            style: const TextStyle(
-                              fontFamily: AppFonts.sans,
-                              fontSize: 10.9,
-                              fontWeight: FontWeight.w800,
-                              color: _docText,
-                            ),
-                          ),
-                          if (c.description.isNotEmpty)
-                            TextSpan(
-                              text: ' : ${c.description}',
-                              style: const TextStyle(
-                                fontFamily: AppFonts.sans,
-                                fontSize: 10.9,
-                                color: _docMuted,
-                              ),
-                            ),
-                          TextSpan(
-                            text:
-                                '  (${_minutesLabel(c.minutes, doc.languageCode)})',
-                            style: const TextStyle(
-                              fontFamily: AppFonts.sans,
-                              fontSize: 10,
-                              color: _docMuted,
-                            ),
-                          ),
-                        ],
-                      ),
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                    ),
+                    child: _ChapterRow(chapter: chapters[i], doc: doc),
+                  ),
+                  const SizedBox(width: 24),
+                  Expanded(
+                    child: i + 1 < chapters.length
+                        ? _ChapterRow(chapter: chapters[i + 1], doc: doc)
+                        : const SizedBox.shrink(),
                   ),
                 ],
               ),
             ),
         ],
-      ),
+      );
+    }
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        for (final c in chapters.take(6))
+          Padding(
+            padding: const EdgeInsets.only(bottom: 7),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Padding(
+                  padding: EdgeInsets.only(top: 5, right: 8),
+                  child: Icon(Icons.circle, size: 6, color: _docPrimary),
+                ),
+                Expanded(
+                  child: Text.rich(
+                    TextSpan(
+                      children: [
+                        TextSpan(
+                          text: c.title,
+                          style: const TextStyle(
+                            fontFamily: AppFonts.sans,
+                            fontSize: 11.8,
+                            fontWeight: FontWeight.w800,
+                            color: _docText,
+                          ),
+                        ),
+                        if (c.description.isNotEmpty)
+                          TextSpan(
+                            text: ' : ${c.description}',
+                            style: const TextStyle(
+                              fontFamily: AppFonts.sans,
+                              fontSize: 11.8,
+                              color: _docText,
+                            ),
+                          ),
+                        TextSpan(
+                          text:
+                              ' (${_minutesLabel(c.minutes, doc.languageCode)})',
+                          style: const TextStyle(
+                            fontFamily: AppFonts.sans,
+                            fontSize: 11.2,
+                            fontWeight: FontWeight.w600,
+                            color: _docMuted,
+                          ),
+                        ),
+                      ],
+                    ),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+              ],
+            ),
+          ),
+      ],
     );
   }
 }
@@ -1294,33 +1534,44 @@ class _ChapterRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      children: [
-        const Icon(Icons.circle, size: 5, color: _docPrimary),
-        const SizedBox(width: 6),
-        Expanded(
-          child: Text(
-            chapter.title,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style: const TextStyle(
-              fontFamily: AppFonts.sans,
-              fontSize: 10.8,
-              fontWeight: FontWeight.w800,
-              color: _docText,
+    return Container(
+      padding: const EdgeInsets.only(bottom: 3),
+      decoration: BoxDecoration(
+        border: Border(
+          bottom: BorderSide(
+            color: _docOutline.withValues(alpha: 0.65),
+          ),
+        ),
+      ),
+      child: Row(
+        children: [
+          const Icon(Icons.circle, size: 5.5, color: _docPrimary),
+          const SizedBox(width: 7),
+          Expanded(
+            child: Text(
+              chapter.title,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: const TextStyle(
+                fontFamily: AppFonts.sans,
+                fontSize: 11.5,
+                fontWeight: FontWeight.w800,
+                color: _docText,
+              ),
             ),
           ),
-        ),
-        const SizedBox(width: 6),
-        Text(
-          _minutesLabel(chapter.minutes, doc.languageCode),
-          style: const TextStyle(
-            fontFamily: AppFonts.sans,
-            fontSize: 9.8,
-            color: _docMuted,
+          const SizedBox(width: 8),
+          Text(
+            '(${_minutesLabel(chapter.minutes, doc.languageCode)})',
+            style: const TextStyle(
+              fontFamily: AppFonts.sans,
+              fontSize: 10.6,
+              fontWeight: FontWeight.w600,
+              color: _docMuted,
+            ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }
@@ -1339,18 +1590,19 @@ class _ChallengeCriteriaList extends StatelessWidget {
       final rule = data.rules[i];
       rows.add(
         Padding(
-          padding: const EdgeInsets.only(bottom: 4),
+          padding: const EdgeInsets.only(bottom: 5),
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Icon(
-                rule.positive
-                    ? Icons.check_circle_rounded
-                    : Icons.cancel_rounded,
-                size: 11,
-                color: rule.positive ? _docPrimary : const Color(0xFFD93F45),
+              Padding(
+                padding: const EdgeInsets.only(top: 4),
+                child: Icon(
+                  Icons.circle,
+                  size: 5.5,
+                  color: rule.positive ? _docPrimary : const Color(0xFFD93F45),
+                ),
               ),
-              const SizedBox(width: 6),
+              const SizedBox(width: 7),
               Expanded(
                 child: Text.rich(
                   TextSpan(
@@ -1359,7 +1611,7 @@ class _ChallengeCriteriaList extends StatelessWidget {
                         text: '${doc.rulePrefix} ${i + 1}: ',
                         style: const TextStyle(
                           fontFamily: AppFonts.sans,
-                          fontSize: 10.9,
+                          fontSize: 11.5,
                           fontWeight: FontWeight.w800,
                           color: _docText,
                         ),
@@ -1368,7 +1620,7 @@ class _ChallengeCriteriaList extends StatelessWidget {
                         text: rule.text,
                         style: const TextStyle(
                           fontFamily: AppFonts.sans,
-                          fontSize: 10.9,
+                          fontSize: 11.5,
                           color: _docText,
                         ),
                       ),
@@ -1387,26 +1639,53 @@ class _ChallengeCriteriaList extends StatelessWidget {
       final kind = tc.hidden ? doc.hiddenTestCase : doc.publicTestCase;
       rows.add(
         Padding(
-          padding: const EdgeInsets.only(bottom: 4),
+          padding: const EdgeInsets.only(bottom: 5),
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Icon(
-                Icons.check_circle_rounded,
-                size: 11,
-                color: _docSuccess,
+              const Padding(
+                padding: EdgeInsets.only(top: 4),
+                child: Icon(
+                  Icons.circle,
+                  size: 5.5,
+                  color: _docPrimary,
+                ),
               ),
-              const SizedBox(width: 6),
+              const SizedBox(width: 7),
               Expanded(
-                child: Text(
-                  '${tc.title} — $kind • 100/100',
+                child: Text.rich(
+                  TextSpan(
+                    children: [
+                      TextSpan(
+                        text: tc.title,
+                        style: const TextStyle(
+                          fontFamily: AppFonts.sans,
+                          fontSize: 11.5,
+                          fontWeight: FontWeight.w800,
+                          color: _docText,
+                        ),
+                      ),
+                      TextSpan(
+                        text: ' : $kind Test Case ',
+                        style: const TextStyle(
+                          fontFamily: AppFonts.sans,
+                          fontSize: 11.5,
+                          color: _docText,
+                        ),
+                      ),
+                      TextSpan(
+                        text: '(100/100 • ${tc.weight}%)',
+                        style: const TextStyle(
+                          fontFamily: AppFonts.sans,
+                          fontSize: 11.0,
+                          fontWeight: FontWeight.w600,
+                          color: _docMuted,
+                        ),
+                      ),
+                    ],
+                  ),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
-                    fontFamily: AppFonts.sans,
-                    fontSize: 10.7,
-                    color: _docText,
-                  ),
                 ),
               ),
             ],
@@ -1414,16 +1693,17 @@ class _ChallengeCriteriaList extends StatelessWidget {
         ),
       );
     }
-    return SingleChildScrollView(
-      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: rows),
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: rows,
     );
   }
 }
 
 /// QR Code dinamis pada piagam: gambar PNG yang dirender server dari nomor
 /// sertifikat (GET /verify/qr/{certId}). Bila gagal dimuat (mis. offline),
-/// tampil ikon QR netral agar dokumen tetap rapi — nomor & tautan verifikasi
-/// tetap tercetak di sebelahnya.
+/// tampil matriks QR vektor agar dokumen tetap rapi seperti prototipe.
 class _DynamicQr extends StatelessWidget {
   const _DynamicQr({required this.certId});
 
@@ -1432,10 +1712,12 @@ class _DynamicQr extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final url = CertificateLinks.qrImage(certId);
-    const fallback = Icon(
-      Icons.qr_code_2_rounded,
-      size: 84,
-      color: _docNavy,
+    final fallback = SizedBox(
+      width: 84,
+      height: 84,
+      child: CustomPaint(
+        painter: _QrFallbackMatrixPainter(seedText: certId),
+      ),
     );
     if (url.isEmpty) return fallback;
     return Image.network(
@@ -1452,56 +1734,253 @@ class _DynamicQr extends StatelessWidget {
   }
 }
 
-/// Chip metadata abu-abu pada dokumen (bukan chip interaktif aplikasi).
+/// Chip metadata abu-abu pada dokumen Halaman 1.
 class _DocChip extends StatelessWidget {
   const _DocChip({
     required this.bold,
     required this.text,
+    this.icon,
     this.success = false,
   });
 
   final String bold;
   final String text;
+  final IconData? icon;
   final bool success;
 
   @override
   Widget build(BuildContext context) {
     final color = success ? _docSuccess : _docText;
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
       decoration: BoxDecoration(
-        color: success
-            ? _docSuccess.withValues(alpha: 0.1)
-            : _docSurfaceAlt,
+        color: _docSurfaceAlt,
         borderRadius: BorderRadius.circular(999),
       ),
-      child: Text.rich(
-        TextSpan(
-          children: [
-            if (bold.isNotEmpty)
-              TextSpan(
-                text: '$bold ',
-                style: TextStyle(
-                  fontFamily: AppFonts.sans,
-                  fontSize: 10.2,
-                  fontWeight: FontWeight.w800,
-                  color: color,
-                ),
-              ),
-            TextSpan(
-              text: text,
-              style: TextStyle(
-                fontFamily: AppFonts.sans,
-                fontSize: 10.2,
-                fontWeight: success ? FontWeight.w700 : FontWeight.w500,
-                color: color,
-              ),
-            ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          if (icon != null) ...[
+            Icon(icon, size: 13.5, color: color),
+            const SizedBox(width: 4),
           ],
-        ),
+          Text.rich(
+            TextSpan(
+              children: [
+                if (bold.isNotEmpty)
+                  TextSpan(
+                    text: '$bold ',
+                    style: TextStyle(
+                      fontFamily: AppFonts.sans,
+                      fontSize: 11,
+                      fontWeight: success ? FontWeight.w700 : FontWeight.w600,
+                      color: color,
+                    ),
+                  ),
+                TextSpan(
+                  text: text,
+                  style: TextStyle(
+                    fontFamily: AppFonts.sans,
+                    fontSize: 11,
+                    fontWeight: success ? FontWeight.w700 : FontWeight.w600,
+                    color: color,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }
+}
+
+/// Chip footer Halaman 2 dengan ikon (persis testing-farhan/index.html).
+class _DocFooterBadge extends StatelessWidget {
+  const _DocFooterBadge({
+    required this.icon,
+    required this.iconColor,
+    required this.bold,
+    required this.text,
+    this.highlightSuccess = false,
+  });
+
+  final IconData icon;
+  final Color iconColor;
+  final String bold;
+  final String text;
+  final bool highlightSuccess;
+
+  @override
+  Widget build(BuildContext context) {
+    final textColor = highlightSuccess ? _docSuccess : _docText;
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+      decoration: BoxDecoration(
+        color: _docSurfaceAlt,
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 14, color: iconColor),
+          const SizedBox(width: 5),
+          Text.rich(
+            TextSpan(
+              children: [
+                if (bold.isNotEmpty)
+                  TextSpan(
+                    text: '$bold ',
+                    style: TextStyle(
+                      fontFamily: AppFonts.sans,
+                      fontSize: 10.8,
+                      fontWeight: FontWeight.w800,
+                      color: textColor,
+                    ),
+                  ),
+                TextSpan(
+                  text: text,
+                  style: TextStyle(
+                    fontFamily: AppFonts.sans,
+                    fontSize: 10.8,
+                    fontWeight: highlightSuccess || bold.isNotEmpty
+                        ? FontWeight.w700
+                        : FontWeight.w600,
+                    color: textColor,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Cincin ganda medali di dalam pita segel kanan atas (luar dashed + dalam solid).
+class _SealRingPainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    final center = Offset(size.width / 2, size.height / 2);
+    final r = size.width / 2;
+
+    // Latar bulat halus.
+    canvas.drawCircle(
+      center,
+      r,
+      Paint()..color = Colors.white.withValues(alpha: 0.10),
+    );
+
+    // Lingkaran luar putus-putus (r = 46/50).
+    final outerR = r * 0.92;
+    final dashPaint = Paint()
+      ..color = Colors.white.withValues(alpha: 0.32)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 2.0;
+    const segments = 36;
+    const step = (math.pi * 2) / segments;
+    for (var i = 0; i < segments; i++) {
+      canvas.drawArc(
+        Rect.fromCircle(center: center, radius: outerR),
+        i * step,
+        step * 0.62,
+        false,
+        dashPaint,
+      );
+    }
+
+    // Lingkaran dalam tipis (r = 40/50).
+    canvas.drawCircle(
+      center,
+      r * 0.80,
+      Paint()
+        ..color = Colors.white.withValues(alpha: 0.30)
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 1.0,
+    );
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+}
+
+/// Ekor V-cut di bawah pita segel kanan atas.
+class _RibbonTailPainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = _docNavy
+      ..style = PaintingStyle.fill;
+    final path = Path()
+      ..moveTo(0, 0)
+      ..lineTo(size.width, 0)
+      ..lineTo(size.width, size.height)
+      ..lineTo(size.width / 2, 0)
+      ..lineTo(0, size.height)
+      ..close();
+    canvas.drawPath(path, paint);
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+}
+
+/// Fallback matriks QR vektor tajam bila gambar jaringan belum termuat.
+class _QrFallbackMatrixPainter extends CustomPainter {
+  const _QrFallbackMatrixPainter({required this.seedText});
+
+  final String seedText;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    const n = 25;
+    final cell = size.width / n;
+    final dark = Paint()..color = _docNavy;
+
+    void drawFinder(int r0, int c0) {
+      for (var dr = 0; dr < 7; dr++) {
+        for (var dc = 0; dc < 7; dc++) {
+          final edge = dr == 0 || dr == 6 || dc == 0 || dc == 6;
+          final core = dr >= 2 && dr <= 4 && dc >= 2 && dc <= 4;
+          if (edge || core) {
+            canvas.drawRect(
+              Rect.fromLTWH((c0 + dc) * cell, (r0 + dr) * cell, cell, cell),
+              dark,
+            );
+          }
+        }
+      }
+    }
+
+    drawFinder(0, 0);
+    drawFinder(0, n - 7);
+    drawFinder(n - 7, 0);
+
+    var h = 2166136261;
+    for (final code in seedText.codeUnits) {
+      h = ((h ^ code) * 16777619) & 0x7fffffff;
+    }
+    for (var r = 0; r < n; r++) {
+      for (var c = 0; c < n; c++) {
+        final inTopLeft = r < 8 && c < 8;
+        final inTopRight = r < 8 && c >= n - 8;
+        final inBottomLeft = r >= n - 8 && c < 8;
+        if (inTopLeft || inTopRight || inBottomLeft) continue;
+        h = ((h * 1103515245) + 12345) & 0x7fffffff;
+        if ((h & 1) == 1) {
+          canvas.drawRect(
+            Rect.fromLTWH(c * cell, r * cell, cell, cell),
+            dark,
+          );
+        }
+      }
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant _QrFallbackMatrixPainter oldDelegate) =>
+      oldDelegate.seedText != seedText;
 }
 
 /// Tanda tangan vektor replika (kurva Bezier), sama dengan prototipe.
@@ -1562,6 +2041,44 @@ class _SignaturePainter extends CustomPainter {
   bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }
 
+IconData _moduleIconData(String rawIcon, String topic) {
+  final key = '${rawIcon.toLowerCase()} ${topic.toLowerCase()}';
+  if (key.contains('html')) return Icons.html_rounded;
+  if (key.contains('palette') || key.contains('css')) {
+    return Icons.palette_outlined;
+  }
+  if (key.contains('javascript') || key.contains('js')) {
+    return Icons.javascript_rounded;
+  }
+  if (key.contains('account_tree') || key.contains('algoritma')) {
+    return Icons.account_tree_outlined;
+  }
+  return Icons.data_object_rounded;
+}
+
+String _syllabusModeNote(
+  CertificateVerification data,
+  CertificateDocLabels doc, {
+  required bool compact,
+}) {
+  final en = doc.languageCode == 'en';
+  if (data.isChallenge) {
+    final total = data.rules.length + data.testCases.length;
+    return en
+        ? '($total Criteria & Test Cases • Automated Judge 100/100)'
+        : '($total Kriteria & Test Case • Judge Otomatis 100/100)';
+  }
+  final n = data.chapters.length;
+  if (compact) {
+    return en
+        ? '($n Chapters Completed • Compact Title & Duration Mode)'
+        : '($n Bab Tuntas • Mode Ringkas Judul Bab & Waktu)';
+  }
+  return en
+      ? '($n Chapters • Title & Description)'
+      : '($n Bab • Judul Bab & Deskripsi)';
+}
+
 /// Menambahkan parameter `lang` pada tautan verifikasi agar halaman cetak web
 /// memakai bahasa yang sama dengan aplikasi (id/en).
 String _withLangParam(String url, String lang) {
@@ -1619,50 +2136,6 @@ String _summaryText(CertificateVerification data, CertificateDocLabels doc) {
       'siswa mempelajari materi teori bertahap, latihan interaktif per slide (Tap-to-Fill, '
       'Bug Hunter, Output Predict, Type Code), serta evaluasi kuis pemahaman di setiap '
       'akhir bab.';
-}
-
-/// Daftar butir evaluasi halaman 2. Modul hanya membahas 7 tipe slide
-/// interaktif; tantangan hanya membahas sandbox + kelulusan test case.
-List<String> _evaluationLines(
-  CertificateVerification data,
-  CertificateDocLabels doc,
-) {
-  final en = doc.languageCode == 'en';
-  final ar = doc.languageCode == 'ar';
-  if (data.isChallenge) {
-    if (en) {
-      return const [
-        'Automated code execution in an isolated Python 3 sandbox environment',
-        '100% pass rate on public and hidden test cases (submissions.score = 100)',
-      ];
-    }
-    if (ar) {
-      return const [
-        'تنفيذ آلي للكود في بيئة Python 3 معزولة',
-        'نجاح 100% في جميع حالات الاختبار العامة والمخفية (submissions.score = 100)',
-      ];
-    }
-    return const [
-      'Eksekusi kode program otomatis pada lingkungan sandbox Python 3 terisolasi',
-      'Kelulusan 100% pada seluruh Public Test Cases maupun Hidden Test Cases (submissions.score = 100)',
-    ];
-  }
-  if (en) {
-    return [
-      'Interactive learning across 7 slide types per chapter (Theory, Tap-to-Fill, Bug Hunter, Output Predict, Type Code, Quiz, Summary)',
-      '100% completion of chapter mastery quizzes across all ${data.chapters.length} syllabus chapters',
-    ];
-  }
-  if (ar) {
-    return [
-      'تعلّم تفاعلي عبر 7 أنواع من الشرائح في كل فصل (Theory، Tap-to-Fill، Bug Hunter، Output Predict، Type Code، Quiz، Outro)',
-      'إتمام 100% لاختبارات إتقان المفاهيم في جميع ${data.chapters.length} فصول المنهج',
-    ];
-  }
-  return [
-    'Pembelajaran interaktif 7 tipe slide per bab (Theory, Tap-to-Fill, Bug Hunter, Output Predict, Type Code, Quiz, Outro)',
-    'Ketuntasan 100% evaluasi kuis pemahaman konsep pada seluruh ${data.chapters.length} bab silabus modul',
-  ];
 }
 
 String _levelLabel(String raw, [String lang = 'id']) {

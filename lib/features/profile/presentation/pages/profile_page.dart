@@ -229,8 +229,8 @@ class _ProfilePageState extends State<ProfilePage> {
       lessons = const <LessonDetailData>[];
     }
 
-    // Minggu 9 (owner): sertifikat tantangan tampil PER TANTANGAN (semua
-    // baris) — status tiap siswa diambil dari katalog GET /challenges.
+    // Sertifikat tantangan tampil PER TANTANGAN (semua baris) — status tiap
+    // siswa diambil dari katalog GET /challenges.
     List<ChallengeSummary> challenges;
     try {
       final catalog = await challengeRepo.getCatalog();
@@ -384,6 +384,9 @@ class _ProfileContent extends StatelessWidget {
     final tracksDone = allTracks
         .where((e) => e.value.every((l) => l.status == 'completed'))
         .length;
+
+    // Sertifikat resmi (modul & tantangan) dibaca langsung dari data profil
+    // oleh masing-masing baris; tidak ada ringkasan terpisah di sini.
 
     // Minggu 9 (owner): radar bukan lagi skor skill (rawan kosong bagi
     // siswa baru) — pai-nya jadi PENGUASAAN per track dari GET /lessons
@@ -614,20 +617,15 @@ class _ProfileContent extends StatelessWidget {
             ),
             const SizedBox(height: AppSpacing.lg),
 
-            // 4. Sertifikat — DUA bagian terpisah per permintaan owner:
-            // bagian (a) dari LESSON, bagian (b) dari TANTANGAN.
+            // 4. SERTIFIKAT — semua sertifikat tampil langsung di sini, tetap
+            // DUA bagian terpisah (modul & tantangan) sesuai permintaan owner.
+            // Nomor unik + status layak berasal dari GET /me/certificates.
             Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        l10n.profileCertificatesTitle,
-                        style: AppTypography.titleM.copyWith(color: p.text),
-                      ),
-                    ],
+                  child: Text(
+                    l10n.profileCertificatesTitle,
+                    style: AppTypography.titleM.copyWith(color: p.text),
                   ),
                 ),
                 const SizedBox(width: AppSpacing.sm),
@@ -652,10 +650,8 @@ class _ProfileContent extends StatelessWidget {
               ],
             ),
             const SizedBox(height: AppSpacing.sm),
-            // (a) Sertifikat dari LESSON: seluruh materi ditampilkan agar
-            // siswa tahu sertifikat mana yang sudah/tunggu. Bila backend
-            // sudah mengirim daftar sertifikat resmi (GET /me/certificates),
-            // baris memakai nomor unik + status layak dari server.
+
+            // (a) Sertifikat MODUL — satu baris per track kurikulum.
             AppCard(
               padding: EdgeInsets.zero,
               child: Column(
@@ -689,9 +685,9 @@ class _ProfileContent extends StatelessWidget {
             ),
             const SizedBox(height: AppSpacing.md),
 
-            // (b) Sertifikat Tantangan — SATU tantangan per baris, tampil
-            // SEMUANYA (selesai maupun belum), status per siswa dari GET
-            // /challenges dan nomor sertifikat dari GET /me/certificates.
+            // (b) Sertifikat TANTANGAN — satu baris per tantangan, tampil
+            // seluruhnya (lulus maupun belum) agar siswa tahu mana yang
+            // sudah memberi sertifikat.
             Text(
               l10n.profileChallengeCertsTitle,
               style: AppTypography.titleM.copyWith(color: p.text),
@@ -803,6 +799,7 @@ void _openCertificate(BuildContext context, String certId) {
   context.push(AppRoutes.certificate(certId.trim()));
 }
 
+/// Data profil yang sudah berhasil dimuat dari backend.
 class _ProfileData {
   const _ProfileData({
     required this.lessons,
@@ -834,12 +831,12 @@ class _ProfileData {
 
   final Map<String, double> skills;
 
-  /// Minggu 9: daftar SEMUA tantangan (status per siswa) untuk baris
-  /// sertifikat per tantangan; kosong bila katalog gagal diambil.
+  /// Daftar SEMUA tantangan (status per siswa) untuk baris sertifikat
+  /// per tantangan; kosong bila katalog gagal diambil.
   final List<ChallengeSummary> challenges;
 
   /// Minggu 12: dua kelompok sertifikat resmi dari GET /me/certificates.
-  /// null = belum/gagal dimuat → bagian sertifikat memakai progres lokal.
+  /// null = belum/gagal dimuat → status dihitung dari progres bab.
   final MyCertificates? certificates;
 }
 
@@ -992,9 +989,8 @@ class _TrackRow extends StatelessWidget {
   }
 }
 
-/// Baris sertifikat per track: saat seluruh bab 100% → tombol unduh aktif
-/// menuju layar pratinjau/cetak (`/sertifikat-kompetensi-siswa/:certId`).
-/// Sebelum tuntas, baris menampilkan progres + alasan yang ramah (bukan galat).
+/// Baris sertifikat per track: saat seluruh bab tuntas → tombol unduh aktif
+/// menuju layar pratinjau/cetak. Sebelum tuntas, baris menampilkan progres.
 class _CertificateItem extends StatelessWidget {
   const _CertificateItem({
     required this.topic,
@@ -1014,7 +1010,8 @@ class _CertificateItem extends StatelessWidget {
     final p = context.palette;
     final l10n = AppLocalizations.of(context);
     final total = certificate?.totalChapters ?? lessons.length;
-    final done = certificate?.completedChapters ??
+    final done =
+        certificate?.completedChapters ??
         lessons.where((l) => l.status == 'completed').length;
     final pct = total == 0 ? 0 : (done * 100 ~/ total);
     final isComplete = total > 0 && done == total;
@@ -1132,9 +1129,9 @@ class _CertificateItem extends StatelessWidget {
   }
 }
 
-/// Minggu 9-12: sertifikat tantangan per baris — SATU tantangan per baris,
-/// tampil SEMUANYA (selesai maupun belum). Bila backend sudah menerbitkan
-/// nomor sertifikat, tombol unduh membuka layar pratinjau/cetak.
+/// Sertifikat tantangan per baris: SATU tantangan per baris, tampil SEMUANYA
+/// (lulus maupun belum). Bila nomor sertifikat sudah terbit, tombol unduh
+/// membuka layar pratinjau/cetak.
 class _ChallengeCertItem extends StatelessWidget {
   const _ChallengeCertItem({required this.challenge, this.certificate});
 
@@ -1260,9 +1257,8 @@ class _ChallengeCertItem extends StatelessWidget {
   }
 }
 
-/// Minggu 12: tombol unduhan RINGKAS berbagi baris dengan judul. Aksi
-/// membuka layar pratinjau & cetak `/sertifikat-kompetensi-siswa/:certId`
-/// (dokumen 2 halaman + tautan verifikasi QR resmi).
+/// Tombol unduhan RINGKAS berbagi baris dengan judul. Aksi membuka layar
+/// pratinjau & cetak `/sertifikat-kompetensi-siswa/:certId`.
 class _CompactDownloadButton extends StatelessWidget {
   const _CompactDownloadButton({required this.label, required this.onTap});
 
@@ -1300,3 +1296,4 @@ class _CompactDownloadButton extends StatelessWidget {
     );
   }
 }
+

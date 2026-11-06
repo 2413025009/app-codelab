@@ -29,104 +29,114 @@ class ResumeCard extends StatelessWidget {
     final p = context.palette;
     final l10n = AppLocalizations.of(context);
     final r = resume;
-    final progress = r?.progress ?? 0.0;
-    final percent = (progress * 100).round();
+    final progress = (r?.progress ?? 0.0).clamp(0.0, 1.0);
+    final reduceMotion = MediaQuery.maybeOf(context)?.disableAnimations ?? false;
 
     return Material(
       color: Colors.transparent,
       child: InkWell(
         onTap: onPressed,
         borderRadius: BorderRadius.circular(20),
-        child: Container(
-          padding: const EdgeInsets.all(AppSpacing.lg),
-          decoration: BoxDecoration(
-            color: p.surface,
-            borderRadius: BorderRadius.circular(20),
-            border: Border.all(color: p.outline.withValues(alpha: 0.7)),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withValues(alpha: 0.03),
-                blurRadius: 8,
-                offset: const Offset(0, 2),
-              ),
-            ],
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Top row: Topic uppercase + Bab X dari Y
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    (r?.topic ?? l10n.dashDefaultTopic).toUpperCase(),
-                    style: AppTypography.caption.copyWith(
-                      letterSpacing: 0.8,
-                      fontWeight: FontWeight.w600,
-                      color: p.textMuted,
-                      fontSize: 11,
-                    ),
-                  ),
-                  Text(
-                    l10n.dashBabOf(currentChapter, totalChapters),
-                    style: AppTypography.caption.copyWith(
-                      fontWeight: FontWeight.w600,
-                      color: p.primary,
-                      fontSize: 11,
-                    ),
+        child: TweenAnimationBuilder<double>(
+          tween: Tween<double>(begin: 0, end: progress),
+          duration: reduceMotion
+              ? Duration.zero
+              : const Duration(milliseconds: 900),
+          curve: Curves.easeOutCubic,
+          builder: (context, animatedProgress, _) {
+            final percent = (animatedProgress * 100).round();
+            return Container(
+              padding: const EdgeInsets.all(AppSpacing.lg),
+              decoration: BoxDecoration(
+                color: p.surface,
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(color: p.outline.withValues(alpha: 0.7)),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.03),
+                    blurRadius: 8,
+                    offset: const Offset(0, 2),
                   ),
                 ],
               ),
-              const SizedBox(height: 10),
-              // Middle row: Chapter title + Progress percent
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Expanded(
-                    child: Text(
-                      r?.title ?? l10n.dashDefaultChapter,
-                      style: AppTypography.bodyL.copyWith(
-                        fontWeight: FontWeight.w600,
-                        color: p.text,
-                        fontSize: 16,
+                  // Top row: Topic uppercase + Bab X dari Y
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        (r?.topic ?? l10n.dashDefaultTopic).toUpperCase(),
+                        style: AppTypography.caption.copyWith(
+                          letterSpacing: 0.8,
+                          fontWeight: FontWeight.w600,
+                          color: p.textMuted,
+                          fontSize: 11,
+                        ),
                       ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
+                      Text(
+                        l10n.dashBabOf(currentChapter, totalChapters),
+                        style: AppTypography.caption.copyWith(
+                          fontWeight: FontWeight.w600,
+                          color: p.primary,
+                          fontSize: 11,
+                        ),
+                      ),
+                    ],
                   ),
-                  const SizedBox(width: AppSpacing.sm),
-                  Text(
-                    l10n.dashPercentDone(percent),
-                    style: AppTypography.caption.copyWith(
-                      fontWeight: FontWeight.w600,
-                      color: p.textMuted,
-                      fontSize: 12,
-                    ),
+                  const SizedBox(height: 10),
+                  // Middle row: Chapter title + Progress percent
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Expanded(
+                        child: Text(
+                          r?.title ?? l10n.dashDefaultChapter,
+                          style: AppTypography.bodyL.copyWith(
+                            fontWeight: FontWeight.w600,
+                            color: p.text,
+                            fontSize: 16,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                      const SizedBox(width: AppSpacing.sm),
+                      Text(
+                        l10n.dashPercentDone(percent),
+                        style: AppTypography.caption.copyWith(
+                          fontWeight: FontWeight.w600,
+                          color: p.textMuted,
+                          fontSize: 12,
+                        ),
+                      ),
+                    ],
                   ),
-                ],
-              ),
-              const SizedBox(height: 10),
-              // Bottom row: Slim progress bar
-              ClipRRect(
-                borderRadius: BorderRadius.circular(999),
-                child: Container(
-                  height: 8,
-                  width: double.infinity,
-                  color: p.surfaceAlt,
-                  child: FractionallySizedBox(
-                    alignment: Alignment.centerLeft,
-                    widthFactor: progress.clamp(0.0, 1.0),
+                  const SizedBox(height: 10),
+                  // Bottom row: Slim progress bar
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(999),
                     child: Container(
-                      decoration: BoxDecoration(
-                        color: p.primary,
-                        borderRadius: BorderRadius.circular(999),
+                      height: 8,
+                      width: double.infinity,
+                      color: p.surfaceAlt,
+                      child: FractionallySizedBox(
+                        alignment: Alignment.centerLeft,
+                        widthFactor: animatedProgress,
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color: p.primary,
+                            borderRadius: BorderRadius.circular(999),
+                          ),
+                        ),
                       ),
                     ),
                   ),
-                ),
+                ],
               ),
-            ],
-          ),
+            );
+          },
         ),
       ),
     );

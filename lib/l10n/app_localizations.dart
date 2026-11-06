@@ -364,6 +364,276 @@ abstract class AppLocalizations {
   /// **'Tema gelap untuk mata yang lebih nyaman'**
   String get settingsDarkModeSubtitle;
 
+  /// No description provided for @settingsThemeMode.
+  ///
+  /// In id, this message translates to:
+  /// **'Tema Tampilan'**
+  String get settingsThemeMode;
+
+  /// No description provided for @settingsThemeModeSubtitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Pilih terang, gelap, atau ikuti pengaturan HP'**
+  String get settingsThemeModeSubtitle;
+
+  /// No description provided for @settingsThemeLight.
+  ///
+  /// In id, this message translates to:
+  /// **'Terang'**
+  String get settingsThemeLight;
+
+  /// No description provided for @settingsThemeDark.
+  ///
+  /// In id, this message translates to:
+  /// **'Gelap'**
+  String get settingsThemeDark;
+
+  /// No description provided for @settingsThemeSystem.
+  ///
+  /// In id, this message translates to:
+  /// **'Ikuti Sistem'**
+  String get settingsThemeSystem;
+
+  /// No description provided for @settingsNotifications.
+  ///
+  /// In id, this message translates to:
+  /// **'Notifikasi'**
+  String get settingsNotifications;
+
+  /// No description provided for @settingsNotificationsSubtitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Kabar penting tanpa perlu membuka aplikasi'**
+  String get settingsNotificationsSubtitle;
+
+  /// No description provided for @settingsNotifySummaryAllOn.
+  ///
+  /// In id, this message translates to:
+  /// **'Semua jenis aktif'**
+  String get settingsNotifySummaryAllOn;
+
+  /// No description provided for @settingsNotifySummaryOff.
+  ///
+  /// In id, this message translates to:
+  /// **'Nonaktif'**
+  String get settingsNotifySummaryOff;
+
+  /// No description provided for @settingsNotifySummaryPartial.
+  ///
+  /// In id, this message translates to:
+  /// **'{count} dari 5 jenis aktif'**
+  String settingsNotifySummaryPartial(int count);
+
+  /// No description provided for @settingsNotificationsMaster.
+  ///
+  /// In id, this message translates to:
+  /// **'Aktifkan Notifikasi'**
+  String get settingsNotificationsMaster;
+
+  /// No description provided for @settingsNotificationsMasterSubtitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Matikan untuk berhenti menerima semua notifikasi'**
+  String get settingsNotificationsMasterSubtitle;
+
+  /// No description provided for @settingsNotifyCertificate.
+  ///
+  /// In id, this message translates to:
+  /// **'Sertifikat Terbit'**
+  String get settingsNotifyCertificate;
+
+  /// No description provided for @settingsNotifyCertificateSubtitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Saat modul tuntas atau tantangan lulus'**
+  String get settingsNotifyCertificateSubtitle;
+
+  /// No description provided for @settingsNotifyDownload.
+  ///
+  /// In id, this message translates to:
+  /// **'Unduhan Sertifikat'**
+  String get settingsNotifyDownload;
+
+  /// No description provided for @settingsNotifyDownloadSubtitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Saat e-Sertifikat PDF selesai diunduh'**
+  String get settingsNotifyDownloadSubtitle;
+
+  /// No description provided for @settingsNotifyReminder.
+  ///
+  /// In id, this message translates to:
+  /// **'Pengingat Belajar'**
+  String get settingsNotifyReminder;
+
+  /// No description provided for @settingsNotifyReminderSubtitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Pengingat harian dan kuota AI Tutor kembali penuh'**
+  String get settingsNotifyReminderSubtitle;
+
+  /// No description provided for @settingsNotifyMaterial.
+  ///
+  /// In id, this message translates to:
+  /// **'Modul Baru'**
+  String get settingsNotifyMaterial;
+
+  /// No description provided for @settingsNotifyMaterialSubtitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Saat pengajar menerbitkan modul atau bab baru'**
+  String get settingsNotifyMaterialSubtitle;
+
+  /// No description provided for @settingsNotifySession.
+  ///
+  /// In id, this message translates to:
+  /// **'Keamanan Sesi'**
+  String get settingsNotifySession;
+
+  /// No description provided for @settingsNotifySessionSubtitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Saat akun dipakai masuk di perangkat lain'**
+  String get settingsNotifySessionSubtitle;
+
+  /// No description provided for @settingsNotifyTest.
+  ///
+  /// In id, this message translates to:
+  /// **'Kirim Notifikasi Uji Coba'**
+  String get settingsNotifyTest;
+
+  /// No description provided for @settingsNotifyTestSubtitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Pastikan notifikasi tampil di perangkat ini'**
+  String get settingsNotifyTestSubtitle;
+
+  /// No description provided for @settingsNotifyTestSent.
+  ///
+  /// In id, this message translates to:
+  /// **'Notifikasi uji coba dikirim.'**
+  String get settingsNotifyTestSent;
+
+  /// No description provided for @settingsNotifyTestFailed.
+  ///
+  /// In id, this message translates to:
+  /// **'Notifikasi belum bisa dikirim. Periksa izin notifikasi aplikasi ini.'**
+  String get settingsNotifyTestFailed;
+
+  /// No description provided for @settingsNotifyPermissionDenied.
+  ///
+  /// In id, this message translates to:
+  /// **'Izin notifikasi ditolak. Aktifkan lewat pengaturan HP.'**
+  String get settingsNotifyPermissionDenied;
+
+  /// No description provided for @notifCertificateTitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Sertifikat Kompetensi Terbit'**
+  String get notifCertificateTitle;
+
+  /// No description provided for @notifCertificateBody.
+  ///
+  /// In id, this message translates to:
+  /// **'{topic} sudah tuntas. Sertifikatmu siap diunduh.'**
+  String notifCertificateBody(String topic);
+
+  /// No description provided for @notifChallengeTitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Sertifikat Tantangan Terbit'**
+  String get notifChallengeTitle;
+
+  /// No description provided for @notifChallengeBody.
+  ///
+  /// In id, this message translates to:
+  /// **'{title} lulus 100/100. Sertifikat tantanganmu siap diunduh.'**
+  String notifChallengeBody(String title);
+
+  /// No description provided for @notifDownloadTitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Sertifikat Berhasil Diunduh'**
+  String get notifDownloadTitle;
+
+  /// No description provided for @notifDownloadBody.
+  ///
+  /// In id, this message translates to:
+  /// **'Berkas PDF {certId} tersimpan di perangkat.'**
+  String notifDownloadBody(String certId);
+
+  /// No description provided for @notifReminderTitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Waktunya Belajar'**
+  String get notifReminderTitle;
+
+  /// No description provided for @notifReminderBody.
+  ///
+  /// In id, this message translates to:
+  /// **'Kuota AI Tutor 5/5 sudah kembali penuh hari ini.'**
+  String get notifReminderBody;
+
+  /// No description provided for @notifMaterialTitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Modul Baru dari Pengajarmu'**
+  String get notifMaterialTitle;
+
+  /// No description provided for @notifMaterialBody.
+  ///
+  /// In id, this message translates to:
+  /// **'{title} baru diterbitkan. Buka katalog untuk melihatnya.'**
+  String notifMaterialBody(String title);
+
+  /// No description provided for @notifSessionTitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Sesi Akun Diakhiri'**
+  String get notifSessionTitle;
+
+  /// No description provided for @notifSessionBody.
+  ///
+  /// In id, this message translates to:
+  /// **'Akunmu dipakai masuk di perangkat lain. Masuk kembali untuk melanjutkan.'**
+  String get notifSessionBody;
+
+  /// No description provided for @notifTestTitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Notifikasi Uji Coba'**
+  String get notifTestTitle;
+
+  /// No description provided for @notifTestBody.
+  ///
+  /// In id, this message translates to:
+  /// **'Notifikasi CodeLab AI berfungsi di perangkat ini.'**
+  String get notifTestBody;
+
+  /// No description provided for @notifNewBadge.
+  ///
+  /// In id, this message translates to:
+  /// **'Baru'**
+  String get notifNewBadge;
+
+  /// No description provided for @offlineBannerTitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Kamu sedang luring. Periksa koneksi internetmu.'**
+  String get offlineBannerTitle;
+
+  /// No description provided for @materialSearchContentTitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Cocok di dalam materi'**
+  String get materialSearchContentTitle;
+
+  /// No description provided for @materialSearchContentNoSnippet.
+  ///
+  /// In id, this message translates to:
+  /// **'Kata ini muncul di dalam materi.'**
+  String get materialSearchContentNoSnippet;
+
   /// No description provided for @settingsSfx.
   ///
   /// In id, this message translates to:
@@ -627,6 +897,18 @@ abstract class AppLocalizations {
   /// In id, this message translates to:
   /// **'Pesan guru sebelum kamu mulai'**
   String get sandboxSheetSubtitle;
+
+  /// No description provided for @sandboxLimitJudgeTitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Penilai Playground berbeda dari penilai tantangan'**
+  String get sandboxLimitJudgeTitle;
+
+  /// No description provided for @sandboxLimitJudgeBody.
+  ///
+  /// In id, this message translates to:
+  /// **'Playground berjalan di HP-mu, sedangkan tantangan dinilai server dengan Python penuh. Kode yang berjalan di sini bisa saja berbeda hasilnya saat dikumpulkan. Kalau itu terjadi, percayai hasil di halaman tantangan — itulah nilai resminya.'**
+  String get sandboxLimitJudgeBody;
 
   /// No description provided for @sandboxIntro.
   ///
@@ -2263,7 +2545,7 @@ abstract class AppLocalizations {
   /// No description provided for @certPdfHint.
   ///
   /// In id, this message translates to:
-  /// **'Dokumen dibuka di browser agar bisa disimpan atau dicetak sebagai PDF.'**
+  /// **'Kedua halaman diunduh otomatis sebagai satu berkas PDF.'**
   String get certPdfHint;
 
   /// No description provided for @certChapterCountInline.
@@ -2283,6 +2565,84 @@ abstract class AppLocalizations {
   /// In id, this message translates to:
   /// **'Sertifikat Tantangan Koding'**
   String get certChallengeSectionTitle;
+
+  /// No description provided for @certCatalogTitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Katalog Sertifikat'**
+  String get certCatalogTitle;
+
+  /// No description provided for @certCatalogSubtitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Semua sertifikat modul dan tantangan yang sudah kamu selesaikan.'**
+  String get certCatalogSubtitle;
+
+  /// No description provided for @certModuleSectionTitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Sertifikat Modul'**
+  String get certModuleSectionTitle;
+
+  /// No description provided for @certDownloadPdf.
+  ///
+  /// In id, this message translates to:
+  /// **'Unduh PDF'**
+  String get certDownloadPdf;
+
+  /// No description provided for @certDownloadFailed.
+  ///
+  /// In id, this message translates to:
+  /// **'PDF belum bisa diunduh. Periksa koneksi lalu coba lagi.'**
+  String get certDownloadFailed;
+
+  /// No description provided for @certReadyCount.
+  ///
+  /// In id, this message translates to:
+  /// **'{count} sertifikat siap diunduh'**
+  String certReadyCount(int count);
+
+  /// No description provided for @certEmptyTitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Belum ada sertifikat'**
+  String get certEmptyTitle;
+
+  /// No description provided for @certEmptyBody.
+  ///
+  /// In id, this message translates to:
+  /// **'Selesaikan seluruh bab materi atau lulus tantangan koding untuk menerbitkan sertifikat.'**
+  String get certEmptyBody;
+
+  /// No description provided for @certNotEligibleShort.
+  ///
+  /// In id, this message translates to:
+  /// **'Belum layak'**
+  String get certNotEligibleShort;
+
+  /// No description provided for @certOpenCatalog.
+  ///
+  /// In id, this message translates to:
+  /// **'Lihat Semua Sertifikat'**
+  String get certOpenCatalog;
+
+  /// No description provided for @certProfileSummaryBody.
+  ///
+  /// In id, this message translates to:
+  /// **'Modul & tantangan yang telah kamu tuntaskan.'**
+  String get certProfileSummaryBody;
+
+  /// No description provided for @certTabFront.
+  ///
+  /// In id, this message translates to:
+  /// **'Piagam'**
+  String get certTabFront;
+
+  /// No description provided for @certTabBack.
+  ///
+  /// In id, this message translates to:
+  /// **'Transkrip'**
+  String get certTabBack;
 
   /// No description provided for @certProgressLockedHint.
   ///

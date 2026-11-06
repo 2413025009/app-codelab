@@ -3,6 +3,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
+import 'dart:async';
+
 import '../../../../app/router/app_routes.dart';
 import '../../../../app/shell/app_shell.dart';
 import '../../../../core/theme/app_palette.dart';
@@ -17,6 +19,7 @@ import '../../../../core/widgets/skeleton.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../../../../l10n/l10n_ext.dart';
 import '../../../ai_tutor/domain/tutor_models.dart';
+import '../../../notifications/notification_events.dart';
 import '../../../ai_tutor/domain/tutor_repository.dart';
 import '../../../ai_tutor/presentation/ai_tutor_sheet.dart';
 import '../../../auth/presentation/cubit/auth_cubit.dart';
@@ -205,6 +208,17 @@ class _ChallengeDetailPageState extends State<ChallengeDetailPage> {
         context.read<AuthCubit>().addXp(subResult.xpEarned);
       }
 
+      // Minggu 13 (Notifikasi 1b): kabari siswa saat tantangan benar-benar
+      // lulus 100% — bukan saat tombol ditekan, agar tidak mendahului server.
+      // Dijalankan TANPA await agar tidak menunda dialog hasil; kegagalan
+      // notifikasi diabaikan di dalam helper.
+      if (subResult.status == SubmissionStatus.passed && mounted) {
+        final detail = await _future;
+        if (!mounted) return;
+        unawaited(NotificationEvents.challengePassed(context, detail.title));
+      }
+
+      if (!mounted) return;
       await showEvaluationSheet(
         context,
         report: subResult.report,

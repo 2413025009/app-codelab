@@ -47,6 +47,86 @@
   "settingsLanguageSubtitle": "Indonesia, English, atau العربية",
   "settingsDarkMode": "Mode Gelap",
   "settingsDarkModeSubtitle": "Tema gelap untuk mata yang lebih nyaman",
+  "settingsThemeMode": "Tema Tampilan",
+  "settingsThemeModeSubtitle": "Pilih terang, gelap, atau ikuti pengaturan HP",
+  "settingsThemeLight": "Terang",
+  "settingsThemeDark": "Gelap",
+  "settingsThemeSystem": "Ikuti Sistem",
+  "settingsNotifications": "Notifikasi",
+  "settingsNotificationsSubtitle": "Kabar penting tanpa perlu membuka aplikasi",
+  "settingsNotifySummaryAllOn": "Semua jenis aktif",
+  "settingsNotifySummaryOff": "Nonaktif",
+  "settingsNotifySummaryPartial": "{count} dari 5 jenis aktif",
+  "@settingsNotifySummaryPartial": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "settingsNotificationsMaster": "Aktifkan Notifikasi",
+  "settingsNotificationsMasterSubtitle": "Matikan untuk berhenti menerima semua notifikasi",
+  "settingsNotifyCertificate": "Sertifikat Terbit",
+  "settingsNotifyCertificateSubtitle": "Saat modul tuntas atau tantangan lulus",
+  "settingsNotifyDownload": "Unduhan Sertifikat",
+  "settingsNotifyDownloadSubtitle": "Saat e-Sertifikat PDF selesai diunduh",
+  "settingsNotifyReminder": "Pengingat Belajar",
+  "settingsNotifyReminderSubtitle": "Pengingat harian dan kuota AI Tutor kembali penuh",
+  "settingsNotifyMaterial": "Modul Baru",
+  "settingsNotifyMaterialSubtitle": "Saat pengajar menerbitkan modul atau bab baru",
+  "settingsNotifySession": "Keamanan Sesi",
+  "settingsNotifySessionSubtitle": "Saat akun dipakai masuk di perangkat lain",
+  "settingsNotifyTest": "Kirim Notifikasi Uji Coba",
+  "settingsNotifyTestSubtitle": "Pastikan notifikasi tampil di perangkat ini",
+  "settingsNotifyTestSent": "Notifikasi uji coba dikirim.",
+  "settingsNotifyTestFailed": "Notifikasi belum bisa dikirim. Periksa izin notifikasi aplikasi ini.",
+  "settingsNotifyPermissionDenied": "Izin notifikasi ditolak. Aktifkan lewat pengaturan HP.",
+  "notifCertificateTitle": "Sertifikat Kompetensi Terbit",
+  "notifCertificateBody": "{topic} sudah tuntas. Sertifikatmu siap diunduh.",
+  "@notifCertificateBody": {
+    "placeholders": {
+      "topic": {
+        "type": "String"
+      }
+    }
+  },
+  "notifChallengeTitle": "Sertifikat Tantangan Terbit",
+  "notifChallengeBody": "{title} lulus 100/100. Sertifikat tantanganmu siap diunduh.",
+  "@notifChallengeBody": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "notifDownloadTitle": "Sertifikat Berhasil Diunduh",
+  "notifDownloadBody": "Berkas PDF {certId} tersimpan di perangkat.",
+  "@notifDownloadBody": {
+    "placeholders": {
+      "certId": {
+        "type": "String"
+      }
+    }
+  },
+  "notifReminderTitle": "Waktunya Belajar",
+  "notifReminderBody": "Kuota AI Tutor 5/5 sudah kembali penuh hari ini.",
+  "notifMaterialTitle": "Modul Baru dari Pengajarmu",
+  "notifMaterialBody": "{title} baru diterbitkan. Buka katalog untuk melihatnya.",
+  "@notifMaterialBody": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "notifSessionTitle": "Sesi Akun Diakhiri",
+  "notifSessionBody": "Akunmu dipakai masuk di perangkat lain. Masuk kembali untuk melanjutkan.",
+  "notifTestTitle": "Notifikasi Uji Coba",
+  "notifTestBody": "Notifikasi CodeLab AI berfungsi di perangkat ini.",
+  "notifNewBadge": "Baru",
+  "offlineBannerTitle": "Kamu sedang luring. Periksa koneksi internetmu.",
+  "materialSearchContentTitle": "Cocok di dalam materi",
+  "materialSearchContentNoSnippet": "Kata ini muncul di dalam materi.",
   "settingsSfx": "Efek Suara Aplikasi",
   "settingsSfxSubtitle": "Suara popup, notifikasi, dan kuis",
   "settingsLabSfx": "Efek Suara Lab",
@@ -91,6 +171,8 @@
   "sandboxTooltip": "Apa yang belum bisa dilakukan di sandbox?",
   "sandboxSheetTitle": "Batas Python Sandbox",
   "sandboxSheetSubtitle": "Pesan guru sebelum kamu mulai",
+  "sandboxLimitJudgeTitle": "Penilai Playground berbeda dari penilai tantangan",
+  "sandboxLimitJudgeBody": "Playground berjalan di HP-mu, sedangkan tantangan dinilai server dengan Python penuh. Kode yang berjalan di sini bisa saja berbeda hasilnya saat dikumpulkan. Kalau itu terjadi, percayai hasil di halaman tantangan — itulah nilai resminya.",
   "sandboxIntro": "Anak-anak, sebelum mulai mencoba, dengarkan pesan gurumu dulu. Python Sandbox ini ruang latihan yang sengaja dibatasi, bukan Python penuh. Supaya kamu tidak bingung ketika ada yang gagal, ini hal yang belum bisa dilakukan di sini:",
   "sandboxLimitImportTitle": "Memanggil modul dengan import",
   "sandboxLimitImportBody": "Perintah import belum ada di sandbox ini. Jadi library seperti random, math, datetime, atau paket dari internet belum bisa dipakai.",
@@ -701,7 +783,7 @@
   "certValidUntilLabel": "Berlaku hingga",
   "certPageOne": "Halaman 1 — Piagam Kelulusan",
   "certPageTwo": "Halaman 2 — Transkrip & Capaian",
-  "certPdfHint": "Dokumen dibuka di browser agar bisa disimpan atau dicetak sebagai PDF.",
+  "certPdfHint": "Kedua halaman diunduh otomatis sebagai satu berkas PDF.",
   "certChapterCountInline": "{done}/{total} bab tuntas",
   "@certChapterCountInline": {
     "placeholders": {
@@ -715,6 +797,26 @@
   },
   "certPreviewTitle": "Pratinjau e-Sertifikat",
   "certChallengeSectionTitle": "Sertifikat Tantangan Koding",
+  "certCatalogTitle": "Katalog Sertifikat",
+  "certCatalogSubtitle": "Semua sertifikat modul dan tantangan yang sudah kamu selesaikan.",
+  "certModuleSectionTitle": "Sertifikat Modul",
+  "certDownloadPdf": "Unduh PDF",
+  "certDownloadFailed": "PDF belum bisa diunduh. Periksa koneksi lalu coba lagi.",
+  "certReadyCount": "{count} sertifikat siap diunduh",
+  "@certReadyCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "certEmptyTitle": "Belum ada sertifikat",
+  "certEmptyBody": "Selesaikan seluruh bab materi atau lulus tantangan koding untuk menerbitkan sertifikat.",
+  "certNotEligibleShort": "Belum layak",
+  "certOpenCatalog": "Lihat Semua Sertifikat",
+  "certProfileSummaryBody": "Modul & tantangan yang telah kamu tuntaskan.",
+  "certTabFront": "Piagam",
+  "certTabBack": "Transkrip",
   "certProgressLockedHint": "{percent}% selesai — sertifikat terbit otomatis setelah semua bab tuntas.",
   "@certProgressLockedHint": {
     "placeholders": {

@@ -39,6 +39,8 @@ void main() {
       expect(find.text('PYTHON DASAR & LOGIKA'), findsOneWidget);
       expect(find.text('Bab 3 dari 7'), findsOneWidget);
       expect(find.text('1. Pengenalan Logika Koding'), findsOneWidget);
+      // Persentase dianimasikan dari 0 → 35%, jadi tunggu animasi selesai.
+      await tester.pumpAndSettle();
       expect(find.text('35% Selesai'), findsOneWidget);
 
       await tester.tap(find.byType(ResumeCard));

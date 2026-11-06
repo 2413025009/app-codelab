@@ -655,6 +655,14 @@ class _SandboxLimitsBody extends StatelessWidget {
             title: l10n.sandboxLimitLimitsTitle,
             body: l10n.sandboxLimitLimitsBody,
           ),
+          // Minggu 13: menjelaskan bahwa penilai Playground (di HP) dan
+          // penilai tantangan (di server) adalah dua mesin berbeda, sehingga
+          // siswa tidak bingung bila hasilnya tidak sama.
+          _SandboxLimit(
+            icon: Icons.rule_outlined,
+            title: l10n.sandboxLimitJudgeTitle,
+            body: l10n.sandboxLimitJudgeBody,
+          ),
           const SizedBox(height: AppSpacing.sm),
           Container(
             padding: const EdgeInsets.all(AppSpacing.md),

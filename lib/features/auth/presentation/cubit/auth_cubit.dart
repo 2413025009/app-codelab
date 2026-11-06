@@ -3,9 +3,14 @@
 // FUNGSI YANG DIKELOLA: alur login, registrasi, pembaruan profil, restoreSession,
 // dan logout — semuanya hanya menyalurkan ke AuthRepository, tanpa logika mock.
 // WAJIB DIUBAH BILA: alur sesi berubah (mis. refresh token otomatis pindah ke sini).
+import 'dart:async';
+
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../../../core/network/session_notice.dart';
+import '../../../../l10n/app_localizations.dart';
+import '../../../notifications/notification_events.dart';
 import '../../domain/auth_repository.dart';
 
 enum AuthStatus { unauthenticated, authenticated }
@@ -24,9 +29,46 @@ class AuthState extends Equatable {
 
 /// App-wide session state. The router listens to it for route guarding.
 class AuthCubit extends Cubit<AuthState> {
-  AuthCubit(this._repository) : super(const AuthState());
+  AuthCubit(this._repository) : super(const AuthState()) {
+    // Minggu 13: sesi tunggal. Ketika server menolak token karena sesinya
+    // dicabut (akun dipakai masuk di perangkat lain, logout, atau sandi
+    // berubah), lapisan jaringan menitipkan pesan lewat SessionNotice. Cubit
+    // mengeluarkan pengguna SEKALI di sini; pesan ditampilkan layar masuk.
+    SessionNotice.message.addListener(_handleSessionNotice);
+  }
 
   final AuthRepository _repository;
+
+  /// Bahasa aktif terakhir untuk teks notifikasi sesi (dipasang layar lewat
+  /// [setLocalizations]). Notifikasi bisa terjadi saat tidak ada BuildContext.
+  AppLocalizations? _lastL10n;
+
+  /// Dipanggil layar (mis. LoginPage/AppShell) agar notifikasi sesi memakai
+  /// bahasa aplikasi aktif.
+  void setLocalizations(AppLocalizations l10n) => _lastL10n = l10n;
+
+  void _handleSessionNotice() {
+    final msg = SessionNotice.message.value;
+    if (msg == null) return;
+    if (!state.isAuthenticated) return;
+    // Minggu 13 (Notifikasi 5): kabari lewat notifikasi HP juga, supaya siswa
+    // tahu alasannya walau aplikasi sedang di latar belakang. Teks diambil dari
+    // pesan server agar alasannya tepat (perangkat lain / logout / sandi).
+    final l10n = _lastL10n;
+    unawaited(
+      NotificationEvents.sessionRevoked(
+        title: l10n?.notifSessionTitle ?? 'Sesi Akun Diakhiri',
+        body: l10n?.notifSessionBody ?? msg,
+      ),
+    );
+    emit(const AuthState());
+  }
+
+  @override
+  Future<void> close() {
+    SessionNotice.message.removeListener(_handleSessionNotice);
+    return super.close();
+  }
 
   /// Throws [AuthFailure] on bad credentials.
   Future<void> login({required String email, required String password}) async {

@@ -143,6 +143,160 @@ class AppLocalizationsAr extends AppLocalizations {
   String get settingsDarkModeSubtitle => 'سمة داكنة مريحة للعين';
 
   @override
+  String get settingsThemeMode => 'سمة المظهر';
+
+  @override
+  String get settingsThemeModeSubtitle =>
+      'اختر فاتحًا أو داكنًا أو اتبع إعداد الهاتف';
+
+  @override
+  String get settingsThemeLight => 'فاتح';
+
+  @override
+  String get settingsThemeDark => 'داكن';
+
+  @override
+  String get settingsThemeSystem => 'اتبع النظام';
+
+  @override
+  String get settingsNotifications => 'الإشعارات';
+
+  @override
+  String get settingsNotificationsSubtitle => 'تحديثات مهمة دون فتح التطبيق';
+
+  @override
+  String get settingsNotifySummaryAllOn => 'جميع الأنواع مفعّلة';
+
+  @override
+  String get settingsNotifySummaryOff => 'معطّلة';
+
+  @override
+  String settingsNotifySummaryPartial(int count) {
+    return '$count من 5 أنواع مفعّلة';
+  }
+
+  @override
+  String get settingsNotificationsMaster => 'تفعيل الإشعارات';
+
+  @override
+  String get settingsNotificationsMasterSubtitle =>
+      'أوقفه لإيقاف جميع الإشعارات';
+
+  @override
+  String get settingsNotifyCertificate => 'إصدار الشهادة';
+
+  @override
+  String get settingsNotifyCertificateSubtitle =>
+      'عند إتمام مودول أو النجاح في تحدٍ';
+
+  @override
+  String get settingsNotifyDownload => 'تنزيل الشهادة';
+
+  @override
+  String get settingsNotifyDownloadSubtitle => 'عند اكتمال تنزيل الشهادة PDF';
+
+  @override
+  String get settingsNotifyReminder => 'تذكير الدراسة';
+
+  @override
+  String get settingsNotifyReminderSubtitle =>
+      'تذكير يومي وعودة حصة AI Tutor كاملة';
+
+  @override
+  String get settingsNotifyMaterial => 'مودولات جديدة';
+
+  @override
+  String get settingsNotifyMaterialSubtitle =>
+      'عند نشر المعلم مودول أو فصلًا جديدًا';
+
+  @override
+  String get settingsNotifySession => 'أمان الجلسة';
+
+  @override
+  String get settingsNotifySessionSubtitle => 'عند تسجيل الدخول من جهاز آخر';
+
+  @override
+  String get settingsNotifyTest => 'إرسال إشعار تجريبي';
+
+  @override
+  String get settingsNotifyTestSubtitle =>
+      'تأكد من ظهور الإشعارات على هذا الجهاز';
+
+  @override
+  String get settingsNotifyTestSent => 'تم إرسال الإشعار التجريبي.';
+
+  @override
+  String get settingsNotifyTestFailed =>
+      'تعذّر إرسال الإشعار. تحقّق من إذن الإشعارات لهذا التطبيق.';
+
+  @override
+  String get settingsNotifyPermissionDenied =>
+      'تم رفض إذن الإشعارات. فعّله من إعدادات الهاتف.';
+
+  @override
+  String get notifCertificateTitle => 'صدرت شهادة الكفاءة';
+
+  @override
+  String notifCertificateBody(String topic) {
+    return 'اكتمل $topic. شهادتك جاهزة للتنزيل.';
+  }
+
+  @override
+  String get notifChallengeTitle => 'صدرت شهادة التحدي';
+
+  @override
+  String notifChallengeBody(String title) {
+    return '$title نجح بدرجة 100/100. شهادة التحدي جاهزة للتنزيل.';
+  }
+
+  @override
+  String get notifDownloadTitle => 'تم تنزيل الشهادة';
+
+  @override
+  String notifDownloadBody(String certId) {
+    return 'تم حفظ الملف $certId على هذا الجهاز.';
+  }
+
+  @override
+  String get notifReminderTitle => 'حان وقت الدراسة';
+
+  @override
+  String get notifReminderBody => 'عادت حصة AI Tutor إلى 5/5 اليوم.';
+
+  @override
+  String get notifMaterialTitle => 'مودول جديد من معلمك';
+
+  @override
+  String notifMaterialBody(String title) {
+    return 'تم نشر $title. افتح الكتالوج لرؤيته.';
+  }
+
+  @override
+  String get notifSessionTitle => 'انتهت الجلسة';
+
+  @override
+  String get notifSessionBody =>
+      'تم تسجيل الدخول إلى حسابك من جهاز آخر. سجّل الدخول مجددًا للمتابعة.';
+
+  @override
+  String get notifTestTitle => 'إشعار تجريبي';
+
+  @override
+  String get notifTestBody => 'إشعارات CodeLab AI تعمل على هذا الجهاز.';
+
+  @override
+  String get notifNewBadge => 'جديد';
+
+  @override
+  String get offlineBannerTitle => 'أنت غير متصل. تحقّق من اتصال الإنترنت.';
+
+  @override
+  String get materialSearchContentTitle => 'نتائج داخل المادة';
+
+  @override
+  String get materialSearchContentNoSnippet => 'تظهر هذه الكلمة داخل المادة.';
+
+  @override
   String get settingsSfx => 'مؤثرات صوتية للتطبيق';
 
   @override
@@ -286,6 +440,13 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get sandboxSheetSubtitle => 'رسالة المعلّم قبل أن تبدأ';
+
+  @override
+  String get sandboxLimitJudgeTitle => 'مقيّم الساحة يختلف عن مقيّم التحديات';
+
+  @override
+  String get sandboxLimitJudgeBody =>
+      'تعمل الساحة على هاتفك، بينما تُقيَّم التحديات على الخادم ببايثون كاملة. قد يختلف سلوك الكود هنا عند التسليم. إذا حدث ذلك، اعتمد النتيجة في صفحة التحدي — فهي الدرجة الرسمية.';
 
   @override
   String get sandboxIntro =>
@@ -1223,8 +1384,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get certPageTwo => 'الصفحة 2 — كشف الدرجات والإنجازات';
 
   @override
-  String get certPdfHint =>
-      'يُفتح المستند في المتصفح لتحفظه أو تطبعه بصيغة PDF.';
+  String get certPdfHint => 'تُنزَّل الصفحتان تلقائيًا في ملف PDF واحد.';
 
   @override
   String certChapterCountInline(int done, int total) {
@@ -1236,6 +1396,50 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get certChallengeSectionTitle => 'شهادات تحديات البرمجة';
+
+  @override
+  String get certCatalogTitle => 'فهرس الشهادات';
+
+  @override
+  String get certCatalogSubtitle =>
+      'كل شهادات المودولات والتحديات التي أكملتها.';
+
+  @override
+  String get certModuleSectionTitle => 'شهادات المودولات';
+
+  @override
+  String get certDownloadPdf => 'تنزيل PDF';
+
+  @override
+  String get certDownloadFailed =>
+      'تعذّر تنزيل ملف PDF. تحقّق من الاتصال ثم حاول مجددًا.';
+
+  @override
+  String certReadyCount(int count) {
+    return '$count شهادة جاهزة للتنزيل';
+  }
+
+  @override
+  String get certEmptyTitle => 'لا توجد شهادات بعد';
+
+  @override
+  String get certEmptyBody =>
+      'أكمل جميع فصول مودول أو اجتز تحدي برمجة لإصدار شهادة.';
+
+  @override
+  String get certNotEligibleShort => 'غير مؤهل';
+
+  @override
+  String get certOpenCatalog => 'عرض جميع الشهادات';
+
+  @override
+  String get certProfileSummaryBody => 'المودولات والتحديات التي أكملتها.';
+
+  @override
+  String get certTabFront => 'الشهادة';
+
+  @override
+  String get certTabBack => 'كشف الدرجات';
 
   @override
   String certProgressLockedHint(int percent) {

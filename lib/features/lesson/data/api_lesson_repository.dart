@@ -131,4 +131,71 @@ class ApiLessonRepository implements LessonRepository {
       rethrow;
     }
   }
+
+  /// Minggu 13: modul pengajar kelas siswa (GET /student/guru-lessons).
+  ///
+  /// Kegagalan di sini TIDAK dilempar: penanda "Baru" dan notifikasi modul
+  /// baru bersifat tambahan, sedangkan katalog kurikulum tetap harus tampil.
+  @override
+  Future<List<GuruLessonSummary>> listGuruLessons() async {
+    try {
+      final res = await _client.dio.get<Map<String, dynamic>>(
+        '/student/guru-lessons',
+      );
+      final items = res.data?['items'] as List<dynamic>? ?? const [];
+      final list = <GuruLessonSummary>[];
+      for (final raw in items) {
+        if (raw is! Map<String, dynamic>) continue;
+        list.add(
+          GuruLessonSummary(
+            id: raw['id'] as String? ?? '',
+            title: raw['title'] as String? ?? '',
+            topic: raw['topic'] as String? ?? '',
+            description: raw['description'] as String? ?? '',
+            iconCode: raw['iconCode'] as String? ?? 'terminal',
+            babCount: raw['babCount'] as int? ?? 0,
+            totalXp: raw['totalXp'] as int? ?? 0,
+            teacherName: raw['teacherName'] as String? ?? '',
+          ),
+        );
+      }
+      return list;
+    } catch (_) {
+      // Siswa tanpa kelas / jaringan bermasalah: tidak ada modul guru.
+      return const <GuruLessonSummary>[];
+    }
+  }
+
+  /// Minggu 13: pencarian sampai ke ISI bab (GET /lessons/search).
+  ///
+  /// Kegagalan dikembalikan sebagai daftar kosong: hasil pencarian tambahan
+  /// tidak boleh menghalangi siswa membuka modul yang sudah tampil.
+  @override
+  Future<List<LessonSearchHit>> searchLessons(String keyword) async {
+    final q = keyword.trim();
+    if (q.isEmpty) return const <LessonSearchHit>[];
+    try {
+      final res = await _client.dio.get<Map<String, dynamic>>(
+        '/lessons/search',
+        queryParameters: {'q': q},
+      );
+      final items = res.data?['items'] as List<dynamic>? ?? const [];
+      final list = <LessonSearchHit>[];
+      for (final raw in items) {
+        if (raw is! Map<String, dynamic>) continue;
+        list.add(
+          LessonSearchHit(
+            lessonId: raw['lessonId'] as String? ?? '',
+            lessonTitle: raw['lessonTitle'] as String? ?? '',
+            topic: raw['topic'] as String? ?? '',
+            source: raw['source'] as String? ?? 'content',
+            snippet: raw['snippet'] as String? ?? '',
+          ),
+        );
+      }
+      return list;
+    } catch (_) {
+      return const <LessonSearchHit>[];
+    }
+  }
 }

@@ -302,6 +302,8 @@ class ApiChallengeRepository implements ChallengeRepository {
         context: data['context'] as String? ?? 'Kurikulum Algoritma RPL',
         bestScore: data['best_score'] as int? ?? 0,
         submissions: subs,
+        total: data['total'] as int? ?? subs.length,
+        hasMore: data['has_more'] as bool? ?? false,
       );
     } on DioException catch (e) {
       if (e.type == DioExceptionType.badResponse) {

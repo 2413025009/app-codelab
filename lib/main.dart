@@ -26,6 +26,9 @@ import 'package:provider/provider.dart' show ChangeNotifierProvider;
 import 'app/router/app_router.dart';
 import 'core/network/token_store.dart';
 import 'core/services/app_preferences.dart';
+import 'core/services/connectivity_service.dart';
+import 'core/services/notification_preferences.dart';
+import 'core/services/notification_service.dart';
 import 'core/services/sound_service.dart';
 import 'core/services/teacher_preferences.dart';
 import 'core/theme/app_theme.dart';
@@ -46,6 +49,7 @@ import 'features/dashboard/data/api_dashboard_repository.dart';
 import 'features/dashboard/domain/dashboard_repository.dart';
 import 'features/lesson/data/api_lesson_repository.dart';
 import 'features/lesson/domain/lesson_repository.dart';
+import 'features/notifications/new_material_watcher.dart';
 import 'features/teacher/data/api_teacher_repository.dart';
 import 'features/teacher/domain/teacher_repository.dart';
 import 'features/teacher/presentation/cubit/teacher_cubit.dart';
@@ -58,6 +62,12 @@ Future<void> main() async {
   await SoundService.init(); // Muat pengaturan efek suara lokal dari HP.
   await TeacherPreferences.init(); // Preferensi lokal khusus pengajar.
   await AppPreferences.instance.init(); // Mode gelap + bahasa aplikasi.
+  // Minggu 13: notifikasi HP (izin diminta saat dibutuhkan, bukan saat start).
+  await NotificationPreferences.instance.init();
+  await NotificationService.instance.init();
+  await NewMaterialWatcher.instance.init();
+  // Minggu 13: status jaringan supaya pesan galat jujur saat luring.
+  await ConnectivityService.instance.init();
   runApp(const CodelabApp());
 }
 

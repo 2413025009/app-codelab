@@ -145,6 +145,167 @@ class AppLocalizationsId extends AppLocalizations {
       'Tema gelap untuk mata yang lebih nyaman';
 
   @override
+  String get settingsThemeMode => 'Tema Tampilan';
+
+  @override
+  String get settingsThemeModeSubtitle =>
+      'Pilih terang, gelap, atau ikuti pengaturan HP';
+
+  @override
+  String get settingsThemeLight => 'Terang';
+
+  @override
+  String get settingsThemeDark => 'Gelap';
+
+  @override
+  String get settingsThemeSystem => 'Ikuti Sistem';
+
+  @override
+  String get settingsNotifications => 'Notifikasi';
+
+  @override
+  String get settingsNotificationsSubtitle =>
+      'Kabar penting tanpa perlu membuka aplikasi';
+
+  @override
+  String get settingsNotifySummaryAllOn => 'Semua jenis aktif';
+
+  @override
+  String get settingsNotifySummaryOff => 'Nonaktif';
+
+  @override
+  String settingsNotifySummaryPartial(int count) {
+    return '$count dari 5 jenis aktif';
+  }
+
+  @override
+  String get settingsNotificationsMaster => 'Aktifkan Notifikasi';
+
+  @override
+  String get settingsNotificationsMasterSubtitle =>
+      'Matikan untuk berhenti menerima semua notifikasi';
+
+  @override
+  String get settingsNotifyCertificate => 'Sertifikat Terbit';
+
+  @override
+  String get settingsNotifyCertificateSubtitle =>
+      'Saat modul tuntas atau tantangan lulus';
+
+  @override
+  String get settingsNotifyDownload => 'Unduhan Sertifikat';
+
+  @override
+  String get settingsNotifyDownloadSubtitle =>
+      'Saat e-Sertifikat PDF selesai diunduh';
+
+  @override
+  String get settingsNotifyReminder => 'Pengingat Belajar';
+
+  @override
+  String get settingsNotifyReminderSubtitle =>
+      'Pengingat harian dan kuota AI Tutor kembali penuh';
+
+  @override
+  String get settingsNotifyMaterial => 'Modul Baru';
+
+  @override
+  String get settingsNotifyMaterialSubtitle =>
+      'Saat pengajar menerbitkan modul atau bab baru';
+
+  @override
+  String get settingsNotifySession => 'Keamanan Sesi';
+
+  @override
+  String get settingsNotifySessionSubtitle =>
+      'Saat akun dipakai masuk di perangkat lain';
+
+  @override
+  String get settingsNotifyTest => 'Kirim Notifikasi Uji Coba';
+
+  @override
+  String get settingsNotifyTestSubtitle =>
+      'Pastikan notifikasi tampil di perangkat ini';
+
+  @override
+  String get settingsNotifyTestSent => 'Notifikasi uji coba dikirim.';
+
+  @override
+  String get settingsNotifyTestFailed =>
+      'Notifikasi belum bisa dikirim. Periksa izin notifikasi aplikasi ini.';
+
+  @override
+  String get settingsNotifyPermissionDenied =>
+      'Izin notifikasi ditolak. Aktifkan lewat pengaturan HP.';
+
+  @override
+  String get notifCertificateTitle => 'Sertifikat Kompetensi Terbit';
+
+  @override
+  String notifCertificateBody(String topic) {
+    return '$topic sudah tuntas. Sertifikatmu siap diunduh.';
+  }
+
+  @override
+  String get notifChallengeTitle => 'Sertifikat Tantangan Terbit';
+
+  @override
+  String notifChallengeBody(String title) {
+    return '$title lulus 100/100. Sertifikat tantanganmu siap diunduh.';
+  }
+
+  @override
+  String get notifDownloadTitle => 'Sertifikat Berhasil Diunduh';
+
+  @override
+  String notifDownloadBody(String certId) {
+    return 'Berkas PDF $certId tersimpan di perangkat.';
+  }
+
+  @override
+  String get notifReminderTitle => 'Waktunya Belajar';
+
+  @override
+  String get notifReminderBody =>
+      'Kuota AI Tutor 5/5 sudah kembali penuh hari ini.';
+
+  @override
+  String get notifMaterialTitle => 'Modul Baru dari Pengajarmu';
+
+  @override
+  String notifMaterialBody(String title) {
+    return '$title baru diterbitkan. Buka katalog untuk melihatnya.';
+  }
+
+  @override
+  String get notifSessionTitle => 'Sesi Akun Diakhiri';
+
+  @override
+  String get notifSessionBody =>
+      'Akunmu dipakai masuk di perangkat lain. Masuk kembali untuk melanjutkan.';
+
+  @override
+  String get notifTestTitle => 'Notifikasi Uji Coba';
+
+  @override
+  String get notifTestBody =>
+      'Notifikasi CodeLab AI berfungsi di perangkat ini.';
+
+  @override
+  String get notifNewBadge => 'Baru';
+
+  @override
+  String get offlineBannerTitle =>
+      'Kamu sedang luring. Periksa koneksi internetmu.';
+
+  @override
+  String get materialSearchContentTitle => 'Cocok di dalam materi';
+
+  @override
+  String get materialSearchContentNoSnippet =>
+      'Kata ini muncul di dalam materi.';
+
+  @override
   String get settingsSfx => 'Efek Suara Aplikasi';
 
   @override
@@ -288,6 +449,14 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get sandboxSheetSubtitle => 'Pesan guru sebelum kamu mulai';
+
+  @override
+  String get sandboxLimitJudgeTitle =>
+      'Penilai Playground berbeda dari penilai tantangan';
+
+  @override
+  String get sandboxLimitJudgeBody =>
+      'Playground berjalan di HP-mu, sedangkan tantangan dinilai server dengan Python penuh. Kode yang berjalan di sini bisa saja berbeda hasilnya saat dikumpulkan. Kalau itu terjadi, percayai hasil di halaman tantangan — itulah nilai resminya.';
 
   @override
   String get sandboxIntro =>
@@ -1233,7 +1402,7 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get certPdfHint =>
-      'Dokumen dibuka di browser agar bisa disimpan atau dicetak sebagai PDF.';
+      'Kedua halaman diunduh otomatis sebagai satu berkas PDF.';
 
   @override
   String certChapterCountInline(int done, int total) {
@@ -1245,6 +1414,51 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get certChallengeSectionTitle => 'Sertifikat Tantangan Koding';
+
+  @override
+  String get certCatalogTitle => 'Katalog Sertifikat';
+
+  @override
+  String get certCatalogSubtitle =>
+      'Semua sertifikat modul dan tantangan yang sudah kamu selesaikan.';
+
+  @override
+  String get certModuleSectionTitle => 'Sertifikat Modul';
+
+  @override
+  String get certDownloadPdf => 'Unduh PDF';
+
+  @override
+  String get certDownloadFailed =>
+      'PDF belum bisa diunduh. Periksa koneksi lalu coba lagi.';
+
+  @override
+  String certReadyCount(int count) {
+    return '$count sertifikat siap diunduh';
+  }
+
+  @override
+  String get certEmptyTitle => 'Belum ada sertifikat';
+
+  @override
+  String get certEmptyBody =>
+      'Selesaikan seluruh bab materi atau lulus tantangan koding untuk menerbitkan sertifikat.';
+
+  @override
+  String get certNotEligibleShort => 'Belum layak';
+
+  @override
+  String get certOpenCatalog => 'Lihat Semua Sertifikat';
+
+  @override
+  String get certProfileSummaryBody =>
+      'Modul & tantangan yang telah kamu tuntaskan.';
+
+  @override
+  String get certTabFront => 'Piagam';
+
+  @override
+  String get certTabBack => 'Transkrip';
 
   @override
   String certProgressLockedHint(int percent) {

@@ -11,6 +11,8 @@ import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_snack.dart';
 import '../../../../core/widgets/skeleton.dart';
 import '../../../../l10n/app_localizations.dart';
+import '../../../certificate/domain/certificate_repository.dart';
+import '../../../notifications/notification_events.dart';
 import '../../domain/lesson_repository.dart';
 import '../../domain/slide_models.dart';
 import '../widgets/slides/bug_hunter_slide_widget.dart';
@@ -299,7 +301,35 @@ class _LessonReaderPageState extends State<LessonReaderPage> {
       } else {
         showAppSnack(context, l10n.readerXpAlreadyDone);
       }
-      context.go(AppRoutes.dashboard);
+      // Minggu 13 (Notifikasi 1a): modul bisa saja baru tuntas 100% dengan
+      // bab ini. Diperiksa ke server sesudah progres tersimpan agar kabar
+      // "sertifikat terbit" tidak mendahului datanya.
+      await _notifyIfModuleCompleted(data.topic);
+      if (mounted) context.go(AppRoutes.dashboard);
+    }
+  }
+
+  /// Memberi notifikasi hanya bila SELURUH bab pada topik ini sudah tuntas.
+  /// Mengandalkan daftar sertifikat server (satu-satunya sumber kebenaran),
+  /// bukan menghitung sendiri dari layar ini.
+  Future<void> _notifyIfModuleCompleted(String topic) async {
+    try {
+      final repo = context.read<CertificateRepository>();
+      final certs = await repo.getMyCertificates();
+      final wanted = topic.trim().toLowerCase();
+      for (final m in certs.moduleCertificates) {
+        if (m.topic.trim().toLowerCase() != wanted) continue;
+        // Bagian ini hanya dipanggil ketika siswa TELAH membuka bab terakhir
+        // dan progresnya tersimpan, jadi `eligible` di server berarti modul
+        // baru saja tuntas.
+        if (m.eligible && m.certId.trim().isNotEmpty && mounted) {
+          await NotificationEvents.moduleCompleted(context, m.topic);
+        }
+        return;
+      }
+    } catch (_) {
+      // Notifikasi bersifat tambahan: kegagalan di sini tidak boleh
+      // menggagalkan perpindahan layar setelah bab tuntas.
     }
   }
 

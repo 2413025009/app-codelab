@@ -17,6 +17,25 @@ abstract final class CertificateLinks {
   /// Tautan verifikasi resmi satu sertifikat.
   static String verify(String certId) => '$verifyBase/$certId';
 
+  /// Tautan unduhan PDF resmi (2 halaman A4 landscape: piagam depan +
+  /// transkrip belakang). Server mengirim berkas sebagai lampiran sehingga
+  /// browser/perangkat langsung menyimpannya, bukan membuka pratinjau HTML.
+  ///
+  /// Alamat mengikuti [AppConfig.apiBaseUrl] agar tombol unduh tetap bekerja
+  /// saat pengembangan lokal maupun produksi.
+  static String pdf(String certId, {String lang = 'id'}) {
+    final id = certId.trim();
+    if (id.isEmpty) return '';
+    final base = Uri.tryParse(AppConfig.apiBaseUrl);
+    if (base == null || base.host.isEmpty) return '';
+    return base
+        .replace(
+          path: '/verify/$id/pdf',
+          queryParameters: {'lang': lang == 'en' ? 'en' : 'id'},
+        )
+        .toString();
+  }
+
   /// URL gambar QR Code dinamis yang dirender server (PNG) untuk nomor
   /// sertifikat ini. Mengikuti alamat backend aktif (localhost saat
   /// pengembangan, domain produksi saat rilis) — bukan domain hardcode,

@@ -78,6 +78,11 @@ abstract final class AppRoutes {
   /// Katalog seluruh materi kurikulum + materi guru kelas.
   static const catalog = '/katalog-materi-siswa';
 
+  /// Katalog seluruh e-Sertifikat Kompetensi milik siswa (modul & tantangan).
+  /// Layar ini terpisah dari profil agar daftar sertifikat tidak bercampur
+  /// dengan kartu identitas dan peta kompetensi.
+  static const certificateCatalog = '/katalog-sertifikat-siswa';
+
   /// Pratinjau & cetak e-Sertifikat Kompetensi (Minggu 12). Judul layarnya
   /// "Sertifikat Kompetensi", jadi URL memakai nama itu + akhiran peran siswa.
   /// `:certId` adalah nomor unik sertifikat (mis. CL-CERT-2026-PY01-FARHAN01).

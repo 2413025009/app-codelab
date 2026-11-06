@@ -25,6 +25,8 @@ import '../../../../core/widgets/app_refresh.dart';
 import '../../../../core/widgets/app_sheet.dart';
 import '../../../../core/widgets/app_snack.dart';
 import '../../../../core/widgets/avatars.dart';
+import '../../../../core/widgets/notification_settings_section.dart';
+import '../../../../core/widgets/theme_mode_tile.dart';
 import '../../../auth/domain/auth_repository.dart';
 import '../../../auth/presentation/cubit/auth_cubit.dart';
 import '../../../profile/presentation/widgets/change_password_sheet.dart';
@@ -984,30 +986,13 @@ class _TeacherSettingsPageState extends State<TeacherSettingsPage> {
                                 height: 1,
                                 color: p.outline.withValues(alpha: 0.5),
                               ),
-                              SwitchListTile(
-                                secondary: Icon(
-                                  Icons.dark_mode_outlined,
-                                  color: p.primary,
-                                ),
-                                title: Text(l10n.settingsDarkMode),
-                                subtitle: Text(
-                                  l10n.settingsDarkModeSubtitle,
-                                  style: AppTypography.caption.copyWith(
-                                    color: p.textMuted,
-                                  ),
-                                ),
-                                // Cerminkan tampilan yang benar-benar aktif,
-                                // termasuk saat tema mengikuti sistem.
-                                value:
-                                    Theme.of(context).brightness ==
-                                    Brightness.dark,
-                                activeTrackColor: p.primary,
-                                onChanged: (val) async {
-                                  await AppPreferences.instance.setThemeMode(
-                                    val ? ThemeMode.dark : ThemeMode.light,
-                                  );
-                                  if (mounted) setState(() {});
-                                },
+                              // Minggu 13: tiga pilihan tema — Terang, Gelap,
+                              // dan Ikuti Sistem (sama seperti Pengaturan siswa).
+                              const ThemeModeTile(),
+                              // Minggu 13: notifikasi dibuka lewat modal.
+                              // Pengajar tetap punya tombol uji coba di dalamnya.
+                              const NotificationSettingsTile(
+                                showTestButton: true,
                               ),
                               Divider(
                                 height: 1,

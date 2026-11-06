@@ -33,6 +33,7 @@ import 'dart:io';
 import 'package:dio/dio.dart';
 
 import '../config/app_config.dart';
+import 'session_notice.dart';
 import 'token_store.dart';
 
 class ApiClient {
@@ -61,6 +62,19 @@ class ApiClient {
           // Access token kedaluwarsa → coba refresh sekali, lalu ulangi request.
           if (err.response?.statusCode == 401 &&
               !err.requestOptions.path.contains('/auth/')) {
+            // Minggu 13: sesi yang DICABUT (akun dipakai di perangkat lain,
+            // logout, ganti sandi) tidak akan sembuh dengan refresh apa pun.
+            // Jangan coba refresh — langsung bersihkan sesi lokal agar
+            // pengguna kembali ke layar masuk tanpa menunggu.
+            if (_isSessionRevoked(err)) {
+              _token = null;
+              await TokenStore.clear();
+              // Beri tahu antarmuka APA yang terjadi (perangkat lain / logout /
+              // sandi berubah) sebelum error diteruskan ke pemanggil.
+              final message = sessionRevokedMessage(err);
+              if (message != null) SessionNotice.raise(message);
+              return handler.next(err);
+            }
             final refreshed = await _refreshOnce();
             if (refreshed) {
               try {
@@ -83,6 +97,30 @@ class ApiClient {
 
   static String? _token;
   static Future<bool>? _refreshInFlight;
+
+  /// Mendeteksi penolakan karena sesi dicabut (kode stabil `SESSION_REVOKED`).
+  /// Dibedakan dari 401 biasa agar tidak memicu percobaan refresh yang pasti
+  /// gagal — token sesi mati tidak bisa dihidupkan kembali.
+  static bool _isSessionRevoked(DioException err) {
+    final data = err.response?.data;
+    if (data is! Map) return false;
+    final error = data['error'];
+    if (error is! Map) return false;
+    return error['code'] == 'SESSION_REVOKED';
+  }
+
+  /// Pesan penolakan sesi untuk ditampilkan aplikasi (null bila bukan
+  /// `SESSION_REVOKED`). Dipakai layar masuk / AuthCubit agar pengguna tahu
+  /// APA yang terjadi: dipakai di perangkat lain, logout, atau sandi berubah.
+  static String? sessionRevokedMessage(DioException err) {
+    final data = err.response?.data;
+    if (data is! Map) return null;
+    final error = data['error'];
+    if (error is! Map) return null;
+    if (error['code'] != 'SESSION_REVOKED') return null;
+    final message = error['message'];
+    return message is String && message.isNotEmpty ? message : null;
+  }
 
   late final Dio dio;
 

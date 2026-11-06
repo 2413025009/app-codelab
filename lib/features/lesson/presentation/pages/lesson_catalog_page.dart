@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -17,6 +19,7 @@ import '../../../../core/widgets/app_tag.dart';
 import '../../../../core/widgets/skeleton.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../../../certificate/presentation/certificate_actions.dart';
+import '../../../notifications/new_material_watcher.dart';
 import '../../domain/lesson_repository.dart';
 import '../../domain/slide_models.dart';
 
@@ -66,16 +69,57 @@ class _LessonCatalogPageState extends State<LessonCatalogPage> {
   void initState() {
     super.initState();
     _loadLessons();
+    // Minggu 13: membuka katalog = siswa sudah melihat modul terbaru, jadi
+    // lencana "Baru" dihapus (notifikasi HP tidak diulang).
+    WidgetsBinding.instance.addPostFrameCallback((_) => _markSeen());
+  }
+
+  Future<void> _markSeen() async {
+    if (!mounted) return;
+    try {
+      await NewMaterialWatcher.instance.markAllSeen(
+        context.read<LessonRepository>(),
+      );
+      if (mounted) setState(() {});
+    } catch (_) {
+      // abaikan: lencana bersifat tambahan.
+    }
   }
 
   @override
   void dispose() {
+    _searchDebounce?.cancel();
     _search.dispose();
     super.dispose();
   }
 
+  /// Minggu 13: hasil pencarian sampai ke ISI bab (GET /lessons/search).
+  /// Kosong = belum mencari / tidak ada hasil; tidak pernah melempar.
+  List<LessonSearchHit> _contentHits = const [];
+  Timer? _searchDebounce;
+
   void _loadLessons() {
     _future = context.read<LessonRepository>().listAllLessons();
+  }
+
+  /// Mencari ke isi bab dengan jeda singkat agar tidak menembak server pada
+  /// setiap ketukan tombol.
+  void _searchContent(String raw) {
+    _searchDebounce?.cancel();
+    final q = raw.trim();
+    if (q.isEmpty) {
+      if (_contentHits.isNotEmpty) setState(() => _contentHits = const []);
+      return;
+    }
+    _searchDebounce = Timer(const Duration(milliseconds: 320), () async {
+      if (!mounted) return;
+      try {
+        final hits = await context.read<LessonRepository>().searchLessons(q);
+        if (mounted) setState(() => _contentHits = hits);
+      } catch (_) {
+        if (mounted) setState(() => _contentHits = const []);
+      }
+    });
   }
 
   /// Minggu 9 (owner): tarik layar dari atas → muat ulang katalog dari
@@ -188,7 +232,10 @@ class _LessonCatalogPageState extends State<LessonCatalogPage> {
                 // Pencarian materi — gaya sama seperti katalog tantangan.
                 TextField(
                   controller: _search,
-                  onChanged: (_) => setState(() {}),
+                  onChanged: (value) {
+                    setState(() {});
+                    _searchContent(value);
+                  },
                   textInputAction: TextInputAction.search,
                   decoration: InputDecoration(
                     hintText: l10n.materialSearchHint,
@@ -200,7 +247,8 @@ class _LessonCatalogPageState extends State<LessonCatalogPage> {
                             icon: const Icon(Icons.close_rounded, size: 18),
                             onPressed: () {
                               _search.clear();
-                              setState(() {});
+                              _searchDebounce?.cancel();
+                              setState(() => _contentHits = const []);
                             },
                           ),
                     border: OutlineInputBorder(
@@ -240,6 +288,42 @@ class _LessonCatalogPageState extends State<LessonCatalogPage> {
                   ),
                 ),
                 const SizedBox(height: AppSpacing.md),
+                // Minggu 13: hasil pencarian sampai ke ISI bab — ditampilkan
+                // di atas daftar modul supaya siswa melihat konteksnya.
+                if (_contentHits.isNotEmpty) ...[
+                  Text(
+                    l10n.materialSearchContentTitle,
+                    style: AppTypography.label.copyWith(
+                      color: p.text,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 13,
+                    ),
+                  ),
+                  const SizedBox(height: AppSpacing.sm),
+                  AppCard(
+                    padding: const EdgeInsets.symmetric(
+                      vertical: AppSpacing.sm,
+                    ),
+                    child: Column(
+                      children: [
+                        for (var i = 0; i < _contentHits.length; i++) ...[
+                          if (i > 0)
+                            Divider(
+                              height: 1,
+                              color: p.outline.withValues(alpha: 0.5),
+                            ),
+                          _ContentHitTile(
+                            hit: _contentHits[i],
+                            onTap: () => context.push(
+                              AppRoutes.lesson(_contentHits[i].lessonId),
+                            ),
+                          ),
+                        ],
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: AppSpacing.lg),
+                ],
                 if (visible.isEmpty)
                   Padding(
                     padding: const EdgeInsets.only(top: AppSpacing.xl),
@@ -266,6 +350,9 @@ class _LessonCatalogPageState extends State<LessonCatalogPage> {
                     _LessonTile(
                       topic: entry.key,
                       lessons: entry.value,
+                      isNew: NewMaterialWatcher.instance.isNew(
+                        entry.value.first.id,
+                      ),
                       onTap: () {
                         // Lesson dipilih → dashboard memuat seluruh bab-nya.
                         appShellFocusTopic.value = entry.key;
@@ -297,11 +384,15 @@ class _LessonTile extends StatelessWidget {
     required this.lessons,
     required this.onTap,
     this.onCertificate,
+    this.isNew = false,
   });
 
   final String topic;
   final List<LessonDetailData> lessons;
   final VoidCallback onTap;
+
+  /// Minggu 13: modul ini baru diterbitkan pengajar sejak terakhir dilihat.
+  final bool isNew;
 
   /// Minggu 12: aksi e-Sertifikat modul (aktif hanya bila seluruh bab tuntas).
   final VoidCallback? onCertificate;
@@ -378,11 +469,42 @@ class _LessonTile extends StatelessWidget {
                             const SizedBox(height: AppSpacing.xs),
                           AppProgressBar(value: pct, height: 6),
                           const SizedBox(height: AppSpacing.xs),
-                          Text(
-                            l10n.materialChaptersDone(done, lessons.length),
-                            style: AppTypography.caption.copyWith(
-                              color: p.textMuted,
-                            ),
+                          Row(
+                            children: [
+                              Text(
+                                l10n.materialChaptersDone(
+                                  done,
+                                  lessons.length,
+                                ),
+                                style: AppTypography.caption.copyWith(
+                                  color: p.textMuted,
+                                ),
+                              ),
+                              // Minggu 13: lencana "Baru" untuk modul yang
+                              // baru diterbitkan pengajar sejak katalog
+                              // terakhir dibuka.
+                              if (isNew) ...[
+                                const SizedBox(width: AppSpacing.sm),
+                                Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 8,
+                                    vertical: 2,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: p.accent.withValues(alpha: 0.22),
+                                    borderRadius: BorderRadius.circular(999),
+                                  ),
+                                  child: Text(
+                                    l10n.notifNewBadge,
+                                    style: AppTypography.caption.copyWith(
+                                      color: p.warningText,
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 10,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ],
                           ),
                         ],
                       ),
@@ -455,6 +577,71 @@ class _LessonTile extends StatelessWidget {
               ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+/// Hasil pencarian yang cocok karena ISI bab (Minggu 13), bukan hanya judul.
+class _ContentHitTile extends StatelessWidget {
+  const _ContentHitTile({required this.hit, required this.onTap});
+
+  final LessonSearchHit hit;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final p = context.palette;
+    final l10n = AppLocalizations.of(context);
+    return ListTile(
+      onTap: onTap,
+      contentPadding: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.md,
+        vertical: 2,
+      ),
+      leading: Container(
+        width: 34,
+        height: 34,
+        decoration: BoxDecoration(
+          color: p.surfaceAlt,
+          borderRadius: BorderRadius.circular(9),
+        ),
+        child: Icon(
+          hit.source == 'chapter' ? Icons.menu_book_outlined : Icons.search,
+          size: 17,
+          color: p.primary,
+        ),
+      ),
+      title: Text(
+        hit.lessonTitle,
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
+        style: AppTypography.label.copyWith(
+          color: p.text,
+          fontWeight: FontWeight.bold,
+          fontSize: 13,
+        ),
+      ),
+      subtitle: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            hit.topic,
+            style: AppTypography.caption.copyWith(color: p.primary),
+          ),
+          const SizedBox(height: 2),
+          Text(
+            hit.snippet.isEmpty ? l10n.materialSearchContentNoSnippet : hit.snippet,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+            style: AppTypography.caption.copyWith(color: p.textMuted),
+          ),
+        ],
+      ),
+      trailing: Icon(
+        Icons.arrow_forward_ios_rounded,
+        size: 13,
+        color: p.primary,
       ),
     );
   }

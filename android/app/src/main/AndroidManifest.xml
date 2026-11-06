@@ -1,10 +1,32 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
     <uses-permission android:name="android.permission.INTERNET"/>
+    <!-- Minggu 13: notifikasi HP (sertifikat, unduhan, pengingat, modul baru,
+         sesi). Android 13+ meminta izin runtime lewat NotificationService. -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
+    <!-- Pengingat harian memakai penjadwalan lokal agar tetap muncul setelah
+         perangkat dinyalakan ulang. -->
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
+    <uses-permission android:name="android.permission.VIBRATE"/>
 
     <application
         android:label="CodeLab AI"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
+        <!-- Penerima jadwal notifikasi (flutter_local_notifications): memasang
+             ulang pengingat harian setelah perangkat menyala kembali. -->
+        <receiver
+            android:name="com.dexterous.flutterlocalnotifications.ScheduledNotificationBootReceiver"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED"/>
+                <action android:name="android.intent.action.MY_PACKAGE_REPLACED"/>
+                <action android:name="android.intent.action.QUICKBOOT_POWERON"/>
+                <action android:name="com.htc.intent.action.QUICKBOOT_POWERON"/>
+            </intent-filter>
+        </receiver>
+        <receiver
+            android:name="com.dexterous.flutterlocalnotifications.ScheduledNotificationReceiver"
+            android:exported="false"/>
         <activity
             android:name=".MainActivity"
             android:exported="true"

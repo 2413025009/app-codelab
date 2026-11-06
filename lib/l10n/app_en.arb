@@ -44,6 +44,86 @@
   "settingsLanguageSubtitle": "Indonesian, English, or العربية",
   "settingsDarkMode": "Dark Mode",
   "settingsDarkModeSubtitle": "A darker theme that is easier on the eyes",
+  "settingsThemeMode": "Appearance Theme",
+  "settingsThemeModeSubtitle": "Choose light, dark, or follow your phone setting",
+  "settingsThemeLight": "Light",
+  "settingsThemeDark": "Dark",
+  "settingsThemeSystem": "Follow System",
+  "settingsNotifications": "Notifications",
+  "settingsNotificationsSubtitle": "Important updates without opening the app",
+  "settingsNotifySummaryAllOn": "All types enabled",
+  "settingsNotifySummaryOff": "Disabled",
+  "settingsNotifySummaryPartial": "{count} of 5 types enabled",
+  "@settingsNotifySummaryPartial": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "settingsNotificationsMaster": "Enable Notifications",
+  "settingsNotificationsMasterSubtitle": "Turn off to stop receiving all notifications",
+  "settingsNotifyCertificate": "Certificate Issued",
+  "settingsNotifyCertificateSubtitle": "When a module is completed or a challenge is passed",
+  "settingsNotifyDownload": "Certificate Download",
+  "settingsNotifyDownloadSubtitle": "When the e-Certificate PDF finishes downloading",
+  "settingsNotifyReminder": "Study Reminder",
+  "settingsNotifyReminderSubtitle": "Daily reminder and AI Tutor quota reset",
+  "settingsNotifyMaterial": "New Modules",
+  "settingsNotifyMaterialSubtitle": "When a teacher publishes a new module or chapter",
+  "settingsNotifySession": "Session Security",
+  "settingsNotifySessionSubtitle": "When the account signs in on another device",
+  "settingsNotifyTest": "Send Test Notification",
+  "settingsNotifyTestSubtitle": "Make sure notifications appear on this device",
+  "settingsNotifyTestSent": "Test notification sent.",
+  "settingsNotifyTestFailed": "The notification could not be sent. Check this app's notification permission.",
+  "settingsNotifyPermissionDenied": "Notification permission denied. Enable it in your phone settings.",
+  "notifCertificateTitle": "Certificate of Competency Issued",
+  "notifCertificateBody": "{topic} is complete. Your certificate is ready to download.",
+  "@notifCertificateBody": {
+    "placeholders": {
+      "topic": {
+        "type": "String"
+      }
+    }
+  },
+  "notifChallengeTitle": "Challenge Certificate Issued",
+  "notifChallengeBody": "{title} passed 100/100. Your challenge certificate is ready.",
+  "@notifChallengeBody": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "notifDownloadTitle": "Certificate Downloaded",
+  "notifDownloadBody": "The PDF {certId} was saved to this device.",
+  "@notifDownloadBody": {
+    "placeholders": {
+      "certId": {
+        "type": "String"
+      }
+    }
+  },
+  "notifReminderTitle": "Time to Study",
+  "notifReminderBody": "Your AI Tutor quota is back to 5/5 today.",
+  "notifMaterialTitle": "New Module from Your Teacher",
+  "notifMaterialBody": "{title} was just published. Open the catalog to see it.",
+  "@notifMaterialBody": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "notifSessionTitle": "Session Ended",
+  "notifSessionBody": "Your account signed in on another device. Sign in again to continue.",
+  "notifTestTitle": "Test Notification",
+  "notifTestBody": "CodeLab AI notifications work on this device.",
+  "notifNewBadge": "New",
+  "offlineBannerTitle": "You are offline. Check your internet connection.",
+  "materialSearchContentTitle": "Matched inside the lesson",
+  "materialSearchContentNoSnippet": "This word appears inside the lesson.",
   "settingsSfx": "App Sound Effects",
   "settingsSfxSubtitle": "Popup, notification, and quiz sounds",
   "settingsLabSfx": "Lab Sound Effects",
@@ -88,6 +168,8 @@
   "sandboxTooltip": "What can't you do in this sandbox?",
   "sandboxSheetTitle": "Python Sandbox Limits",
   "sandboxSheetSubtitle": "A note from your teacher before you start",
+  "sandboxLimitJudgeTitle": "Playground runs a different judge than challenges",
+  "sandboxLimitJudgeBody": "The Playground runs on your phone, while challenges are judged by the server with full Python. Code that works here may behave differently when submitted. If that happens, trust the result on the challenge page — that is the official score.",
   "sandboxIntro": "Before you start experimenting, listen to your teacher for a moment. This Python Sandbox is a deliberately limited practice space, not full Python. So you are not confused when something fails, here is what you cannot do here yet:",
   "sandboxLimitImportTitle": "Calling modules with import",
   "sandboxLimitImportBody": "The import command is not available in this sandbox. Libraries such as random, math, datetime, or packages from the internet cannot be used yet.",
@@ -367,7 +449,7 @@
   "certValidUntilLabel": "Valid until",
   "certPageOne": "Page 1 — Certificate of Completion",
   "certPageTwo": "Page 2 — Transcript & Achievements",
-  "certPdfHint": "The document opens in your browser so you can save or print it as a PDF.",
+  "certPdfHint": "Both pages download automatically as a single PDF file.",
   "certChapterCountInline": "{done}/{total} chapters done",
   "@certChapterCountInline": {
     "placeholders": {
@@ -381,6 +463,26 @@
   },
   "certPreviewTitle": "e-Certificate Preview",
   "certChallengeSectionTitle": "Coding Challenge Certificates",
+  "certCatalogTitle": "Certificate Catalog",
+  "certCatalogSubtitle": "Every module and challenge certificate you have completed.",
+  "certModuleSectionTitle": "Module Certificates",
+  "certDownloadPdf": "Download PDF",
+  "certDownloadFailed": "The PDF could not be downloaded. Check your connection and try again.",
+  "certReadyCount": "{count} certificates ready to download",
+  "@certReadyCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "certEmptyTitle": "No certificates yet",
+  "certEmptyBody": "Complete every chapter of a module or pass a coding challenge to earn a certificate.",
+  "certNotEligibleShort": "Not eligible",
+  "certOpenCatalog": "View All Certificates",
+  "certProfileSummaryBody": "Modules and challenges you have completed.",
+  "certTabFront": "Certificate",
+  "certTabBack": "Transcript",
   "certProgressLockedHint": "{percent}% complete — the certificate is issued automatically once every chapter is done.",
   "@certProgressLockedHint": {
     "placeholders": {

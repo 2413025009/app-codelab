@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../l10n/app_localizations.dart';
+import '../../../../core/widgets/offline_banner.dart';
 
 class TeacherShell extends StatelessWidget {
   const TeacherShell({super.key, required this.navigationShell});
@@ -17,7 +18,13 @@ class TeacherShell extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     return Scaffold(
-      body: navigationShell,
+      body: Column(
+        children: [
+          // Minggu 13: pita luring untuk area pengajar juga.
+          const OfflineBanner(),
+          Expanded(child: navigationShell),
+        ],
+      ),
       bottomNavigationBar: NavigationBar(
         selectedIndex: navigationShell.currentIndex,
         onDestinationSelected: (index) {

@@ -350,6 +350,14 @@ class ApiAuthRepository implements AuthRepository {
 
   @override
   Future<void> logout() async {
+    // Minggu 13: beri tahu server lebih dulu agar sesi benar-benar dicabut
+    // (token tidak tetap sah sampai kedaluwarsa). Kegagalan jaringan TIDAK
+    // boleh menahan pengguna keluar — token lokal tetap dibersihkan.
+    try {
+      await _client.dio.post<Map<String, dynamic>>('/auth/logout');
+    } catch (_) {
+      // Diabaikan dengan sengaja: logout lokal harus selalu berhasil.
+    }
     await TokenStore.clear();
   }
 
