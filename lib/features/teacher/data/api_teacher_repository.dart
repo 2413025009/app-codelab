@@ -156,13 +156,19 @@ class ApiTeacherRepository implements TeacherRepository {
   Future<Bab> createBab(
     String lessonId, {
     required String title,
+    String description = '',
     required int xpReward,
     required List<Map<String, dynamic>> slides,
   }) async {
     try {
       final res = await _dio.post<Map<String, dynamic>>(
         '/teacher/materis/$lessonId/babs',
-        data: {'title': title, 'xpReward': xpReward, 'slides': slides},
+        data: {
+          'title': title,
+          'description': description,
+          'xpReward': xpReward,
+          'slides': slides,
+        },
       );
       return _parseBab(res.data);
     } on DioException catch (e) {
@@ -186,13 +192,19 @@ class ApiTeacherRepository implements TeacherRepository {
   Future<Bab> updateBab(
     String babId, {
     required String title,
+    String description = '',
     required int xpReward,
     required List<Map<String, dynamic>> slides,
   }) async {
     try {
       final res = await _dio.patch<Map<String, dynamic>>(
         '/teacher/babs/$babId',
-        data: {'title': title, 'xpReward': xpReward, 'slides': slides},
+        data: {
+          'title': title,
+          'description': description,
+          'xpReward': xpReward,
+          'slides': slides,
+        },
       );
       return _parseBab(res.data);
     } on DioException catch (e) {
@@ -457,6 +469,7 @@ class ApiTeacherRepository implements TeacherRepository {
     return Bab(
       id: '${data['id'] ?? ''}',
       lessonId: '${data['lessonId'] ?? ''}',
+      description: data['description'] as String? ?? '',
       title: data['title'] as String? ?? '',
       orderIndex: data['orderIndex'] is int
           ? data['orderIndex'] as int

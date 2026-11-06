@@ -16,6 +16,7 @@ import '../../../../core/widgets/avatars.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../../../../l10n/l10n_ext.dart';
 import '../../../auth/presentation/cubit/auth_cubit.dart';
+import '../../../certificate/presentation/certificate_actions.dart';
 import '../../../class/presentation/widgets/class_status_card.dart';
 import '../../domain/dashboard_repository.dart';
 import '../cubit/dashboard_cubit.dart';
@@ -245,6 +246,13 @@ class _DashboardView extends StatelessWidget {
                         focusTopic: focusTopic,
                         onModuleTap: (m) => _openModule(context, m),
                         onOpenCatalog: () => context.push(AppRoutes.catalog),
+                        // Minggu 12: titik akhir peta = e-Sertifikat. Bila
+                        // modul aktif sudah tuntas, langsung buka sertifikatnya;
+                        // bila belum, tampil alasan + progres yang ramah.
+                        onCertificateTap: () => openModuleCertificate(
+                          context,
+                          _anchorModule(data.modules).topic,
+                        ),
                       ),
                     ),
                   const SizedBox(height: AppSpacing.lg),

@@ -100,7 +100,7 @@ abstract class AppLocalizations {
     Locale('id'),
   ];
 
-  /// Label tab bawah untuk beranda materi siswa.
+  /// Label tab bawah untuk beranda modul siswa.
   ///
   /// In id, this message translates to:
   /// **'Belajar'**
@@ -679,7 +679,7 @@ abstract class AppLocalizations {
   /// No description provided for @sandboxLimitOopBody.
   ///
   /// In id, this message translates to:
-  /// **'Tiga materi itu belum ada di mesin latihan ini. Untuk sekarang, fokus dulu ke variabel, percabangan, perulangan, list, dan fungsi.'**
+  /// **'Tiga modul itu belum ada di mesin latihan ini. Untuk sekarang, fokus dulu ke variabel, percabangan, perulangan, list, dan fungsi.'**
   String get sandboxLimitOopBody;
 
   /// No description provided for @sandboxLimitLimitsTitle.
@@ -745,7 +745,7 @@ abstract class AppLocalizations {
   /// No description provided for @dashStageLessons.
   ///
   /// In id, this message translates to:
-  /// **'Katalog materi terbaca'**
+  /// **'Katalog modul terbaca'**
   String get dashStageLessons;
 
   /// No description provided for @dashStageChallenges.
@@ -907,13 +907,13 @@ abstract class AppLocalizations {
   /// No description provided for @roadmapCatalogTitle.
   ///
   /// In id, this message translates to:
-  /// **'Katalog Materi'**
+  /// **'Katalog Modul'**
   String get roadmapCatalogTitle;
 
   /// No description provided for @roadmapCatalogSubtitle.
   ///
   /// In id, this message translates to:
-  /// **'Telusuri bab dari seluruh materi'**
+  /// **'Telusuri bab dari seluruh modul'**
   String get roadmapCatalogSubtitle;
 
   /// No description provided for @roadmapStartHere.
@@ -1723,7 +1723,7 @@ abstract class AppLocalizations {
   /// No description provided for @materialCatalogTitle.
   ///
   /// In id, this message translates to:
-  /// **'Katalog Materi'**
+  /// **'Katalog Modul'**
   String get materialCatalogTitle;
 
   /// No description provided for @materialFilterActive.
@@ -1747,13 +1747,13 @@ abstract class AppLocalizations {
   /// No description provided for @materialLoadFailed.
   ///
   /// In id, this message translates to:
-  /// **'Gagal memuat katalog materi.'**
+  /// **'Gagal memuat katalog modul.'**
   String get materialLoadFailed;
 
   /// No description provided for @materialSearchHint.
   ///
   /// In id, this message translates to:
-  /// **'Cari materi atau deskripsinya…'**
+  /// **'Cari modul atau deskripsinya…'**
   String get materialSearchHint;
 
   /// No description provided for @materialClearSearch.
@@ -1765,13 +1765,13 @@ abstract class AppLocalizations {
   /// No description provided for @materialNoMatch.
   ///
   /// In id, this message translates to:
-  /// **'Tidak ada materi yang cocok dengan pencarian atau filter.'**
+  /// **'Tidak ada modul yang cocok dengan pencarian atau filter.'**
   String get materialNoMatch;
 
   /// No description provided for @materialSwitchedSnack.
   ///
   /// In id, this message translates to:
-  /// **'Menampilkan materi {topic}. Peta belajar diperbarui.'**
+  /// **'Menampilkan modul {topic}. Peta belajar diperbarui.'**
   String materialSwitchedSnack(String topic);
 
   /// No description provided for @materialChaptersDone.
@@ -1825,7 +1825,7 @@ abstract class AppLocalizations {
   /// No description provided for @readerLoadFailed.
   ///
   /// In id, this message translates to:
-  /// **'Gagal memuat materi bab.'**
+  /// **'Gagal memuat modul bab.'**
   String get readerLoadFailed;
 
   /// No description provided for @readerTeacherPreviewBanner.
@@ -2059,25 +2059,25 @@ abstract class AppLocalizations {
   /// No description provided for @profileStatMaterialsDone.
   ///
   /// In id, this message translates to:
-  /// **'Materi Selesai'**
+  /// **'Modul Selesai'**
   String get profileStatMaterialsDone;
 
   /// No description provided for @profileMasteryMapTitle.
   ///
   /// In id, this message translates to:
-  /// **'Peta Penguasaan Materi'**
+  /// **'Peta Penguasaan Modul'**
   String get profileMasteryMapTitle;
 
   /// No description provided for @profileMaterialsUnavailable.
   ///
   /// In id, this message translates to:
-  /// **'Daftar materi belum tersedia dari server. Coba lagi.'**
+  /// **'Daftar modul belum tersedia dari server. Coba lagi.'**
   String get profileMaterialsUnavailable;
 
   /// No description provided for @profileMaterialProgressTitle.
   ///
   /// In id, this message translates to:
-  /// **'Progres Materi'**
+  /// **'Progres Modul'**
   String get profileMaterialProgressTitle;
 
   /// No description provided for @profileChaptersInline.
@@ -2163,6 +2163,132 @@ abstract class AppLocalizations {
   /// In id, this message translates to:
   /// **'Fitur unduh sertifikat segera hadir, ya!'**
   String get profileDownloadSoon;
+
+  /// No description provided for @certScreenTitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Sertifikat Kompetensi'**
+  String get certScreenTitle;
+
+  /// No description provided for @certLoading.
+  ///
+  /// In id, this message translates to:
+  /// **'Menyiapkan sertifikat…'**
+  String get certLoading;
+
+  /// No description provided for @certLoadFailed.
+  ///
+  /// In id, this message translates to:
+  /// **'Sertifikat belum bisa dimuat. Periksa koneksi lalu coba lagi.'**
+  String get certLoadFailed;
+
+  /// No description provided for @certOpenPreview.
+  ///
+  /// In id, this message translates to:
+  /// **'Lihat Sertifikat'**
+  String get certOpenPreview;
+
+  /// No description provided for @certOpenWeb.
+  ///
+  /// In id, this message translates to:
+  /// **'Buka Halaman Verifikasi'**
+  String get certOpenWeb;
+
+  /// No description provided for @certShareAction.
+  ///
+  /// In id, this message translates to:
+  /// **'Bagikan Sertifikat'**
+  String get certShareAction;
+
+  /// No description provided for @certShareCopied.
+  ///
+  /// In id, this message translates to:
+  /// **'Tautan verifikasi berhasil disalin.'**
+  String get certShareCopied;
+
+  /// No description provided for @certShareFailed.
+  ///
+  /// In id, this message translates to:
+  /// **'Tautan belum bisa disalin. Coba lagi.'**
+  String get certShareFailed;
+
+  /// No description provided for @certNotEligible.
+  ///
+  /// In id, this message translates to:
+  /// **'Selesaikan seluruh bab modul ini dulu, ya.'**
+  String get certNotEligible;
+
+  /// No description provided for @certEligibleNow.
+  ///
+  /// In id, this message translates to:
+  /// **'Sertifikat sudah siap diterbitkan.'**
+  String get certEligibleNow;
+
+  /// No description provided for @certIdLabel.
+  ///
+  /// In id, this message translates to:
+  /// **'ID Sertifikat'**
+  String get certIdLabel;
+
+  /// No description provided for @certGivenTo.
+  ///
+  /// In id, this message translates to:
+  /// **'Diberikan kepada'**
+  String get certGivenTo;
+
+  /// No description provided for @certIssuedLabel.
+  ///
+  /// In id, this message translates to:
+  /// **'Diterbitkan'**
+  String get certIssuedLabel;
+
+  /// No description provided for @certValidUntilLabel.
+  ///
+  /// In id, this message translates to:
+  /// **'Berlaku hingga'**
+  String get certValidUntilLabel;
+
+  /// No description provided for @certPageOne.
+  ///
+  /// In id, this message translates to:
+  /// **'Halaman 1 — Piagam Kelulusan'**
+  String get certPageOne;
+
+  /// No description provided for @certPageTwo.
+  ///
+  /// In id, this message translates to:
+  /// **'Halaman 2 — Transkrip & Capaian'**
+  String get certPageTwo;
+
+  /// No description provided for @certPdfHint.
+  ///
+  /// In id, this message translates to:
+  /// **'Dokumen dibuka di browser agar bisa disimpan atau dicetak sebagai PDF.'**
+  String get certPdfHint;
+
+  /// No description provided for @certChapterCountInline.
+  ///
+  /// In id, this message translates to:
+  /// **'{done}/{total} bab tuntas'**
+  String certChapterCountInline(int done, int total);
+
+  /// No description provided for @certPreviewTitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Pratinjau e-Sertifikat'**
+  String get certPreviewTitle;
+
+  /// No description provided for @certChallengeSectionTitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Sertifikat Tantangan Koding'**
+  String get certChallengeSectionTitle;
+
+  /// No description provided for @certProgressLockedHint.
+  ///
+  /// In id, this message translates to:
+  /// **'{percent}% selesai — sertifikat terbit otomatis setelah semua bab tuntas.'**
+  String certProgressLockedHint(int percent);
 
   /// No description provided for @changePassOldLabel.
   ///
@@ -3295,13 +3421,13 @@ abstract class AppLocalizations {
   /// No description provided for @slideQuizErrorMsg.
   ///
   /// In id, this message translates to:
-  /// **'Coba ingat kembali prinsip dasar materi ini.'**
+  /// **'Coba ingat kembali prinsip dasar modul ini.'**
   String get slideQuizErrorMsg;
 
   /// No description provided for @slideContentUnavailable.
   ///
   /// In id, this message translates to:
-  /// **'Materi belum tersedia saat ini.'**
+  /// **'Modul belum tersedia saat ini.'**
   String get slideContentUnavailable;
 
   /// No description provided for @tutorHintTabConcept.
@@ -3451,7 +3577,7 @@ abstract class AppLocalizations {
   /// No description provided for @tNavMaterials.
   ///
   /// In id, this message translates to:
-  /// **'Materi'**
+  /// **'Modul'**
   String get tNavMaterials;
 
   /// No description provided for @tNavAnalytics.
@@ -3475,7 +3601,7 @@ abstract class AppLocalizations {
   /// No description provided for @tPickerSubtitle.
   ///
   /// In id, this message translates to:
-  /// **'Pilih kelas untuk melihat peringkat materi dan latihan siswa, lalu kelola anggotanya.'**
+  /// **'Pilih kelas untuk melihat peringkat modul dan latihan siswa, lalu kelola anggotanya.'**
   String get tPickerSubtitle;
 
   /// No description provided for @tPickerEmptyTitle.
@@ -3889,7 +4015,7 @@ abstract class AppLocalizations {
   /// No description provided for @tProfileStatMaterials.
   ///
   /// In id, this message translates to:
-  /// **'Materi Ajar'**
+  /// **'Modul Ajar'**
   String get tProfileStatMaterials;
 
   /// No description provided for @tProfileClassesTitle.
@@ -3913,13 +4039,13 @@ abstract class AppLocalizations {
   /// No description provided for @tProfileNoMaterials.
   ///
   /// In id, this message translates to:
-  /// **'Belum ada materi yang dibuat.'**
+  /// **'Belum ada modul yang dibuat.'**
   String get tProfileNoMaterials;
 
   /// No description provided for @tProfileMaterialCount.
   ///
   /// In id, this message translates to:
-  /// **'{count} Materi'**
+  /// **'{count} Modul'**
   String tProfileMaterialCount(int count);
 
   /// No description provided for @tProfileMaterialMeta.
@@ -3955,7 +4081,7 @@ abstract class AppLocalizations {
   /// No description provided for @tStudioActionHint.
   ///
   /// In id, this message translates to:
-  /// **'Pilih tindakan untuk materi ini'**
+  /// **'Pilih tindakan untuk modul ini'**
   String get tStudioActionHint;
 
   /// No description provided for @tStudioEditSyllabus.
@@ -3967,7 +4093,7 @@ abstract class AppLocalizations {
   /// No description provided for @tStudioEditInfo.
   ///
   /// In id, this message translates to:
-  /// **'Edit Info Materi'**
+  /// **'Edit Info Modul'**
   String get tStudioEditInfo;
 
   /// No description provided for @tStudioDuplicate.
@@ -3991,25 +4117,25 @@ abstract class AppLocalizations {
   /// No description provided for @tStudioDeleteForever.
   ///
   /// In id, this message translates to:
-  /// **'Hapus Materi Selamanya'**
+  /// **'Hapus Modul Selamanya'**
   String get tStudioDeleteForever;
 
   /// No description provided for @tStudioDeleteTitle.
   ///
   /// In id, this message translates to:
-  /// **'Hapus Materi Ini?'**
+  /// **'Hapus Modul Ini?'**
   String get tStudioDeleteTitle;
 
   /// No description provided for @tStudioDeleteBody.
   ///
   /// In id, this message translates to:
-  /// **'Materi \"{title}\" akan dihapus dari Studio. Riwayat belajar siswa yang sudah tuntas tetap tersimpan.'**
+  /// **'Modul \"{title}\" akan dihapus dari Studio. Riwayat belajar siswa yang sudah tuntas tetap tersimpan.'**
   String tStudioDeleteBody(String title);
 
   /// No description provided for @tStudioTitle.
   ///
   /// In id, this message translates to:
-  /// **'Studio Materi'**
+  /// **'Studio Modul'**
   String get tStudioTitle;
 
   /// No description provided for @tStudioSettingsTooltip.
@@ -4021,7 +4147,7 @@ abstract class AppLocalizations {
   /// No description provided for @tStudioMyMaterials.
   ///
   /// In id, this message translates to:
-  /// **'Materi Saya'**
+  /// **'Modul Saya'**
   String get tStudioMyMaterials;
 
   /// No description provided for @tStudioSubtitle.
@@ -4033,7 +4159,7 @@ abstract class AppLocalizations {
   /// No description provided for @tStudioAdd.
   ///
   /// In id, this message translates to:
-  /// **'Tambah Materi'**
+  /// **'Tambah Modul'**
   String get tStudioAdd;
 
   /// No description provided for @tStudioBannerTitle.
@@ -4045,7 +4171,7 @@ abstract class AppLocalizations {
   /// No description provided for @tStudioBanner.
   ///
   /// In id, this message translates to:
-  /// **'{published} materi aktif terbit untuk {students} siswa di {school}.'**
+  /// **'{published} modul aktif terbit untuk {students} siswa di {school}.'**
   String tStudioBanner(int published, int students, String school);
 
   /// No description provided for @tStudioYourSchool.
@@ -4075,37 +4201,37 @@ abstract class AppLocalizations {
   /// No description provided for @tStudioEmptyTitle.
   ///
   /// In id, this message translates to:
-  /// **'Belum Ada Materi'**
+  /// **'Belum Ada Modul'**
   String get tStudioEmptyTitle;
 
   /// No description provided for @tStudioEmptyDraftTitle.
   ///
   /// In id, this message translates to:
-  /// **'Tidak Ada Materi Draft'**
+  /// **'Tidak Ada Modul Draft'**
   String get tStudioEmptyDraftTitle;
 
   /// No description provided for @tStudioEmptyPublishedTitle.
   ///
   /// In id, this message translates to:
-  /// **'Tidak Ada Materi Terbit'**
+  /// **'Tidak Ada Modul Terbit'**
   String get tStudioEmptyPublishedTitle;
 
   /// No description provided for @tStudioEmptyBody.
   ///
   /// In id, this message translates to:
-  /// **'Mulai bangun kurikulum coding untuk siswamu. Klik tombol Tambah Materi di atas.'**
+  /// **'Mulai bangun kurikulum coding untuk siswamu. Klik tombol Tambah Modul di atas.'**
   String get tStudioEmptyBody;
 
   /// No description provided for @tStudioEmptyFilterBody.
   ///
   /// In id, this message translates to:
-  /// **'Ganti filter atau tambahkan materi baru untuk kategori ini.'**
+  /// **'Ganti filter atau tambahkan modul baru untuk kategori ini.'**
   String get tStudioEmptyFilterBody;
 
   /// No description provided for @tStudioCreateNew.
   ///
   /// In id, this message translates to:
-  /// **'Buat Materi Baru'**
+  /// **'Buat Modul Baru'**
   String get tStudioCreateNew;
 
   /// No description provided for @tStudioBabCount.
@@ -4129,7 +4255,7 @@ abstract class AppLocalizations {
   /// No description provided for @tBabDeleteBody.
   ///
   /// In id, this message translates to:
-  /// **'Bab \"{title}\" akan dihapus dari daftar materi. Riwayat belajar siswa yang sudah tercatat tetap tersimpan.'**
+  /// **'Bab \"{title}\" akan dihapus dari daftar modul. Riwayat belajar siswa yang sudah tercatat tetap tersimpan.'**
   String tBabDeleteBody(String title);
 
   /// No description provided for @tBabDuplicateTitle.
@@ -4165,7 +4291,7 @@ abstract class AppLocalizations {
   /// No description provided for @tBabTopicFallback.
   ///
   /// In id, this message translates to:
-  /// **'Materi Studio'**
+  /// **'Modul Studio'**
   String get tBabTopicFallback;
 
   /// No description provided for @tBabTitleFallback.
@@ -4195,7 +4321,7 @@ abstract class AppLocalizations {
   /// No description provided for @tBabDraftHint.
   ///
   /// In id, this message translates to:
-  /// **'Materi berstatus Draft. Siswa belum dapat melihat bab-bab ini.'**
+  /// **'Modul berstatus Draft. Siswa belum dapat melihat bab-bab ini.'**
   String get tBabDraftHint;
 
   /// No description provided for @tBabListTitle.
@@ -4219,7 +4345,7 @@ abstract class AppLocalizations {
   /// No description provided for @tBabEmptyBody.
   ///
   /// In id, this message translates to:
-  /// **'Materi ini belum memiliki bab pembelajaran. Tambahkan bab pertama untuk mulai menyusun slide kuis dan teori.'**
+  /// **'Modul ini belum memiliki bab pembelajaran. Tambahkan bab pertama untuk mulai menyusun slide kuis dan teori.'**
   String get tBabEmptyBody;
 
   /// No description provided for @tBabAddFirst.
@@ -4297,37 +4423,37 @@ abstract class AppLocalizations {
   /// No description provided for @tFormNotFound.
   ///
   /// In id, this message translates to:
-  /// **'Materi tidak ditemukan. Kembali ke Studio Materi untuk memilih materi lain.'**
+  /// **'Modul tidak ditemukan. Kembali ke Studio Modul untuk memilih modul lain.'**
   String get tFormNotFound;
 
   /// No description provided for @tFormTitleRequired.
   ///
   /// In id, this message translates to:
-  /// **'Nama materi wajib diisi.'**
+  /// **'Nama modul wajib diisi.'**
   String get tFormTitleRequired;
 
   /// No description provided for @tFormTitleDuplicate.
   ///
   /// In id, this message translates to:
-  /// **'Nama materi sudah dipakai. Gunakan nama lain agar siswa tidak bingung.'**
+  /// **'Nama modul sudah dipakai. Gunakan nama lain agar siswa tidak bingung.'**
   String get tFormTitleDuplicate;
 
   /// No description provided for @tFormUpdated.
   ///
   /// In id, this message translates to:
-  /// **'Materi berhasil diperbarui.'**
+  /// **'Modul berhasil diperbarui.'**
   String get tFormUpdated;
 
   /// No description provided for @tFormSavedDraft.
   ///
   /// In id, this message translates to:
-  /// **'Materi tersimpan sebagai draft.'**
+  /// **'Modul tersimpan sebagai draft.'**
   String get tFormSavedDraft;
 
   /// No description provided for @tFormSaveFailed.
   ///
   /// In id, this message translates to:
-  /// **'Materi belum tersimpan. Periksa koneksi lalu coba lagi.'**
+  /// **'Modul belum tersimpan. Periksa koneksi lalu coba lagi.'**
   String get tFormSaveFailed;
 
   /// No description provided for @tFormUnsavedTitle.
@@ -4339,7 +4465,7 @@ abstract class AppLocalizations {
   /// No description provided for @tFormUnsavedBody.
   ///
   /// In id, this message translates to:
-  /// **'Ada revisi pada form materi ini. Simpan perubahan sebagai draft terlebih dahulu atau abaikan?'**
+  /// **'Ada revisi pada form modul ini. Simpan perubahan sebagai draft terlebih dahulu atau abaikan?'**
   String get tFormUnsavedBody;
 
   /// No description provided for @tFormSaveExit.
@@ -4363,25 +4489,25 @@ abstract class AppLocalizations {
   /// No description provided for @tFormEdit.
   ///
   /// In id, this message translates to:
-  /// **'Edit Materi'**
+  /// **'Edit Modul'**
   String get tFormEdit;
 
   /// No description provided for @tFormLoadFailed.
   ///
   /// In id, this message translates to:
-  /// **'Materi Tidak Dapat Dimuat'**
+  /// **'Modul Tidak Dapat Dimuat'**
   String get tFormLoadFailed;
 
   /// No description provided for @tFormOpenStudio.
   ///
   /// In id, this message translates to:
-  /// **'Buka Studio Materi'**
+  /// **'Buka Studio Modul'**
   String get tFormOpenStudio;
 
   /// No description provided for @tFormAdd.
   ///
   /// In id, this message translates to:
-  /// **'Tambah Materi Baru'**
+  /// **'Tambah Modul Baru'**
   String get tFormAdd;
 
   /// No description provided for @tFormModeEdit.
@@ -4393,19 +4519,19 @@ abstract class AppLocalizations {
   /// No description provided for @tFormNewBadge.
   ///
   /// In id, this message translates to:
-  /// **'Materi Baru'**
+  /// **'Modul Baru'**
   String get tFormNewBadge;
 
   /// No description provided for @tFormEditHeading.
   ///
   /// In id, this message translates to:
-  /// **'Ubah Pengaturan Materi'**
+  /// **'Ubah Pengaturan Modul'**
   String get tFormEditHeading;
 
   /// No description provided for @tFormAddHeading.
   ///
   /// In id, this message translates to:
-  /// **'Konfigurasi Materi Baru'**
+  /// **'Konfigurasi Modul Baru'**
   String get tFormAddHeading;
 
   /// No description provided for @tFormSubtitle.
@@ -4417,7 +4543,7 @@ abstract class AppLocalizations {
   /// No description provided for @tFormFieldName.
   ///
   /// In id, this message translates to:
-  /// **'Nama Materi *'**
+  /// **'Nama Modul *'**
   String get tFormFieldName;
 
   /// No description provided for @tFormExampleName.
@@ -4435,13 +4561,13 @@ abstract class AppLocalizations {
   /// No description provided for @tFormDescHint.
   ///
   /// In id, this message translates to:
-  /// **'Jelaskan capaian materi dalam 2-3 kalimat ringkas...'**
+  /// **'Jelaskan capaian modul dalam 2-3 kalimat ringkas...'**
   String get tFormDescHint;
 
   /// No description provided for @tFormFieldIcon.
   ///
   /// In id, this message translates to:
-  /// **'Kode Ikon Materi *'**
+  /// **'Kode Ikon Modul *'**
   String get tFormFieldIcon;
 
   /// No description provided for @tFormIconHint.
@@ -4471,7 +4597,7 @@ abstract class AppLocalizations {
   /// No description provided for @tFormDraftNotice.
   ///
   /// In id, this message translates to:
-  /// **'Materi baru disimpan sebagai Draft. Materi hanya terlihat oleh siswa setelah kamu menekan tombol \"Terbitkan\".'**
+  /// **'Modul baru disimpan sebagai Draft. Modul hanya terlihat oleh siswa setelah kamu menekan tombol \"Terbitkan\".'**
   String get tFormDraftNotice;
 
   /// No description provided for @tFormSaveDraft.
@@ -4777,7 +4903,7 @@ abstract class AppLocalizations {
   /// No description provided for @tSlideFieldSummary.
   ///
   /// In id, this message translates to:
-  /// **'Rangkuman materi'**
+  /// **'Rangkuman modul'**
   String get tSlideFieldSummary;
 
   /// No description provided for @tSlideFieldMasteredConcepts.
@@ -4789,7 +4915,7 @@ abstract class AppLocalizations {
   /// No description provided for @tSlideFieldTheoryTitle.
   ///
   /// In id, this message translates to:
-  /// **'Judul materi teori'**
+  /// **'Judul modul teori'**
   String get tSlideFieldTheoryTitle;
 
   /// No description provided for @tSlideFieldTheoryContent.
@@ -5119,7 +5245,7 @@ abstract class AppLocalizations {
   /// No description provided for @tBabSheetDescTheory.
   ///
   /// In id, this message translates to:
-  /// **'Teks penjelasan konsep materi & contoh kode visual.'**
+  /// **'Teks penjelasan konsep modul & contoh kode visual.'**
   String get tBabSheetDescTheory;
 
   /// No description provided for @tBabSheetDescTap.
@@ -5353,7 +5479,7 @@ abstract class AppLocalizations {
   /// No description provided for @tAnalyticsHintCompleted.
   ///
   /// In id, this message translates to:
-  /// **'Materi Tuntas = siswa yang sudah menuntaskan minimal satu materi{suffix}, diurutkan dari materi tuntas terbanyak.'**
+  /// **'Modul Tuntas = siswa yang sudah menuntaskan minimal satu modul{suffix}, diurutkan dari modul tuntas terbanyak.'**
   String tAnalyticsHintCompleted(String suffix);
 
   /// No description provided for @tAnalyticsPracticeRegular.
@@ -5383,7 +5509,7 @@ abstract class AppLocalizations {
   /// No description provided for @tAnalyticsNotStartedMaterial.
   ///
   /// In id, this message translates to:
-  /// **'belum menuntaskan satu materi pun'**
+  /// **'belum menuntaskan satu modul pun'**
   String get tAnalyticsNotStartedMaterial;
 
   /// No description provided for @tAnalyticsNotStartedPractice.
@@ -5395,7 +5521,7 @@ abstract class AppLocalizations {
   /// No description provided for @tAnalyticsNotStartedBoth.
   ///
   /// In id, this message translates to:
-  /// **'belum menuntaskan materi dan belum menyelesaikan latihan'**
+  /// **'belum menuntaskan modul dan belum menyelesaikan latihan'**
   String get tAnalyticsNotStartedBoth;
 
   /// No description provided for @tAnalyticsHintNotStarted.
@@ -5407,25 +5533,25 @@ abstract class AppLocalizations {
   /// No description provided for @tAnalyticsHintAll.
   ///
   /// In id, this message translates to:
-  /// **'Semua = seluruh anggota kelas{suffix}, diurutkan dari materi tuntas terbanyak lalu latihan lulus.'**
+  /// **'Semua = seluruh anggota kelas{suffix}, diurutkan dari modul tuntas terbanyak lalu latihan lulus.'**
   String tAnalyticsHintAll(String suffix);
 
   /// No description provided for @tAnalyticsFilterByMaterial.
   ///
   /// In id, this message translates to:
-  /// **'Saring Daftar Siswa per Materi'**
+  /// **'Saring Daftar Siswa per Modul'**
   String get tAnalyticsFilterByMaterial;
 
   /// No description provided for @tAnalyticsFilterByMaterialHint.
   ///
   /// In id, this message translates to:
-  /// **'Angka di tiap tombol = jumlah siswa yang sudah menuntaskan materi itu.'**
+  /// **'Angka di tiap tombol = jumlah siswa yang sudah menuntaskan modul itu.'**
   String get tAnalyticsFilterByMaterialHint;
 
   /// No description provided for @tAnalyticsFilterAllMaterials.
   ///
   /// In id, this message translates to:
-  /// **'Semua Materi ({count})'**
+  /// **'Semua Modul ({count})'**
   String tAnalyticsFilterAllMaterials(int count);
 
   /// No description provided for @tAnalyticsFilterMaterialCount.
@@ -5443,7 +5569,7 @@ abstract class AppLocalizations {
   /// No description provided for @tAnalyticsTrackBasisBody.
   ///
   /// In id, this message translates to:
-  /// **'Persentase tiap track = rata-rata progress_percent seluruh siswa kelas pada SEMUA materi resmi (kurikulum bawaan) di track itu.\n\n• Setiap pasangan siswa × materi dihitung satu baris, termasuk materi yang belum pernah dibuka (dianggap 0%).\n• Nilai 100% berarti seluruh siswa kelas sudah menuntaskan seluruh materi di track tersebut.\n• Materi buatan guru tidak dihitung (hanya kurikulum resmi).\n• Angka ini mengukur ketuntasan materi, bukan nilai latihan.'**
+  /// **'Persentase tiap track = rata-rata progress_percent seluruh siswa kelas pada SEMUA modul resmi (kurikulum bawaan) di track itu.\n\n• Setiap pasangan siswa × modul dihitung satu baris, termasuk modul yang belum pernah dibuka (dianggap 0%).\n• Nilai 100% berarti seluruh siswa kelas sudah menuntaskan seluruh modul di track tersebut.\n• Modul buatan guru tidak dihitung (hanya kurikulum resmi).\n• Angka ini mengukur ketuntasan modul, bukan nilai latihan.'**
   String get tAnalyticsTrackBasisBody;
 
   /// No description provided for @tAnalyticsGotIt.
@@ -5527,13 +5653,13 @@ abstract class AppLocalizations {
   /// No description provided for @tAnalyticsTrackTooltip.
   ///
   /// In id, this message translates to:
-  /// **'Rata-rata progress semua siswa kelas pada semua materi resmi di track ini (materi yang belum dibuka = 0%).'**
+  /// **'Rata-rata progress semua siswa kelas pada semua modul resmi di track ini (modul yang belum dibuka = 0%).'**
   String get tAnalyticsTrackTooltip;
 
   /// No description provided for @tAnalyticsTrackSubtitle.
   ///
   /// In id, this message translates to:
-  /// **'Rata-rata ketuntasan seluruh siswa kelas pada semua materi resmi track tersebut.'**
+  /// **'Rata-rata ketuntasan seluruh siswa kelas pada semua modul resmi track tersebut.'**
   String get tAnalyticsTrackSubtitle;
 
   /// No description provided for @tAnalyticsTrackEmpty.
@@ -5581,19 +5707,19 @@ abstract class AppLocalizations {
   /// No description provided for @tAnalyticsRankingHint.
   ///
   /// In id, this message translates to:
-  /// **'Peringkat hanya menampilkan maksimal {max} siswa dengan materi/latihan terbanyak. Semua siswa tetap tampil lengkap di bagian Daftar Siswa.'**
+  /// **'Peringkat hanya menampilkan maksimal {max} siswa dengan modul/latihan terbanyak. Semua siswa tetap tampil lengkap di bagian Daftar Siswa.'**
   String tAnalyticsRankingHint(int max);
 
   /// No description provided for @tAnalyticsRankMaterial.
   ///
   /// In id, this message translates to:
-  /// **'Materi'**
+  /// **'Modul'**
   String get tAnalyticsRankMaterial;
 
   /// No description provided for @tAnalyticsRankMaterialSub.
   ///
   /// In id, this message translates to:
-  /// **'Materi tuntas'**
+  /// **'Modul tuntas'**
   String get tAnalyticsRankMaterialSub;
 
   /// No description provided for @tAnalyticsRankPractice.
@@ -5623,7 +5749,7 @@ abstract class AppLocalizations {
   /// No description provided for @tAnalyticsFilterCompletedCount.
   ///
   /// In id, this message translates to:
-  /// **'Materi Tuntas ({count})'**
+  /// **'Modul Tuntas ({count})'**
   String tAnalyticsFilterCompletedCount(int count);
 
   /// No description provided for @tAnalyticsFilterPractice.
@@ -5653,13 +5779,13 @@ abstract class AppLocalizations {
   /// No description provided for @tAnalyticsNotStartedAll.
   ///
   /// In id, this message translates to:
-  /// **'Materi & Latihan'**
+  /// **'Modul & Latihan'**
   String get tAnalyticsNotStartedAll;
 
   /// No description provided for @tAnalyticsNotStartedMaterialLabel.
   ///
   /// In id, this message translates to:
-  /// **'Belum Kerjakan Materi'**
+  /// **'Belum Kerjakan Modul'**
   String get tAnalyticsNotStartedMaterialLabel;
 
   /// No description provided for @tAnalyticsNotStartedPracticeLabel.
@@ -5683,13 +5809,13 @@ abstract class AppLocalizations {
   /// No description provided for @tAnalyticsRowPracticeDetail.
   ///
   /// In id, this message translates to:
-  /// **'{materials} materi tuntas • {regular} latihan biasa • {mini} mini proyek'**
+  /// **'{materials} modul tuntas • {regular} latihan biasa • {mini} mini proyek'**
   String tAnalyticsRowPracticeDetail(int materials, int regular, int mini);
 
   /// No description provided for @tAnalyticsRowDetail.
   ///
   /// In id, this message translates to:
-  /// **'{materials} materi tuntas • {practice} latihan lulus'**
+  /// **'{materials} modul tuntas • {practice} latihan lulus'**
   String tAnalyticsRowDetail(int materials, int practice);
 
   /// No description provided for @tAnalyticsXp.
@@ -5713,7 +5839,7 @@ abstract class AppLocalizations {
   /// No description provided for @tSlideFormHelpTheoryContent.
   ///
   /// In id, this message translates to:
-  /// **'Cara menulis isi materi:\n- Pisahkan paragraf dengan satu baris kosong.\n- Baris yang diawali \"- \" atau \"* \" otomatis jadi butir daftar.\n- Selain itu teks ditampilkan apa adanya: **tebal**, # judul, tautan, dan `kode` tidak diformat.\n\nContoh:\nHTML adalah bahasa penanda untuk menyusun halaman web.\n\n- Tag dibuka lalu ditutup.\n- Atribut menempel pada tag pembuka.'**
+  /// **'Cara menulis isi modul:\n- Pisahkan paragraf dengan satu baris kosong.\n- Baris yang diawali \"- \" atau \"* \" otomatis jadi butir daftar.\n- Selain itu teks ditampilkan apa adanya: **tebal**, # judul, tautan, dan `kode` tidak diformat.\n\nContoh:\nHTML adalah bahasa penanda untuk menyusun halaman web.\n\n- Tag dibuka lalu ditutup.\n- Atribut menempel pada tag pembuka.'**
   String get tSlideFormHelpTheoryContent;
 
   /// No description provided for @tSlideFormHelpCodeFileSample.
@@ -6163,7 +6289,7 @@ abstract class AppLocalizations {
   /// No description provided for @tPreviewPromptTheory.
   ///
   /// In id, this message translates to:
-  /// **'Materi Pembuka & Pengenalan Logika'**
+  /// **'Modul Pembuka & Pengenalan Logika'**
   String get tPreviewPromptTheory;
 
   /// No description provided for @tPreviewFeedbackTheory.
@@ -6301,13 +6427,13 @@ abstract class AppLocalizations {
   /// No description provided for @tPreviewBenefitQuiz.
   ///
   /// In id, this message translates to:
-  /// **'Mengukur daya serap materi secara obyektif dan cepat di akhir sesi pembahasan.'**
+  /// **'Mengukur daya serap modul secara obyektif dan cepat di akhir sesi pembahasan.'**
   String get tPreviewBenefitQuiz;
 
   /// No description provided for @tPreviewSubtitleOutro.
   ///
   /// In id, this message translates to:
-  /// **'Slide penutup bab dengan rekap materi yang dikuasai dan klaim hadiah.'**
+  /// **'Slide penutup bab dengan rekap modul yang dikuasai dan klaim hadiah.'**
   String get tPreviewSubtitleOutro;
 
   /// No description provided for @tPreviewTechOutro.
@@ -6331,7 +6457,7 @@ abstract class AppLocalizations {
   /// No description provided for @tPreviewBenefitOutro.
   ///
   /// In id, this message translates to:
-  /// **'Memberikan kepuasan pencapaian (gamification) dan merangkum poin-poin penting materi.'**
+  /// **'Memberikan kepuasan pencapaian (gamification) dan merangkum poin-poin penting modul.'**
   String get tPreviewBenefitOutro;
 
   /// No description provided for @tSettingsAvatarTooBig.
@@ -6403,7 +6529,7 @@ abstract class AppLocalizations {
   /// No description provided for @tTeacherErrInvalidLesson.
   ///
   /// In id, this message translates to:
-  /// **'Format data materi tidak valid.'**
+  /// **'Format data modul tidak valid.'**
   String get tTeacherErrInvalidLesson;
 
   /// No description provided for @tTeacherErrInvalidBab.
@@ -6445,31 +6571,31 @@ abstract class AppLocalizations {
   /// No description provided for @tCubitLessonCreated.
   ///
   /// In id, this message translates to:
-  /// **'Materi baru berhasil dibuat.'**
+  /// **'Modul baru berhasil dibuat.'**
   String get tCubitLessonCreated;
 
   /// No description provided for @tCubitLessonPublished.
   ///
   /// In id, this message translates to:
-  /// **'Materi berhasil diterbitkan.'**
+  /// **'Modul berhasil diterbitkan.'**
   String get tCubitLessonPublished;
 
   /// No description provided for @tCubitLessonDrafted.
   ///
   /// In id, this message translates to:
-  /// **'Materi dikembalikan ke draft.'**
+  /// **'Modul dikembalikan ke draft.'**
   String get tCubitLessonDrafted;
 
   /// No description provided for @tCubitLessonDeleted.
   ///
   /// In id, this message translates to:
-  /// **'Materi berhasil dihapus.'**
+  /// **'Modul berhasil dihapus.'**
   String get tCubitLessonDeleted;
 
   /// No description provided for @tCubitLessonDuplicated.
   ///
   /// In id, this message translates to:
-  /// **'Materi berhasil diduplikasi.'**
+  /// **'Modul berhasil diduplikasi.'**
   String get tCubitLessonDuplicated;
 
   /// No description provided for @tCubitBabDuplicated.
@@ -6697,7 +6823,7 @@ abstract class AppLocalizations {
   /// No description provided for @tTemplateDescTheory.
   ///
   /// In id, this message translates to:
-  /// **'Teks penjelasan konsep materi dan contoh kode.'**
+  /// **'Teks penjelasan konsep modul dan contoh kode.'**
   String get tTemplateDescTheory;
 
   /// No description provided for @tTemplateTitleTapToFill.
@@ -6781,19 +6907,19 @@ abstract class AppLocalizations {
   /// No description provided for @tTemplateSummaryOutro.
   ///
   /// In id, this message translates to:
-  /// **'Hebat! Kamu telah menuntaskan materi pada bab ini.'**
+  /// **'Hebat! Kamu telah menuntaskan modul pada bab ini.'**
   String get tTemplateSummaryOutro;
 
   /// No description provided for @tTemplateTitleTheory.
   ///
   /// In id, this message translates to:
-  /// **'Penjelasan Materi Baru'**
+  /// **'Penjelasan Modul Baru'**
   String get tTemplateTitleTheory;
 
   /// No description provided for @tTemplateContentTheory.
   ///
   /// In id, this message translates to:
-  /// **'Tuliskan penjelasan materi pembelajaran di sini dengan bahasa yang mudah dipahami siswa.'**
+  /// **'Tuliskan penjelasan modul pembelajaran di sini dengan bahasa yang mudah dipahami siswa.'**
   String get tTemplateContentTheory;
 }
 

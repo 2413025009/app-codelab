@@ -16,6 +16,9 @@ analyzer:
     - windows/**
     - macos/**
     - linux/**
+    # Folder Zzz/ menyimpan skrip & uji coba sementara (lihat AGENTS.md), jadi
+    # tidak ikut dianalisis agar eksperimen lokal tidak mengganggu `flutter analyze`.
+    - Zzz/**
 include: package:flutter_lints/flutter.yaml
 
 linter:

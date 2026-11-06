@@ -2,7 +2,7 @@
   "@@locale": "id",
   "navLearn": "Belajar",
   "@navLearn": {
-    "description": "Label tab bawah untuk beranda materi siswa."
+    "description": "Label tab bawah untuk beranda modul siswa."
   },
   "navChallenges": "Tantangan",
   "navPlayground": "Playground",
@@ -99,7 +99,7 @@
   "sandboxLimitGuiTitle": "Membuat tampilan grafis, gambar, atau suara",
   "sandboxLimitGuiBody": "tkinter, pygame, dan sejenisnya belum tersedia. Di sini kita berlatih logika program, bukan membuat jendela atau permainan yang bergerak sendiri.",
   "sandboxLimitOopTitle": "Memakai class, dict, dan try/except",
-  "sandboxLimitOopBody": "Tiga materi itu belum ada di mesin latihan ini. Untuk sekarang, fokus dulu ke variabel, percabangan, perulangan, list, dan fungsi.",
+  "sandboxLimitOopBody": "Tiga modul itu belum ada di mesin latihan ini. Untuk sekarang, fokus dulu ke variabel, percabangan, perulangan, list, dan fungsi.",
   "sandboxLimitLimitsTitle": "Menjalankan program yang terlalu berat",
   "sandboxLimitLimitsBody": "Program otomatis dihentikan setelah 100.000 langkah atau 5 detik, dan rekursi dibatasi 200 tingkat. Kalau kena batas ini, periksa lagi perulanganmu — biasanya ada yang tidak pernah berhenti.",
   "sandboxClosing": "Kalau ada error padahal kodemu terasa benar, cek dulu apakah yang kamu pakai termasuk daftar di atas. Kalau masih bingung, tanyakan ke gurumu di kelas — kamu tidak perlu menyelesaikannya sendirian.",
@@ -110,7 +110,7 @@
   "dashStageProfile": "Profil siswa terbaca",
   "dashStageProgress": "Kemajuan bab terbaca",
   "dashStageSkills": "Radar skill terbaca",
-  "dashStageLessons": "Katalog materi terbaca",
+  "dashStageLessons": "Katalog modul terbaca",
   "dashStageChallenges": "Catatan tantangan terbaca",
   "dashStageComposing": "Menyusun dashboard…",
   "dashGreeting": "Halo, {name}",
@@ -182,8 +182,8 @@
       }
     }
   },
-  "roadmapCatalogTitle": "Katalog Materi",
-  "roadmapCatalogSubtitle": "Telusuri bab dari seluruh materi",
+  "roadmapCatalogTitle": "Katalog Modul",
+  "roadmapCatalogSubtitle": "Telusuri bab dari seluruh modul",
   "roadmapStartHere": "Mulai di sini! 🚀",
   "roadmapInProgress": "Sedang Berjalan",
   "roadmapPracticeCount": "6 Latihan",
@@ -557,15 +557,15 @@
   "tutorQuotaExhaustedBody": "Kuota petunjuk harian sudah habis (maksimal 5x per hari sesuai PRD). Setiap beristirahat akan reset besok — sementara ini, tuntaskan di kodemu dulu.",
   "tutorAllHintsUnlocked": "Semua hint sudah terbuka. Sekarang coba terapkan di kodemu.",
   "tutorLockedSuffix": ", terkunci",
-  "materialCatalogTitle": "Katalog Materi",
+  "materialCatalogTitle": "Katalog Modul",
   "materialFilterActive": "Sedang Aktif",
   "materialFilterNotStarted": "Belum Dimulai",
   "materialStatusRunning": "Berjalan",
-  "materialLoadFailed": "Gagal memuat katalog materi.",
-  "materialSearchHint": "Cari materi atau deskripsinya…",
+  "materialLoadFailed": "Gagal memuat katalog modul.",
+  "materialSearchHint": "Cari modul atau deskripsinya…",
   "materialClearSearch": "Hapus pencarian",
-  "materialNoMatch": "Tidak ada materi yang cocok dengan pencarian atau filter.",
-  "materialSwitchedSnack": "Menampilkan materi {topic}. Peta belajar diperbarui.",
+  "materialNoMatch": "Tidak ada modul yang cocok dengan pencarian atau filter.",
+  "materialSwitchedSnack": "Menampilkan modul {topic}. Peta belajar diperbarui.",
   "@materialSwitchedSnack": {
     "placeholders": {
       "topic": {
@@ -598,7 +598,7 @@
   "readerExitBody": "Progres slide terakhirmu akan tersimpan secara otomatis.",
   "readerExitStay": "Lanjut Belajar",
   "readerExitConfirm": "Keluar",
-  "readerLoadFailed": "Gagal memuat materi bab.",
+  "readerLoadFailed": "Gagal memuat modul bab.",
   "readerTeacherPreviewBanner": "MODE PRATINJAU GURU (Data tidak disimpan)",
   "readerContinue": "Paham, Lanjutkan",
   "readerFinishSave": "Selesai & Simpan Progres",
@@ -637,10 +637,10 @@
   "profileAddBio": "+ Tambah Bio",
   "profileStatChallenges": "Tantangan",
   "profileStatXpPoints": "Poin XP",
-  "profileStatMaterialsDone": "Materi Selesai",
-  "profileMasteryMapTitle": "Peta Penguasaan Materi",
-  "profileMaterialsUnavailable": "Daftar materi belum tersedia dari server. Coba lagi.",
-  "profileMaterialProgressTitle": "Progres Materi",
+  "profileStatMaterialsDone": "Modul Selesai",
+  "profileMasteryMapTitle": "Peta Penguasaan Modul",
+  "profileMaterialsUnavailable": "Daftar modul belum tersedia dari server. Coba lagi.",
+  "profileMaterialProgressTitle": "Progres Modul",
   "profileChaptersInline": "{done}/{total} bab",
   "@profileChaptersInline": {
     "placeholders": {
@@ -685,6 +685,44 @@
   "profileCertChallengeLocked": "Terkunci — kurang XP",
   "profileCertChallengeInProgress": "Sedang dikerjakan",
   "profileDownloadSoon": "Fitur unduh sertifikat segera hadir, ya!",
+  "certScreenTitle": "Sertifikat Kompetensi",
+  "certLoading": "Menyiapkan sertifikat…",
+  "certLoadFailed": "Sertifikat belum bisa dimuat. Periksa koneksi lalu coba lagi.",
+  "certOpenPreview": "Lihat Sertifikat",
+  "certOpenWeb": "Buka Halaman Verifikasi",
+  "certShareAction": "Bagikan Sertifikat",
+  "certShareCopied": "Tautan verifikasi berhasil disalin.",
+  "certShareFailed": "Tautan belum bisa disalin. Coba lagi.",
+  "certNotEligible": "Selesaikan seluruh bab modul ini dulu, ya.",
+  "certEligibleNow": "Sertifikat sudah siap diterbitkan.",
+  "certIdLabel": "ID Sertifikat",
+  "certGivenTo": "Diberikan kepada",
+  "certIssuedLabel": "Diterbitkan",
+  "certValidUntilLabel": "Berlaku hingga",
+  "certPageOne": "Halaman 1 — Piagam Kelulusan",
+  "certPageTwo": "Halaman 2 — Transkrip & Capaian",
+  "certPdfHint": "Dokumen dibuka di browser agar bisa disimpan atau dicetak sebagai PDF.",
+  "certChapterCountInline": "{done}/{total} bab tuntas",
+  "@certChapterCountInline": {
+    "placeholders": {
+      "done": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "certPreviewTitle": "Pratinjau e-Sertifikat",
+  "certChallengeSectionTitle": "Sertifikat Tantangan Koding",
+  "certProgressLockedHint": "{percent}% selesai — sertifikat terbit otomatis setelah semua bab tuntas.",
+  "@certProgressLockedHint": {
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
   "changePassOldLabel": "Kata Sandi Lama",
   "changePassNewLabel": "Kata Sandi Baru",
   "changePassConfirmLabel": "Konfirmasi Kata Sandi Baru",
@@ -993,8 +1031,8 @@
   "slideQuizSuccessTitle": "Jawaban Sempurna!",
   "slideQuizSuccessMsg": "Pemahaman konsepmu sangat solid.",
   "slideQuizErrorTitle": "Kurang Tepat!",
-  "slideQuizErrorMsg": "Coba ingat kembali prinsip dasar materi ini.",
-  "slideContentUnavailable": "Materi belum tersedia saat ini.",
+  "slideQuizErrorMsg": "Coba ingat kembali prinsip dasar modul ini.",
+  "slideContentUnavailable": "Modul belum tersedia saat ini.",
   "tutorHintTabConcept": "Hint 1: Konsep",
   "tutorHintTabLogic": "Hint 2: Logika",
   "tutorHintTabStructure": "Hint 3: Struktur",
@@ -1019,11 +1057,11 @@
   "tutorHintPlaygroundQ3Step1": "Cek indentasi dan tanda titik dua pada baris yang berisi logika.",
   "tutorHintPlaygroundQ3Step2": "Uji potongan kecil di terminal yang sama sebelum digabung kembali.",
   "tNavDashboard": "Dashboard",
-  "tNavMaterials": "Materi",
+  "tNavMaterials": "Modul",
   "tNavAnalytics": "Analisa",
   "tPickerTitle": "Analisa Kelas",
   "tPickerHeading": "Pilih Kelas",
-  "tPickerSubtitle": "Pilih kelas untuk melihat peringkat materi dan latihan siswa, lalu kelola anggotanya.",
+  "tPickerSubtitle": "Pilih kelas untuk melihat peringkat modul dan latihan siswa, lalu kelola anggotanya.",
   "tPickerEmptyTitle": "Belum Ada Kelas",
   "tPickerEmptyBody": "Buat kelas pertamamu di Dashboard untuk mulai memantau analisa siswa.",
   "tPickerOpenDashboard": "Buka Dashboard",
@@ -1158,7 +1196,7 @@
   "tProfileAddBio": "Tambah Bio",
   "tProfileStatClasses": "Kelas Diajar",
   "tProfileStatStudents": "Siswa Dibimbing",
-  "tProfileStatMaterials": "Materi Ajar",
+  "tProfileStatMaterials": "Modul Ajar",
   "tProfileClassesTitle": "Kelas yang Diajar",
   "tProfileNoClasses": "Belum ada kelas yang dibuat.",
   "tProfileClassMeta": "Tahun {year} • {count} Siswa",
@@ -1172,8 +1210,8 @@
       }
     }
   },
-  "tProfileNoMaterials": "Belum ada materi yang dibuat.",
-  "tProfileMaterialCount": "{count} Materi",
+  "tProfileNoMaterials": "Belum ada modul yang dibuat.",
+  "tProfileMaterialCount": "{count} Modul",
   "@tProfileMaterialCount": {
     "placeholders": {
       "count": {
@@ -1199,15 +1237,15 @@
   "tProfileDraft": "Draft",
   "tProfileOpenSettings": "Buka Pengaturan Akun",
   "tProfileLogout": "Keluar dari Akun",
-  "tStudioActionHint": "Pilih tindakan untuk materi ini",
+  "tStudioActionHint": "Pilih tindakan untuk modul ini",
   "tStudioEditSyllabus": "Edit Silabus & Bab",
-  "tStudioEditInfo": "Edit Info Materi",
+  "tStudioEditInfo": "Edit Info Modul",
   "tStudioDuplicate": "Duplikat sebagai Draft Baru",
   "tStudioUnpublish": "Tarik Kembali ke Draft",
   "tStudioPublish": "Terbitkan ke Siswa",
-  "tStudioDeleteForever": "Hapus Materi Selamanya",
-  "tStudioDeleteTitle": "Hapus Materi Ini?",
-  "tStudioDeleteBody": "Materi \"{title}\" akan dihapus dari Studio. Riwayat belajar siswa yang sudah tuntas tetap tersimpan.",
+  "tStudioDeleteForever": "Hapus Modul Selamanya",
+  "tStudioDeleteTitle": "Hapus Modul Ini?",
+  "tStudioDeleteBody": "Modul \"{title}\" akan dihapus dari Studio. Riwayat belajar siswa yang sudah tuntas tetap tersimpan.",
   "@tStudioDeleteBody": {
     "placeholders": {
       "title": {
@@ -1215,13 +1253,13 @@
       }
     }
   },
-  "tStudioTitle": "Studio Materi",
+  "tStudioTitle": "Studio Modul",
   "tStudioSettingsTooltip": "Pengaturan Pengajar",
-  "tStudioMyMaterials": "Materi Saya",
+  "tStudioMyMaterials": "Modul Saya",
   "tStudioSubtitle": "Kelola modul pembelajaran & bab koding",
-  "tStudioAdd": "Tambah Materi",
+  "tStudioAdd": "Tambah Modul",
   "tStudioBannerTitle": "Status Pembelajaran Kelas",
-  "tStudioBanner": "{published} materi aktif terbit untuk {students} siswa di {school}.",
+  "tStudioBanner": "{published} modul aktif terbit untuk {students} siswa di {school}.",
   "@tStudioBanner": {
     "placeholders": {
       "published": {
@@ -1260,12 +1298,12 @@
       }
     }
   },
-  "tStudioEmptyTitle": "Belum Ada Materi",
-  "tStudioEmptyDraftTitle": "Tidak Ada Materi Draft",
-  "tStudioEmptyPublishedTitle": "Tidak Ada Materi Terbit",
-  "tStudioEmptyBody": "Mulai bangun kurikulum coding untuk siswamu. Klik tombol Tambah Materi di atas.",
-  "tStudioEmptyFilterBody": "Ganti filter atau tambahkan materi baru untuk kategori ini.",
-  "tStudioCreateNew": "Buat Materi Baru",
+  "tStudioEmptyTitle": "Belum Ada Modul",
+  "tStudioEmptyDraftTitle": "Tidak Ada Modul Draft",
+  "tStudioEmptyPublishedTitle": "Tidak Ada Modul Terbit",
+  "tStudioEmptyBody": "Mulai bangun kurikulum coding untuk siswamu. Klik tombol Tambah Modul di atas.",
+  "tStudioEmptyFilterBody": "Ganti filter atau tambahkan modul baru untuk kategori ini.",
+  "tStudioCreateNew": "Buat Modul Baru",
   "tStudioBabCount": "{count} bab",
   "@tStudioBabCount": {
     "placeholders": {
@@ -1276,7 +1314,7 @@
   },
   "tStudioNotVisible": "Belum tampak oleh siswa",
   "tBabDeleteTitle": "Hapus Bab Ini?",
-  "tBabDeleteBody": "Bab \"{title}\" akan dihapus dari daftar materi. Riwayat belajar siswa yang sudah tercatat tetap tersimpan.",
+  "tBabDeleteBody": "Bab \"{title}\" akan dihapus dari daftar modul. Riwayat belajar siswa yang sudah tercatat tetap tersimpan.",
   "@tBabDeleteBody": {
     "placeholders": {
       "title": {
@@ -1296,7 +1334,7 @@
   "tBabDuplicate": "Duplikat",
   "tBabTitle": "Silabus & Bab",
   "tBabAdd": "Tambah Bab",
-  "tBabTopicFallback": "Materi Studio",
+  "tBabTopicFallback": "Modul Studio",
   "tBabTitleFallback": "Daftar Bab",
   "tBabCurriculumStatus": "Status Kurikulum Bab",
   "tBabMeta": "{babs} Bab • {xp} XP",
@@ -1311,11 +1349,11 @@
     }
   },
   "tBabPublishedHint": "Seluruh bab aktif terbaca oleh siswa di kelasmu.",
-  "tBabDraftHint": "Materi berstatus Draft. Siswa belum dapat melihat bab-bab ini.",
+  "tBabDraftHint": "Modul berstatus Draft. Siswa belum dapat melihat bab-bab ini.",
   "tBabListTitle": "Daftar Bab Terstruktur",
   "tBabFlowOrder": "Urutan Alur Belajar",
   "tBabEmptyTitle": "Belum Ada Bab",
-  "tBabEmptyBody": "Materi ini belum memiliki bab pembelajaran. Tambahkan bab pertama untuk mulai menyusun slide kuis dan teori.",
+  "tBabEmptyBody": "Modul ini belum memiliki bab pembelajaran. Tambahkan bab pertama untuk mulai menyusun slide kuis dan teori.",
   "tBabAddFirst": "Tambah Bab Pertama",
   "tBabRowMeta": "{slides} Slide • {xp} XP",
   "@tBabRowMeta": {
@@ -1338,36 +1376,36 @@
   "tFormLevelDescBeginner": "Level dasar: ditujukan bagi siswa yang baru mengenal logika pemrograman.",
   "tFormLevelDescIntermediate": "Level menengah: percabangan lanjutan, perulangan, & manipulasi data.",
   "tFormLevelDescAdvanced": "Level mahir: algoritma rekursif kompleks & optimasi pemecahan masalah.",
-  "tFormNotFound": "Materi tidak ditemukan. Kembali ke Studio Materi untuk memilih materi lain.",
-  "tFormTitleRequired": "Nama materi wajib diisi.",
-  "tFormTitleDuplicate": "Nama materi sudah dipakai. Gunakan nama lain agar siswa tidak bingung.",
-  "tFormUpdated": "Materi berhasil diperbarui.",
-  "tFormSavedDraft": "Materi tersimpan sebagai draft.",
-  "tFormSaveFailed": "Materi belum tersimpan. Periksa koneksi lalu coba lagi.",
+  "tFormNotFound": "Modul tidak ditemukan. Kembali ke Studio Modul untuk memilih modul lain.",
+  "tFormTitleRequired": "Nama modul wajib diisi.",
+  "tFormTitleDuplicate": "Nama modul sudah dipakai. Gunakan nama lain agar siswa tidak bingung.",
+  "tFormUpdated": "Modul berhasil diperbarui.",
+  "tFormSavedDraft": "Modul tersimpan sebagai draft.",
+  "tFormSaveFailed": "Modul belum tersimpan. Periksa koneksi lalu coba lagi.",
   "tFormUnsavedTitle": "Perubahan Belum Disimpan",
-  "tFormUnsavedBody": "Ada revisi pada form materi ini. Simpan perubahan sebagai draft terlebih dahulu atau abaikan?",
+  "tFormUnsavedBody": "Ada revisi pada form modul ini. Simpan perubahan sebagai draft terlebih dahulu atau abaikan?",
   "tFormSaveExit": "Simpan Draft & Keluar",
   "tFormDiscard": "Buang Perubahan",
   "tFormKeepEditing": "Lanjut Mengedit",
-  "tFormEdit": "Edit Materi",
-  "tFormLoadFailed": "Materi Tidak Dapat Dimuat",
-  "tFormOpenStudio": "Buka Studio Materi",
-  "tFormAdd": "Tambah Materi Baru",
+  "tFormEdit": "Edit Modul",
+  "tFormLoadFailed": "Modul Tidak Dapat Dimuat",
+  "tFormOpenStudio": "Buka Studio Modul",
+  "tFormAdd": "Tambah Modul Baru",
   "tFormModeEdit": "Mode Edit",
-  "tFormNewBadge": "Materi Baru",
-  "tFormEditHeading": "Ubah Pengaturan Materi",
-  "tFormAddHeading": "Konfigurasi Materi Baru",
+  "tFormNewBadge": "Modul Baru",
+  "tFormEditHeading": "Ubah Pengaturan Modul",
+  "tFormAddHeading": "Konfigurasi Modul Baru",
   "tFormSubtitle": "Konfigurasikan judul, track kurikulum, dan level kesulitan untuk ditampilkan ke siswa.",
-  "tFormFieldName": "Nama Materi *",
+  "tFormFieldName": "Nama Modul *",
   "tFormExampleName": "Contoh: Dasar Algoritma & Python RPL",
   "tFormFieldDesc": "Deskripsi Singkat *",
-  "tFormDescHint": "Jelaskan capaian materi dalam 2-3 kalimat ringkas...",
-  "tFormFieldIcon": "Kode Ikon Materi *",
+  "tFormDescHint": "Jelaskan capaian modul dalam 2-3 kalimat ringkas...",
+  "tFormFieldIcon": "Kode Ikon Modul *",
   "tFormIconHint": "Pilih preset ikon atau ketik nama kode ikon (misal: terminal, html, css, javascript, database, psychology, shield, phone_android).",
   "tFormExampleIcon": "Contoh: terminal",
   "tFormFieldTopic": "Topik / Track Kurikulum *",
   "tFormFieldLevel": "Tingkat Kesulitan *",
-  "tFormDraftNotice": "Materi baru disimpan sebagai Draft. Materi hanya terlihat oleh siswa setelah kamu menekan tombol \"Terbitkan\".",
+  "tFormDraftNotice": "Modul baru disimpan sebagai Draft. Modul hanya terlihat oleh siswa setelah kamu menekan tombol \"Terbitkan\".",
   "tFormSaveDraft": "Simpan Draft",
   "tFormContinueBabs": "Lanjut ke Bab",
   "tSlideNotFound": "Slide tidak ditemukan. Buka Bab Builder untuk memilih slide lain.",
@@ -1493,9 +1531,9 @@
   "tSlideFieldAnswerChoices": "pilihan jawaban",
   "tSlideFieldFeedback": "Umpan balik",
   "tSlideFieldOutroTitle": "Judul slide penutup",
-  "tSlideFieldSummary": "Rangkuman materi",
+  "tSlideFieldSummary": "Rangkuman modul",
   "tSlideFieldMasteredConcepts": "Konsep yang dikuasai",
-  "tSlideFieldTheoryTitle": "Judul materi teori",
+  "tSlideFieldTheoryTitle": "Judul modul teori",
   "tSlideFieldTheoryContent": "Konten penjelasan",
   "tSlideFieldSampleCode": "Cuplikan kode sampel",
   "tSlideFieldCodeLanguage": "Bahasa kode",
@@ -1564,7 +1602,7 @@
   "tBabTypeBugBadge": "Debugging",
   "tBabTypeQuizBadge": "Evaluasi",
   "tBabTypeOutroBadge": "Pencapaian",
-  "tBabSheetDescTheory": "Teks penjelasan konsep materi & contoh kode visual.",
+  "tBabSheetDescTheory": "Teks penjelasan konsep modul & contoh kode visual.",
   "tBabSheetDescTap": "Siswa mengetuk keping blok untuk melengkapi baris kode.",
   "tBabSheetDescType": "Latihan mengetik keyword atau ekspresi sintaksis.",
   "tBabSheetDescOutput": "Siswa menganalisis snippet dan memprediksi hasil keluaran terminal.",
@@ -1662,7 +1700,7 @@
       }
     }
   },
-  "tAnalyticsHintCompleted": "Materi Tuntas = siswa yang sudah menuntaskan minimal satu materi{suffix}, diurutkan dari materi tuntas terbanyak.",
+  "tAnalyticsHintCompleted": "Modul Tuntas = siswa yang sudah menuntaskan minimal satu modul{suffix}, diurutkan dari modul tuntas terbanyak.",
   "@tAnalyticsHintCompleted": {
     "placeholders": {
       "suffix": {
@@ -1684,9 +1722,9 @@
       }
     }
   },
-  "tAnalyticsNotStartedMaterial": "belum menuntaskan satu materi pun",
+  "tAnalyticsNotStartedMaterial": "belum menuntaskan satu modul pun",
   "tAnalyticsNotStartedPractice": "belum menyelesaikan satu latihan pun",
-  "tAnalyticsNotStartedBoth": "belum menuntaskan materi dan belum menyelesaikan latihan",
+  "tAnalyticsNotStartedBoth": "belum menuntaskan modul dan belum menyelesaikan latihan",
   "tAnalyticsHintNotStarted": "Belum Memulai = siswa yang {scope}{suffix}, diurutkan dari siswa yang paling aktif berlatih.",
   "@tAnalyticsHintNotStarted": {
     "placeholders": {
@@ -1698,7 +1736,7 @@
       }
     }
   },
-  "tAnalyticsHintAll": "Semua = seluruh anggota kelas{suffix}, diurutkan dari materi tuntas terbanyak lalu latihan lulus.",
+  "tAnalyticsHintAll": "Semua = seluruh anggota kelas{suffix}, diurutkan dari modul tuntas terbanyak lalu latihan lulus.",
   "@tAnalyticsHintAll": {
     "placeholders": {
       "suffix": {
@@ -1706,9 +1744,9 @@
       }
     }
   },
-  "tAnalyticsFilterByMaterial": "Saring Daftar Siswa per Materi",
-  "tAnalyticsFilterByMaterialHint": "Angka di tiap tombol = jumlah siswa yang sudah menuntaskan materi itu.",
-  "tAnalyticsFilterAllMaterials": "Semua Materi ({count})",
+  "tAnalyticsFilterByMaterial": "Saring Daftar Siswa per Modul",
+  "tAnalyticsFilterByMaterialHint": "Angka di tiap tombol = jumlah siswa yang sudah menuntaskan modul itu.",
+  "tAnalyticsFilterAllMaterials": "Semua Modul ({count})",
   "@tAnalyticsFilterAllMaterials": {
     "placeholders": {
       "count": {
@@ -1728,7 +1766,7 @@
     }
   },
   "tAnalyticsTrackBasisTitle": "Dasar Nilai Kemajuan Per Track",
-  "tAnalyticsTrackBasisBody": "Persentase tiap track = rata-rata progress_percent seluruh siswa kelas pada SEMUA materi resmi (kurikulum bawaan) di track itu.\n\n• Setiap pasangan siswa × materi dihitung satu baris, termasuk materi yang belum pernah dibuka (dianggap 0%).\n• Nilai 100% berarti seluruh siswa kelas sudah menuntaskan seluruh materi di track tersebut.\n• Materi buatan guru tidak dihitung (hanya kurikulum resmi).\n• Angka ini mengukur ketuntasan materi, bukan nilai latihan.",
+  "tAnalyticsTrackBasisBody": "Persentase tiap track = rata-rata progress_percent seluruh siswa kelas pada SEMUA modul resmi (kurikulum bawaan) di track itu.\n\n• Setiap pasangan siswa × modul dihitung satu baris, termasuk modul yang belum pernah dibuka (dianggap 0%).\n• Nilai 100% berarti seluruh siswa kelas sudah menuntaskan seluruh modul di track tersebut.\n• Modul buatan guru tidak dihitung (hanya kurikulum resmi).\n• Angka ini mengukur ketuntasan modul, bukan nilai latihan.",
   "tAnalyticsGotIt": "Mengerti",
   "tAnalyticsNoStudents": "Belum ada siswa.",
   "tAnalyticsTitle": "Analisa Kelas",
@@ -1749,8 +1787,8 @@
   "tAnalyticsShareCodeHint": "Bagikan kode ini agar siswa dapat bergabung ke kelas:",
   "tAnalyticsEnlarge": "Perbesar ↗",
   "tAnalyticsTrackTitle": "Kemajuan Kurikulum Per Track",
-  "tAnalyticsTrackTooltip": "Rata-rata progress semua siswa kelas pada semua materi resmi di track ini (materi yang belum dibuka = 0%).",
-  "tAnalyticsTrackSubtitle": "Rata-rata ketuntasan seluruh siswa kelas pada semua materi resmi track tersebut.",
+  "tAnalyticsTrackTooltip": "Rata-rata progress semua siswa kelas pada semua modul resmi di track ini (modul yang belum dibuka = 0%).",
+  "tAnalyticsTrackSubtitle": "Rata-rata ketuntasan seluruh siswa kelas pada semua modul resmi track tersebut.",
   "tAnalyticsTrackEmpty": "Data track akan terisi otomatis setelah siswa mulai belajar.",
   "tAnalyticsHardestTitle": "Bab Tersulit (Perlu Pendampingan)",
   "tAnalyticsHardestEmpty": "Tidak ada tantangan yang terdeteksi sulit pada kelas ini 🎉",
@@ -1782,7 +1820,7 @@
       }
     }
   },
-  "tAnalyticsRankingHint": "Peringkat hanya menampilkan maksimal {max} siswa dengan materi/latihan terbanyak. Semua siswa tetap tampil lengkap di bagian Daftar Siswa.",
+  "tAnalyticsRankingHint": "Peringkat hanya menampilkan maksimal {max} siswa dengan modul/latihan terbanyak. Semua siswa tetap tampil lengkap di bagian Daftar Siswa.",
   "@tAnalyticsRankingHint": {
     "placeholders": {
       "max": {
@@ -1790,8 +1828,8 @@
       }
     }
   },
-  "tAnalyticsRankMaterial": "Materi",
-  "tAnalyticsRankMaterialSub": "Materi tuntas",
+  "tAnalyticsRankMaterial": "Modul",
+  "tAnalyticsRankMaterialSub": "Modul tuntas",
   "tAnalyticsRankPractice": "Latihan",
   "tAnalyticsRankPracticeSub": "Tantangan lulus",
   "tAnalyticsRosterTitle": "Daftar Siswa",
@@ -1803,7 +1841,7 @@
       }
     }
   },
-  "tAnalyticsFilterCompletedCount": "Materi Tuntas ({count})",
+  "tAnalyticsFilterCompletedCount": "Modul Tuntas ({count})",
   "@tAnalyticsFilterCompletedCount": {
     "placeholders": {
       "count": {
@@ -1822,12 +1860,12 @@
   },
   "tAnalyticsPracticeAll": "Semua Latihan",
   "tAnalyticsPracticeRegularLabel": "Latihan Biasa",
-  "tAnalyticsNotStartedAll": "Materi & Latihan",
-  "tAnalyticsNotStartedMaterialLabel": "Belum Kerjakan Materi",
+  "tAnalyticsNotStartedAll": "Modul & Latihan",
+  "tAnalyticsNotStartedMaterialLabel": "Belum Kerjakan Modul",
   "tAnalyticsNotStartedPracticeLabel": "Belum Selesaikan Latihan",
   "tAnalyticsRosterEmpty": "Belum ada siswa yang bergabung di kelas ini.",
   "tAnalyticsRosterFilterEmpty": "Tidak ada siswa pada kategori filter ini.",
-  "tAnalyticsRowPracticeDetail": "{materials} materi tuntas • {regular} latihan biasa • {mini} mini proyek",
+  "tAnalyticsRowPracticeDetail": "{materials} modul tuntas • {regular} latihan biasa • {mini} mini proyek",
   "@tAnalyticsRowPracticeDetail": {
     "placeholders": {
       "materials": {
@@ -1841,7 +1879,7 @@
       }
     }
   },
-  "tAnalyticsRowDetail": "{materials} materi tuntas • {practice} latihan lulus",
+  "tAnalyticsRowDetail": "{materials} modul tuntas • {practice} latihan lulus",
   "@tAnalyticsRowDetail": {
     "placeholders": {
       "materials": {
@@ -1862,7 +1900,7 @@
   },
   "tAnalyticsRemoveFromClass": "Keluarkan dari kelas",
   "tSlideFormHelpTheoryTitle": "Judul tampil paling atas di layar siswa.\n- Buat ringkas dan spesifik, maksimal 120 karakter.\n- Sebut inti konsepnya, bukan nama bab.",
-  "tSlideFormHelpTheoryContent": "Cara menulis isi materi:\n- Pisahkan paragraf dengan satu baris kosong.\n- Baris yang diawali \"- \" atau \"* \" otomatis jadi butir daftar.\n- Selain itu teks ditampilkan apa adanya: **tebal**, # judul, tautan, dan `kode` tidak diformat.\n\nContoh:\nHTML adalah bahasa penanda untuk menyusun halaman web.\n\n- Tag dibuka lalu ditutup.\n- Atribut menempel pada tag pembuka.",
+  "tSlideFormHelpTheoryContent": "Cara menulis isi modul:\n- Pisahkan paragraf dengan satu baris kosong.\n- Baris yang diawali \"- \" atau \"* \" otomatis jadi butir daftar.\n- Selain itu teks ditampilkan apa adanya: **tebal**, # judul, tautan, dan `kode` tidak diformat.\n\nContoh:\nHTML adalah bahasa penanda untuk menyusun halaman web.\n\n- Tag dibuka lalu ditutup.\n- Atribut menempel pada tag pembuka.",
   "tSlideFormHelpCodeFileSample": "Hanya menentukan nama berkas pada kartu kode:\n- HTML → index.html\n- CSS → style.css\n- JavaScript → script.js\n- Python → script.py",
   "tSlideFormHelpSampleCode": "Kode contoh yang tampil di kotak kode di bawah penjelasan.\n- Kosongkan bila slide tidak perlu contoh kode.\n- Tulis kode aslinya saja, tanpa penanda blok markdown.\n- Maksimal 8000 karakter.",
   "tSlideFormHelpExerciseTitle": "Judul tampil di kepala soal, maksimal 120 karakter.\nContoh: \"Lengkapi Tag Penutup HTML\".",
@@ -1972,7 +2010,7 @@
   "tPreviewBenefitTapToFill": "Melatih penguasaan sintaksis dasar tanpa beban mengetik panjang di papan ketik layar sentuh HP.",
   "tPreviewSubtitleTheory": "Teks bacaan terstruktur, markdown penjelasan, dan cuplikan kode contoh.",
   "tPreviewTechTheory": "Markdown • Teori",
-  "tPreviewPromptTheory": "Materi Pembuka & Pengenalan Logika",
+  "tPreviewPromptTheory": "Modul Pembuka & Pengenalan Logika",
   "tPreviewFeedbackTheory": "Mendukung format Markdown, syntax highlighter, dan kotak callout tips guru.",
   "tPreviewBenefitTheory": "Membangun landasan pemahaman konseptual yang kuat sebelum siswa masuk ke sesi latihan interaktif.",
   "tPreviewSubtitleTypeCode": "Latihan muscle-memory mengetikkan keyword sintaksis spesifik.",
@@ -1995,12 +2033,12 @@
   "tPreviewTechQuiz": "Evaluasi • Konsep",
   "tPreviewPromptQuiz": "Apa fungsi utama dari deklarasi <!DOCTYPE html>?",
   "tPreviewFeedbackQuiz": "Dilengkapi pembahasan otomatis yang tampil setelah siswa menjawab.",
-  "tPreviewBenefitQuiz": "Mengukur daya serap materi secara obyektif dan cepat di akhir sesi pembahasan.",
-  "tPreviewSubtitleOutro": "Slide penutup bab dengan rekap materi yang dikuasai dan klaim hadiah.",
+  "tPreviewBenefitQuiz": "Mengukur daya serap modul secara obyektif dan cepat di akhir sesi pembahasan.",
+  "tPreviewSubtitleOutro": "Slide penutup bab dengan rekap modul yang dikuasai dan klaim hadiah.",
   "tPreviewTechOutro": "Pencapaian • Penutup",
   "tPreviewPromptOutro": "Selamat! Kamu telah menyelesaikan seluruh latihan di bab ini.",
   "tPreviewFeedbackOutro": "Otomatis dibuat di akhir alur pembelajaran bab.",
-  "tPreviewBenefitOutro": "Memberikan kepuasan pencapaian (gamification) dan merangkum poin-poin penting materi.",
+  "tPreviewBenefitOutro": "Memberikan kepuasan pencapaian (gamification) dan merangkum poin-poin penting modul.",
   "tSettingsAvatarTooBig": "Ukuran foto maksimal 2 MB.",
   "tSettingsFallbackTeacher": "Guru",
   "tSettingsNameDegree": "{name} & Gelar *",
@@ -2019,7 +2057,7 @@
   "tSettingsChangePassword": "Ubah Kata Sandi",
   "tFieldHelpGotIt": "Mengerti",
   "tTeacherErrServerFallback": "Ada kendala pada server.",
-  "tTeacherErrInvalidLesson": "Format data materi tidak valid.",
+  "tTeacherErrInvalidLesson": "Format data modul tidak valid.",
   "tTeacherErrInvalidBab": "Format data bab tidak valid.",
   "tTeacherErrInvalidClass": "Format data kelas tidak valid.",
   "tCubitClassCreated": "Kelas {name} berhasil dibuat.",
@@ -2040,11 +2078,11 @@
       }
     }
   },
-  "tCubitLessonCreated": "Materi baru berhasil dibuat.",
-  "tCubitLessonPublished": "Materi berhasil diterbitkan.",
-  "tCubitLessonDrafted": "Materi dikembalikan ke draft.",
-  "tCubitLessonDeleted": "Materi berhasil dihapus.",
-  "tCubitLessonDuplicated": "Materi berhasil diduplikasi.",
+  "tCubitLessonCreated": "Modul baru berhasil dibuat.",
+  "tCubitLessonPublished": "Modul berhasil diterbitkan.",
+  "tCubitLessonDrafted": "Modul dikembalikan ke draft.",
+  "tCubitLessonDeleted": "Modul berhasil dihapus.",
+  "tCubitLessonDuplicated": "Modul berhasil diduplikasi.",
   "tCubitBabDuplicated": "Bab \"{title}\" berhasil diduplikat.",
   "@tCubitBabDuplicated": {
     "placeholders": {
@@ -2096,7 +2134,7 @@
   "tTemplateDescBugHunter": "Siswa menemukan baris yang bermasalah dan perbaikannya.",
   "tTemplateDescQuiz": "Pertanyaan pilihan ganda dengan satu jawaban benar.",
   "tTemplateDescOutro": "Slide penutup dengan rangkuman dan hadiah XP.",
-  "tTemplateDescTheory": "Teks penjelasan konsep materi dan contoh kode.",
+  "tTemplateDescTheory": "Teks penjelasan konsep modul dan contoh kode.",
   "tTemplateTitleTapToFill": "Lengkapi Kode",
   "tTemplatePromptTapToFill": "Ketuk balok kode untuk melengkapi baris berikut.",
   "tTemplatePromptTypeCode": "Ketikkan fungsi untuk mencetak teks ke layar:",
@@ -2110,7 +2148,7 @@
   "tTemplateQuestionQuiz": "Manakah yang termasuk tipe data angka bulat?",
   "tTemplateExplanationQuiz": "int adalah tipe data bilangan bulat.",
   "tTemplateTitleOutro": "Rangkuman Bab",
-  "tTemplateSummaryOutro": "Hebat! Kamu telah menuntaskan materi pada bab ini.",
-  "tTemplateTitleTheory": "Penjelasan Materi Baru",
-  "tTemplateContentTheory": "Tuliskan penjelasan materi pembelajaran di sini dengan bahasa yang mudah dipahami siswa."
+  "tTemplateSummaryOutro": "Hebat! Kamu telah menuntaskan modul pada bab ini.",
+  "tTemplateTitleTheory": "Penjelasan Modul Baru",
+  "tTemplateContentTheory": "Tuliskan penjelasan modul pembelajaran di sini dengan bahasa yang mudah dipahami siswa."
 }

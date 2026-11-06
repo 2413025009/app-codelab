@@ -41,6 +41,7 @@ class BabEditorPage extends StatefulWidget {
 
 class _BabEditorPageState extends State<BabEditorPage> {
   final _titleController = TextEditingController();
+  final _descController = TextEditingController();
   int _xpReward = 50;
   bool _isSubmitting = false;
   bool _isLoading = false;
@@ -72,6 +73,7 @@ class _BabEditorPageState extends State<BabEditorPage> {
 
   void _hydrateFromBab(Bab bab) {
     _titleController.text = bab.title;
+    _descController.text = bab.description;
     _xpReward = bab.xpReward;
     _slides = bab.slides.map((slide) => SlideTemplates.copy(slide)).toList();
     _syncOutroXp();
@@ -117,6 +119,7 @@ class _BabEditorPageState extends State<BabEditorPage> {
   @override
   void dispose() {
     _titleController.dispose();
+    _descController.dispose();
     super.dispose();
   }
 
@@ -464,6 +467,7 @@ class _BabEditorPageState extends State<BabEditorPage> {
     if (_isSubmitting || _isLoading) return;
     final l10n = AppLocalizations.of(context);
     final title = _titleController.text.trim();
+    final description = _descController.text.trim();
     if (title.isEmpty) {
       showAppSnack(context, l10n.tBabTitleRequired);
       return;
@@ -483,6 +487,7 @@ class _BabEditorPageState extends State<BabEditorPage> {
         _currentBabId!,
         widget.lessonId,
         title: title,
+        description: description,
         xpReward: _xpReward,
         slides: _slides,
       );
@@ -490,6 +495,7 @@ class _BabEditorPageState extends State<BabEditorPage> {
       result = await cubit.createBab(
         widget.lessonId,
         title: title,
+        description: description,
         xpReward: _xpReward,
         slides: _slides,
       );
@@ -665,6 +671,58 @@ class _BabEditorPageState extends State<BabEditorPage> {
                             onChanged: (_) => setState(() {}),
                             decoration: InputDecoration(
                               hintText: l10n.tBabExampleName,
+                              counterText: '',
+                              filled: true,
+                              fillColor: p.surfaceAlt,
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                borderSide: BorderSide(color: p.outline),
+                              ),
+                              enabledBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                borderSide: BorderSide(color: p.outline),
+                              ),
+                              focusedBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                borderSide: BorderSide(
+                                  color: p.primary,
+                                  width: 2,
+                                ),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: AppSpacing.md),
+
+                          // Deskripsi Singkat Bab (untuk katalog siswa & sertifikat)
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                l10n.localeName.startsWith('en')
+                                    ? 'Chapter Description'
+                                    : 'Deskripsi Singkat Bab',
+                                style: AppTypography.labelL.copyWith(
+                                  color: p.text,
+                                ),
+                              ),
+                              Text(
+                                '${_descController.text.length}/300',
+                                style: AppTypography.codeSm.copyWith(
+                                  color: p.textMuted,
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: AppSpacing.xs),
+                          TextField(
+                            controller: _descController,
+                            maxLength: 300,
+                            maxLines: 2,
+                            onChanged: (_) => setState(() {}),
+                            decoration: InputDecoration(
+                              hintText: l10n.localeName.startsWith('en')
+                                  ? 'Brief summary of what students learn in this chapter...'
+                                  : 'Ringkasan singkat kompetensi yang dipelajari pada bab ini...',
                               counterText: '',
                               filled: true,
                               fillColor: p.surfaceAlt,

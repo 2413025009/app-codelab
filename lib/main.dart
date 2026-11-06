@@ -38,6 +38,8 @@ import 'features/auth/domain/auth_repository.dart';
 import 'features/auth/presentation/cubit/auth_cubit.dart';
 import 'features/challenges/data/api_challenge_repository.dart';
 import 'features/challenges/domain/challenge_repository.dart';
+import 'features/certificate/data/api_certificate_repository.dart';
+import 'features/certificate/domain/certificate_repository.dart';
 import 'features/class/data/api_class_repository.dart';
 import 'features/class/domain/class_repository.dart';
 import 'features/dashboard/data/api_dashboard_repository.dart';
@@ -115,6 +117,10 @@ class _CodelabAppState extends State<CodelabApp> {
         ),
         RepositoryProvider<ChallengeRepository>(
           create: (_) => ApiChallengeRepository(),
+        ),
+        // Sertifikat (minggu 12): dua jenis e-sertifikat + verifikasi publik.
+        RepositoryProvider<CertificateRepository>(
+          create: (_) => ApiCertificateRepository(),
         ),
         // Kelas siswa (minggu 10): gabung/pratinjau/keluar rombel.
         RepositoryProvider<ClassRepository>(

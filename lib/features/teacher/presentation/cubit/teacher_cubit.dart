@@ -382,6 +382,7 @@ class TeacherCubit extends Cubit<TeacherState> {
   Future<Bab?> createBab(
     String lessonId, {
     required String title,
+    String description = '',
     required int xpReward,
     required List<Map<String, dynamic>> slides,
   }) async {
@@ -390,6 +391,7 @@ class TeacherCubit extends Cubit<TeacherState> {
       final bab = await _repository.createBab(
         lessonId,
         title: title,
+        description: description,
         xpReward: xpReward,
         slides: slides,
       );
@@ -433,6 +435,7 @@ class TeacherCubit extends Cubit<TeacherState> {
     String babId,
     String lessonId, {
     required String title,
+    String description = '',
     required int xpReward,
     required List<Map<String, dynamic>> slides,
   }) async {
@@ -441,6 +444,7 @@ class TeacherCubit extends Cubit<TeacherState> {
       final bab = await _repository.updateBab(
         babId,
         title: title,
+        description: description,
         xpReward: xpReward,
         slides: slides,
       );

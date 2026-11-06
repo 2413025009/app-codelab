@@ -13,12 +13,17 @@ class WindingRoadmap extends StatefulWidget {
     required this.modules,
     required this.onModuleTap,
     required this.onOpenCatalog,
+    this.onCertificateTap,
     this.focusTopic,
   });
 
   final List<LearningModule> modules;
   final ValueChanged<LearningModule> onModuleTap;
   final VoidCallback onOpenCatalog;
+
+  /// Minggu 12: titik akhir peta = e-Sertifikat Kompetensi. Bila kosong,
+  /// ketukan membuka katalog materi seperti sebelumnya.
+  final VoidCallback? onCertificateTap;
 
   /// Minggu 9 (owner): LESSON pilihan katalog — peta menampilkan SEMUA bab
   /// lesson ini (selesai maupun belum). null = track aktif natural siswa.
@@ -847,57 +852,66 @@ class _WindingRoadmapState extends State<WindingRoadmap>
   Widget _buildCertificateGoal(BuildContext context) {
     final p = context.palette;
     final l10n = AppLocalizations.of(context);
+    final onTap = widget.onCertificateTap;
     return Center(
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 14),
-        decoration: BoxDecoration(
-          // primaryContainer menjaga nuansa biru lavender di mode terang dan
-          // tetap terbaca di mode gelap.
-          color: p.primaryContainer,
+      child: Semantics(
+        button: onTap != null,
+        label: l10n.roadmapCertificate,
+        child: InkWell(
           borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: p.outline.withValues(alpha: 0.5)),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.03),
-              blurRadius: 6,
-              offset: const Offset(0, 2),
+          onTap: onTap,
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 14),
+            decoration: BoxDecoration(
+              // primaryContainer menjaga nuansa biru lavender di mode terang dan
+              // tetap terbaca di mode gelap.
+              color: p.primaryContainer,
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(color: p.outline.withValues(alpha: 0.5)),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.03),
+                  blurRadius: 6,
+                  offset: const Offset(0, 2),
+                ),
+              ],
             ),
-          ],
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Container(
-              width: 52,
-              height: 52,
-              decoration: BoxDecoration(
-                color: p.primaryContainer,
-                shape: BoxShape.circle,
-              ),
-              alignment: Alignment.center,
-              child: Icon(
-                Icons.emoji_events_rounded,
-                color: p.warningText,
-                size: 28,
-              ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  width: 52,
+                  height: 52,
+                  decoration: BoxDecoration(
+                    color: p.primaryContainer,
+                    shape: BoxShape.circle,
+                  ),
+                  alignment: Alignment.center,
+                  child: Icon(
+                    Icons.emoji_events_rounded,
+                    color: p.warningText,
+                    size: 28,
+                  ),
+                ),
+                const SizedBox(height: 6),
+                Text(
+                  l10n.roadmapCertificate,
+                  style: AppTypography.label.copyWith(
+                    fontWeight: FontWeight.bold,
+                    color: p.text,
+                    fontSize: 14,
+                  ),
+                ),
+                Text(
+                  l10n.roadmapGraduationTarget,
+                  style: AppTypography.caption.copyWith(
+                    color: p.textMuted,
+                    fontSize: 11,
+                  ),
+                ),
+              ],
             ),
-            const SizedBox(height: 6),
-            Text(
-              l10n.roadmapCertificate,
-              style: AppTypography.label.copyWith(
-                fontWeight: FontWeight.bold,
-                color: p.text,
-                fontSize: 14,
-              ),
-            ),
-            Text(
-              l10n.roadmapGraduationTarget,
-              style: AppTypography.caption.copyWith(
-                color: p.textMuted,
-                fontSize: 11,
-              ),
-            ),
-          ],
+          ),
         ),
       ),
     );

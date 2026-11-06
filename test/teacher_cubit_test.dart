@@ -235,6 +235,7 @@ class FakeTeacherRepository implements TeacherRepository {
   Future<Bab> createBab(
     String lessonId, {
     required String title,
+    String description = '',
     required int xpReward,
     required List<Map<String, dynamic>> slides,
   }) async {
@@ -243,6 +244,7 @@ class FakeTeacherRepository implements TeacherRepository {
       id: '${list.length + 1}',
       lessonId: lessonId,
       title: title,
+      description: description,
       orderIndex: list.length + 1,
       xpReward: xpReward,
       slides: slides,
@@ -262,6 +264,7 @@ class FakeTeacherRepository implements TeacherRepository {
           id: '${babId}dup',
           lessonId: src.lessonId,
           title: '${src.title} (Salinan)',
+          description: src.description,
           orderIndex: src.orderIndex + 1,
           xpReward: src.xpReward,
           slides: src.slides,
@@ -278,6 +281,7 @@ class FakeTeacherRepository implements TeacherRepository {
   Future<Bab> updateBab(
     String babId, {
     required String title,
+    String description = '',
     required int xpReward,
     required List<Map<String, dynamic>> slides,
   }) async {
@@ -289,6 +293,7 @@ class FakeTeacherRepository implements TeacherRepository {
           id: old.id,
           lessonId: old.lessonId,
           title: title,
+          description: description,
           orderIndex: old.orderIndex,
           xpReward: xpReward,
           slides: slides,

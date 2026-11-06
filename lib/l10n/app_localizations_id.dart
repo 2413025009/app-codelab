@@ -320,7 +320,7 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get sandboxLimitOopBody =>
-      'Tiga materi itu belum ada di mesin latihan ini. Untuk sekarang, fokus dulu ke variabel, percabangan, perulangan, list, dan fungsi.';
+      'Tiga modul itu belum ada di mesin latihan ini. Untuk sekarang, fokus dulu ke variabel, percabangan, perulangan, list, dan fungsi.';
 
   @override
   String get sandboxLimitLimitsTitle =>
@@ -356,7 +356,7 @@ class AppLocalizationsId extends AppLocalizations {
   String get dashStageSkills => 'Radar skill terbaca';
 
   @override
-  String get dashStageLessons => 'Katalog materi terbaca';
+  String get dashStageLessons => 'Katalog modul terbaca';
 
   @override
   String get dashStageChallenges => 'Catatan tantangan terbaca';
@@ -452,10 +452,10 @@ class AppLocalizationsId extends AppLocalizations {
   }
 
   @override
-  String get roadmapCatalogTitle => 'Katalog Materi';
+  String get roadmapCatalogTitle => 'Katalog Modul';
 
   @override
-  String get roadmapCatalogSubtitle => 'Telusuri bab dari seluruh materi';
+  String get roadmapCatalogSubtitle => 'Telusuri bab dari seluruh modul';
 
   @override
   String get roadmapStartHere => 'Mulai di sini! 🚀';
@@ -936,7 +936,7 @@ class AppLocalizationsId extends AppLocalizations {
   String get tutorLockedSuffix => ', terkunci';
 
   @override
-  String get materialCatalogTitle => 'Katalog Materi';
+  String get materialCatalogTitle => 'Katalog Modul';
 
   @override
   String get materialFilterActive => 'Sedang Aktif';
@@ -948,21 +948,21 @@ class AppLocalizationsId extends AppLocalizations {
   String get materialStatusRunning => 'Berjalan';
 
   @override
-  String get materialLoadFailed => 'Gagal memuat katalog materi.';
+  String get materialLoadFailed => 'Gagal memuat katalog modul.';
 
   @override
-  String get materialSearchHint => 'Cari materi atau deskripsinya…';
+  String get materialSearchHint => 'Cari modul atau deskripsinya…';
 
   @override
   String get materialClearSearch => 'Hapus pencarian';
 
   @override
   String get materialNoMatch =>
-      'Tidak ada materi yang cocok dengan pencarian atau filter.';
+      'Tidak ada modul yang cocok dengan pencarian atau filter.';
 
   @override
   String materialSwitchedSnack(String topic) {
-    return 'Menampilkan materi $topic. Peta belajar diperbarui.';
+    return 'Menampilkan modul $topic. Peta belajar diperbarui.';
   }
 
   @override
@@ -997,7 +997,7 @@ class AppLocalizationsId extends AppLocalizations {
   String get readerExitConfirm => 'Keluar';
 
   @override
-  String get readerLoadFailed => 'Gagal memuat materi bab.';
+  String get readerLoadFailed => 'Gagal memuat modul bab.';
 
   @override
   String get readerTeacherPreviewBanner =>
@@ -1120,17 +1120,17 @@ class AppLocalizationsId extends AppLocalizations {
   String get profileStatXpPoints => 'Poin XP';
 
   @override
-  String get profileStatMaterialsDone => 'Materi Selesai';
+  String get profileStatMaterialsDone => 'Modul Selesai';
 
   @override
-  String get profileMasteryMapTitle => 'Peta Penguasaan Materi';
+  String get profileMasteryMapTitle => 'Peta Penguasaan Modul';
 
   @override
   String get profileMaterialsUnavailable =>
-      'Daftar materi belum tersedia dari server. Coba lagi.';
+      'Daftar modul belum tersedia dari server. Coba lagi.';
 
   @override
-  String get profileMaterialProgressTitle => 'Progres Materi';
+  String get profileMaterialProgressTitle => 'Progres Modul';
 
   @override
   String profileChaptersInline(int done, int total) {
@@ -1181,6 +1181,75 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get profileDownloadSoon => 'Fitur unduh sertifikat segera hadir, ya!';
+
+  @override
+  String get certScreenTitle => 'Sertifikat Kompetensi';
+
+  @override
+  String get certLoading => 'Menyiapkan sertifikat…';
+
+  @override
+  String get certLoadFailed =>
+      'Sertifikat belum bisa dimuat. Periksa koneksi lalu coba lagi.';
+
+  @override
+  String get certOpenPreview => 'Lihat Sertifikat';
+
+  @override
+  String get certOpenWeb => 'Buka Halaman Verifikasi';
+
+  @override
+  String get certShareAction => 'Bagikan Sertifikat';
+
+  @override
+  String get certShareCopied => 'Tautan verifikasi berhasil disalin.';
+
+  @override
+  String get certShareFailed => 'Tautan belum bisa disalin. Coba lagi.';
+
+  @override
+  String get certNotEligible => 'Selesaikan seluruh bab modul ini dulu, ya.';
+
+  @override
+  String get certEligibleNow => 'Sertifikat sudah siap diterbitkan.';
+
+  @override
+  String get certIdLabel => 'ID Sertifikat';
+
+  @override
+  String get certGivenTo => 'Diberikan kepada';
+
+  @override
+  String get certIssuedLabel => 'Diterbitkan';
+
+  @override
+  String get certValidUntilLabel => 'Berlaku hingga';
+
+  @override
+  String get certPageOne => 'Halaman 1 — Piagam Kelulusan';
+
+  @override
+  String get certPageTwo => 'Halaman 2 — Transkrip & Capaian';
+
+  @override
+  String get certPdfHint =>
+      'Dokumen dibuka di browser agar bisa disimpan atau dicetak sebagai PDF.';
+
+  @override
+  String certChapterCountInline(int done, int total) {
+    return '$done/$total bab tuntas';
+  }
+
+  @override
+  String get certPreviewTitle => 'Pratinjau e-Sertifikat';
+
+  @override
+  String get certChallengeSectionTitle => 'Sertifikat Tantangan Koding';
+
+  @override
+  String certProgressLockedHint(int percent) {
+    return '$percent% selesai — sertifikat terbit otomatis setelah semua bab tuntas.';
+  }
 
   @override
   String get changePassOldLabel => 'Kata Sandi Lama';
@@ -1819,11 +1888,10 @@ class AppLocalizationsId extends AppLocalizations {
   String get slideQuizErrorTitle => 'Kurang Tepat!';
 
   @override
-  String get slideQuizErrorMsg =>
-      'Coba ingat kembali prinsip dasar materi ini.';
+  String get slideQuizErrorMsg => 'Coba ingat kembali prinsip dasar modul ini.';
 
   @override
-  String get slideContentUnavailable => 'Materi belum tersedia saat ini.';
+  String get slideContentUnavailable => 'Modul belum tersedia saat ini.';
 
   @override
   String get tutorHintTabConcept => 'Hint 1: Konsep';
@@ -1916,7 +1984,7 @@ class AppLocalizationsId extends AppLocalizations {
   String get tNavDashboard => 'Dashboard';
 
   @override
-  String get tNavMaterials => 'Materi';
+  String get tNavMaterials => 'Modul';
 
   @override
   String get tNavAnalytics => 'Analisa';
@@ -1929,7 +1997,7 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get tPickerSubtitle =>
-      'Pilih kelas untuk melihat peringkat materi dan latihan siswa, lalu kelola anggotanya.';
+      'Pilih kelas untuk melihat peringkat modul dan latihan siswa, lalu kelola anggotanya.';
 
   @override
   String get tPickerEmptyTitle => 'Belum Ada Kelas';
@@ -2165,7 +2233,7 @@ class AppLocalizationsId extends AppLocalizations {
   String get tProfileStatStudents => 'Siswa Dibimbing';
 
   @override
-  String get tProfileStatMaterials => 'Materi Ajar';
+  String get tProfileStatMaterials => 'Modul Ajar';
 
   @override
   String get tProfileClassesTitle => 'Kelas yang Diajar';
@@ -2179,11 +2247,11 @@ class AppLocalizationsId extends AppLocalizations {
   }
 
   @override
-  String get tProfileNoMaterials => 'Belum ada materi yang dibuat.';
+  String get tProfileNoMaterials => 'Belum ada modul yang dibuat.';
 
   @override
   String tProfileMaterialCount(int count) {
-    return '$count Materi';
+    return '$count Modul';
   }
 
   @override
@@ -2204,13 +2272,13 @@ class AppLocalizationsId extends AppLocalizations {
   String get tProfileLogout => 'Keluar dari Akun';
 
   @override
-  String get tStudioActionHint => 'Pilih tindakan untuk materi ini';
+  String get tStudioActionHint => 'Pilih tindakan untuk modul ini';
 
   @override
   String get tStudioEditSyllabus => 'Edit Silabus & Bab';
 
   @override
-  String get tStudioEditInfo => 'Edit Info Materi';
+  String get tStudioEditInfo => 'Edit Info Modul';
 
   @override
   String get tStudioDuplicate => 'Duplikat sebagai Draft Baru';
@@ -2222,37 +2290,37 @@ class AppLocalizationsId extends AppLocalizations {
   String get tStudioPublish => 'Terbitkan ke Siswa';
 
   @override
-  String get tStudioDeleteForever => 'Hapus Materi Selamanya';
+  String get tStudioDeleteForever => 'Hapus Modul Selamanya';
 
   @override
-  String get tStudioDeleteTitle => 'Hapus Materi Ini?';
+  String get tStudioDeleteTitle => 'Hapus Modul Ini?';
 
   @override
   String tStudioDeleteBody(String title) {
-    return 'Materi \"$title\" akan dihapus dari Studio. Riwayat belajar siswa yang sudah tuntas tetap tersimpan.';
+    return 'Modul \"$title\" akan dihapus dari Studio. Riwayat belajar siswa yang sudah tuntas tetap tersimpan.';
   }
 
   @override
-  String get tStudioTitle => 'Studio Materi';
+  String get tStudioTitle => 'Studio Modul';
 
   @override
   String get tStudioSettingsTooltip => 'Pengaturan Pengajar';
 
   @override
-  String get tStudioMyMaterials => 'Materi Saya';
+  String get tStudioMyMaterials => 'Modul Saya';
 
   @override
   String get tStudioSubtitle => 'Kelola modul pembelajaran & bab koding';
 
   @override
-  String get tStudioAdd => 'Tambah Materi';
+  String get tStudioAdd => 'Tambah Modul';
 
   @override
   String get tStudioBannerTitle => 'Status Pembelajaran Kelas';
 
   @override
   String tStudioBanner(int published, int students, String school) {
-    return '$published materi aktif terbit untuk $students siswa di $school.';
+    return '$published modul aktif terbit untuk $students siswa di $school.';
   }
 
   @override
@@ -2274,24 +2342,24 @@ class AppLocalizationsId extends AppLocalizations {
   }
 
   @override
-  String get tStudioEmptyTitle => 'Belum Ada Materi';
+  String get tStudioEmptyTitle => 'Belum Ada Modul';
 
   @override
-  String get tStudioEmptyDraftTitle => 'Tidak Ada Materi Draft';
+  String get tStudioEmptyDraftTitle => 'Tidak Ada Modul Draft';
 
   @override
-  String get tStudioEmptyPublishedTitle => 'Tidak Ada Materi Terbit';
+  String get tStudioEmptyPublishedTitle => 'Tidak Ada Modul Terbit';
 
   @override
   String get tStudioEmptyBody =>
-      'Mulai bangun kurikulum coding untuk siswamu. Klik tombol Tambah Materi di atas.';
+      'Mulai bangun kurikulum coding untuk siswamu. Klik tombol Tambah Modul di atas.';
 
   @override
   String get tStudioEmptyFilterBody =>
-      'Ganti filter atau tambahkan materi baru untuk kategori ini.';
+      'Ganti filter atau tambahkan modul baru untuk kategori ini.';
 
   @override
-  String get tStudioCreateNew => 'Buat Materi Baru';
+  String get tStudioCreateNew => 'Buat Modul Baru';
 
   @override
   String tStudioBabCount(int count) {
@@ -2306,7 +2374,7 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String tBabDeleteBody(String title) {
-    return 'Bab \"$title\" akan dihapus dari daftar materi. Riwayat belajar siswa yang sudah tercatat tetap tersimpan.';
+    return 'Bab \"$title\" akan dihapus dari daftar modul. Riwayat belajar siswa yang sudah tercatat tetap tersimpan.';
   }
 
   @override
@@ -2327,7 +2395,7 @@ class AppLocalizationsId extends AppLocalizations {
   String get tBabAdd => 'Tambah Bab';
 
   @override
-  String get tBabTopicFallback => 'Materi Studio';
+  String get tBabTopicFallback => 'Modul Studio';
 
   @override
   String get tBabTitleFallback => 'Daftar Bab';
@@ -2346,7 +2414,7 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get tBabDraftHint =>
-      'Materi berstatus Draft. Siswa belum dapat melihat bab-bab ini.';
+      'Modul berstatus Draft. Siswa belum dapat melihat bab-bab ini.';
 
   @override
   String get tBabListTitle => 'Daftar Bab Terstruktur';
@@ -2359,7 +2427,7 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get tBabEmptyBody =>
-      'Materi ini belum memiliki bab pembelajaran. Tambahkan bab pertama untuk mulai menyusun slide kuis dan teori.';
+      'Modul ini belum memiliki bab pembelajaran. Tambahkan bab pertama untuk mulai menyusun slide kuis dan teori.';
 
   @override
   String get tBabAddFirst => 'Tambah Bab Pertama';
@@ -2404,31 +2472,31 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get tFormNotFound =>
-      'Materi tidak ditemukan. Kembali ke Studio Materi untuk memilih materi lain.';
+      'Modul tidak ditemukan. Kembali ke Studio Modul untuk memilih modul lain.';
 
   @override
-  String get tFormTitleRequired => 'Nama materi wajib diisi.';
+  String get tFormTitleRequired => 'Nama modul wajib diisi.';
 
   @override
   String get tFormTitleDuplicate =>
-      'Nama materi sudah dipakai. Gunakan nama lain agar siswa tidak bingung.';
+      'Nama modul sudah dipakai. Gunakan nama lain agar siswa tidak bingung.';
 
   @override
-  String get tFormUpdated => 'Materi berhasil diperbarui.';
+  String get tFormUpdated => 'Modul berhasil diperbarui.';
 
   @override
-  String get tFormSavedDraft => 'Materi tersimpan sebagai draft.';
+  String get tFormSavedDraft => 'Modul tersimpan sebagai draft.';
 
   @override
   String get tFormSaveFailed =>
-      'Materi belum tersimpan. Periksa koneksi lalu coba lagi.';
+      'Modul belum tersimpan. Periksa koneksi lalu coba lagi.';
 
   @override
   String get tFormUnsavedTitle => 'Perubahan Belum Disimpan';
 
   @override
   String get tFormUnsavedBody =>
-      'Ada revisi pada form materi ini. Simpan perubahan sebagai draft terlebih dahulu atau abaikan?';
+      'Ada revisi pada form modul ini. Simpan perubahan sebagai draft terlebih dahulu atau abaikan?';
 
   @override
   String get tFormSaveExit => 'Simpan Draft & Keluar';
@@ -2440,35 +2508,35 @@ class AppLocalizationsId extends AppLocalizations {
   String get tFormKeepEditing => 'Lanjut Mengedit';
 
   @override
-  String get tFormEdit => 'Edit Materi';
+  String get tFormEdit => 'Edit Modul';
 
   @override
-  String get tFormLoadFailed => 'Materi Tidak Dapat Dimuat';
+  String get tFormLoadFailed => 'Modul Tidak Dapat Dimuat';
 
   @override
-  String get tFormOpenStudio => 'Buka Studio Materi';
+  String get tFormOpenStudio => 'Buka Studio Modul';
 
   @override
-  String get tFormAdd => 'Tambah Materi Baru';
+  String get tFormAdd => 'Tambah Modul Baru';
 
   @override
   String get tFormModeEdit => 'Mode Edit';
 
   @override
-  String get tFormNewBadge => 'Materi Baru';
+  String get tFormNewBadge => 'Modul Baru';
 
   @override
-  String get tFormEditHeading => 'Ubah Pengaturan Materi';
+  String get tFormEditHeading => 'Ubah Pengaturan Modul';
 
   @override
-  String get tFormAddHeading => 'Konfigurasi Materi Baru';
+  String get tFormAddHeading => 'Konfigurasi Modul Baru';
 
   @override
   String get tFormSubtitle =>
       'Konfigurasikan judul, track kurikulum, dan level kesulitan untuk ditampilkan ke siswa.';
 
   @override
-  String get tFormFieldName => 'Nama Materi *';
+  String get tFormFieldName => 'Nama Modul *';
 
   @override
   String get tFormExampleName => 'Contoh: Dasar Algoritma & Python RPL';
@@ -2478,10 +2546,10 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get tFormDescHint =>
-      'Jelaskan capaian materi dalam 2-3 kalimat ringkas...';
+      'Jelaskan capaian modul dalam 2-3 kalimat ringkas...';
 
   @override
-  String get tFormFieldIcon => 'Kode Ikon Materi *';
+  String get tFormFieldIcon => 'Kode Ikon Modul *';
 
   @override
   String get tFormIconHint =>
@@ -2498,7 +2566,7 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get tFormDraftNotice =>
-      'Materi baru disimpan sebagai Draft. Materi hanya terlihat oleh siswa setelah kamu menekan tombol \"Terbitkan\".';
+      'Modul baru disimpan sebagai Draft. Modul hanya terlihat oleh siswa setelah kamu menekan tombol \"Terbitkan\".';
 
   @override
   String get tFormSaveDraft => 'Simpan Draft';
@@ -2677,13 +2745,13 @@ class AppLocalizationsId extends AppLocalizations {
   String get tSlideFieldOutroTitle => 'Judul slide penutup';
 
   @override
-  String get tSlideFieldSummary => 'Rangkuman materi';
+  String get tSlideFieldSummary => 'Rangkuman modul';
 
   @override
   String get tSlideFieldMasteredConcepts => 'Konsep yang dikuasai';
 
   @override
-  String get tSlideFieldTheoryTitle => 'Judul materi teori';
+  String get tSlideFieldTheoryTitle => 'Judul modul teori';
 
   @override
   String get tSlideFieldTheoryContent => 'Konten penjelasan';
@@ -2858,7 +2926,7 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get tBabSheetDescTheory =>
-      'Teks penjelasan konsep materi & contoh kode visual.';
+      'Teks penjelasan konsep modul & contoh kode visual.';
 
   @override
   String get tBabSheetDescTap =>
@@ -3012,7 +3080,7 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String tAnalyticsHintCompleted(String suffix) {
-    return 'Materi Tuntas = siswa yang sudah menuntaskan minimal satu materi$suffix, diurutkan dari materi tuntas terbanyak.';
+    return 'Modul Tuntas = siswa yang sudah menuntaskan minimal satu modul$suffix, diurutkan dari modul tuntas terbanyak.';
   }
 
   @override
@@ -3030,8 +3098,7 @@ class AppLocalizationsId extends AppLocalizations {
   }
 
   @override
-  String get tAnalyticsNotStartedMaterial =>
-      'belum menuntaskan satu materi pun';
+  String get tAnalyticsNotStartedMaterial => 'belum menuntaskan satu modul pun';
 
   @override
   String get tAnalyticsNotStartedPractice =>
@@ -3039,7 +3106,7 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get tAnalyticsNotStartedBoth =>
-      'belum menuntaskan materi dan belum menyelesaikan latihan';
+      'belum menuntaskan modul dan belum menyelesaikan latihan';
 
   @override
   String tAnalyticsHintNotStarted(String scope, String suffix) {
@@ -3048,19 +3115,19 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String tAnalyticsHintAll(String suffix) {
-    return 'Semua = seluruh anggota kelas$suffix, diurutkan dari materi tuntas terbanyak lalu latihan lulus.';
+    return 'Semua = seluruh anggota kelas$suffix, diurutkan dari modul tuntas terbanyak lalu latihan lulus.';
   }
 
   @override
-  String get tAnalyticsFilterByMaterial => 'Saring Daftar Siswa per Materi';
+  String get tAnalyticsFilterByMaterial => 'Saring Daftar Siswa per Modul';
 
   @override
   String get tAnalyticsFilterByMaterialHint =>
-      'Angka di tiap tombol = jumlah siswa yang sudah menuntaskan materi itu.';
+      'Angka di tiap tombol = jumlah siswa yang sudah menuntaskan modul itu.';
 
   @override
   String tAnalyticsFilterAllMaterials(int count) {
-    return 'Semua Materi ($count)';
+    return 'Semua Modul ($count)';
   }
 
   @override
@@ -3073,7 +3140,7 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get tAnalyticsTrackBasisBody =>
-      'Persentase tiap track = rata-rata progress_percent seluruh siswa kelas pada SEMUA materi resmi (kurikulum bawaan) di track itu.\n\n• Setiap pasangan siswa × materi dihitung satu baris, termasuk materi yang belum pernah dibuka (dianggap 0%).\n• Nilai 100% berarti seluruh siswa kelas sudah menuntaskan seluruh materi di track tersebut.\n• Materi buatan guru tidak dihitung (hanya kurikulum resmi).\n• Angka ini mengukur ketuntasan materi, bukan nilai latihan.';
+      'Persentase tiap track = rata-rata progress_percent seluruh siswa kelas pada SEMUA modul resmi (kurikulum bawaan) di track itu.\n\n• Setiap pasangan siswa × modul dihitung satu baris, termasuk modul yang belum pernah dibuka (dianggap 0%).\n• Nilai 100% berarti seluruh siswa kelas sudah menuntaskan seluruh modul di track tersebut.\n• Modul buatan guru tidak dihitung (hanya kurikulum resmi).\n• Angka ini mengukur ketuntasan modul, bukan nilai latihan.';
 
   @override
   String get tAnalyticsGotIt => 'Mengerti';
@@ -3120,11 +3187,11 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get tAnalyticsTrackTooltip =>
-      'Rata-rata progress semua siswa kelas pada semua materi resmi di track ini (materi yang belum dibuka = 0%).';
+      'Rata-rata progress semua siswa kelas pada semua modul resmi di track ini (modul yang belum dibuka = 0%).';
 
   @override
   String get tAnalyticsTrackSubtitle =>
-      'Rata-rata ketuntasan seluruh siswa kelas pada semua materi resmi track tersebut.';
+      'Rata-rata ketuntasan seluruh siswa kelas pada semua modul resmi track tersebut.';
 
   @override
   String get tAnalyticsTrackEmpty =>
@@ -3157,14 +3224,14 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String tAnalyticsRankingHint(int max) {
-    return 'Peringkat hanya menampilkan maksimal $max siswa dengan materi/latihan terbanyak. Semua siswa tetap tampil lengkap di bagian Daftar Siswa.';
+    return 'Peringkat hanya menampilkan maksimal $max siswa dengan modul/latihan terbanyak. Semua siswa tetap tampil lengkap di bagian Daftar Siswa.';
   }
 
   @override
-  String get tAnalyticsRankMaterial => 'Materi';
+  String get tAnalyticsRankMaterial => 'Modul';
 
   @override
-  String get tAnalyticsRankMaterialSub => 'Materi tuntas';
+  String get tAnalyticsRankMaterialSub => 'Modul tuntas';
 
   @override
   String get tAnalyticsRankPractice => 'Latihan';
@@ -3182,7 +3249,7 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String tAnalyticsFilterCompletedCount(int count) {
-    return 'Materi Tuntas ($count)';
+    return 'Modul Tuntas ($count)';
   }
 
   @override
@@ -3200,10 +3267,10 @@ class AppLocalizationsId extends AppLocalizations {
   String get tAnalyticsPracticeRegularLabel => 'Latihan Biasa';
 
   @override
-  String get tAnalyticsNotStartedAll => 'Materi & Latihan';
+  String get tAnalyticsNotStartedAll => 'Modul & Latihan';
 
   @override
-  String get tAnalyticsNotStartedMaterialLabel => 'Belum Kerjakan Materi';
+  String get tAnalyticsNotStartedMaterialLabel => 'Belum Kerjakan Modul';
 
   @override
   String get tAnalyticsNotStartedPracticeLabel => 'Belum Selesaikan Latihan';
@@ -3218,12 +3285,12 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String tAnalyticsRowPracticeDetail(int materials, int regular, int mini) {
-    return '$materials materi tuntas • $regular latihan biasa • $mini mini proyek';
+    return '$materials modul tuntas • $regular latihan biasa • $mini mini proyek';
   }
 
   @override
   String tAnalyticsRowDetail(int materials, int practice) {
-    return '$materials materi tuntas • $practice latihan lulus';
+    return '$materials modul tuntas • $practice latihan lulus';
   }
 
   @override
@@ -3240,7 +3307,7 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get tSlideFormHelpTheoryContent =>
-      'Cara menulis isi materi:\n- Pisahkan paragraf dengan satu baris kosong.\n- Baris yang diawali \"- \" atau \"* \" otomatis jadi butir daftar.\n- Selain itu teks ditampilkan apa adanya: **tebal**, # judul, tautan, dan `kode` tidak diformat.\n\nContoh:\nHTML adalah bahasa penanda untuk menyusun halaman web.\n\n- Tag dibuka lalu ditutup.\n- Atribut menempel pada tag pembuka.';
+      'Cara menulis isi modul:\n- Pisahkan paragraf dengan satu baris kosong.\n- Baris yang diawali \"- \" atau \"* \" otomatis jadi butir daftar.\n- Selain itu teks ditampilkan apa adanya: **tebal**, # judul, tautan, dan `kode` tidak diformat.\n\nContoh:\nHTML adalah bahasa penanda untuk menyusun halaman web.\n\n- Tag dibuka lalu ditutup.\n- Atribut menempel pada tag pembuka.';
 
   @override
   String get tSlideFormHelpCodeFileSample =>
@@ -3526,7 +3593,7 @@ class AppLocalizationsId extends AppLocalizations {
   String get tPreviewTechTheory => 'Markdown • Teori';
 
   @override
-  String get tPreviewPromptTheory => 'Materi Pembuka & Pengenalan Logika';
+  String get tPreviewPromptTheory => 'Modul Pembuka & Pengenalan Logika';
 
   @override
   String get tPreviewFeedbackTheory =>
@@ -3613,11 +3680,11 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get tPreviewBenefitQuiz =>
-      'Mengukur daya serap materi secara obyektif dan cepat di akhir sesi pembahasan.';
+      'Mengukur daya serap modul secara obyektif dan cepat di akhir sesi pembahasan.';
 
   @override
   String get tPreviewSubtitleOutro =>
-      'Slide penutup bab dengan rekap materi yang dikuasai dan klaim hadiah.';
+      'Slide penutup bab dengan rekap modul yang dikuasai dan klaim hadiah.';
 
   @override
   String get tPreviewTechOutro => 'Pencapaian • Penutup';
@@ -3632,7 +3699,7 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get tPreviewBenefitOutro =>
-      'Memberikan kepuasan pencapaian (gamification) dan merangkum poin-poin penting materi.';
+      'Memberikan kepuasan pencapaian (gamification) dan merangkum poin-poin penting modul.';
 
   @override
   String get tSettingsAvatarTooBig => 'Ukuran foto maksimal 2 MB.';
@@ -3671,7 +3738,7 @@ class AppLocalizationsId extends AppLocalizations {
   String get tTeacherErrServerFallback => 'Ada kendala pada server.';
 
   @override
-  String get tTeacherErrInvalidLesson => 'Format data materi tidak valid.';
+  String get tTeacherErrInvalidLesson => 'Format data modul tidak valid.';
 
   @override
   String get tTeacherErrInvalidBab => 'Format data bab tidak valid.';
@@ -3696,19 +3763,19 @@ class AppLocalizationsId extends AppLocalizations {
   }
 
   @override
-  String get tCubitLessonCreated => 'Materi baru berhasil dibuat.';
+  String get tCubitLessonCreated => 'Modul baru berhasil dibuat.';
 
   @override
-  String get tCubitLessonPublished => 'Materi berhasil diterbitkan.';
+  String get tCubitLessonPublished => 'Modul berhasil diterbitkan.';
 
   @override
-  String get tCubitLessonDrafted => 'Materi dikembalikan ke draft.';
+  String get tCubitLessonDrafted => 'Modul dikembalikan ke draft.';
 
   @override
-  String get tCubitLessonDeleted => 'Materi berhasil dihapus.';
+  String get tCubitLessonDeleted => 'Modul berhasil dihapus.';
 
   @override
-  String get tCubitLessonDuplicated => 'Materi berhasil diduplikasi.';
+  String get tCubitLessonDuplicated => 'Modul berhasil diduplikasi.';
 
   @override
   String tCubitBabDuplicated(String title) {
@@ -3835,7 +3902,7 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get tTemplateDescTheory =>
-      'Teks penjelasan konsep materi dan contoh kode.';
+      'Teks penjelasan konsep modul dan contoh kode.';
 
   @override
   String get tTemplateTitleTapToFill => 'Lengkapi Kode';
@@ -3885,12 +3952,12 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get tTemplateSummaryOutro =>
-      'Hebat! Kamu telah menuntaskan materi pada bab ini.';
+      'Hebat! Kamu telah menuntaskan modul pada bab ini.';
 
   @override
-  String get tTemplateTitleTheory => 'Penjelasan Materi Baru';
+  String get tTemplateTitleTheory => 'Penjelasan Modul Baru';
 
   @override
   String get tTemplateContentTheory =>
-      'Tuliskan penjelasan materi pembelajaran di sini dengan bahasa yang mudah dipahami siswa.';
+      'Tuliskan penjelasan modul pembelajaran di sini dengan bahasa yang mudah dipahami siswa.';
 }

@@ -357,7 +357,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get dashStageSkills => 'Skill radar loaded';
 
   @override
-  String get dashStageLessons => 'Material catalog loaded';
+  String get dashStageLessons => 'Lesson catalog loaded';
 
   @override
   String get dashStageChallenges => 'Challenge records loaded';
@@ -453,10 +453,10 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get roadmapCatalogTitle => 'Material Catalog';
+  String get roadmapCatalogTitle => 'Lesson Catalog';
 
   @override
-  String get roadmapCatalogSubtitle => 'Browse chapters across all materials';
+  String get roadmapCatalogSubtitle => 'Browse chapters across all lessons';
 
   @override
   String get roadmapStartHere => 'Start here! 🚀';
@@ -940,7 +940,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get tutorLockedSuffix => ', locked';
 
   @override
-  String get materialCatalogTitle => 'Material Catalog';
+  String get materialCatalogTitle => 'Lesson Catalog';
 
   @override
   String get materialFilterActive => 'In Progress';
@@ -952,16 +952,16 @@ class AppLocalizationsEn extends AppLocalizations {
   String get materialStatusRunning => 'Ongoing';
 
   @override
-  String get materialLoadFailed => 'Failed to load the material catalog.';
+  String get materialLoadFailed => 'Failed to load the lesson catalog.';
 
   @override
-  String get materialSearchHint => 'Search materials or their description…';
+  String get materialSearchHint => 'Search lessons or their description…';
 
   @override
   String get materialClearSearch => 'Clear search';
 
   @override
-  String get materialNoMatch => 'No materials match your search or filter.';
+  String get materialNoMatch => 'No lessons match your search or filter.';
 
   @override
   String materialSwitchedSnack(String topic) {
@@ -1000,7 +1000,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get readerExitConfirm => 'Exit';
 
   @override
-  String get readerLoadFailed => 'Failed to load the chapter material.';
+  String get readerLoadFailed => 'Failed to load the chapter lesson.';
 
   @override
   String get readerTeacherPreviewBanner =>
@@ -1123,17 +1123,17 @@ class AppLocalizationsEn extends AppLocalizations {
   String get profileStatXpPoints => 'XP Points';
 
   @override
-  String get profileStatMaterialsDone => 'Materials Done';
+  String get profileStatMaterialsDone => 'Lessons Done';
 
   @override
-  String get profileMasteryMapTitle => 'Material Mastery Map';
+  String get profileMasteryMapTitle => 'Lesson Mastery Map';
 
   @override
   String get profileMaterialsUnavailable =>
-      'The material list is not available from the server yet. Try again.';
+      'The lesson list is not available from the server yet. Try again.';
 
   @override
-  String get profileMaterialProgressTitle => 'Material Progress';
+  String get profileMaterialProgressTitle => 'Lesson Progress';
 
   @override
   String profileChaptersInline(int done, int total) {
@@ -1185,6 +1185,76 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get profileDownloadSoon =>
       'The certificate download feature is coming soon!';
+
+  @override
+  String get certScreenTitle => 'Certificate of Competency';
+
+  @override
+  String get certLoading => 'Preparing your certificate…';
+
+  @override
+  String get certLoadFailed =>
+      'The certificate could not be loaded. Check your connection and try again.';
+
+  @override
+  String get certOpenPreview => 'View Certificate';
+
+  @override
+  String get certOpenWeb => 'Open Verification Page';
+
+  @override
+  String get certShareAction => 'Share Certificate';
+
+  @override
+  String get certShareCopied => 'Verification link copied to clipboard.';
+
+  @override
+  String get certShareFailed =>
+      'The link could not be copied. Please try again.';
+
+  @override
+  String get certNotEligible => 'Finish every chapter of this module first.';
+
+  @override
+  String get certEligibleNow => 'Your certificate is ready to be issued.';
+
+  @override
+  String get certIdLabel => 'Certificate ID';
+
+  @override
+  String get certGivenTo => 'Awarded to';
+
+  @override
+  String get certIssuedLabel => 'Issued';
+
+  @override
+  String get certValidUntilLabel => 'Valid until';
+
+  @override
+  String get certPageOne => 'Page 1 — Certificate of Completion';
+
+  @override
+  String get certPageTwo => 'Page 2 — Transcript & Achievements';
+
+  @override
+  String get certPdfHint =>
+      'The document opens in your browser so you can save or print it as a PDF.';
+
+  @override
+  String certChapterCountInline(int done, int total) {
+    return '$done/$total chapters done';
+  }
+
+  @override
+  String get certPreviewTitle => 'e-Certificate Preview';
+
+  @override
+  String get certChallengeSectionTitle => 'Coding Challenge Certificates';
+
+  @override
+  String certProgressLockedHint(int percent) {
+    return '$percent% complete — the certificate is issued automatically once every chapter is done.';
+  }
 
   @override
   String get changePassOldLabel => 'Old Password';
@@ -1826,10 +1896,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get slideQuizErrorMsg =>
-      'Try recalling the core principle of this material.';
+      'Try recalling the core principle of this lesson.';
 
   @override
-  String get slideContentUnavailable => 'Material is not available right now.';
+  String get slideContentUnavailable => 'Lesson is not available right now.';
 
   @override
   String get tutorHintTabConcept => 'Hint 1: Concept';
@@ -1935,7 +2005,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get tPickerSubtitle =>
-      'Choose a class to see material and exercise rankings for students, then manage its members.';
+      'Choose a class to see lesson and exercise rankings for students, then manage its members.';
 
   @override
   String get tPickerEmptyTitle => 'No Classes Yet';
@@ -2171,7 +2241,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get tProfileStatStudents => 'Students Mentored';
 
   @override
-  String get tProfileStatMaterials => 'Teaching Materials';
+  String get tProfileStatMaterials => 'Teaching Lessons';
 
   @override
   String get tProfileClassesTitle => 'Classes Taught';
@@ -2185,11 +2255,11 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get tProfileNoMaterials => 'No materials created yet.';
+  String get tProfileNoMaterials => 'No lessons created yet.';
 
   @override
   String tProfileMaterialCount(int count) {
-    return '$count Materials';
+    return '$count Lessons';
   }
 
   @override
@@ -2210,13 +2280,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get tProfileLogout => 'Log Out';
 
   @override
-  String get tStudioActionHint => 'Choose an action for this material';
+  String get tStudioActionHint => 'Choose an action for this lesson';
 
   @override
   String get tStudioEditSyllabus => 'Edit Syllabus & Chapters';
 
   @override
-  String get tStudioEditInfo => 'Edit Material Info';
+  String get tStudioEditInfo => 'Edit Lesson Info';
 
   @override
   String get tStudioDuplicate => 'Duplicate as New Draft';
@@ -2228,37 +2298,37 @@ class AppLocalizationsEn extends AppLocalizations {
   String get tStudioPublish => 'Publish to Students';
 
   @override
-  String get tStudioDeleteForever => 'Delete Material Permanently';
+  String get tStudioDeleteForever => 'Delete Lesson Permanently';
 
   @override
-  String get tStudioDeleteTitle => 'Delete This Material?';
+  String get tStudioDeleteTitle => 'Delete This Lesson?';
 
   @override
   String tStudioDeleteBody(String title) {
-    return 'Material \"$title\" will be deleted from the Studio. Completed student learning history stays saved.';
+    return 'Lesson \"$title\" will be deleted from the Studio. Completed student learning history stays saved.';
   }
 
   @override
-  String get tStudioTitle => 'Material Studio';
+  String get tStudioTitle => 'Lesson Studio';
 
   @override
   String get tStudioSettingsTooltip => 'Teacher Settings';
 
   @override
-  String get tStudioMyMaterials => 'My Materials';
+  String get tStudioMyMaterials => 'My Lessons';
 
   @override
   String get tStudioSubtitle => 'Manage learning modules & coding chapters';
 
   @override
-  String get tStudioAdd => 'Add Material';
+  String get tStudioAdd => 'Add Lesson';
 
   @override
   String get tStudioBannerTitle => 'Class Learning Status';
 
   @override
   String tStudioBanner(int published, int students, String school) {
-    return '$published active materials published for $students students at $school.';
+    return '$published active lessons published for $students students at $school.';
   }
 
   @override
@@ -2280,24 +2350,24 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get tStudioEmptyTitle => 'No Materials Yet';
+  String get tStudioEmptyTitle => 'No Lessons Yet';
 
   @override
-  String get tStudioEmptyDraftTitle => 'No Draft Materials';
+  String get tStudioEmptyDraftTitle => 'No Draft Lessons';
 
   @override
-  String get tStudioEmptyPublishedTitle => 'No Published Materials';
+  String get tStudioEmptyPublishedTitle => 'No Published Lessons';
 
   @override
   String get tStudioEmptyBody =>
-      'Start building a coding curriculum for your students. Tap the Add Material button above.';
+      'Start building a coding curriculum for your students. Tap the Add Lesson button above.';
 
   @override
   String get tStudioEmptyFilterBody =>
-      'Change the filter or add a new material for this category.';
+      'Change the filter or add a new lesson for this category.';
 
   @override
-  String get tStudioCreateNew => 'Create New Material';
+  String get tStudioCreateNew => 'Create New Lesson';
 
   @override
   String tStudioBabCount(int count) {
@@ -2312,7 +2382,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String tBabDeleteBody(String title) {
-    return 'Chapter \"$title\" will be deleted from the material list. Recorded student learning history stays saved.';
+    return 'Chapter \"$title\" will be deleted from the lesson list. Recorded student learning history stays saved.';
   }
 
   @override
@@ -2333,7 +2403,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get tBabAdd => 'Add Chapter';
 
   @override
-  String get tBabTopicFallback => 'Material Studio';
+  String get tBabTopicFallback => 'Lesson Studio';
 
   @override
   String get tBabTitleFallback => 'Chapter List';
@@ -2352,7 +2422,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get tBabDraftHint =>
-      'Material is in Draft status. Students cannot see these chapters yet.';
+      'Lesson is in Draft status. Students cannot see these chapters yet.';
 
   @override
   String get tBabListTitle => 'Structured Chapter List';
@@ -2365,7 +2435,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get tBabEmptyBody =>
-      'This material has no learning chapters yet. Add the first chapter to start arranging quiz and theory slides.';
+      'This lesson has no learning chapters yet. Add the first chapter to start arranging quiz and theory slides.';
 
   @override
   String get tBabAddFirst => 'Add First Chapter';
@@ -2410,31 +2480,31 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get tFormNotFound =>
-      'Material not found. Return to the Material Studio to choose another material.';
+      'Lesson not found. Return to the Lesson Studio to choose another lesson.';
 
   @override
-  String get tFormTitleRequired => 'Material name is required.';
+  String get tFormTitleRequired => 'Lesson name is required.';
 
   @override
   String get tFormTitleDuplicate =>
-      'Material name is already used. Use another name so students are not confused.';
+      'Lesson name is already used. Use another name so students are not confused.';
 
   @override
-  String get tFormUpdated => 'Material updated successfully.';
+  String get tFormUpdated => 'Lesson updated successfully.';
 
   @override
-  String get tFormSavedDraft => 'Material saved as draft.';
+  String get tFormSavedDraft => 'Lesson saved as draft.';
 
   @override
   String get tFormSaveFailed =>
-      'Material not saved yet. Check the connection and try again.';
+      'Lesson not saved yet. Check the connection and try again.';
 
   @override
   String get tFormUnsavedTitle => 'Unsaved Changes';
 
   @override
   String get tFormUnsavedBody =>
-      'This material form has revisions. Save the changes as a draft first, or discard them?';
+      'This lesson form has revisions. Save the changes as a draft first, or discard them?';
 
   @override
   String get tFormSaveExit => 'Save Draft & Exit';
@@ -2446,35 +2516,35 @@ class AppLocalizationsEn extends AppLocalizations {
   String get tFormKeepEditing => 'Keep Editing';
 
   @override
-  String get tFormEdit => 'Edit Material';
+  String get tFormEdit => 'Edit Lesson';
 
   @override
-  String get tFormLoadFailed => 'Material Could Not Be Loaded';
+  String get tFormLoadFailed => 'Lesson Could Not Be Loaded';
 
   @override
-  String get tFormOpenStudio => 'Open Material Studio';
+  String get tFormOpenStudio => 'Open Lesson Studio';
 
   @override
-  String get tFormAdd => 'Add New Material';
+  String get tFormAdd => 'Add New Lesson';
 
   @override
   String get tFormModeEdit => 'Edit Mode';
 
   @override
-  String get tFormNewBadge => 'New Material';
+  String get tFormNewBadge => 'New Lesson';
 
   @override
-  String get tFormEditHeading => 'Change Material Settings';
+  String get tFormEditHeading => 'Change Lesson Settings';
 
   @override
-  String get tFormAddHeading => 'Configure New Material';
+  String get tFormAddHeading => 'Configure New Lesson';
 
   @override
   String get tFormSubtitle =>
       'Configure the title, curriculum track, and difficulty level to show to students.';
 
   @override
-  String get tFormFieldName => 'Material Name *';
+  String get tFormFieldName => 'Lesson Name *';
 
   @override
   String get tFormExampleName => 'Example: Algorithm Basics & RPL Python';
@@ -2484,10 +2554,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get tFormDescHint =>
-      'Explain the material outcomes in 2-3 concise sentences...';
+      'Explain the lesson outcomes in 2-3 concise sentences...';
 
   @override
-  String get tFormFieldIcon => 'Material Icon Code *';
+  String get tFormFieldIcon => 'Lesson Icon Code *';
 
   @override
   String get tFormIconHint =>
@@ -2504,7 +2574,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get tFormDraftNotice =>
-      'New materials are saved as Draft. A material is only visible to students after you press the \"Publish\" button.';
+      'New lessons are saved as Draft. A lesson is only visible to students after you press the \"Publish\" button.';
 
   @override
   String get tFormSaveDraft => 'Save Draft';
@@ -2683,13 +2753,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get tSlideFieldOutroTitle => 'Closing slide title';
 
   @override
-  String get tSlideFieldSummary => 'Material summary';
+  String get tSlideFieldSummary => 'Lesson summary';
 
   @override
   String get tSlideFieldMasteredConcepts => 'Mastered concepts';
 
   @override
-  String get tSlideFieldTheoryTitle => 'Theory material title';
+  String get tSlideFieldTheoryTitle => 'Theory lesson title';
 
   @override
   String get tSlideFieldTheoryContent => 'Explanation content';
@@ -2843,7 +2913,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get tBabTypeOutroName => 'Summary & XP Claim';
 
   @override
-  String get tBabTypeTheoryBadge => 'Reading Material';
+  String get tBabTypeTheoryBadge => 'Reading Lesson';
 
   @override
   String get tBabTypeTapBadge => 'Interactive';
@@ -3018,7 +3088,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String tAnalyticsHintCompleted(String suffix) {
-    return 'Completed Materials = students who completed at least one material$suffix, sorted by most completed materials.';
+    return 'Completed Lessons = students who completed at least one lesson$suffix, sorted by most completed lessons.';
   }
 
   @override
@@ -3037,14 +3107,14 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get tAnalyticsNotStartedMaterial => 'have not completed any material';
+  String get tAnalyticsNotStartedMaterial => 'have not completed any lesson';
 
   @override
   String get tAnalyticsNotStartedPractice => 'have not finished any practice';
 
   @override
   String get tAnalyticsNotStartedBoth =>
-      'have not completed materials and have not finished practices';
+      'have not completed lessons and have not finished practices';
 
   @override
   String tAnalyticsHintNotStarted(String scope, String suffix) {
@@ -3053,19 +3123,19 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String tAnalyticsHintAll(String suffix) {
-    return 'All = all class members$suffix, sorted by most completed materials then passed practices.';
+    return 'All = all class members$suffix, sorted by most completed lessons then passed practices.';
   }
 
   @override
-  String get tAnalyticsFilterByMaterial => 'Filter Student List by Material';
+  String get tAnalyticsFilterByMaterial => 'Filter Student List by Lesson';
 
   @override
   String get tAnalyticsFilterByMaterialHint =>
-      'The number on each button = students who completed that material.';
+      'The number on each button = students who completed that lesson.';
 
   @override
   String tAnalyticsFilterAllMaterials(int count) {
-    return 'All Materials ($count)';
+    return 'All Lessons ($count)';
   }
 
   @override
@@ -3078,7 +3148,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get tAnalyticsTrackBasisBody =>
-      'Each track percentage = the average progress_percent of all class students across ALL official materials (built-in curriculum) in that track.\n\n• Each student × material pair counts as one row, including materials never opened (counted as 0%).\n• 100% means all class students completed all materials in that track.\n• Teacher-made materials are not counted (official curriculum only).\n• This number measures material completion, not practice scores.';
+      'Each track percentage = the average progress_percent of all class students across ALL official lessons (built-in curriculum) in that track.\n\n• Each student × lesson pair counts as one row, including lessons never opened (counted as 0%).\n• 100% means all class students completed all lessons in that track.\n• Teacher-made lessons are not counted (official curriculum only).\n• This number measures lesson completion, not practice scores.';
 
   @override
   String get tAnalyticsGotIt => 'Got it';
@@ -3125,11 +3195,11 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get tAnalyticsTrackTooltip =>
-      'Average progress of all class students across all official materials in this track (unopened materials = 0%).';
+      'Average progress of all class students across all official lessons in this track (unopened lessons = 0%).';
 
   @override
   String get tAnalyticsTrackSubtitle =>
-      'Average completion of all class students across all official materials in that track.';
+      'Average completion of all class students across all official lessons in that track.';
 
   @override
   String get tAnalyticsTrackEmpty =>
@@ -3162,14 +3232,14 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String tAnalyticsRankingHint(int max) {
-    return 'Rankings show at most $max students with the most materials/practices. All students still appear in full in the Student List section.';
+    return 'Rankings show at most $max students with the most lessons/practices. All students still appear in full in the Student List section.';
   }
 
   @override
-  String get tAnalyticsRankMaterial => 'Materials';
+  String get tAnalyticsRankMaterial => 'Lessons';
 
   @override
-  String get tAnalyticsRankMaterialSub => 'Completed materials';
+  String get tAnalyticsRankMaterialSub => 'Completed lessons';
 
   @override
   String get tAnalyticsRankPractice => 'Practice';
@@ -3187,7 +3257,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String tAnalyticsFilterCompletedCount(int count) {
-    return 'Completed Materials ($count)';
+    return 'Completed Lessons ($count)';
   }
 
   @override
@@ -3205,10 +3275,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get tAnalyticsPracticeRegularLabel => 'Regular Practice';
 
   @override
-  String get tAnalyticsNotStartedAll => 'Materials & Practices';
+  String get tAnalyticsNotStartedAll => 'Lessons & Practices';
 
   @override
-  String get tAnalyticsNotStartedMaterialLabel => 'Materials Not Done';
+  String get tAnalyticsNotStartedMaterialLabel => 'Lessons Not Done';
 
   @override
   String get tAnalyticsNotStartedPracticeLabel => 'Practices Not Finished';
@@ -3222,12 +3292,12 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String tAnalyticsRowPracticeDetail(int materials, int regular, int mini) {
-    return '$materials materials completed • $regular regular practices • $mini mini projects';
+    return '$materials lessons completed • $regular regular practices • $mini mini projects';
   }
 
   @override
   String tAnalyticsRowDetail(int materials, int practice) {
-    return '$materials materials completed • $practice practices passed';
+    return '$materials lessons completed • $practice practices passed';
   }
 
   @override
@@ -3244,7 +3314,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get tSlideFormHelpTheoryContent =>
-      'How to write material content:\n- Separate paragraphs with one blank line.\n- Lines starting with \"- \" or \"* \" automatically become list items.\n- Otherwise text is shown as-is: **bold**, # headings, links, and `code` are not formatted.\n\nExample:\nHTML is a markup language for building web pages.\n\n- Tags are opened then closed.\n- Attributes attach to the opening tag.';
+      'How to write lesson content:\n- Separate paragraphs with one blank line.\n- Lines starting with \"- \" or \"* \" automatically become list items.\n- Otherwise text is shown as-is: **bold**, # headings, links, and `code` are not formatted.\n\nExample:\nHTML is a markup language for building web pages.\n\n- Tags are opened then closed.\n- Attributes attach to the opening tag.';
 
   @override
   String get tSlideFormHelpCodeFileSample =>
@@ -3529,7 +3599,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get tPreviewTechTheory => 'Markdown • Theory';
 
   @override
-  String get tPreviewPromptTheory => 'Opening Material & Logic Introduction';
+  String get tPreviewPromptTheory => 'Opening Lesson & Logic Introduction';
 
   @override
   String get tPreviewFeedbackTheory =>
@@ -3616,11 +3686,11 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get tPreviewBenefitQuiz =>
-      'Measures material absorption objectively and quickly at the end of the discussion session.';
+      'Measures lesson absorption objectively and quickly at the end of the discussion session.';
 
   @override
   String get tPreviewSubtitleOutro =>
-      'Chapter closing slide with a recap of mastered material and reward claims.';
+      'Chapter closing slide with a recap of mastered lesson and reward claims.';
 
   @override
   String get tPreviewTechOutro => 'Achievement • Closing';
@@ -3635,7 +3705,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get tPreviewBenefitOutro =>
-      'Provides achievement satisfaction (gamification) and summarizes key material points.';
+      'Provides achievement satisfaction (gamification) and summarizes key lesson points.';
 
   @override
   String get tSettingsAvatarTooBig => 'Photo size must be at most 2 MB.';
@@ -3700,19 +3770,19 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get tCubitLessonCreated => 'New material created successfully.';
+  String get tCubitLessonCreated => 'New lesson created successfully.';
 
   @override
-  String get tCubitLessonPublished => 'Material published successfully.';
+  String get tCubitLessonPublished => 'Lesson published successfully.';
 
   @override
-  String get tCubitLessonDrafted => 'Material returned to draft.';
+  String get tCubitLessonDrafted => 'Lesson returned to draft.';
 
   @override
-  String get tCubitLessonDeleted => 'Material deleted successfully.';
+  String get tCubitLessonDeleted => 'Lesson deleted successfully.';
 
   @override
-  String get tCubitLessonDuplicated => 'Material duplicated successfully.';
+  String get tCubitLessonDuplicated => 'Lesson duplicated successfully.';
 
   @override
   String tCubitBabDuplicated(String title) {
@@ -3811,7 +3881,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get tTemplateBadgeAchievement => 'Achievement';
 
   @override
-  String get tTemplateBadgeReading => 'Reading Material';
+  String get tTemplateBadgeReading => 'Reading Lesson';
 
   @override
   String get tTemplateDescTapToFill =>
@@ -3838,7 +3908,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get tTemplateDescTheory =>
-      'Explanatory text of material concepts and code examples.';
+      'Explanatory text of lesson concepts and code examples.';
 
   @override
   String get tTemplateTitleTapToFill => 'Complete the Code';
@@ -3887,12 +3957,12 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get tTemplateSummaryOutro =>
-      'Great! You have completed the material in this chapter.';
+      'Great! You have completed the lesson in this chapter.';
 
   @override
-  String get tTemplateTitleTheory => 'New Material Explanation';
+  String get tTemplateTitleTheory => 'New Lesson Explanation';
 
   @override
   String get tTemplateContentTheory =>
-      'Write the learning material explanation here in language students can easily understand.';
+      'Write the learning lesson explanation here in language students can easily understand.';
 }

@@ -42,6 +42,7 @@ class Bab {
     required this.id,
     required this.lessonId,
     required this.title,
+    this.description = '',
     required this.orderIndex,
     required this.xpReward,
     required this.slides,
@@ -52,6 +53,7 @@ class Bab {
   final String id;
   final String lessonId;
   final String title;
+  final String description;
   final int orderIndex;
   final int xpReward;
 

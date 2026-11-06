@@ -16,6 +16,7 @@ import '../../../../core/widgets/app_snack.dart';
 import '../../../../core/widgets/app_tag.dart';
 import '../../../../core/widgets/skeleton.dart';
 import '../../../../l10n/app_localizations.dart';
+import '../../../certificate/presentation/certificate_actions.dart';
 import '../../domain/lesson_repository.dart';
 import '../../domain/slide_models.dart';
 
@@ -274,6 +275,10 @@ class _LessonCatalogPageState extends State<LessonCatalogPage> {
                         );
                         context.go(AppRoutes.dashboard);
                       },
+                      // Minggu 12: modul yang seluruh babnya tuntas langsung
+                      // menawarkan e-Sertifikat Kompetensi.
+                      onCertificate: () =>
+                          openModuleCertificate(context, entry.key),
                     ),
               ],
             ),
@@ -291,11 +296,15 @@ class _LessonTile extends StatelessWidget {
     required this.topic,
     required this.lessons,
     required this.onTap,
+    this.onCertificate,
   });
 
   final String topic;
   final List<LessonDetailData> lessons;
   final VoidCallback onTap;
+
+  /// Minggu 12: aksi e-Sertifikat modul (aktif hanya bila seluruh bab tuntas).
+  final VoidCallback? onCertificate;
 
   @override
   Widget build(BuildContext context) {
@@ -316,95 +325,135 @@ class _LessonTile extends StatelessWidget {
       padding: const EdgeInsets.only(bottom: AppSpacing.md),
       child: AppCard(
         padding: EdgeInsets.zero,
-        child: InkWell(
-          borderRadius: AppRadius.cardBorder,
-          onTap: onTap,
-          child: Padding(
-            padding: const EdgeInsets.all(AppSpacing.lg),
-            child: Row(
-              children: [
-                Container(
-                  width: 44,
-                  height: 44,
-                  decoration: BoxDecoration(
-                    color: isHtml
-                        ? Colors.orange.withValues(alpha: 0.15)
-                        : p.primaryContainer,
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Icon(
-                    isHtml ? Icons.language_rounded : topicIcon(topic),
-                    color: isHtml ? Colors.orange.shade800 : p.primary,
-                    size: 26,
-                  ),
-                ),
-                const SizedBox(width: AppSpacing.md),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        topic,
-                        style: AppTypography.label.copyWith(
-                          color: p.text,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 15,
-                        ),
+        child: Column(
+          children: [
+            InkWell(
+              borderRadius: AppRadius.cardBorder,
+              onTap: onTap,
+              child: Padding(
+                padding: const EdgeInsets.all(AppSpacing.lg),
+                child: Row(
+                  children: [
+                    Container(
+                      width: 44,
+                      height: 44,
+                      decoration: BoxDecoration(
+                        color: isHtml
+                            ? Colors.orange.withValues(alpha: 0.15)
+                            : p.primaryContainer,
+                        borderRadius: BorderRadius.circular(12),
                       ),
-                      // Deskripsi singkat materi tepat di bawah nama lesson.
-                      if (desc.isNotEmpty) ...[
-                        const SizedBox(height: AppSpacing.xs),
-                        Text(
-                          desc,
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                          style: AppTypography.caption.copyWith(
-                            color: p.textMuted,
+                      child: Icon(
+                        isHtml ? Icons.language_rounded : topicIcon(topic),
+                        color: isHtml ? Colors.orange.shade800 : p.primary,
+                        size: 26,
+                      ),
+                    ),
+                    const SizedBox(width: AppSpacing.md),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            topic,
+                            style: AppTypography.label.copyWith(
+                              color: p.text,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 15,
+                            ),
                           ),
-                        ),
-                        const SizedBox(height: AppSpacing.xs),
-                      ] else
-                        const SizedBox(height: AppSpacing.xs),
-                      AppProgressBar(value: pct, height: 6),
-                      const SizedBox(height: AppSpacing.xs),
-                      Text(
-                        l10n.materialChaptersDone(done, lessons.length),
-                        style: AppTypography.caption.copyWith(
-                          color: p.textMuted,
-                        ),
+                          // Deskripsi singkat materi tepat di bawah nama lesson.
+                          if (desc.isNotEmpty) ...[
+                            const SizedBox(height: AppSpacing.xs),
+                            Text(
+                              desc,
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                              style: AppTypography.caption.copyWith(
+                                color: p.textMuted,
+                              ),
+                            ),
+                            const SizedBox(height: AppSpacing.xs),
+                          ] else
+                            const SizedBox(height: AppSpacing.xs),
+                          AppProgressBar(value: pct, height: 6),
+                          const SizedBox(height: AppSpacing.xs),
+                          Text(
+                            l10n.materialChaptersDone(done, lessons.length),
+                            style: AppTypography.caption.copyWith(
+                              color: p.textMuted,
+                            ),
+                          ),
+                        ],
                       ),
-                    ],
+                    ),
+                    const SizedBox(width: AppSpacing.md),
+                    AppTag(
+                      hasActive
+                          ? l10n.materialFilterActive
+                          : allDone
+                          ? l10n.filterDone
+                          : done > 0
+                          ? l10n.materialStatusRunning
+                          : l10n.materialFilterNotStarted,
+                      background: hasActive
+                          ? p.primaryContainer
+                          : allDone
+                          ? p.success.withValues(alpha: 0.15)
+                          : p.surfaceAlt,
+                      foreground: hasActive
+                          ? p.primary
+                          : allDone
+                          ? p.success
+                          : p.textMuted,
+                    ),
+                    const SizedBox(width: AppSpacing.sm),
+                    Icon(
+                      Icons.arrow_forward_ios_rounded,
+                      color: p.primary,
+                      size: 14,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            // Minggu 12: baris aksi sertifikat hanya muncul saat seluruh bab
+            // tuntas (backend penentu penerbitan; tidak mengarang nomor).
+            if (allDone && onCertificate != null)
+              Padding(
+                padding: const EdgeInsets.fromLTRB(
+                  AppSpacing.lg,
+                  0,
+                  AppSpacing.lg,
+                  AppSpacing.sm,
+                ),
+                child: Align(
+                  alignment: AlignmentDirectional.centerStart,
+                  child: TextButton.icon(
+                    onPressed: onCertificate,
+                    icon: const Icon(
+                      Icons.workspace_premium_rounded,
+                      size: 16,
+                    ),
+                    label: Text(
+                      l10n.profileDownload,
+                      style: AppTypography.caption.copyWith(
+                        color: p.primary,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    style: TextButton.styleFrom(
+                      foregroundColor: p.primary,
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: AppSpacing.sm,
+                      ),
+                      minimumSize: const Size(0, AppSizes.tagHeight),
+                      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                    ),
                   ),
                 ),
-                const SizedBox(width: AppSpacing.md),
-                AppTag(
-                  hasActive
-                      ? l10n.materialFilterActive
-                      : allDone
-                      ? l10n.filterDone
-                      : done > 0
-                      ? l10n.materialStatusRunning
-                      : l10n.materialFilterNotStarted,
-                  background: hasActive
-                      ? p.primaryContainer
-                      : allDone
-                      ? p.success.withValues(alpha: 0.15)
-                      : p.surfaceAlt,
-                  foreground: hasActive
-                      ? p.primary
-                      : allDone
-                      ? p.success
-                      : p.textMuted,
-                ),
-                const SizedBox(width: AppSpacing.sm),
-                Icon(
-                  Icons.arrow_forward_ios_rounded,
-                  color: p.primary,
-                  size: 14,
-                ),
-              ],
-            ),
-          ),
+              ),
+          ],
         ),
       ),
     );

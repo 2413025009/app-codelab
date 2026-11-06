@@ -52,6 +52,7 @@ abstract class TeacherRepository {
   Future<Bab> createBab(
     String lessonId, {
     required String title,
+    String description = '',
     required int xpReward,
     required List<Map<String, dynamic>> slides,
   });
@@ -59,10 +60,11 @@ abstract class TeacherRepository {
   /// Duplikat bab menjadi nomor berikutnya (salinan tepat di bawah sumber).
   Future<Bab> duplicateBab(String babId);
 
-  /// Edit bab (judul, XP, slides → backend serialisasi markdown).
+  /// Edit bab (judul, deskripsi, XP, slides → backend serialisasi markdown).
   Future<Bab> updateBab(
     String babId, {
     required String title,
+    String description = '',
     required int xpReward,
     required List<Map<String, dynamic>> slides,
   });

@@ -462,6 +462,17 @@ class _BabListPageState extends State<BabListPage> {
                                         maxLines: 1,
                                         overflow: TextOverflow.ellipsis,
                                       ),
+                                      if (bab.description.trim().isNotEmpty) ...[
+                                        const SizedBox(height: 2),
+                                        Text(
+                                          bab.description.trim(),
+                                          style: AppTypography.bodySm.copyWith(
+                                            color: p.textMuted,
+                                          ),
+                                          maxLines: 2,
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
+                                      ],
                                       const SizedBox(height: 2),
                                       Text(
                                         l10n.tBabRowMeta(bab.slides.length, bab.xpReward),

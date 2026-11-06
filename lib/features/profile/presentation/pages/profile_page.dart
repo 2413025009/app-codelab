@@ -12,12 +12,13 @@ import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_card.dart';
 import '../../../../core/widgets/app_progress_ring.dart';
 import '../../../../core/widgets/app_refresh.dart';
-import '../../../../core/widgets/app_snack.dart';
 import '../../../../core/widgets/avatars.dart';
 import '../../../../core/widgets/competency_radar.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../../../auth/domain/auth_repository.dart';
 import '../../../auth/presentation/cubit/auth_cubit.dart';
+import '../../../certificate/domain/certificate_models.dart';
+import '../../../certificate/domain/certificate_repository.dart';
 import '../../../challenges/domain/challenge_repository.dart';
 import '../../../class/presentation/widgets/my_class_section.dart';
 import '../../../dashboard/domain/dashboard_repository.dart';
@@ -116,10 +117,12 @@ class _ProfilePageState extends State<ProfilePage> {
       final lessonRepo = context.read<LessonRepository>();
       final dashRepo = context.read<DashboardRepository>();
       final challengeRepo = context.read<ChallengeRepository>();
+      final certificateRepo = context.read<CertificateRepository>();
       final data = await _loadData(
         lessonRepo,
         dashRepo,
         challengeRepo,
+        certificateRepo,
         user?.email ?? '',
       );
       if (!mounted) return;
@@ -216,6 +219,7 @@ class _ProfilePageState extends State<ProfilePage> {
     LessonRepository lessonRepo,
     DashboardRepository dashRepo,
     ChallengeRepository challengeRepo,
+    CertificateRepository certificateRepo,
     String email,
   ) async {
     List<LessonDetailData> lessons;
@@ -253,6 +257,16 @@ class _ProfilePageState extends State<ProfilePage> {
       throw const _ProfileLoadFailed();
     }
 
+    // Minggu 12: sertifikat resmi dari backend (nomor unik + status layak).
+    // Bila gagal dimuat, bagian sertifikat jatuh ke perhitungan progres lokal
+    // (tanpa mengarang nomor sertifikat).
+    MyCertificates? certificates;
+    try {
+      certificates = await certificateRepo.getMyCertificates();
+    } catch (_) {
+      certificates = null;
+    }
+
     return _ProfileData(
       lessons: lessons,
       completedChallenges: challengesDone,
@@ -260,6 +274,7 @@ class _ProfilePageState extends State<ProfilePage> {
       userXp: userXp,
       skills: skills,
       challenges: challenges,
+      certificates: certificates,
     );
   }
 }
@@ -638,7 +653,9 @@ class _ProfileContent extends StatelessWidget {
             ),
             const SizedBox(height: AppSpacing.sm),
             // (a) Sertifikat dari LESSON: seluruh materi ditampilkan agar
-            // siswa tahu sertifikat mana yang sudah/tunggu.
+            // siswa tahu sertifikat mana yang sudah/tunggu. Bila backend
+            // sudah mengirim daftar sertifikat resmi (GET /me/certificates),
+            // baris memakai nomor unik + status layak dari server.
             AppCard(
               padding: EdgeInsets.zero,
               child: Column(
@@ -658,7 +675,14 @@ class _ProfileContent extends StatelessWidget {
                           height: 1,
                           color: p.outline.withValues(alpha: 0.5),
                         ),
-                      _CertificateItem(topic: entry.key, lessons: entry.value),
+                      _CertificateItem(
+                        topic: entry.key,
+                        lessons: entry.value,
+                        certificate: _moduleCertificateFor(
+                          data.certificates,
+                          entry.key,
+                        ),
+                      ),
                     ],
                 ],
               ),
@@ -667,7 +691,7 @@ class _ProfileContent extends StatelessWidget {
 
             // (b) Sertifikat Tantangan — SATU tantangan per baris, tampil
             // SEMUANYA (selesai maupun belum), status per siswa dari GET
-            // /challenges.
+            // /challenges dan nomor sertifikat dari GET /me/certificates.
             Text(
               l10n.profileChallengeCertsTitle,
               style: AppTypography.titleM.copyWith(color: p.text),
@@ -692,7 +716,13 @@ class _ProfileContent extends StatelessWidget {
                           height: 1,
                           color: p.outline.withValues(alpha: 0.5),
                         ),
-                      _ChallengeCertItem(challenge: data.challenges[i]),
+                      _ChallengeCertItem(
+                        challenge: data.challenges[i],
+                        certificate: _challengeCertificateFor(
+                          data.certificates,
+                          data.challenges[i],
+                        ),
+                      ),
                     ],
                   ],
                 ),
@@ -742,6 +772,37 @@ class _ProfileContent extends StatelessWidget {
   }
 }
 
+/// Cari sertifikat modul resmi untuk satu topik. Modul guru dicocokkan lewat
+/// namanya karena topik lesson guru boleh sama dengan track kurikulum.
+ModuleCertificate? _moduleCertificateFor(MyCertificates? certs, String topic) {
+  if (certs == null) return null;
+  final wanted = topic.trim().toLowerCase();
+  for (final m in certs.moduleCertificates) {
+    if (m.topic.trim().toLowerCase() == wanted) return m;
+  }
+  return null;
+}
+
+/// Cari sertifikat tantangan resmi untuk satu baris katalog tantangan.
+ChallengeCertificate? _challengeCertificateFor(
+  MyCertificates? certs,
+  ChallengeSummary challenge,
+) {
+  if (certs == null) return null;
+  final wanted = challenge.title.trim().toLowerCase();
+  for (final c in certs.challengeCertificates) {
+    if (c.title.trim().toLowerCase() == wanted) return c;
+  }
+  return null;
+}
+
+/// Buka layar pratinjau & cetak sertifikat. Hanya dipanggil bila nomor
+/// sertifikat resmi sudah ada (layak terbit menurut backend).
+void _openCertificate(BuildContext context, String certId) {
+  if (certId.trim().isEmpty) return;
+  context.push(AppRoutes.certificate(certId.trim()));
+}
+
 class _ProfileData {
   const _ProfileData({
     required this.lessons,
@@ -750,6 +811,7 @@ class _ProfileData {
     this.userXp,
     required this.skills,
     this.challenges = const [],
+    this.certificates,
   });
 
   const _ProfileData.empty()
@@ -758,7 +820,8 @@ class _ProfileData {
       totalChallenges = null,
       userXp = null,
       skills = const {},
-      challenges = const [];
+      challenges = const [],
+      certificates = null;
 
   final List<LessonDetailData> lessons;
   final int completedChallenges;
@@ -774,6 +837,10 @@ class _ProfileData {
   /// Minggu 9: daftar SEMUA tantangan (status per siswa) untuk baris
   /// sertifikat per tantangan; kosong bila katalog gagal diambil.
   final List<ChallengeSummary> challenges;
+
+  /// Minggu 12: dua kelompok sertifikat resmi dari GET /me/certificates.
+  /// null = belum/gagal dimuat → bagian sertifikat memakai progres lokal.
+  final MyCertificates? certificates;
 }
 
 class _StatCard extends StatelessWidget {
@@ -925,22 +992,36 @@ class _TrackRow extends StatelessWidget {
   }
 }
 
-/// Baris sertifikat per track: saat seluruh bab 100% → tombol unduh
-/// RINGKAS (mentah — snack placeholder), selain itu persen + status belajar.
+/// Baris sertifikat per track: saat seluruh bab 100% → tombol unduh aktif
+/// menuju layar pratinjau/cetak (`/sertifikat-kompetensi-siswa/:certId`).
+/// Sebelum tuntas, baris menampilkan progres + alasan yang ramah (bukan galat).
 class _CertificateItem extends StatelessWidget {
-  const _CertificateItem({required this.topic, required this.lessons});
+  const _CertificateItem({
+    required this.topic,
+    required this.lessons,
+    this.certificate,
+  });
 
   final String topic;
   final List<LessonDetailData> lessons;
+
+  /// Data sertifikat resmi dari backend (nomor unik + status layak).
+  /// null = daftar sertifikat belum termuat → status dihitung dari progres bab.
+  final ModuleCertificate? certificate;
 
   @override
   Widget build(BuildContext context) {
     final p = context.palette;
     final l10n = AppLocalizations.of(context);
-    final total = lessons.length;
-    final done = lessons.where((l) => l.status == 'completed').length;
+    final total = certificate?.totalChapters ?? lessons.length;
+    final done = certificate?.completedChapters ??
+        lessons.where((l) => l.status == 'completed').length;
     final pct = total == 0 ? 0 : (done * 100 ~/ total);
     final isComplete = total > 0 && done == total;
+
+    // Nomor sertifikat hanya dipakai bila backend sudah menerbitkannya.
+    final certId = (certificate?.certId ?? '').trim();
+    final hasCert = certId.isNotEmpty;
 
     return Padding(
       padding: const EdgeInsets.symmetric(
@@ -1004,13 +1085,24 @@ class _CertificateItem extends StatelessWidget {
                     ),
                   ],
                 ),
+                if (!isComplete) ...[
+                  const SizedBox(height: 2),
+                  Text(
+                    l10n.profileChaptersInline(done, total),
+                    style: AppTypography.caption.copyWith(
+                      color: p.textMuted,
+                      fontSize: 10.5,
+                    ),
+                  ),
+                ],
               ],
             ),
           ),
-          if (isComplete)
-            // Minggu 9 (owner): tombol unduh RINGKAS berlabel "Unduh"
-            // saja — aksi asli menyusul bersama generator PDF sertifikat.
-            _CompactDownloadButton(label: l10n.profileDownload)
+          if (isComplete && hasCert)
+            _CompactDownloadButton(
+              label: l10n.profileDownload,
+              onTap: () => _openCertificate(context, certId),
+            )
           else
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
@@ -1040,13 +1132,14 @@ class _CertificateItem extends StatelessWidget {
   }
 }
 
-/// Minggu 9 (owner): sertifikat tantangan per baris — SATU tantangan per
-/// baris, tampil SEMUANYA (selesai maupun belum), status dari GET
-/// /challenges siswa yang sedang login.
+/// Minggu 9-12: sertifikat tantangan per baris — SATU tantangan per baris,
+/// tampil SEMUANYA (selesai maupun belum). Bila backend sudah menerbitkan
+/// nomor sertifikat, tombol unduh membuka layar pratinjau/cetak.
 class _ChallengeCertItem extends StatelessWidget {
-  const _ChallengeCertItem({required this.challenge});
+  const _ChallengeCertItem({required this.challenge, this.certificate});
 
   final ChallengeSummary challenge;
+  final ChallengeCertificate? certificate;
 
   @override
   Widget build(BuildContext context) {
@@ -1054,6 +1147,8 @@ class _ChallengeCertItem extends StatelessWidget {
     final l10n = AppLocalizations.of(context);
     final isDone = challenge.status == ChallengeStatus.completed;
     final isLocked = challenge.isLocked;
+    final certId = (certificate?.certId ?? '').trim();
+    final hasCert = certId.isNotEmpty;
 
     return Padding(
       padding: const EdgeInsets.symmetric(
@@ -1128,8 +1223,11 @@ class _ChallengeCertItem extends StatelessWidget {
               ],
             ),
           ),
-          if (isDone)
-            _CompactDownloadButton(label: l10n.profileDownload)
+          if (isDone && hasCert)
+            _CompactDownloadButton(
+              label: l10n.profileDownload,
+              onTap: () => _openCertificate(context, certId),
+            )
           else
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
@@ -1162,23 +1260,24 @@ class _ChallengeCertItem extends StatelessWidget {
   }
 }
 
-/// Minggu 9 (owner): tombol unduhan RINGKAS berbagi baris dengan judul —
-/// selama generator PDF sertifikat belum ada, aksinya snack placeholder.
+/// Minggu 12: tombol unduhan RINGKAS berbagi baris dengan judul. Aksi
+/// membuka layar pratinjau & cetak `/sertifikat-kompetensi-siswa/:certId`
+/// (dokumen 2 halaman + tautan verifikasi QR resmi).
 class _CompactDownloadButton extends StatelessWidget {
-  const _CompactDownloadButton({required this.label});
+  const _CompactDownloadButton({required this.label, required this.onTap});
 
   final String label;
+  final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
     final p = context.palette;
-    final l10n = AppLocalizations.of(context);
     return Material(
       color: p.primary,
       borderRadius: BorderRadius.circular(10),
       child: InkWell(
         borderRadius: BorderRadius.circular(10),
-        onTap: () => showAppSnack(context, l10n.profileDownloadSoon),
+        onTap: onTap,
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
           child: Row(

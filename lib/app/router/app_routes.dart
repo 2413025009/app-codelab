@@ -78,6 +78,13 @@ abstract final class AppRoutes {
   /// Katalog seluruh materi kurikulum + materi guru kelas.
   static const catalog = '/katalog-materi-siswa';
 
+  /// Pratinjau & cetak e-Sertifikat Kompetensi (Minggu 12). Judul layarnya
+  /// "Sertifikat Kompetensi", jadi URL memakai nama itu + akhiran peran siswa.
+  /// `:certId` adalah nomor unik sertifikat (mis. CL-CERT-2026-PY01-FARHAN01).
+  static const certificatePattern = '/sertifikat-kompetensi-siswa/:certId';
+  static String certificate(String certId) =>
+      '/sertifikat-kompetensi-siswa/$certId';
+
   /// Pembaca materi. Layarnya hanya menampilkan bar progres di app bar, jadi
   /// nama URL memakai sebutan layarnya sendiri.
   static const lessonPattern = '/baca-materi-siswa/:id';

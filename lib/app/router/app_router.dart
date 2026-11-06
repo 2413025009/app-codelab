@@ -5,6 +5,7 @@ import '../../features/auth/presentation/cubit/auth_cubit.dart';
 import '../../features/auth/presentation/pages/login_page.dart';
 import '../../features/auth/presentation/pages/register_page.dart';
 import '../../features/auth/presentation/pages/teacher_register_page.dart';
+import '../../features/certificate/presentation/pages/certificate_page.dart';
 import '../../features/teacher/domain/teacher_models.dart';
 import '../../features/teacher/presentation/pages/bab_editor_page.dart';
 import '../../features/teacher/presentation/pages/bab_list_page.dart';
@@ -272,6 +273,13 @@ GoRouter appRouter(AuthCubit authCubit) {
       GoRoute(
         path: AppRoutes.catalog,
         builder: (context, state) => const LessonCatalogPage(),
+      ),
+      GoRoute(
+        path: AppRoutes.certificatePattern,
+        builder: (context, state) {
+          final certId = state.pathParameters['certId'] ?? '';
+          return CertificatePage(certId: certId);
+        },
       ),
       GoRoute(
         path: AppRoutes.lessonPattern,

@@ -351,6 +351,44 @@
   "profileCertChallengeLocked": "مقفل — نقاط XP غير كافية",
   "profileCertChallengeInProgress": "قيد التنفيذ",
   "profileDownloadSoon": "ميزة تنزيل الشهادات قادمة قريبًا!",
+  "certScreenTitle": "شهادة الكفاءة",
+  "certLoading": "جارٍ تجهيز شهادتك…",
+  "certLoadFailed": "تعذّر تحميل الشهادة. تحقّق من الاتصال ثم حاول مجددًا.",
+  "certOpenPreview": "عرض الشهادة",
+  "certOpenWeb": "فتح صفحة التحقق",
+  "certShareAction": "مشاركة الشهادة",
+  "certShareCopied": "تم نسخ رابط التحقق بنجاح.",
+  "certShareFailed": "تعذّر نسخ الرابط. حاول مجددًا.",
+  "certNotEligible": "أكمل جميع فصول هذا المودول أولًا.",
+  "certEligibleNow": "شهادتك جاهزة للإصدار.",
+  "certIdLabel": "معرّف الشهادة",
+  "certGivenTo": "مُنحت إلى",
+  "certIssuedLabel": "تاريخ الإصدار",
+  "certValidUntilLabel": "صالح حتى",
+  "certPageOne": "الصفحة 1 — شهادة إتمام",
+  "certPageTwo": "الصفحة 2 — كشف الدرجات والإنجازات",
+  "certPdfHint": "يُفتح المستند في المتصفح لتحفظه أو تطبعه بصيغة PDF.",
+  "certChapterCountInline": "{done}/{total} فصول مكتملة",
+  "@certChapterCountInline": {
+    "placeholders": {
+      "done": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "certPreviewTitle": "معاينة الشهادة الإلكترونية",
+  "certChallengeSectionTitle": "شهادات تحديات البرمجة",
+  "certProgressLockedHint": "{percent}% مكتمل — تُصدر الشهادة تلقائيًا بعد إتمام جميع الفصول.",
+  "@certProgressLockedHint": {
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
   "changePassOldLabel": "كلمة المرور القديمة",
   "changePassNewLabel": "كلمة المرور الجديدة",
   "changePassConfirmLabel": "تأكيد كلمة المرور الجديدة",

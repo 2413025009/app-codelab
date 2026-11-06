@@ -233,6 +233,7 @@ class _TeacherSlideEditorPageState extends State<TeacherSlideEditorPage> {
       widget.babId,
       widget.lessonId,
       title: bab.title,
+      description: bab.description,
       xpReward: bab.xpReward,
       slides: updatedSlides,
     );

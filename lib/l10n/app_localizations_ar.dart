@@ -1174,6 +1174,75 @@ class AppLocalizationsAr extends AppLocalizations {
   String get profileDownloadSoon => 'ميزة تنزيل الشهادات قادمة قريبًا!';
 
   @override
+  String get certScreenTitle => 'شهادة الكفاءة';
+
+  @override
+  String get certLoading => 'جارٍ تجهيز شهادتك…';
+
+  @override
+  String get certLoadFailed =>
+      'تعذّر تحميل الشهادة. تحقّق من الاتصال ثم حاول مجددًا.';
+
+  @override
+  String get certOpenPreview => 'عرض الشهادة';
+
+  @override
+  String get certOpenWeb => 'فتح صفحة التحقق';
+
+  @override
+  String get certShareAction => 'مشاركة الشهادة';
+
+  @override
+  String get certShareCopied => 'تم نسخ رابط التحقق بنجاح.';
+
+  @override
+  String get certShareFailed => 'تعذّر نسخ الرابط. حاول مجددًا.';
+
+  @override
+  String get certNotEligible => 'أكمل جميع فصول هذا المودول أولًا.';
+
+  @override
+  String get certEligibleNow => 'شهادتك جاهزة للإصدار.';
+
+  @override
+  String get certIdLabel => 'معرّف الشهادة';
+
+  @override
+  String get certGivenTo => 'مُنحت إلى';
+
+  @override
+  String get certIssuedLabel => 'تاريخ الإصدار';
+
+  @override
+  String get certValidUntilLabel => 'صالح حتى';
+
+  @override
+  String get certPageOne => 'الصفحة 1 — شهادة إتمام';
+
+  @override
+  String get certPageTwo => 'الصفحة 2 — كشف الدرجات والإنجازات';
+
+  @override
+  String get certPdfHint =>
+      'يُفتح المستند في المتصفح لتحفظه أو تطبعه بصيغة PDF.';
+
+  @override
+  String certChapterCountInline(int done, int total) {
+    return '$done/$total فصول مكتملة';
+  }
+
+  @override
+  String get certPreviewTitle => 'معاينة الشهادة الإلكترونية';
+
+  @override
+  String get certChallengeSectionTitle => 'شهادات تحديات البرمجة';
+
+  @override
+  String certProgressLockedHint(int percent) {
+    return '$percent% مكتمل — تُصدر الشهادة تلقائيًا بعد إتمام جميع الفصول.';
+  }
+
+  @override
   String get changePassOldLabel => 'كلمة المرور القديمة';
 
   @override
