@@ -3,6 +3,8 @@
 // TUGAS: Bab Builder & Slide Editor untuk 7 tipe slide (Minggu 11-12).
 // Sesuai Stitch v3: editor_bab_bab_builder_codelab_ai & CONTOH_LESSON.md.
 
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -47,6 +49,16 @@ class _BabEditorPageState extends State<BabEditorPage> {
   bool _isLoading = false;
   String? _loadError;
 
+  /// Minggu 14: penanda perubahan belum disimpan. Setiap suntingan judul,
+  /// deskripsi, XP, atau slide menyalakannya; menyimpan berhasil mematikannya.
+  bool _isDirty = false;
+
+  /// Snapshot isi awal untuk membandingkan apakah benar-benar berubah.
+  String _initialTitle = '';
+  String _initialDescription = '';
+  int _initialXpReward = 50;
+  String _initialSlidesSignature = '';
+
   late List<Map<String, dynamic>> _slides;
 
   @override
@@ -68,6 +80,9 @@ class _BabEditorPageState extends State<BabEditorPage> {
         SlideTemplates.create('QUIZ', id: 'slide_2'),
         SlideTemplates.create('OUTRO', id: 'slide_3', xpReward: _xpReward),
       ];
+      // Bab baru dimulai dari template default — itulah titik "belum ada
+      // perubahan", supaya tombol kembali tidak memperingatkan tanpa suntingan.
+      _captureDirtyBaseline();
     }
   }
 
@@ -77,6 +92,34 @@ class _BabEditorPageState extends State<BabEditorPage> {
     _xpReward = bab.xpReward;
     _slides = bab.slides.map((slide) => SlideTemplates.copy(slide)).toList();
     _syncOutroXp();
+    _captureDirtyBaseline();
+  }
+
+  /// Simpan snapshot isi saat ini sebagai titik "belum berubah".
+  void _captureDirtyBaseline() {
+    _initialTitle = _titleController.text;
+    _initialDescription = _descController.text;
+    _initialXpReward = _xpReward;
+    _initialSlidesSignature = _slidesSignature();
+    _isDirty = false;
+  }
+
+  /// Tanda tangan isi slide yang stabil (tanpa bergantung urutan key map).
+  String _slidesSignature() => jsonEncode(
+        _slides
+            .map((s) => Map<String, dynamic>.from(s))
+            .toList(growable: false),
+      );
+
+  /// Bandingkan isi sekarang dengan baseline; dipanggil setiap suntingan.
+  void _recomputeDirty() {
+    final dirty = _titleController.text != _initialTitle ||
+        _descController.text != _initialDescription ||
+        _xpReward != _initialXpReward ||
+        _slidesSignature() != _initialSlidesSignature;
+    if (dirty != _isDirty) {
+      setState(() => _isDirty = dirty);
+    }
   }
 
   Future<void> _loadBab() async {
@@ -131,6 +174,7 @@ class _BabEditorPageState extends State<BabEditorPage> {
       _xpReward = (_xpReward + delta).clamp(10, 500);
       _syncOutroXp();
     });
+    _recomputeDirty();
   }
 
   Future<void> _addSlideAndEdit(String type) async {
@@ -141,6 +185,7 @@ class _BabEditorPageState extends State<BabEditorPage> {
     final edited = await _pushSlideEditor(slide, _slides.length);
     if (!mounted || edited == null) return;
     setState(() => _slides.add(edited));
+    _recomputeDirty();
   }
 
   Future<void> _openSlideEditor(int index) async {
@@ -154,6 +199,7 @@ class _BabEditorPageState extends State<BabEditorPage> {
         _slides[index]['xp_preview'] = _xpReward;
       }
     });
+    _recomputeDirty();
   }
 
   Future<Map<String, dynamic>?> _pushSlideEditor(
@@ -220,6 +266,7 @@ class _BabEditorPageState extends State<BabEditorPage> {
       return;
     }
     setState(() => _slides.removeAt(index));
+    _recomputeDirty();
   }
 
   void _moveSlide(int index, int delta) {
@@ -229,6 +276,7 @@ class _BabEditorPageState extends State<BabEditorPage> {
       final item = _slides.removeAt(index);
       _slides.insert(newIndex, item);
     });
+    _recomputeDirty();
   }
 
   void _showAddSlidePicker() {
@@ -505,6 +553,8 @@ class _BabEditorPageState extends State<BabEditorPage> {
     setState(() => _isSubmitting = false);
 
     if (result != null) {
+      // Tersimpan: tidak ada lagi perubahan yang perlu diperingatkan.
+      _isDirty = false;
       showAppSnack(
         context,
         _isEdit ? l10n.tBabUpdated : l10n.tBabCreated,
@@ -515,6 +565,34 @@ class _BabEditorPageState extends State<BabEditorPage> {
         context.go(AppRoutes.teacherBabList(widget.lessonId));
       }
     }
+  }
+
+  /// Minggu 14: peringatan "ada perubahan belum disimpan" saat guru menekan
+  /// kembali. Mengembalikan true bila halaman boleh ditutup.
+  Future<bool> _confirmLeaveWhenDirty() async {
+    if (!_isDirty || _isSubmitting) return true;
+    final l10n = AppLocalizations.of(context);
+    final choice = await showDialog<String>(
+      context: context,
+      builder: (dialogCtx) => AlertDialog(
+        title: Text(l10n.tEditorUnsavedTitle),
+        content: Text(l10n.tEditorUnsavedBody),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(dialogCtx).pop('stay'),
+            child: Text(l10n.tEditorUnsavedStay),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(dialogCtx).pop('discard'),
+            style: TextButton.styleFrom(
+              foregroundColor: context.palette.error,
+            ),
+            child: Text(l10n.tEditorUnsavedLeave),
+          ),
+        ],
+      ),
+    );
+    return choice == 'discard';
   }
 
   void _openStudentPreview() {
@@ -594,7 +672,7 @@ class _BabEditorPageState extends State<BabEditorPage> {
       );
     }
 
-    return Scaffold(
+    final scaffold = Scaffold(
       appBar: AppBar(
         title: Text(_isEdit ? l10n.tBabEditTitle : l10n.tBabBuilderTitle),
         actions: [
@@ -668,7 +746,10 @@ class _BabEditorPageState extends State<BabEditorPage> {
                           TextField(
                             controller: _titleController,
                             maxLength: 100,
-                            onChanged: (_) => setState(() {}),
+                            onChanged: (_) {
+                              setState(() {});
+                              _recomputeDirty();
+                            },
                             decoration: InputDecoration(
                               hintText: l10n.tBabExampleName,
                               counterText: '',
@@ -718,7 +799,10 @@ class _BabEditorPageState extends State<BabEditorPage> {
                             controller: _descController,
                             maxLength: 300,
                             maxLines: 2,
-                            onChanged: (_) => setState(() {}),
+                            onChanged: (_) {
+                              setState(() {});
+                              _recomputeDirty();
+                            },
                             decoration: InputDecoration(
                               hintText: l10n.localeName.startsWith('en')
                                   ? 'Brief summary of what students learn in this chapter...'
@@ -1019,6 +1103,18 @@ class _BabEditorPageState extends State<BabEditorPage> {
           ],
         ),
       ),
+    );
+
+    return PopScope(
+      canPop: !_isDirty,
+      onPopInvokedWithResult: (didPop, _) async {
+        if (didPop) return;
+        final navigator = Navigator.of(context);
+        if (await _confirmLeaveWhenDirty() && mounted) {
+          navigator.pop();
+        }
+      },
+      child: scaffold,
     );
   }
 

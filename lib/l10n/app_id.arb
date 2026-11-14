@@ -2252,5 +2252,76 @@
   "tTemplateTitleOutro": "Rangkuman Bab",
   "tTemplateSummaryOutro": "Hebat! Kamu telah menuntaskan modul pada bab ini.",
   "tTemplateTitleTheory": "Penjelasan Modul Baru",
-  "tTemplateContentTheory": "Tuliskan penjelasan modul pembelajaran di sini dengan bahasa yang mudah dipahami siswa."
+  "tTemplateContentTheory": "Tuliskan penjelasan modul pembelajaran di sini dengan bahasa yang mudah dipahami siswa.",
+
+  "certContentVersion": "Versi konten modul: v{version}",
+  "@certContentVersion": {
+    "placeholders": {
+      "version": {
+        "type": "int"
+      }
+    }
+  },
+
+  "challengeSimulatedTitle": "Penilaian Mode Simulasi",
+  "challengeSimulatedBody": "Server belum menjalankan kode Python secara nyata, jadi hasil ini hanya perkiraan. XP dan sertifikat belum bisa diterbitkan — hubungi pengajar.",
+  "challengeSubmitting": "Sedang menilai…",
+  "historySimulatedBadge": "Simulasi",
+
+  "settingsDataHeader": "DATA PRIBADIMU",
+  "settingsExportData": "Ekspor Data Pribadi",
+  "settingsExportDataSubtitle": "Unduh salinan data akun, progres, dan sertifikatmu",
+  "settingsExportDataEmpty": "Belum ada data untuk diekspor.",
+  "settingsExportDataCopied": "Data pribadi disalin ke papan klip.",
+  "settingsExportDataFailed": "Data gagal dimuat. Periksa koneksi lalu coba lagi.",
+  "settingsDeleteAccount": "Hapus Akun Permanen",
+  "settingsDeleteAccountSubtitle": "Seluruh progres, submisi, dan sertifikat ikut terhapus",
+  "settingsDeleteTitle": "Hapus Akun Permanen?",
+  "settingsDeleteBody": "Tindakan ini tidak bisa dibatalkan. Seluruh progres belajar, riwayat submisi, dan sertifikatmu akan hilang.",
+  "settingsDeletePasswordLabel": "Kata sandi akun",
+  "settingsDeleteConfirmLabel": "Ketik HAPUS AKUN untuk melanjutkan",
+  "settingsDeleteAction": "Hapus Akun Saya",
+  "settingsDeleteWrongPassword": "Kata sandi belum cocok. Akun tidak dihapus.",
+  "settingsDeleteFailed": "Akun gagal dihapus. Coba lagi sebentar.",
+  "settingsDeleteSuccess": "Akunmu sudah dihapus. Sampai jumpa!",
+
+  "errorScreenTitle": "Terjadi Kendala",
+  "errorScreenBody": "Aplikasi berhenti di tengah jalan. Kamu bisa menyalin laporan singkat dan mengirimkannya ke pengajar agar cepat diperbaiki.",
+  "errorScreenCopy": "Salin Laporan",
+  "errorScreenCopied": "Laporan galat disalin. Kirimkan ke pengajar atau admin.",
+  "errorScreenRetry": "Coba Lagi",
+
+  "tEditorUnsavedTitle": "Perubahan Belum Disimpan",
+  "tEditorUnsavedBody": "Ada perubahan pada editor ini. Simpan dulu agar tidak hilang, atau buang perubahannya?",
+  "tEditorUnsavedStay": "Lanjut Mengedit",
+  "tEditorUnsavedLeave": "Buang & Keluar",
+
+  "a11yRoadmapNode": "Bab {order}: {title}, status {status}",
+  "@a11yRoadmapNode": {
+    "placeholders": {
+      "order": {
+        "type": "int"
+      },
+      "title": {
+        "type": "String"
+      },
+      "status": {
+        "type": "String"
+      }
+    }
+  },
+  "a11yCertificateDoc": "Sertifikat {kind} untuk {name}, nomor {certId}",
+  "@a11yCertificateDoc": {
+    "placeholders": {
+      "kind": {
+        "type": "String"
+      },
+      "name": {
+        "type": "String"
+      },
+      "certId": {
+        "type": "String"
+      }
+    }
+  }
 }

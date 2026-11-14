@@ -4111,4 +4111,115 @@ class AppLocalizationsAr extends AppLocalizations {
   @override
   String get tTemplateContentTheory =>
       'اكتب شرح المادة التعليمية هنا بلغة يفهمها الطلاب بسهولة.';
+
+  @override
+  String certContentVersion(int version) {
+    return 'إصدار محتوى المودول: v$version';
+  }
+
+  @override
+  String get challengeSimulatedTitle => 'تصحيح في وضع المحاكاة';
+
+  @override
+  String get challengeSimulatedBody =>
+      'لم يُشغّل الخادم كود بايثون فعليًا، لذا هذه النتيجة تقديرية فقط. لا يمكن منح النقاط أو الشهادة بعد — تواصل مع معلمك.';
+
+  @override
+  String get challengeSubmitting => 'جارٍ التصحيح…';
+
+  @override
+  String get historySimulatedBadge => 'محاكاة';
+
+  @override
+  String get settingsDataHeader => 'بياناتك الشخصية';
+
+  @override
+  String get settingsExportData => 'تصدير البيانات الشخصية';
+
+  @override
+  String get settingsExportDataSubtitle =>
+      'نزّل نسخة من بيانات حسابك وتقدّمك وشهاداتك';
+
+  @override
+  String get settingsExportDataEmpty => 'لا توجد بيانات للتصدير بعد.';
+
+  @override
+  String get settingsExportDataCopied => 'تم نسخ البيانات الشخصية إلى الحافظة.';
+
+  @override
+  String get settingsExportDataFailed =>
+      'تعذّر تحميل بياناتك. تحقّق من الاتصال ثم أعد المحاولة.';
+
+  @override
+  String get settingsDeleteAccount => 'حذف الحساب نهائيًا';
+
+  @override
+  String get settingsDeleteAccountSubtitle =>
+      'سيُحذف كل التقدّم والإجابات والشهادات';
+
+  @override
+  String get settingsDeleteTitle => 'حذف الحساب نهائيًا؟';
+
+  @override
+  String get settingsDeleteBody =>
+      'لا يمكن التراجع عن هذا الإجراء. سيضيع كل تقدّمك التعليمي وسجل الإجابات والشهادات.';
+
+  @override
+  String get settingsDeletePasswordLabel => 'كلمة مرور الحساب';
+
+  @override
+  String get settingsDeleteConfirmLabel => 'اكتب HAPUS AKUN للمتابعة';
+
+  @override
+  String get settingsDeleteAction => 'احذف حسابي';
+
+  @override
+  String get settingsDeleteWrongPassword =>
+      'كلمة المرور غير مطابقة. لم يُحذف الحساب.';
+
+  @override
+  String get settingsDeleteFailed => 'تعذّر حذف الحساب. أعد المحاولة بعد قليل.';
+
+  @override
+  String get settingsDeleteSuccess => 'تم حذف حسابك. إلى اللقاء!';
+
+  @override
+  String get errorScreenTitle => 'حدث خلل';
+
+  @override
+  String get errorScreenBody =>
+      'توقّف التطبيق فجأة. يمكنك نسخ تقرير موجز وإرساله إلى معلمك ليُصلَح سريعًا.';
+
+  @override
+  String get errorScreenCopy => 'انسخ التقرير';
+
+  @override
+  String get errorScreenCopied =>
+      'تم نسخ تقرير الخطأ. أرسله إلى معلمك أو المسؤول.';
+
+  @override
+  String get errorScreenRetry => 'أعد المحاولة';
+
+  @override
+  String get tEditorUnsavedTitle => 'تغييرات غير محفوظة';
+
+  @override
+  String get tEditorUnsavedBody =>
+      'هناك تغييرات في هذا المحرر. احفظها أولًا حتى لا تضيع، أم تتجاهلها؟';
+
+  @override
+  String get tEditorUnsavedStay => 'متابعة التحرير';
+
+  @override
+  String get tEditorUnsavedLeave => 'تجاهل واخرج';
+
+  @override
+  String a11yRoadmapNode(int order, String title, String status) {
+    return 'الفصل $order: $title، الحالة $status';
+  }
+
+  @override
+  String a11yCertificateDoc(String kind, String name, String certId) {
+    return 'شهادة $kind باسم $name، رقم $certId';
+  }
 }

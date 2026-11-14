@@ -210,6 +210,15 @@ class _SubmissionCard extends StatelessWidget {
                         Wrap(spacing: 8, crossAxisAlignment: WrapCrossAlignment.center, children: [
                           Text(l10n.historySubmissionNumber(s.number), style: AppTypography.titleM.copyWith(color: p.text, fontSize: 18)),
                           if (s.whenLabel.isNotEmpty) AppTag(s.whenLabel, background: p.primaryContainer, foreground: p.primary),
+                          // Minggu 14: tandai submisi yang dinilai mode simulasi
+                          // agar siswa/pengajar tahu nilainya bukan hasil eksekusi.
+                          if (s.simulated)
+                            AppTag(
+                              l10n.historySimulatedBadge,
+                              background: p.warningContainer,
+                              foreground: p.warningText,
+                              icon: Icons.info_outline_rounded,
+                            ),
                         ]),
                         const SizedBox(height: 4),
                         Text.rich(TextSpan(children: [

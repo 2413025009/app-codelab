@@ -328,23 +328,46 @@ class _WindingRoadmapState extends State<WindingRoadmap>
     final isQuiz =
         module.order == 4 || module.title.toLowerCase().contains('kuis');
 
+    final Widget node;
     if (isActive) {
-      return _buildActiveNode(context, module);
+      node = _buildActiveNode(context, module);
+    } else if (isCompleted) {
+      node = _buildCompletedNode(context, module, isEven, index);
+    } else if (isAvailable) {
+      node = _buildAvailableNode(context, module, isEven, index);
+    } else if (isQuiz) {
+      node = _buildQuizNode(context, module, isEven, index);
+    } else {
+      node = _buildLockedNode(context, module, isEven, index);
     }
 
-    if (isCompleted) {
-      return _buildCompletedNode(context, module, isEven, index);
-    }
+    // Minggu 14 (aksesibilitas): peta belajar penuh bentuk & warna, sehingga
+    // pembaca layar butuh satu label utuh per posisi — nomor, judul, status.
+    return Semantics(
+      container: true,
+      button: true,
+      label: AppLocalizations.of(context).a11yRoadmapNode(
+        module.order,
+        module.title,
+        _statusLabel(context, module.status),
+      ),
+      child: node,
+    );
+  }
 
-    if (isAvailable) {
-      return _buildAvailableNode(context, module, isEven, index);
+  /// Label status yang bisa dibaca pembaca layar.
+  String _statusLabel(BuildContext context, ModuleStatus status) {
+    final l10n = AppLocalizations.of(context);
+    switch (status) {
+      case ModuleStatus.completed:
+        return l10n.moduleStatusCompleted;
+      case ModuleStatus.active:
+        return l10n.roadmapInProgress;
+      case ModuleStatus.available:
+        return l10n.roadmapAvailableNow;
+      case ModuleStatus.locked:
+        return l10n.moduleStatusLocked;
     }
-
-    if (isQuiz) {
-      return _buildQuizNode(context, module, isEven, index);
-    }
-
-    return _buildLockedNode(context, module, isEven, index);
   }
 
   Widget _buildCompletedNode(
@@ -418,36 +441,48 @@ class _WindingRoadmapState extends State<WindingRoadmap>
                     ),
                   ),
                   const SizedBox(width: 10),
-                  Column(
-                    crossAxisAlignment: isEven
-                        ? CrossAxisAlignment.start
-                        : CrossAxisAlignment.end,
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(
-                        '${module.order}. ${module.title}',
-                        style: AppTypography.bodyM.copyWith(
-                          fontWeight: FontWeight.w600,
-                          color: p.text,
-                          fontSize: 13,
-                        ),
-                      ),
-                      Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Icon(Icons.star_rounded, color: p.accent, size: 14),
-                          const SizedBox(width: 2),
-                          Text(
-                            '+50 XP',
-                            style: AppTypography.caption.copyWith(
-                              fontWeight: FontWeight.bold,
-                              color: p.textMuted,
-                              fontSize: 11,
-                            ),
+                  Flexible(
+                    child: Column(
+                      crossAxisAlignment: isEven
+                          ? CrossAxisAlignment.start
+                          : CrossAxisAlignment.end,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          '${module.order}. ${module.title}',
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                          style: AppTypography.bodyM.copyWith(
+                            fontWeight: FontWeight.w600,
+                            color: p.text,
+                            fontSize: 13,
                           ),
-                        ],
-                      ),
-                    ],
+                        ),
+                        Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(
+                              Icons.star_rounded,
+                              color: p.accent,
+                              size: 14,
+                            ),
+                            const SizedBox(width: 2),
+                            Flexible(
+                              child: Text(
+                                '+50 XP',
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: AppTypography.caption.copyWith(
+                                  fontWeight: FontWeight.bold,
+                                  color: p.textMuted,
+                                  fontSize: 11,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
                   ),
                   const SizedBox(width: 4),
                 ],
@@ -589,50 +624,58 @@ class _WindingRoadmapState extends State<WindingRoadmap>
                             ],
                           ),
                           const SizedBox(width: 12),
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Container(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 8,
-                                  vertical: 2,
-                                ),
-                                decoration: BoxDecoration(
-                                  color: p.primary,
-                                  borderRadius: BorderRadius.circular(999),
-                                ),
-                                child: Text(
-                                  l10n.roadmapInProgress,
-                                  style: TextStyle(
-                                    color: p.onPrimary,
-                                    fontSize: 10,
-                                    fontWeight: FontWeight.bold,
+                          Flexible(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 8,
+                                    vertical: 2,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: p.primary,
+                                    borderRadius: BorderRadius.circular(999),
+                                  ),
+                                  child: Text(
+                                    l10n.roadmapInProgress,
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: TextStyle(
+                                      color: p.onPrimary,
+                                      fontSize: 10,
+                                      fontWeight: FontWeight.bold,
+                                    ),
                                   ),
                                 ),
-                              ),
-                              const SizedBox(height: 3),
-                              Text(
-                                '${module.order}. ${module.title}',
-                                style: AppTypography.bodyL.copyWith(
-                                  fontWeight: FontWeight.bold,
-                                  color: p.text,
-                                  fontSize: 15,
+                                const SizedBox(height: 3),
+                                Text(
+                                  '${module.order}. ${module.title}',
+                                  maxLines: 2,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: AppTypography.bodyL.copyWith(
+                                    fontWeight: FontWeight.bold,
+                                    color: p.text,
+                                    fontSize: 15,
+                                  ),
                                 ),
-                              ),
-                              Text(
-                                l10n.roadmapBabLine(
-                                  module.order,
-                                  module.description.contains('Slide')
-                                      ? module.description
-                                      : l10n.roadmapPracticeCount,
+                                Text(
+                                  l10n.roadmapBabLine(
+                                    module.order,
+                                    module.description.contains('Slide')
+                                        ? module.description
+                                        : l10n.roadmapPracticeCount,
+                                  ),
+                                  maxLines: 2,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: AppTypography.caption.copyWith(
+                                    color: p.textMuted,
+                                    fontSize: 11,
+                                  ),
                                 ),
-                                style: AppTypography.caption.copyWith(
-                                  color: p.textMuted,
-                                  fontSize: 11,
-                                ),
-                              ),
-                            ],
+                              ],
+                            ),
                           ),
                           const SizedBox(width: 8),
                         ],
@@ -707,28 +750,34 @@ class _WindingRoadmapState extends State<WindingRoadmap>
                     ),
                   ),
                   const SizedBox(width: 10),
-                  Column(
-                    crossAxisAlignment: isEven
-                        ? CrossAxisAlignment.start
-                        : CrossAxisAlignment.end,
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(
-                        '${module.order}. ${module.title}',
-                        style: AppTypography.bodyM.copyWith(
-                          fontWeight: FontWeight.w600,
-                          color: p.text,
-                          fontSize: 13,
+                  Flexible(
+                    child: Column(
+                      crossAxisAlignment: isEven
+                          ? CrossAxisAlignment.start
+                          : CrossAxisAlignment.end,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          '${module.order}. ${module.title}',
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                          style: AppTypography.bodyM.copyWith(
+                            fontWeight: FontWeight.w600,
+                            color: p.text,
+                            fontSize: 13,
+                          ),
                         ),
-                      ),
-                      Text(
-                        l10n.roadmapQuizNode,
-                        style: AppTypography.caption.copyWith(
-                          color: p.textMuted,
-                          fontSize: 11,
+                        Text(
+                          l10n.roadmapQuizNode,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: AppTypography.caption.copyWith(
+                            color: p.textMuted,
+                            fontSize: 11,
+                          ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                   const SizedBox(width: 4),
                 ],
@@ -794,28 +843,34 @@ class _WindingRoadmapState extends State<WindingRoadmap>
                     child: Icon(Icons.play_arrow_rounded, color: p.primary, size: 24),
                   ),
                   const SizedBox(width: 10),
-                  Column(
-                    crossAxisAlignment: isEven
-                        ? CrossAxisAlignment.start
-                        : CrossAxisAlignment.end,
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(
-                        '${module.order}. ${module.title}',
-                        style: AppTypography.bodyM.copyWith(
-                          fontWeight: FontWeight.w600,
-                          color: p.text,
-                          fontSize: 13,
+                  Flexible(
+                    child: Column(
+                      crossAxisAlignment: isEven
+                          ? CrossAxisAlignment.start
+                          : CrossAxisAlignment.end,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          '${module.order}. ${module.title}',
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                          style: AppTypography.bodyM.copyWith(
+                            fontWeight: FontWeight.w600,
+                            color: p.text,
+                            fontSize: 13,
+                          ),
                         ),
-                      ),
-                      Text(
-                        l10n.roadmapAvailableNow,
-                        style: AppTypography.caption.copyWith(
-                          color: p.textMuted,
-                          fontSize: 11,
+                        Text(
+                          l10n.roadmapAvailableNow,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: AppTypography.caption.copyWith(
+                            color: p.textMuted,
+                            fontSize: 11,
+                          ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                   const SizedBox(width: 4),
                 ],
@@ -881,28 +936,34 @@ class _WindingRoadmapState extends State<WindingRoadmap>
                       child: Icon(Icons.lock_rounded, color: p.textMuted, size: 20),
                     ),
                     const SizedBox(width: 10),
-                    Column(
-                      crossAxisAlignment: isEven
-                          ? CrossAxisAlignment.start
-                          : CrossAxisAlignment.end,
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text(
-                          '${module.order}. ${module.title}',
-                          style: AppTypography.bodyM.copyWith(
-                            fontWeight: FontWeight.w600,
-                            color: p.text,
-                            fontSize: 13,
+                    Flexible(
+                      child: Column(
+                        crossAxisAlignment: isEven
+                            ? CrossAxisAlignment.start
+                            : CrossAxisAlignment.end,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            '${module.order}. ${module.title}',
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                            style: AppTypography.bodyM.copyWith(
+                              fontWeight: FontWeight.w600,
+                              color: p.text,
+                              fontSize: 13,
+                            ),
                           ),
-                        ),
-                        Text(
-                          l10n.moduleStatusLocked,
-                          style: AppTypography.caption.copyWith(
-                            color: p.textMuted,
-                            fontSize: 11,
+                          Text(
+                            l10n.moduleStatusLocked,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: AppTypography.caption.copyWith(
+                              color: p.textMuted,
+                              fontSize: 11,
+                            ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                     const SizedBox(width: 4),
                   ],

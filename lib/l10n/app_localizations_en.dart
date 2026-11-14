@@ -4177,4 +4177,118 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get tTemplateContentTheory =>
       'Write the learning lesson explanation here in language students can easily understand.';
+
+  @override
+  String certContentVersion(int version) {
+    return 'Module content version: v$version';
+  }
+
+  @override
+  String get challengeSimulatedTitle => 'Simulated Grading';
+
+  @override
+  String get challengeSimulatedBody =>
+      'The server has not executed your Python code for real, so this result is only an estimate. XP and certificates cannot be issued yet — please contact your teacher.';
+
+  @override
+  String get challengeSubmitting => 'Grading…';
+
+  @override
+  String get historySimulatedBadge => 'Simulated';
+
+  @override
+  String get settingsDataHeader => 'YOUR PERSONAL DATA';
+
+  @override
+  String get settingsExportData => 'Export Personal Data';
+
+  @override
+  String get settingsExportDataSubtitle =>
+      'Download a copy of your account data, progress, and certificates';
+
+  @override
+  String get settingsExportDataEmpty => 'There is no data to export yet.';
+
+  @override
+  String get settingsExportDataCopied =>
+      'Personal data copied to the clipboard.';
+
+  @override
+  String get settingsExportDataFailed =>
+      'Could not load your data. Check the connection and try again.';
+
+  @override
+  String get settingsDeleteAccount => 'Delete Account Permanently';
+
+  @override
+  String get settingsDeleteAccountSubtitle =>
+      'All progress, submissions, and certificates will be removed';
+
+  @override
+  String get settingsDeleteTitle => 'Delete Account Permanently?';
+
+  @override
+  String get settingsDeleteBody =>
+      'This action cannot be undone. All your learning progress, submission history, and certificates will be lost.';
+
+  @override
+  String get settingsDeletePasswordLabel => 'Account password';
+
+  @override
+  String get settingsDeleteConfirmLabel => 'Type HAPUS AKUN to continue';
+
+  @override
+  String get settingsDeleteAction => 'Delete My Account';
+
+  @override
+  String get settingsDeleteWrongPassword =>
+      'That password does not match. Your account was not deleted.';
+
+  @override
+  String get settingsDeleteFailed =>
+      'Could not delete your account. Please try again.';
+
+  @override
+  String get settingsDeleteSuccess =>
+      'Your account has been deleted. Take care!';
+
+  @override
+  String get errorScreenTitle => 'Something Went Wrong';
+
+  @override
+  String get errorScreenBody =>
+      'The app stopped unexpectedly. You can copy a short report and send it to your teacher so it can be fixed quickly.';
+
+  @override
+  String get errorScreenCopy => 'Copy Report';
+
+  @override
+  String get errorScreenCopied =>
+      'Error report copied. Send it to your teacher or admin.';
+
+  @override
+  String get errorScreenRetry => 'Try Again';
+
+  @override
+  String get tEditorUnsavedTitle => 'Unsaved Changes';
+
+  @override
+  String get tEditorUnsavedBody =>
+      'This editor has unsaved changes. Save them first so nothing is lost, or discard them?';
+
+  @override
+  String get tEditorUnsavedStay => 'Keep Editing';
+
+  @override
+  String get tEditorUnsavedLeave => 'Discard & Leave';
+
+  @override
+  String a11yRoadmapNode(int order, String title, String status) {
+    return 'Chapter $order: $title, status $status';
+  }
+
+  @override
+  String a11yCertificateDoc(String kind, String name, String certId) {
+    return '$kind certificate for $name, number $certId';
+  }
 }

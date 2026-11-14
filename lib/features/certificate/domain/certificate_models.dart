@@ -168,6 +168,7 @@ class CertificateVerification extends Equatable {
     this.xpReward = 0,
     this.estimatedMinutes = 0,
     this.moduleIcon = '',
+    this.contentVersion = 0,
     this.verifyUrl = '',
     this.issuedAt,
     this.validUntil,
@@ -192,6 +193,11 @@ class CertificateVerification extends Equatable {
   final int xpReward;
   final int estimatedMinutes;
   final String moduleIcon;
+
+  /// Minggu 14: versi konten modul saat sertifikat terbit. >0 untuk modul
+  /// buatan guru, sehingga piagam lama tetap dapat dipertanggungjawabkan
+  /// meski materinya sudah diubah setelahnya.
+  final int contentVersion;
   final String verifyUrl;
   final DateTime? issuedAt;
   final DateTime? validUntil;
@@ -219,6 +225,7 @@ class CertificateVerification extends Equatable {
       xpReward: json['xpReward'] as int? ?? 0,
       estimatedMinutes: json['estimatedMinutes'] as int? ?? 0,
       moduleIcon: json['moduleIcon'] as String? ?? '',
+      contentVersion: json['contentVersion'] as int? ?? 0,
       verifyUrl: json['verifyUrl'] as String? ?? '',
       issuedAt: DateTime.tryParse(json['issuedAt'] as String? ?? ''),
       validUntil: DateTime.tryParse(json['validUntil'] as String? ?? ''),

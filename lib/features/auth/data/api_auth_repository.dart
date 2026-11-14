@@ -7,6 +7,8 @@
 // KOLOM DB: users (name, email, phone, nisn, class_name, school_name,
 // bio, role, school_id).
 // WAJIB DIUBAH BILA: kontrak endpoint auth atau bentuk AuthUser berubah.
+import 'dart:convert';
+
 import 'package:dio/dio.dart';
 
 import '../../../core/network/api_client.dart';
@@ -346,6 +348,77 @@ class ApiAuthRepository implements AuthRepository {
       }
       rethrow;
     }
+  }
+
+  @override
+  Future<String> exportPersonalData() async {
+    try {
+      // Respons berupa JSON mentah satu bundel; disimpan sebagai teks agar
+      // bisa ditampilkan apa adanya dan disalin ke papan klip.
+      final res = await _client.dio.get<dynamic>('/me/data-export');
+      final data = res.data;
+      if (data == null) {
+        throw const AuthFailure(AuthFailureType.server);
+      }
+      return const JsonEncoder.withIndent('  ').convert(data);
+    } on DioException catch (e) {
+      if (e.type == DioExceptionType.badResponse) {
+        final status = e.response?.statusCode;
+        if (status == 401) {
+          throw const AuthFailure(AuthFailureType.invalidCredentials);
+        }
+        throw const AuthFailure(AuthFailureType.server);
+      }
+      throw const AuthFailure(AuthFailureType.network);
+    } on AuthFailure {
+      rethrow;
+    } catch (e) {
+      if (ApiClient.isNetworkError(e)) {
+        throw const AuthFailure(AuthFailureType.network);
+      }
+      rethrow;
+    }
+  }
+
+  @override
+  Future<void> deleteAccount({
+    required String password,
+    required String confirm,
+  }) async {
+    try {
+      await _client.dio.delete<Map<String, dynamic>>(
+        '/me',
+        data: {'password': password, 'confirm': confirm},
+      );
+    } on DioException catch (e) {
+      if (e.type == DioExceptionType.badResponse) {
+        final status = e.response?.statusCode;
+        if (status == 400) {
+          // 400 = sandi salah atau teks konfirmasi tidak cocok.
+          throw const AuthFailure(AuthFailureType.wrongOldPassword);
+        }
+        if (status == 422) {
+          throw const AuthFailure(AuthFailureType.invalidInput);
+        }
+        if (status == 401) {
+          throw const AuthFailure(AuthFailureType.invalidCredentials);
+        }
+        throw const AuthFailure(AuthFailureType.server);
+      }
+      throw const AuthFailure(AuthFailureType.network);
+    } on AuthFailure {
+      rethrow;
+    } catch (e) {
+      if (ApiClient.isNetworkError(e)) {
+        throw const AuthFailure(AuthFailureType.network);
+      }
+      rethrow;
+    }
+
+    // Minggu 14: akun sudah dihapus di server, jadi token lokal ikut dibuang.
+    // Tanpa ini aplikasi masih menyimpan sesi milik akun yang tidak ada lagi
+    // dan baru membersihkannya setelah satu permintaan ditolak (401).
+    await TokenStore.clear();
   }
 
   @override

@@ -210,9 +210,13 @@ class _ChallengeDetailPageState extends State<ChallengeDetailPage> {
 
       // Minggu 13 (Notifikasi 1b): kabari siswa saat tantangan benar-benar
       // lulus 100% — bukan saat tombol ditekan, agar tidak mendahului server.
+      // Minggu 14: laporan mode simulasi TIDAK menerbitkan sertifikat, jadi
+      // notifikasi "sertifikat terbit" tidak boleh dikirim untuknya.
       // Dijalankan TANPA await agar tidak menunda dialog hasil; kegagalan
       // notifikasi diabaikan di dalam helper.
-      if (subResult.status == SubmissionStatus.passed && mounted) {
+      if (subResult.status == SubmissionStatus.passed &&
+          !subResult.report.simulated &&
+          mounted) {
         final detail = await _future;
         if (!mounted) return;
         unawaited(NotificationEvents.challengePassed(context, detail.title));
@@ -423,8 +427,8 @@ class _ChallengeDetailPageState extends State<ChallengeDetailPage> {
               _BottomActions(
                 running: _running && !_submitting,
                 submitting: _submitting,
-                onTry: _running ? null : _run,
-                onSubmit: _running ? null : _submit,
+                onTry: (_running || _submitting) ? null : _run,
+                onSubmit: (_running || _submitting) ? null : _submit,
               ),
             ],
           );
@@ -916,6 +920,28 @@ class _ResultsCard extends StatelessWidget {
                     Text(l10n.challengeExecutionTime(report.millis),
                         style: TextStyle(fontFamily: AppFonts.mono, color: p.textMuted, fontSize: 11)),
                   ]),
+                // Minggu 14: mode simulasi harus dinyatakan di kartu hasil,
+                // bukan hanya di lembar evaluasi.
+                if (report.simulated) ...[
+                  const SizedBox(height: 8),
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Icon(Icons.info_outline_rounded, size: 14, color: p.warningText),
+                      const SizedBox(width: 4),
+                      Expanded(
+                        child: Text(
+                          l10n.challengeSimulatedTitle,
+                          style: TextStyle(
+                            fontSize: 11,
+                            fontWeight: FontWeight.bold,
+                            color: p.warningText,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
               ],
             ),
           ),
@@ -1191,7 +1217,15 @@ class _BottomActions extends StatelessWidget {
                         ),
                       )
                     : const Icon(Icons.send_rounded, size: 18),
-                label: Text(l10n.challengeSubmitSolution, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
+                label: Text(
+                  // Minggu 14: selama server belum menjawab, tombol menyatakan
+                  // "Sedang menilai…" — siswa tahu kodenya sudah terkirim dan
+                  // tidak menekan berulang kali di jaringan lambat.
+                  submitting
+                      ? l10n.challengeSubmitting
+                      : l10n.challengeSubmitSolution,
+                  style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+                ),
               ),
             ),
           ],

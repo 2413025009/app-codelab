@@ -17,6 +17,8 @@
 // WAJIB DIUBAH BILA: repositori baru (mis. tabel projects untuk
 // mini-proyek) → buat folder data/ + domain/-nya, lalu daftarkan di
 // blok MultiRepositoryProvider di bawah.
+import 'dart:ui' show PlatformDispatcher;
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -27,11 +29,13 @@ import 'app/router/app_router.dart';
 import 'core/network/token_store.dart';
 import 'core/services/app_preferences.dart';
 import 'core/services/connectivity_service.dart';
+import 'core/services/error_reporter.dart';
 import 'core/services/notification_preferences.dart';
 import 'core/services/notification_service.dart';
 import 'core/services/sound_service.dart';
 import 'core/services/teacher_preferences.dart';
 import 'core/theme/app_theme.dart';
+import 'core/widgets/app_breakdown_screen.dart';
 import 'core/widgets/app_loading_screen.dart';
 import 'features/ai_tutor/data/api_tutor_repository.dart';
 import 'features/ai_tutor/domain/tutor_models.dart';
@@ -57,6 +61,10 @@ import 'l10n/app_localizations.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  // Minggu 14: penangkap galat global. Semua galat framework, zona async, dan
+  // kegagalan build widget dicatat ke buffer memori lalu ditampilkan lewat
+  // layar "Terjadi Kendala" yang menawarkan salin laporan.
+  _installGlobalErrorHandling();
   SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
   await TokenStore.restore(); // Session token terselamatkan antar restart.
   await SoundService.init(); // Muat pengaturan efek suara lokal dari HP.
@@ -69,6 +77,35 @@ Future<void> main() async {
   // Minggu 13: status jaringan supaya pesan galat jujur saat luring.
   await ConnectivityService.instance.init();
   runApp(const CodelabApp());
+}
+
+/// Memasang tiga titik tangkap galat Flutter (Minggu 14):
+///  1. FlutterError.onError  → galat build/layout/paint pada widget;
+///  2. PlatformDispatcher.onError → galat async di luar zona Flutter (sudah
+///     mencakup galat tak ter-await pada isolate utama);
+///  3. ErrorWidget.builder   → tampilan ramah "Terjadi Kendala" saat build gagal.
+///
+/// Semuanya berakhir di [ErrorReporter] (buffer memori), lalu layar kendala
+/// menawarkan salin laporan — bukan kotak merah debug.
+void _installGlobalErrorHandling() {
+  FlutterError.onError = (details) {
+    ErrorReporter.instance.record(
+      details.exception,
+      details.stack,
+      type: 'FlutterError',
+    );
+    // Di mode debug tetap cetak agar pengembang melihat jejak asli.
+    FlutterError.presentError(details);
+  };
+
+  PlatformDispatcher.instance.onError = (error, stack) {
+    ErrorReporter.instance.record(error, stack, type: 'PlatformError');
+    return true; // sudah ditangani — jangan hentikan proses.
+  };
+
+  ErrorWidget.builder = (details) {
+    return AppBreakdownScreen(message: details.exceptionAsString());
+  };
 }
 
 class CodelabApp extends StatefulWidget {

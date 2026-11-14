@@ -296,10 +296,24 @@ class _CertBodyState extends State<_CertBody> {
                   ),
                 ),
                 const SizedBox(height: AppSpacing.sm),
-                _CertPageShell(
-                  child: _page == 0
-                      ? _CertificateFrontPage(data: data, doc: doc)
-                      : _CertificateBackPage(data: data, doc: doc),
+                // Minggu 14 (aksesibilitas): kanvas piagam didominasi bentuk,
+                // gambar, dan teks kecil. Satu label ringkas membawa isi pokok
+                // sehingga pembaca layar tidak membacakan ornamen satu per satu.
+                Semantics(
+                  container: true,
+                  image: true,
+                  label: l10n.a11yCertificateDoc(
+                    data.isChallenge ? doc.kindChallenge : doc.kindModule,
+                    data.student.name,
+                    data.certId,
+                  ),
+                  child: ExcludeSemantics(
+                    child: _CertPageShell(
+                      child: _page == 0
+                          ? _CertificateFrontPage(data: data, doc: doc)
+                          : _CertificateBackPage(data: data, doc: doc),
+                    ),
+                  ),
                 ),
               ],
             ),
@@ -401,6 +415,19 @@ class _CertificateSummary extends StatelessWidget {
                     ),
                     const SizedBox(height: 6),
                     _CertStatusPill(challenge: data.isChallenge),
+                    // Minggu 14: sertifikat modul guru menyimpan versi konten
+                    // saat terbit — piagam lama tetap dapat dipertanggung-
+                    // jawabkan walau materi sudah diubah setelahnya.
+                    if (data.contentVersion > 0) ...[
+                      const SizedBox(height: 4),
+                      Text(
+                        l10n.certContentVersion(data.contentVersion),
+                        style: AppTypography.caption.copyWith(
+                          color: p.textMuted,
+                          fontSize: 11,
+                        ),
+                      ),
+                    ],
                   ],
                 ),
               ),
@@ -491,7 +518,12 @@ class _CertPageShell extends StatelessWidget {
               child: SizedBox(
                 width: canvasWidth,
                 height: canvasHeight,
-                child: child,
+                // Minggu 14: piagam adalah DOKUMEN berukuran tetap (A4), bukan
+                // teks yang mengalir. Ikut membesarkan huruf saat textScale
+                // perangkat 2.0 akan merusak tata letak cetak; dokumen cetak
+                // tetap pada skala 1.0 seperti PDF-nya, sedangkan navigasi di
+                // luar kanvas tetap mengikuti preferensi ukuran teks pengguna.
+                child: MediaQuery.withNoTextScaling(child: child),
               ),
             ),
           ),
@@ -896,93 +928,103 @@ class _CertificateFrontPage extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.end,
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          _dateLabel(issued),
-                          style: const TextStyle(
-                            fontFamily: AppFonts.sans,
-                            fontSize: 11.5,
-                            fontWeight: FontWeight.w600,
-                            color: _docMuted,
+                    // Minggu 14: kolom kiri dibungkus Expanded agar kalimat
+                    // panjang (tagline) membungkus ke baris baru, bukan
+                    // meluber melewati kolom QR di kanan.
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            _dateLabel(issued),
+                            style: const TextStyle(
+                              fontFamily: AppFonts.sans,
+                              fontSize: 11.5,
+                              fontWeight: FontWeight.w600,
+                              color: _docMuted,
+                            ),
                           ),
-                        ),
-                        const SizedBox(height: 2),
-                        SizedBox(
-                          width: 210,
-                          height: 54,
-                          child: Stack(
-                            clipBehavior: Clip.none,
-                            children: [
-                              Positioned.fill(
-                                child: CustomPaint(
-                                  painter: _SignaturePainter(),
+                          const SizedBox(height: 2),
+                          SizedBox(
+                            width: 210,
+                            height: 54,
+                            child: Stack(
+                              clipBehavior: Clip.none,
+                              children: [
+                                Positioned.fill(
+                                  child: CustomPaint(
+                                    painter: _SignaturePainter(),
+                                  ),
                                 ),
-                              ),
-                              Positioned(
-                                left: 112,
-                                top: -10,
-                                child: Transform.rotate(
-                                  angle: -12 * math.pi / 180,
-                                  child: Container(
-                                    width: 62,
-                                    height: 62,
-                                    alignment: Alignment.center,
-                                    decoration: BoxDecoration(
-                                      shape: BoxShape.circle,
-                                      border: Border.all(
-                                        color: _docPrimary.withValues(alpha: 0.26),
-                                        width: 2,
+                                Positioned(
+                                  left: 112,
+                                  top: -10,
+                                  child: Transform.rotate(
+                                    angle: -12 * math.pi / 180,
+                                    child: Container(
+                                      width: 62,
+                                      height: 62,
+                                      alignment: Alignment.center,
+                                      decoration: BoxDecoration(
+                                        shape: BoxShape.circle,
+                                        border: Border.all(
+                                          color: _docPrimary.withValues(
+                                            alpha: 0.26,
+                                          ),
+                                          width: 2,
+                                        ),
                                       ),
-                                    ),
-                                    child: Text(
-                                      'VALIDATED\nCODELAB AI',
-                                      textAlign: TextAlign.center,
-                                      style: TextStyle(
-                                        fontFamily: AppFonts.sans,
-                                        fontSize: 7.2,
-                                        height: 1.15,
-                                        fontWeight: FontWeight.w800,
-                                        letterSpacing: 0.3,
-                                        color: _docPrimary.withValues(alpha: 0.36),
+                                      child: Text(
+                                        'VALIDATED\nCODELAB AI',
+                                        textAlign: TextAlign.center,
+                                        style: TextStyle(
+                                          fontFamily: AppFonts.sans,
+                                          fontSize: 7.2,
+                                          height: 1.15,
+                                          fontWeight: FontWeight.w800,
+                                          letterSpacing: 0.3,
+                                          color: _docPrimary.withValues(
+                                            alpha: 0.36,
+                                          ),
+                                        ),
                                       ),
                                     ),
                                   ),
                                 ),
-                              ),
-                            ],
+                              ],
+                            ),
                           ),
-                        ),
-                        const SizedBox(height: 2),
-                        const Text(
-                          'Devwan Hidayawan',
-                          style: TextStyle(
-                            fontFamily: AppFonts.sans,
-                            fontSize: 15,
-                            fontWeight: FontWeight.w800,
-                            color: _docText,
+                          const SizedBox(height: 2),
+                          const Text(
+                            'Devwan Hidayawan',
+                            style: TextStyle(
+                              fontFamily: AppFonts.sans,
+                              fontSize: 15,
+                              fontWeight: FontWeight.w800,
+                              color: _docText,
+                            ),
                           ),
-                        ),
-                        const SizedBox(height: 1),
-                        Text(
-                          doc.instructorRole,
-                          style: const TextStyle(
-                            fontFamily: AppFonts.sans,
-                            fontSize: 10.5,
-                            color: _docMuted,
+                          const SizedBox(height: 1),
+                          Text(
+                            doc.instructorRole,
+                            style: const TextStyle(
+                              fontFamily: AppFonts.sans,
+                              fontSize: 10.5,
+                              color: _docMuted,
+                            ),
                           ),
-                        ),
-                        Text(
-                          'CodeLab AI: ${doc.platformTagline}',
-                          style: const TextStyle(
-                            fontFamily: AppFonts.sans,
-                            fontSize: 10.5,
-                            color: _docMuted,
+                          Text(
+                            'CodeLab AI: ${doc.platformTagline}',
+                            style: const TextStyle(
+                              fontFamily: AppFonts.sans,
+                              fontSize: 10.5,
+                              color: _docMuted,
+                            ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
+                    const SizedBox(width: 16),
                     SizedBox(
                       width: 340,
                       child: Column(
@@ -1080,64 +1122,72 @@ class _CertificateBackPage extends StatelessWidget {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Row(
-                          children: [
-                            Container(
-                              width: 32,
-                              height: 32,
-                              padding: const EdgeInsets.all(4),
-                              decoration: BoxDecoration(
-                                color: _docPrimary.withValues(alpha: 0.1),
-                                borderRadius: BorderRadius.circular(8),
-                                border: Border.all(
-                                  color: _docPrimary.withValues(alpha: 0.2),
+                        Flexible(
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Container(
+                                width: 32,
+                                height: 32,
+                                padding: const EdgeInsets.all(4),
+                                decoration: BoxDecoration(
+                                  color: _docPrimary.withValues(alpha: 0.1),
+                                  borderRadius: BorderRadius.circular(8),
+                                  border: Border.all(
+                                    color: _docPrimary.withValues(alpha: 0.2),
+                                  ),
+                                ),
+                                child: Image.asset(
+                                  'assets/images/logo.png',
+                                  fit: BoxFit.contain,
+                                  errorBuilder: (_, _, _) => const Icon(
+                                    Icons.terminal_rounded,
+                                    size: 18,
+                                    color: _docPrimary,
+                                  ),
                                 ),
                               ),
-                              child: Image.asset(
-                                'assets/images/logo.png',
-                                fit: BoxFit.contain,
-                                errorBuilder: (_, _, _) => const Icon(
-                                  Icons.terminal_rounded,
-                                  size: 18,
+                              const SizedBox(width: 10),
+                              const Text(
+                                'CodeLab',
+                                style: TextStyle(
+                                  fontFamily: AppFonts.sans,
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.w800,
+                                  color: _docText,
+                                  letterSpacing: -0.4,
+                                ),
+                              ),
+                              const SizedBox(width: 4),
+                              const Text(
+                                'AI',
+                                style: TextStyle(
+                                  fontFamily: AppFonts.sans,
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.w800,
                                   color: _docPrimary,
+                                  letterSpacing: -0.4,
                                 ),
                               ),
-                            ),
-                            const SizedBox(width: 10),
-                            const Text(
-                              'CodeLab',
-                              style: TextStyle(
-                                fontFamily: AppFonts.sans,
-                                fontSize: 18,
-                                fontWeight: FontWeight.w800,
-                                color: _docText,
-                                letterSpacing: -0.4,
+                              const SizedBox(width: 8),
+                              Flexible(
+                                child: Text(
+                                  isChallenge
+                                      ? doc.challengeAttachment
+                                      : doc.moduleAttachment,
+                                  maxLines: 2,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: const TextStyle(
+                                    fontFamily: AppFonts.sans,
+                                    fontSize: 11.5,
+                                    color: _docMuted,
+                                  ),
+                                ),
                               ),
-                            ),
-                            const SizedBox(width: 4),
-                            const Text(
-                              'AI',
-                              style: TextStyle(
-                                fontFamily: AppFonts.sans,
-                                fontSize: 18,
-                                fontWeight: FontWeight.w800,
-                                color: _docPrimary,
-                                letterSpacing: -0.4,
-                              ),
-                            ),
-                            const SizedBox(width: 8),
-                            Text(
-                              isChallenge
-                                  ? doc.challengeAttachment
-                                  : doc.moduleAttachment,
-                              style: const TextStyle(
-                                fontFamily: AppFonts.sans,
-                                fontSize: 11.5,
-                                color: _docMuted,
-                              ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
+                        const SizedBox(width: 12),
                         Text(
                           doc.pageOf,
                           style: const TextStyle(
@@ -1290,28 +1340,36 @@ class _CertificateBackPage extends StatelessWidget {
                               children: [
                                 Row(
                                   children: [
-                                    Text(
-                                      isChallenge
-                                          ? doc.criteriaHeading
-                                          : doc.chaptersCompleted,
-                                      style: const TextStyle(
-                                        fontFamily: AppFonts.sans,
-                                        fontSize: 13,
-                                        fontWeight: FontWeight.w800,
-                                        color: _docText,
+                                    Flexible(
+                                      child: Text(
+                                        isChallenge
+                                            ? doc.criteriaHeading
+                                            : doc.chaptersCompleted,
+                                        maxLines: 2,
+                                        overflow: TextOverflow.ellipsis,
+                                        style: const TextStyle(
+                                          fontFamily: AppFonts.sans,
+                                          fontSize: 13,
+                                          fontWeight: FontWeight.w800,
+                                          color: _docText,
+                                        ),
                                       ),
                                     ),
                                     const SizedBox(width: 8),
-                                    Text(
-                                      _syllabusModeNote(
-                                        data,
-                                        doc,
-                                        compact: compact,
-                                      ),
-                                      style: const TextStyle(
-                                        fontFamily: AppFonts.sans,
-                                        fontSize: 10.8,
-                                        color: _docMuted,
+                                    Flexible(
+                                      child: Text(
+                                        _syllabusModeNote(
+                                          data,
+                                          doc,
+                                          compact: compact,
+                                        ),
+                                        maxLines: 2,
+                                        overflow: TextOverflow.ellipsis,
+                                        style: const TextStyle(
+                                          fontFamily: AppFonts.sans,
+                                          fontSize: 10.8,
+                                          color: _docMuted,
+                                        ),
                                       ),
                                     ),
                                   ],
@@ -2104,8 +2162,8 @@ String _summaryText(CertificateVerification data, CertificateDocLabels doc) {
         'on CodeLab AI focuses on mastering core competencies: ${data.description}. '
         'Through a structured syllabus of ${data.chapters.length} chapters '
         '(${data.effectiveJp} effective hours / ${data.accreditationJp} accredited hours), '
-        'the student mastered theoretical slides, interactive exercises (Tap-to-Fill, '
-        'Bug Hunter, Output Predict, Type Code), and chapter mastery quizzes.';
+        'the student mastered 7 interactive slide types: theory, tap-to-fill, type code, '
+        'output predict, bug hunter, mastery quizzes, and chapter summaries.';
   }
   if (doc.languageCode == 'ar') {
     if (data.isChallenge) {
@@ -2118,8 +2176,8 @@ String _summaryText(CertificateVerification data, CertificateDocLabels doc) {
     return 'يركّز المودول التعليمي التفاعلي ${data.topic} على منصة CodeLab AI على إتقان '
         'الكفاءات الأساسية: ${data.description}. عبر منهج منظم من ${data.chapters.length} '
         'فصول (${data.effectiveJp} ساعة فعلية / ${data.accreditationJp} ساعة معتمدة)، '
-        'درس الطالب النظريات والتمارين التفاعلية (Tap-to-Fill، Bug Hunter، Output Predict، '
-        'Type Code) واختبارات إتقان كل فصل.';
+        'درس الطالب 7 أنواع من الشرائح التفاعلية: النظرية، Tap-to-Fill، كتابة الكود، '
+        'توقع الناتج، Bug Hunter، اختبار الإتقان، وملخص الفصل.';
   }
   if (data.isChallenge) {
     final criteria = data.rules.length + data.testCases.length;
@@ -2133,9 +2191,8 @@ String _summaryText(CertificateVerification data, CertificateDocLabels doc) {
       'pada platform CodeLab AI ini memfokuskan siswa pada penguasaan kompetensi: '
       '${data.description}. Melalui silabus terstruktur sebanyak ${data.chapters.length} bab '
       '(${data.effectiveJp} jam pelajaran efektif / ${data.accreditationJp} JP akreditasi), '
-      'siswa mempelajari materi teori bertahap, latihan interaktif per slide (Tap-to-Fill, '
-      'Bug Hunter, Output Predict, Type Code), serta evaluasi kuis pemahaman di setiap '
-      'akhir bab.';
+      'siswa mempelajari 7 tipe slide interaktif: teori, tap-to-fill, ketik kode, '
+      'tebak output, bug hunter, kuis pemahaman, serta rangkuman bab.';
 }
 
 String _levelLabel(String raw, [String lang = 'id']) {

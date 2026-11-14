@@ -162,6 +162,20 @@ class AuthCubit extends Cubit<AuthState> {
     emit(AuthState(status: AuthStatus.authenticated, user: updated));
   }
 
+  /// Minggu 14: salinan data pribadi akun (JSON terformat) untuk ditampilkan
+  /// dan disalin dari layar Pengaturan.
+  Future<String> exportPersonalData() => _repository.exportPersonalData();
+
+  /// Minggu 14: hapus akun permanen. Setelah server mengonfirmasi, sesi lokal
+  /// dibersihkan dan pengguna keluar — bukan tetap di layar dengan akun hilang.
+  Future<void> deleteAccount({
+    required String password,
+    required String confirm,
+  }) async {
+    await _repository.deleteAccount(password: password, confirm: confirm);
+    emit(const AuthState());
+  }
+
   void addXp(int xp) {
     final current = state.user;
     if (current == null) return;

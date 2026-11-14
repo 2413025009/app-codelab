@@ -1262,5 +1262,76 @@
   "tTemplateTitleOutro": "Chapter Summary",
   "tTemplateSummaryOutro": "Great! You have completed the lesson in this chapter.",
   "tTemplateTitleTheory": "New Lesson Explanation",
-  "tTemplateContentTheory": "Write the learning lesson explanation here in language students can easily understand."
+  "tTemplateContentTheory": "Write the learning lesson explanation here in language students can easily understand.",
+
+  "certContentVersion": "Module content version: v{version}",
+  "@certContentVersion": {
+    "placeholders": {
+      "version": {
+        "type": "int"
+      }
+    }
+  },
+
+  "challengeSimulatedTitle": "Simulated Grading",
+  "challengeSimulatedBody": "The server has not executed your Python code for real, so this result is only an estimate. XP and certificates cannot be issued yet — please contact your teacher.",
+  "challengeSubmitting": "Grading…",
+  "historySimulatedBadge": "Simulated",
+
+  "settingsDataHeader": "YOUR PERSONAL DATA",
+  "settingsExportData": "Export Personal Data",
+  "settingsExportDataSubtitle": "Download a copy of your account data, progress, and certificates",
+  "settingsExportDataEmpty": "There is no data to export yet.",
+  "settingsExportDataCopied": "Personal data copied to the clipboard.",
+  "settingsExportDataFailed": "Could not load your data. Check the connection and try again.",
+  "settingsDeleteAccount": "Delete Account Permanently",
+  "settingsDeleteAccountSubtitle": "All progress, submissions, and certificates will be removed",
+  "settingsDeleteTitle": "Delete Account Permanently?",
+  "settingsDeleteBody": "This action cannot be undone. All your learning progress, submission history, and certificates will be lost.",
+  "settingsDeletePasswordLabel": "Account password",
+  "settingsDeleteConfirmLabel": "Type HAPUS AKUN to continue",
+  "settingsDeleteAction": "Delete My Account",
+  "settingsDeleteWrongPassword": "That password does not match. Your account was not deleted.",
+  "settingsDeleteFailed": "Could not delete your account. Please try again.",
+  "settingsDeleteSuccess": "Your account has been deleted. Take care!",
+
+  "errorScreenTitle": "Something Went Wrong",
+  "errorScreenBody": "The app stopped unexpectedly. You can copy a short report and send it to your teacher so it can be fixed quickly.",
+  "errorScreenCopy": "Copy Report",
+  "errorScreenCopied": "Error report copied. Send it to your teacher or admin.",
+  "errorScreenRetry": "Try Again",
+
+  "tEditorUnsavedTitle": "Unsaved Changes",
+  "tEditorUnsavedBody": "This editor has unsaved changes. Save them first so nothing is lost, or discard them?",
+  "tEditorUnsavedStay": "Keep Editing",
+  "tEditorUnsavedLeave": "Discard & Leave",
+
+  "a11yRoadmapNode": "Chapter {order}: {title}, status {status}",
+  "@a11yRoadmapNode": {
+    "placeholders": {
+      "order": {
+        "type": "int"
+      },
+      "title": {
+        "type": "String"
+      },
+      "status": {
+        "type": "String"
+      }
+    }
+  },
+  "a11yCertificateDoc": "{kind} certificate for {name}, number {certId}",
+  "@a11yCertificateDoc": {
+    "placeholders": {
+      "kind": {
+        "type": "String"
+      },
+      "name": {
+        "type": "String"
+      },
+      "certId": {
+        "type": "String"
+      }
+    }
+  }
 }

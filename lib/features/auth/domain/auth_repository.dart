@@ -172,6 +172,16 @@ abstract interface class AuthRepository {
   /// Hapus foto profil lalu kembalikan profil tanpa avatar.
   Future<AuthUser> deleteAvatar();
 
+  /// Minggu 14: ekspor seluruh data pribadi akun (JSON mentah dari server).
+  /// Dipakai layar Pengaturan untuk memberi salinan data kepada pemilik akun.
+  Future<String> exportPersonalData();
+
+  /// Minggu 14: hapus akun permanen. Butuh kata sandi + teks konfirmasi.
+  Future<void> deleteAccount({
+    required String password,
+    required String confirm,
+  });
+
   Future<void> logout();
 
   /// Restores a saved session at app startup (null when nobody was logged in).

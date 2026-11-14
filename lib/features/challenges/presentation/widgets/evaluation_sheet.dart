@@ -133,6 +133,49 @@ class _EvaluationBodyState extends State<_EvaluationBody> {
           textAlign: TextAlign.center,
           style: AppTypography.bodyM.copyWith(color: p.textMuted, height: 1.45),
         ),
+        // Minggu 14: bila server menilai dalam mode simulasi (Python tidak
+        // tersedia), siswa HARUS tahu kodenya tidak benar-benar dijalankan
+        // dan sertifikat/XP belum bisa terbit.
+        if (widget.report.simulated) ...[
+          const SizedBox(height: AppSpacing.md),
+          Container(
+            padding: const EdgeInsets.all(AppSpacing.md),
+            decoration: BoxDecoration(
+              color: p.warningContainer,
+              borderRadius: BorderRadius.circular(14),
+              border: Border.all(color: p.warningText.withValues(alpha: 0.35)),
+            ),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Icon(Icons.info_outline_rounded, color: p.warningText, size: 20),
+                const SizedBox(width: AppSpacing.sm),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        l10n.challengeSimulatedTitle,
+                        style: AppTypography.label.copyWith(
+                          color: p.text,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        l10n.challengeSimulatedBody,
+                        style: AppTypography.bodySm.copyWith(
+                          color: p.textMuted,
+                          height: 1.4,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
         const SizedBox(height: AppSpacing.lg),
 
         // Metric Box (nilai akhir + waktu eksekusi) — metrik memori/fiktif

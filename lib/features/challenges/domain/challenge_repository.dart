@@ -174,17 +174,23 @@ class RunReport extends Equatable {
     /// Skor resmi dari server (diskon berbobot per test case). Null saat
     /// laporan berasal dari mock - skor dihitung uniform sebagai fallback.
     this.serverScore,
+    /// Minggu 14: true bila server menilai dengan lapisan fallback karena
+    /// Python tidak tersedia — kode TIDAK benar-benar dijalankan. Laporan
+    /// seperti ini tidak memberi XP maupun sertifikat, jadi harus dinyatakan
+    /// terang-terangan di layar.
+    this.simulated = false,
   });
   final List<TestCaseResult> results;
   final int millis;
   final int? serverScore;
+  final bool simulated;
 
   int get passedCount => results.where((r) => r.passed).length;
   bool get allPassed => results.isNotEmpty && passedCount == results.length;
   int get score => serverScore ?? (results.isEmpty ? 0 : (passedCount * 100 / results.length).round());
 
   @override
-  List<Object?> get props => [results, millis, serverScore];
+  List<Object?> get props => [results, millis, serverScore, simulated];
 }
 
 enum SubmissionStatus { passed, failed, error }
@@ -200,6 +206,7 @@ class Submission extends Equatable {
     this.hintsUsed = 0,
     this.problem,
     this.aiReview,
+    this.simulated = false,
   });
 
   final int number;
@@ -214,8 +221,11 @@ class Submission extends Equatable {
   final String? problem;
   final String? aiReview;
 
+  /// Minggu 14: submisi dinilai mode simulasi (Python tidak tersedia).
+  final bool simulated;
+
   @override
-  List<Object?> get props => [number, status];
+  List<Object?> get props => [number, status, simulated];
 }
 
 class SubmissionHistory extends Equatable {

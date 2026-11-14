@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
@@ -62,6 +63,9 @@ class _SettingsPageState extends State<SettingsPage> {
   bool _isUploadingAvatar = false;
   bool _sfxEnabled = SoundService.sfxEnabled;
   bool _labSoundEnabled = SoundService.labSfxEnabled;
+  // Minggu 14: status aksi hak data pribadi (ekspor/hapus akun).
+  bool _exportingData = false;
+  bool _deletingAccount = false;
 
   @override
   void initState() {
@@ -342,6 +346,158 @@ class _SettingsPageState extends State<SettingsPage> {
     if (selected != null && mounted) {
       await AppPreferences.instance.setLocale(selected!);
       if (mounted) setState(() {});
+    }
+  }
+
+  /// Minggu 14: ekspor data pribadi. Payload ditampilkan di sheet agar pemilik
+  /// akun bisa membaca isinya, lalu disalin ke papan klip (tanpa berkas lokal
+  /// yang bisa tertinggal di perangkat bersama).
+  Future<void> _exportPersonalData() async {
+    final l10n = AppLocalizations.of(context);
+    setState(() => _exportingData = true);
+    try {
+      final payload = await context.read<AuthCubit>().exportPersonalData();
+      if (!mounted) return;
+      await showAppSheet<void>(
+        context,
+        leadingIcon: Icons.file_download_outlined,
+        title: l10n.settingsExportData,
+        subtitle: l10n.settingsExportDataSubtitle,
+        builder: (ctx) => Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Container(
+              constraints: const BoxConstraints(maxHeight: 320),
+              padding: const EdgeInsets.all(AppSpacing.md),
+              decoration: BoxDecoration(
+                color: ctx.palette.surfaceAlt,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: SingleChildScrollView(
+                child: Text(
+                  payload,
+                  style: AppTypography.codeSm.copyWith(
+                    color: ctx.palette.text,
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(height: AppSpacing.lg),
+            AppButton(
+              label: l10n.actionCopy,
+              leadingIcon: Icons.copy_rounded,
+              onPressed: () async {
+                await Clipboard.setData(ClipboardData(text: payload));
+                if (ctx.mounted) Navigator.of(ctx).pop();
+                if (mounted) showAppSnack(context, l10n.settingsExportDataCopied);
+              },
+            ),
+          ],
+        ),
+      );
+    } on AuthFailure {
+      if (mounted) {
+        showAppSnack(context, l10n.settingsExportDataFailed);
+      }
+    } finally {
+      if (mounted) setState(() => _exportingData = false);
+    }
+  }
+
+  /// Minggu 14: hapus akun permanen. Dua lapis pengaman — kata sandi + teks
+  /// konfirmasi — karena tindakan ini tidak bisa dibatalkan.
+  Future<void> _confirmDeleteAccount() async {
+    final l10n = AppLocalizations.of(context);
+    final passwordController = TextEditingController();
+    final confirmController = TextEditingController();
+    final formKey = GlobalKey<FormState>();
+
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (dialogCtx) => AlertDialog(
+        title: Text(l10n.settingsDeleteTitle),
+        content: Form(
+          key: formKey,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Text(l10n.settingsDeleteBody),
+              const SizedBox(height: AppSpacing.md),
+              TextFormField(
+                controller: passwordController,
+                obscureText: true,
+                decoration: InputDecoration(
+                  labelText: l10n.settingsDeletePasswordLabel,
+                ),
+                validator: (v) => (v == null || v.isEmpty)
+                    ? l10n.authPasswordHint
+                    : null,
+              ),
+              const SizedBox(height: AppSpacing.sm),
+              TextFormField(
+                controller: confirmController,
+                decoration: InputDecoration(
+                  labelText: l10n.settingsDeleteConfirmLabel,
+                ),
+                validator: (v) => (v ?? '').trim() == 'HAPUS AKUN'
+                    ? null
+                    : l10n.settingsDeleteConfirmLabel,
+              ),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(dialogCtx).pop(false),
+            child: Text(l10n.actionCancel),
+          ),
+          FilledButton(
+            style: FilledButton.styleFrom(
+              backgroundColor: context.palette.error,
+              foregroundColor: context.palette.onPrimary,
+            ),
+            onPressed: () {
+              if (formKey.currentState?.validate() ?? false) {
+                Navigator.of(dialogCtx).pop(true);
+              }
+            },
+            child: Text(l10n.settingsDeleteAction),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed != true || !mounted) {
+      passwordController.dispose();
+      confirmController.dispose();
+      return;
+    }
+
+    setState(() => _deletingAccount = true);
+    try {
+      await context.read<AuthCubit>().deleteAccount(
+        password: passwordController.text,
+        confirm: confirmController.text.trim(),
+      );
+      if (!mounted) return;
+      showAppSnack(context, l10n.settingsDeleteSuccess);
+      context.go(AppRoutes.login);
+    } on AuthFailure catch (e) {
+      if (!mounted) return;
+      showAppSnack(
+        context,
+        switch (e.type) {
+          AuthFailureType.wrongOldPassword => l10n.settingsDeleteWrongPassword,
+          AuthFailureType.invalidCredentials => l10n.settingsDeleteWrongPassword,
+          _ => l10n.settingsDeleteFailed,
+        },
+      );
+    } finally {
+      passwordController.dispose();
+      confirmController.dispose();
+      if (mounted) setState(() => _deletingAccount = false);
     }
   }
 
@@ -917,6 +1073,89 @@ class _SettingsPageState extends State<SettingsPage> {
                         ),
                         trailing: const Icon(Icons.chevron_right),
                         onTap: _openChangePassword,
+                      ),
+                      Divider(
+                        height: 1,
+                        color: p.outline.withValues(alpha: 0.5),
+                      ),
+                      // Minggu 14: hak atas data pribadi (UU PDP).
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(
+                          AppSpacing.lg,
+                          AppSpacing.md,
+                          AppSpacing.lg,
+                          4,
+                        ),
+                        child: Align(
+                          alignment: AlignmentDirectional.centerStart,
+                          child: Text(
+                            l10n.settingsDataHeader,
+                            style: AppTypography.caption.copyWith(
+                              color: p.textMuted,
+                              letterSpacing: 1.0,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      ),
+                      ListTile(
+                        leading: _exportingData
+                            ? const SizedBox(
+                                width: 24,
+                                height: 24,
+                                child: CircularProgressIndicator(strokeWidth: 2),
+                              )
+                            : Icon(
+                                Icons.file_download_outlined,
+                                color: p.primary,
+                              ),
+                        title: Text(l10n.settingsExportData),
+                        subtitle: Text(
+                          l10n.settingsExportDataSubtitle,
+                          style: AppTypography.caption.copyWith(
+                            color: p.textMuted,
+                          ),
+                        ),
+                        trailing: const Icon(Icons.chevron_right),
+                        onTap: (_exportingData || _deletingAccount)
+                            ? null
+                            : _exportPersonalData,
+                      ),
+                      Divider(
+                        height: 1,
+                        color: p.outline.withValues(alpha: 0.5),
+                      ),
+                      ListTile(
+                        leading: _deletingAccount
+                            ? const SizedBox(
+                                width: 24,
+                                height: 24,
+                                child: CircularProgressIndicator(strokeWidth: 2),
+                              )
+                            : Icon(
+                                Icons.delete_forever_outlined,
+                                color: p.error,
+                              ),
+                        title: Text(
+                          l10n.settingsDeleteAccount,
+                          style: AppTypography.label.copyWith(
+                            color: p.error,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        subtitle: Text(
+                          l10n.settingsDeleteAccountSubtitle,
+                          style: AppTypography.caption.copyWith(
+                            color: p.textMuted,
+                          ),
+                        ),
+                        trailing: Icon(
+                          Icons.chevron_right,
+                          color: p.error,
+                        ),
+                        onTap: (_exportingData || _deletingAccount)
+                            ? null
+                            : _confirmDeleteAccount,
                       ),
                       Divider(
                         height: 1,

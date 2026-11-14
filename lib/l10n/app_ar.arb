@@ -1262,5 +1262,76 @@
   "tTemplateTitleOutro": "ملخص الفصل",
   "tTemplateSummaryOutro": "رائع! لقد أكملت مادة هذا الفصل.",
   "tTemplateTitleTheory": "شرح مادة جديدة",
-  "tTemplateContentTheory": "اكتب شرح المادة التعليمية هنا بلغة يفهمها الطلاب بسهولة."
+  "tTemplateContentTheory": "اكتب شرح المادة التعليمية هنا بلغة يفهمها الطلاب بسهولة.",
+
+  "certContentVersion": "إصدار محتوى المودول: v{version}",
+  "@certContentVersion": {
+    "placeholders": {
+      "version": {
+        "type": "int"
+      }
+    }
+  },
+
+  "challengeSimulatedTitle": "تصحيح في وضع المحاكاة",
+  "challengeSimulatedBody": "لم يُشغّل الخادم كود بايثون فعليًا، لذا هذه النتيجة تقديرية فقط. لا يمكن منح النقاط أو الشهادة بعد — تواصل مع معلمك.",
+  "challengeSubmitting": "جارٍ التصحيح…",
+  "historySimulatedBadge": "محاكاة",
+
+  "settingsDataHeader": "بياناتك الشخصية",
+  "settingsExportData": "تصدير البيانات الشخصية",
+  "settingsExportDataSubtitle": "نزّل نسخة من بيانات حسابك وتقدّمك وشهاداتك",
+  "settingsExportDataEmpty": "لا توجد بيانات للتصدير بعد.",
+  "settingsExportDataCopied": "تم نسخ البيانات الشخصية إلى الحافظة.",
+  "settingsExportDataFailed": "تعذّر تحميل بياناتك. تحقّق من الاتصال ثم أعد المحاولة.",
+  "settingsDeleteAccount": "حذف الحساب نهائيًا",
+  "settingsDeleteAccountSubtitle": "سيُحذف كل التقدّم والإجابات والشهادات",
+  "settingsDeleteTitle": "حذف الحساب نهائيًا؟",
+  "settingsDeleteBody": "لا يمكن التراجع عن هذا الإجراء. سيضيع كل تقدّمك التعليمي وسجل الإجابات والشهادات.",
+  "settingsDeletePasswordLabel": "كلمة مرور الحساب",
+  "settingsDeleteConfirmLabel": "اكتب HAPUS AKUN للمتابعة",
+  "settingsDeleteAction": "احذف حسابي",
+  "settingsDeleteWrongPassword": "كلمة المرور غير مطابقة. لم يُحذف الحساب.",
+  "settingsDeleteFailed": "تعذّر حذف الحساب. أعد المحاولة بعد قليل.",
+  "settingsDeleteSuccess": "تم حذف حسابك. إلى اللقاء!",
+
+  "errorScreenTitle": "حدث خلل",
+  "errorScreenBody": "توقّف التطبيق فجأة. يمكنك نسخ تقرير موجز وإرساله إلى معلمك ليُصلَح سريعًا.",
+  "errorScreenCopy": "انسخ التقرير",
+  "errorScreenCopied": "تم نسخ تقرير الخطأ. أرسله إلى معلمك أو المسؤول.",
+  "errorScreenRetry": "أعد المحاولة",
+
+  "tEditorUnsavedTitle": "تغييرات غير محفوظة",
+  "tEditorUnsavedBody": "هناك تغييرات في هذا المحرر. احفظها أولًا حتى لا تضيع، أم تتجاهلها؟",
+  "tEditorUnsavedStay": "متابعة التحرير",
+  "tEditorUnsavedLeave": "تجاهل واخرج",
+
+  "a11yRoadmapNode": "الفصل {order}: {title}، الحالة {status}",
+  "@a11yRoadmapNode": {
+    "placeholders": {
+      "order": {
+        "type": "int"
+      },
+      "title": {
+        "type": "String"
+      },
+      "status": {
+        "type": "String"
+      }
+    }
+  },
+  "a11yCertificateDoc": "شهادة {kind} باسم {name}، رقم {certId}",
+  "@a11yCertificateDoc": {
+    "placeholders": {
+      "kind": {
+        "type": "String"
+      },
+      "name": {
+        "type": "String"
+      },
+      "certId": {
+        "type": "String"
+      }
+    }
+  }
 }

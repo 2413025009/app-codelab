@@ -7281,6 +7281,198 @@ abstract class AppLocalizations {
   /// In id, this message translates to:
   /// **'Tuliskan penjelasan modul pembelajaran di sini dengan bahasa yang mudah dipahami siswa.'**
   String get tTemplateContentTheory;
+
+  /// No description provided for @certContentVersion.
+  ///
+  /// In id, this message translates to:
+  /// **'Versi konten modul: v{version}'**
+  String certContentVersion(int version);
+
+  /// No description provided for @challengeSimulatedTitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Penilaian Mode Simulasi'**
+  String get challengeSimulatedTitle;
+
+  /// No description provided for @challengeSimulatedBody.
+  ///
+  /// In id, this message translates to:
+  /// **'Server belum menjalankan kode Python secara nyata, jadi hasil ini hanya perkiraan. XP dan sertifikat belum bisa diterbitkan — hubungi pengajar.'**
+  String get challengeSimulatedBody;
+
+  /// No description provided for @challengeSubmitting.
+  ///
+  /// In id, this message translates to:
+  /// **'Sedang menilai…'**
+  String get challengeSubmitting;
+
+  /// No description provided for @historySimulatedBadge.
+  ///
+  /// In id, this message translates to:
+  /// **'Simulasi'**
+  String get historySimulatedBadge;
+
+  /// No description provided for @settingsDataHeader.
+  ///
+  /// In id, this message translates to:
+  /// **'DATA PRIBADIMU'**
+  String get settingsDataHeader;
+
+  /// No description provided for @settingsExportData.
+  ///
+  /// In id, this message translates to:
+  /// **'Ekspor Data Pribadi'**
+  String get settingsExportData;
+
+  /// No description provided for @settingsExportDataSubtitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Unduh salinan data akun, progres, dan sertifikatmu'**
+  String get settingsExportDataSubtitle;
+
+  /// No description provided for @settingsExportDataEmpty.
+  ///
+  /// In id, this message translates to:
+  /// **'Belum ada data untuk diekspor.'**
+  String get settingsExportDataEmpty;
+
+  /// No description provided for @settingsExportDataCopied.
+  ///
+  /// In id, this message translates to:
+  /// **'Data pribadi disalin ke papan klip.'**
+  String get settingsExportDataCopied;
+
+  /// No description provided for @settingsExportDataFailed.
+  ///
+  /// In id, this message translates to:
+  /// **'Data gagal dimuat. Periksa koneksi lalu coba lagi.'**
+  String get settingsExportDataFailed;
+
+  /// No description provided for @settingsDeleteAccount.
+  ///
+  /// In id, this message translates to:
+  /// **'Hapus Akun Permanen'**
+  String get settingsDeleteAccount;
+
+  /// No description provided for @settingsDeleteAccountSubtitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Seluruh progres, submisi, dan sertifikat ikut terhapus'**
+  String get settingsDeleteAccountSubtitle;
+
+  /// No description provided for @settingsDeleteTitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Hapus Akun Permanen?'**
+  String get settingsDeleteTitle;
+
+  /// No description provided for @settingsDeleteBody.
+  ///
+  /// In id, this message translates to:
+  /// **'Tindakan ini tidak bisa dibatalkan. Seluruh progres belajar, riwayat submisi, dan sertifikatmu akan hilang.'**
+  String get settingsDeleteBody;
+
+  /// No description provided for @settingsDeletePasswordLabel.
+  ///
+  /// In id, this message translates to:
+  /// **'Kata sandi akun'**
+  String get settingsDeletePasswordLabel;
+
+  /// No description provided for @settingsDeleteConfirmLabel.
+  ///
+  /// In id, this message translates to:
+  /// **'Ketik HAPUS AKUN untuk melanjutkan'**
+  String get settingsDeleteConfirmLabel;
+
+  /// No description provided for @settingsDeleteAction.
+  ///
+  /// In id, this message translates to:
+  /// **'Hapus Akun Saya'**
+  String get settingsDeleteAction;
+
+  /// No description provided for @settingsDeleteWrongPassword.
+  ///
+  /// In id, this message translates to:
+  /// **'Kata sandi belum cocok. Akun tidak dihapus.'**
+  String get settingsDeleteWrongPassword;
+
+  /// No description provided for @settingsDeleteFailed.
+  ///
+  /// In id, this message translates to:
+  /// **'Akun gagal dihapus. Coba lagi sebentar.'**
+  String get settingsDeleteFailed;
+
+  /// No description provided for @settingsDeleteSuccess.
+  ///
+  /// In id, this message translates to:
+  /// **'Akunmu sudah dihapus. Sampai jumpa!'**
+  String get settingsDeleteSuccess;
+
+  /// No description provided for @errorScreenTitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Terjadi Kendala'**
+  String get errorScreenTitle;
+
+  /// No description provided for @errorScreenBody.
+  ///
+  /// In id, this message translates to:
+  /// **'Aplikasi berhenti di tengah jalan. Kamu bisa menyalin laporan singkat dan mengirimkannya ke pengajar agar cepat diperbaiki.'**
+  String get errorScreenBody;
+
+  /// No description provided for @errorScreenCopy.
+  ///
+  /// In id, this message translates to:
+  /// **'Salin Laporan'**
+  String get errorScreenCopy;
+
+  /// No description provided for @errorScreenCopied.
+  ///
+  /// In id, this message translates to:
+  /// **'Laporan galat disalin. Kirimkan ke pengajar atau admin.'**
+  String get errorScreenCopied;
+
+  /// No description provided for @errorScreenRetry.
+  ///
+  /// In id, this message translates to:
+  /// **'Coba Lagi'**
+  String get errorScreenRetry;
+
+  /// No description provided for @tEditorUnsavedTitle.
+  ///
+  /// In id, this message translates to:
+  /// **'Perubahan Belum Disimpan'**
+  String get tEditorUnsavedTitle;
+
+  /// No description provided for @tEditorUnsavedBody.
+  ///
+  /// In id, this message translates to:
+  /// **'Ada perubahan pada editor ini. Simpan dulu agar tidak hilang, atau buang perubahannya?'**
+  String get tEditorUnsavedBody;
+
+  /// No description provided for @tEditorUnsavedStay.
+  ///
+  /// In id, this message translates to:
+  /// **'Lanjut Mengedit'**
+  String get tEditorUnsavedStay;
+
+  /// No description provided for @tEditorUnsavedLeave.
+  ///
+  /// In id, this message translates to:
+  /// **'Buang & Keluar'**
+  String get tEditorUnsavedLeave;
+
+  /// No description provided for @a11yRoadmapNode.
+  ///
+  /// In id, this message translates to:
+  /// **'Bab {order}: {title}, status {status}'**
+  String a11yRoadmapNode(int order, String title, String status);
+
+  /// No description provided for @a11yCertificateDoc.
+  ///
+  /// In id, this message translates to:
+  /// **'Sertifikat {kind} untuk {name}, nomor {certId}'**
+  String a11yCertificateDoc(String kind, String name, String certId);
 }
 
 class _AppLocalizationsDelegate

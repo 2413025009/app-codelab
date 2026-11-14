@@ -4,6 +4,8 @@
 // /editor-slide-pengajar/:lessonId/:babId/:type/:index sehingga setiap tipe slide
 // punya layar dan tautan sendiri.
 
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -62,6 +64,55 @@ class _TeacherSlideEditorPageState extends State<TeacherSlideEditorPage> {
   String? _loadError;
   Bab? _loadedBab;
 
+  /// Minggu 14: tanda tangan isi slide saat terakhir dimuat/disimpan.
+  /// Dibandingkan dengan isi terkini untuk mendeteksi perubahan yang belum
+  /// disimpan sebelum guru meninggalkan halaman.
+  String _savedSignature = '';
+
+  String _signature() {
+    // Map dibandingkan lewat JSON kanonik dengan key terurut agar hasilnya
+    // stabil walau urutan key berubah karena pembaruan field.
+    final sorted = Map.fromEntries(
+      _slide.entries.toList()
+        ..sort((a, b) => a.key.toString().compareTo(b.key.toString())),
+    );
+    return jsonEncode(sorted);
+  }
+
+  bool get _isDirty => _savedSignature.isNotEmpty && _signature() != _savedSignature;
+
+  void _captureSavedSignature() => _savedSignature = _signature();
+
+  /// Minggu 14: peringatan perubahan belum disimpan saat meninggalkan editor.
+  /// Pada jalur normal (dibuka dari Bab Builder) hasil dikembalikan ke induk
+  /// lewat pop; peringatan hanya muncul bila isi benar-benar berubah dan guru
+  /// memilih keluar tanpa menyimpan.
+  Future<bool> _confirmLeaveWhenDirty() async {
+    if (!_isDirty || _isSaving) return true;
+    final l10n = AppLocalizations.of(context);
+    final choice = await showDialog<String>(
+      context: context,
+      builder: (dialogCtx) => AlertDialog(
+        title: Text(l10n.tEditorUnsavedTitle),
+        content: Text(l10n.tEditorUnsavedBody),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(dialogCtx).pop('stay'),
+            child: Text(l10n.tEditorUnsavedStay),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(dialogCtx).pop('discard'),
+            style: TextButton.styleFrom(
+              foregroundColor: context.palette.error,
+            ),
+            child: Text(l10n.tEditorUnsavedLeave),
+          ),
+        ],
+      ),
+    );
+    return choice == 'discard';
+  }
+
   @override
   void initState() {
     super.initState();
@@ -71,6 +122,7 @@ class _TeacherSlideEditorPageState extends State<TeacherSlideEditorPage> {
         ? SlideTemplates.copy(widget.initialSlide!)
         : SlideTemplates.create(_type, xpReward: _xpReward);
     _slide['type'] = _type;
+    _captureSavedSignature();
 
     // Kalau halaman dibuka lewat URL langsung (mis. refresh browser), data
     // slide tidak ikut terkirim lewat `extra`. Ambil ulang dari server agar
@@ -119,6 +171,7 @@ class _TeacherSlideEditorPageState extends State<TeacherSlideEditorPage> {
       _formVersion++;
       _isLoading = false;
       _loadError = null;
+      _captureSavedSignature();
     });
   }
 
@@ -250,6 +303,7 @@ class _TeacherSlideEditorPageState extends State<TeacherSlideEditorPage> {
     }
 
     showAppSnack(context, l10n.tSlideSaved);
+    _captureSavedSignature();
     _backToBabEditor();
   }
 
@@ -304,7 +358,7 @@ class _TeacherSlideEditorPageState extends State<TeacherSlideEditorPage> {
         ? SlideTemplates.label(_type, l10n: l10n)
         : title;
 
-    return Scaffold(
+    final scaffold = Scaffold(
       appBar: AppBar(
         title: Text(l10n.tSlideEditorTitle),
         actions: [
@@ -433,6 +487,21 @@ class _TeacherSlideEditorPageState extends State<TeacherSlideEditorPage> {
           ],
         ),
       ),
+    );
+
+    // Minggu 14: peringatan perubahan belum disimpan. `Navigator.pop(result)`
+    // pada jalur Simpan tetap berjalan karena itu pop programatik, bukan
+    // tombol kembali sistem.
+    return PopScope(
+      canPop: !_isDirty,
+      onPopInvokedWithResult: (didPop, _) async {
+        if (didPop) return;
+        final navigator = Navigator.of(context);
+        if (await _confirmLeaveWhenDirty() && mounted) {
+          navigator.pop();
+        }
+      },
+      child: scaffold,
     );
   }
 }

@@ -4174,4 +4174,115 @@ class AppLocalizationsId extends AppLocalizations {
   @override
   String get tTemplateContentTheory =>
       'Tuliskan penjelasan modul pembelajaran di sini dengan bahasa yang mudah dipahami siswa.';
+
+  @override
+  String certContentVersion(int version) {
+    return 'Versi konten modul: v$version';
+  }
+
+  @override
+  String get challengeSimulatedTitle => 'Penilaian Mode Simulasi';
+
+  @override
+  String get challengeSimulatedBody =>
+      'Server belum menjalankan kode Python secara nyata, jadi hasil ini hanya perkiraan. XP dan sertifikat belum bisa diterbitkan — hubungi pengajar.';
+
+  @override
+  String get challengeSubmitting => 'Sedang menilai…';
+
+  @override
+  String get historySimulatedBadge => 'Simulasi';
+
+  @override
+  String get settingsDataHeader => 'DATA PRIBADIMU';
+
+  @override
+  String get settingsExportData => 'Ekspor Data Pribadi';
+
+  @override
+  String get settingsExportDataSubtitle =>
+      'Unduh salinan data akun, progres, dan sertifikatmu';
+
+  @override
+  String get settingsExportDataEmpty => 'Belum ada data untuk diekspor.';
+
+  @override
+  String get settingsExportDataCopied => 'Data pribadi disalin ke papan klip.';
+
+  @override
+  String get settingsExportDataFailed =>
+      'Data gagal dimuat. Periksa koneksi lalu coba lagi.';
+
+  @override
+  String get settingsDeleteAccount => 'Hapus Akun Permanen';
+
+  @override
+  String get settingsDeleteAccountSubtitle =>
+      'Seluruh progres, submisi, dan sertifikat ikut terhapus';
+
+  @override
+  String get settingsDeleteTitle => 'Hapus Akun Permanen?';
+
+  @override
+  String get settingsDeleteBody =>
+      'Tindakan ini tidak bisa dibatalkan. Seluruh progres belajar, riwayat submisi, dan sertifikatmu akan hilang.';
+
+  @override
+  String get settingsDeletePasswordLabel => 'Kata sandi akun';
+
+  @override
+  String get settingsDeleteConfirmLabel => 'Ketik HAPUS AKUN untuk melanjutkan';
+
+  @override
+  String get settingsDeleteAction => 'Hapus Akun Saya';
+
+  @override
+  String get settingsDeleteWrongPassword =>
+      'Kata sandi belum cocok. Akun tidak dihapus.';
+
+  @override
+  String get settingsDeleteFailed => 'Akun gagal dihapus. Coba lagi sebentar.';
+
+  @override
+  String get settingsDeleteSuccess => 'Akunmu sudah dihapus. Sampai jumpa!';
+
+  @override
+  String get errorScreenTitle => 'Terjadi Kendala';
+
+  @override
+  String get errorScreenBody =>
+      'Aplikasi berhenti di tengah jalan. Kamu bisa menyalin laporan singkat dan mengirimkannya ke pengajar agar cepat diperbaiki.';
+
+  @override
+  String get errorScreenCopy => 'Salin Laporan';
+
+  @override
+  String get errorScreenCopied =>
+      'Laporan galat disalin. Kirimkan ke pengajar atau admin.';
+
+  @override
+  String get errorScreenRetry => 'Coba Lagi';
+
+  @override
+  String get tEditorUnsavedTitle => 'Perubahan Belum Disimpan';
+
+  @override
+  String get tEditorUnsavedBody =>
+      'Ada perubahan pada editor ini. Simpan dulu agar tidak hilang, atau buang perubahannya?';
+
+  @override
+  String get tEditorUnsavedStay => 'Lanjut Mengedit';
+
+  @override
+  String get tEditorUnsavedLeave => 'Buang & Keluar';
+
+  @override
+  String a11yRoadmapNode(int order, String title, String status) {
+    return 'Bab $order: $title, status $status';
+  }
+
+  @override
+  String a11yCertificateDoc(String kind, String name, String certId) {
+    return 'Sertifikat $kind untuk $name, nomor $certId';
+  }
 }

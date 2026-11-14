@@ -202,6 +202,8 @@ class ApiChallengeRepository implements ChallengeRepository {
         millis: data['millis'] as int? ?? 50,
         // Skor resmi server sudah berbobot (P0-5).
         serverScore: data['score'] as int?,
+        // Minggu 14: laporan mode simulasi harus terlihat oleh siswa.
+        simulated: data['simulated'] as bool? ?? false,
       );
     } on DioException catch (e) {
       if (e.type == DioExceptionType.badResponse) {
@@ -241,6 +243,7 @@ class ApiChallengeRepository implements ChallengeRepository {
         results: results,
         millis: reportData['millis'] as int? ?? 50,
         serverScore: reportData['score'] as int?,
+        simulated: reportData['simulated'] as bool? ?? false,
       );
 
       final statusStr = data['status'] as String? ?? 'failed';
@@ -294,6 +297,7 @@ class ApiChallengeRepository implements ChallengeRepository {
           whenLabel: sMap['when_label'] as String? ?? '',
           code: sMap['code'] as String? ?? '',
           aiReview: sMap['ai_feedback'] as String?,
+          simulated: sMap['simulated'] as bool? ?? false,
         );
       }).toList();
 

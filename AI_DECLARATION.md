@@ -101,3 +101,33 @@
    ```
 2. **Menyesuaikan Ukuran Tinggi Terminal & Scroll (`playground_page.dart` & `app_sheet.dart`):**
    Mengubah tinggi kotak terminal saat dilipat dari `44` menjadi `45` piksel agar muat bersama garis border `1` piksel, serta menambahkan pembungkus gulir (`SingleChildScrollView`) pada `app_sheet.dart` dan `slide_feedback_sheet.dart` supaya konten modal tidak pernah meluber di layar HP yang berukuran kecil.
+
+---
+
+### Studi Kasus 4: Fiksasi & Keamanan Minggu 14 — Penilaian Simulasi, Privasi Sertifikat, dan Pencatat Galat Global
+
+#### A. Instruksi (Prompt) Awal
+> *"Audit aplikasi ini sekali lagi. Aku nggak mau sertifikat terbit dari kode yang sebenarnya nggak pernah dijalankan, dan halaman verifikasi publik itu jangan sampai membocorkan email siswa yang dipindai orang lewat QR. Kalau aplikasi crash di tangan siswa, aku mau ada catatan yang bisa aku minta ke mereka — bukan layar merah doang."*
+
+#### B. Hasil Awal dari AI
+1. `evaluator.go` punya dua lapis penilaian, tetapi lapisan fallback (dipakai ketika Python tidak terpasang di server) mengembalikan skor seolah kode benar-benar dieksekusi. Skor itu lalu dipakai menerbitkan sertifikat dan memberi XP.
+2. `toVerificationResponse` mengirim `users.email` utuh dan `bio` ke halaman verifikasi publik; nomor sertifikat memakai pola `CL-CERT-2026-PY01-FARHAN01` yang berurutan dan mudah ditebak.
+3. Belum ada penangkap galat global: galat tak tertangani hanya menjadi kotak merah debug, tanpa jejak yang bisa ditindaklanjuti.
+
+#### C. Penyesuaian Logika Manual
+1. **Penanda `simulated` menyeluruh (`evaluator.go`, `challenge_usecase.go`, `migration 000032`):**
+   Lapisan fallback kini mengembalikan `Simulated: true`; usecase menolak memberi XP dan menurunkan status `passed` menjadi `failed`, dan kolom `submissions.simulated` disimpan agar riwayat tetap jujur. Di aplikasi, banner "Penilaian Mode Simulasi" tampil di kartu hasil, lembar evaluasi, dan riwayat submisi.
+2. **Privasi halaman verifikasi (`certificate_usecase.go`, `certificate_page.go`):**
+   Email disamarkan menjadi `fa***@smk.belajar.id` (fungsi `maskEmail`), bio tidak ikut dikirim, nomor sertifikat mendapat 7 karakter acak kriptografis (`crypto/rand`) pada segmen akhir, dan rute `/verify/*` diberi pagu permintaan per IP (`VERIFY_RATE_LIMIT_MAX`).
+3. **Pencatat galat global (`error_reporter.dart`, `app_breakdown_screen.dart`, `main.dart`):**
+   Tiga titik tangkap (`FlutterError.onError`, `PlatformDispatcher.onError`, `ErrorWidget.builder`) mencatat ke buffer memori maksimal 20 kejadian; layar "Terjadi Kendala" menawarkan tombol **Salin Laporan** sehingga pengiriman tetap keputusan pengguna — tidak ada data siswa yang keluar tanpa izin.
+4. **Sandbox berbatas resource (`evaluator_limits.go`, `evaluator_sandbox_unix.go`):**
+   `prlimit` membatasi address space dan jumlah proses anak sandbox, proses dijalankan dalam process group sendiri agar bisa dimatikan sekali tembak, dan stdout dibatasi (`limitedBuffer`) sehingga program yang mencetak terus-menerus tidak menghabiskan RAM gateway. Nilainya diatur dari `.env` (`PYTHON_MEMORY_MB`, `PYTHON_MAX_PROCESSES`, `PYTHON_MAX_OUTPUT_KB`).
+5. **Hak atas data pribadi (`account_usecase.go`, `account_repository.go`, `settings_page.dart`):**
+   `GET /me/data-export` mengembalikan seluruh data akun (tanpa hash sandi/token) untuk ditampilkan dan disalin, sedangkan `DELETE /me` menghapus akun permanen setelah kata sandi dan teks konfirmasi `HAPUS AKUN` diverifikasi.
+6. **Konten berversi (`babs.content_version`, `bab_progress.completed_content_version`, `certificates.content_version`):**
+   Setiap penyuntingan bab menaikkan `babs.content_version`, dan versi yang sedang dituntaskan siswa ikut dicatat di `bab_progress`. Saat piagam modul terbit, versi konten modul disalin ke `certificates.content_version` sehingga piagam lama tetap dapat dipertanggungjawabkan meski materi sudah disunting — kelulusan siswa yang sudah ada tidak dicabut oleh perubahan materi.
+7. **Peringatan perubahan belum disimpan (`bab_editor_page.dart`, `teacher_slide_editor_page.dart`):**
+   `PopScope` + dialog "Perubahan Belum Disimpan" mencegah guru kehilangan suntingan bab/slide saat menekan kembali.
+8. **Mutu tampilan & pengujian (`winding_roadmap.dart`, `certificate_page.dart`, `test/`):**
+   Label `Semantics` per posisi peta dan satu label ringkas untuk kanvas sertifikat, perbaikan overflow pada textScale 2.0 (kolom teks memakai `Flexible` dan dokumen cetak memakai `MediaQuery.withNoTextScaling`), serta berkas uji baru: `critical_flow_test.dart` (login → belajar → tantangan → sertifikat) dan `a11y_and_theme_regression_test.dart` (mode gelap, RTL, textScale 2.0, semantics).
